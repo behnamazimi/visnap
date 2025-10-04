@@ -1,0 +1,4 @@
+# Visual Testing Tool - Ignore generated screenshots
+# Keep baseline screenshots in version control, ignore current and diff
+current/
+diff/

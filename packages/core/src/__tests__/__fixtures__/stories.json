@@ -1,0 +1,67 @@
+{
+  "stories": {
+    "example-button--primary": {
+      "id": "example-button--primary",
+      "title": "Example/Button",
+      "name": "Primary",
+      "importPath": "./src/stories/Button.stories.ts",
+      "tags": ["story"],
+      "type": "story",
+      "visualTesting": {
+        "skip": false,
+        "threshold": 0.1,
+        "browser": ["chromium"]
+      }
+    },
+    "example-button--secondary": {
+      "id": "example-button--secondary",
+      "title": "Example/Button",
+      "name": "Secondary",
+      "importPath": "./src/stories/Button.stories.ts",
+      "tags": ["story"],
+      "type": "story",
+      "visualTesting": {
+        "skip": false,
+        "threshold": 0.1,
+        "browser": ["chromium", "firefox"]
+      }
+    },
+    "example-button--large": {
+      "id": "example-button--large",
+      "title": "Example/Button",
+      "name": "Large",
+      "importPath": "./src/stories/Button.stories.ts",
+      "tags": ["story"],
+      "type": "story",
+      "visualTesting": {
+        "skip": false,
+        "threshold": 0.05,
+        "browser": ["chromium"]
+      }
+    },
+    "example-header--logged-in": {
+      "id": "example-header--logged-in",
+      "title": "Example/Header",
+      "name": "Logged In",
+      "importPath": "./src/stories/Header.stories.ts",
+      "tags": ["story"],
+      "type": "story",
+      "visualTesting": {
+        "skip": false,
+        "threshold": 0.1,
+        "browser": ["chromium", "firefox", "webkit"]
+      }
+    },
+    "example-header--logged-out": {
+      "id": "example-header--logged-out",
+      "title": "Example/Header",
+      "name": "Logged Out",
+      "importPath": "./src/stories/Header.stories.ts",
+      "tags": ["story"],
+      "type": "story",
+      "visualTesting": {
+        "skip": true
+      }
+    }
+  }
+}
