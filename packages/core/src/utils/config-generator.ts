@@ -1,4 +1,4 @@
-import { type InitOptions } from "../lib/api/init";
+import { type InitOptions } from "@/lib/api/init";
 
 /**
  * Generate configuration file content based on options

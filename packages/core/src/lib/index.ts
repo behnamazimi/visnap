@@ -60,4 +60,4 @@ export { createConcurrencyPool } from "./pool";
 export { createStoryFilter } from "./storiesFilter";
 
 // Additional types that might be useful externally
-export type { VTTStory } from "../types";
+export type { VTTStory } from "@/types";

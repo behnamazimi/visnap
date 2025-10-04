@@ -1,15 +1,15 @@
-import { DEFAULT_DOCKER_IMAGE } from "../../constants";
-import { runInDockerWithConfig } from "../../utils/docker";
-import { ensureVttDirectories } from "../../utils/fs";
-import log from "../../utils/logger";
-import { getStorybookUrl } from "../../utils/server";
-import { runStoriesOnBrowser } from "../../utils/story-runner";
+import { DEFAULT_DOCKER_IMAGE } from "@/constants";
 import {
   resolveBrowsers,
   resolveFinalConfig,
   type BrowserName,
   type ViewportConfig,
-} from "../config";
+} from "@/lib/config";
+import { runInDockerWithConfig } from "@/utils/docker";
+import { ensureVttDirectories } from "@/utils/fs";
+import log from "@/utils/logger";
+import { getStorybookUrl } from "@/utils/server";
+import { runStoriesOnBrowser } from "@/utils/story-runner";
 
 // High-level API types
 interface BaseOptions {

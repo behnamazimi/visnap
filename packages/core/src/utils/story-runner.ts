@@ -1,16 +1,8 @@
-import {
-  createConcurrencyPool,
-  resolveConcurrency,
-  createStoryFilter,
-  launchBrowser,
-  openPage,
-  type VTTConfig,
-  type BrowserName,
-} from "../lib";
-import type { VTTStory } from "../types";
-
 import type { ParsedArgs } from "./args";
-import { resolveStoryConfig, shouldProcessStoryForBrowser } from "./config-resolver";
+import {
+  resolveStoryConfig,
+  shouldProcessStoryForBrowser,
+} from "./config-resolver";
 import { log } from "./logger";
 import { globalBrowserManager } from "./resource-cleanup";
 import { screenshotStoryWithViewports } from "./screenshot-utils";
@@ -19,6 +11,17 @@ import {
   normalizeStories,
   waitForStorybookReady,
 } from "./story-utils";
+
+import {
+  createConcurrencyPool,
+  resolveConcurrency,
+  createStoryFilter,
+  launchBrowser,
+  openPage,
+  type VTTConfig,
+  type BrowserName,
+} from "@/lib";
+import type { VTTStory } from "@/types";
 
 export interface RunOptions {
   mode: "test" | "update";
@@ -76,7 +79,7 @@ export const runStoriesOnBrowser = async (
       story,
       resolvedConfig,
     });
-    
+
     if (resolvedConfig.viewport) {
       processed += Object.keys(resolvedConfig.viewport).length;
     } else {

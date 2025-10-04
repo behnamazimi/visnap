@@ -1,11 +1,11 @@
 import { writeFileSync, existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
+import { resolveScreenshotDir } from "@/lib/config";
 import {
   generateConfigContent,
   generateGitignoreContent,
-} from "../../utils/config-generator";
-import { resolveScreenshotDir } from "../config";
+} from "@/utils/config-generator";
 
 export interface InitOptions {
   /** Config file type */

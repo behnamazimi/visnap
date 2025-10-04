@@ -3,11 +3,11 @@ import { join } from "path";
 
 import inquirer from "inquirer";
 
-import { initializeProject } from "../../lib";
-import { type BrowserName } from "../../lib/config";
-import { generateConfigContent } from "../../utils/config-generator";
-import { getErrorMessage } from "../../utils/error-handler";
-import log from "../../utils/logger";
+import { initializeProject } from "@/lib";
+import { type BrowserName } from "@/lib/config";
+import { generateConfigContent } from "@/utils/config-generator";
+import { getErrorMessage } from "@/utils/error-handler";
+import log from "@/utils/logger";
 
 interface InitOptions {
   configType: "ts" | "js";

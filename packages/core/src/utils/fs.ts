@@ -1,10 +1,10 @@
 import { existsSync, mkdirSync, promises as fs } from "fs";
 import { join } from "path";
 
-import { resolveScreenshotDir, type VTTConfig } from "../lib";
-
 import { getErrorMessage } from "./error-handler";
 import { validateSafePath } from "./validation";
+
+import { resolveScreenshotDir, type VTTConfig } from "@/lib";
 
 export const ensureVttDirectories = (config?: VTTConfig): void => {
   const screenshotDir = resolveScreenshotDir(config);

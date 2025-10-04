@@ -1,28 +1,28 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { type VTTConfig, type BrowserName } from "../../lib/config";
-import { processBrowserForTest } from "../../lib/test-service";
-import { type VTTStory } from "../../types";
+import { type VTTConfig, type BrowserName } from "@/lib/config";
+import { processBrowserForTest } from "@/lib/test-service";
+import { type VTTStory } from "@/types";
 
 // Mock dependencies
-vi.mock("../../utils/story-runner", () => ({
+vi.mock("@/utils/story-runner", () => ({
   runStoriesOnBrowser: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("../../lib/compare", () => ({
+vi.mock("@/lib/compare", () => ({
   compareBaseAndCurrentWithStories: vi.fn().mockResolvedValue([
     { id: "story1", match: true, reason: "", diffPercentage: 0 },
     { id: "story2", match: false, reason: "pixel-diff", diffPercentage: 5.2 },
   ]),
 }));
 
-vi.mock("../../lib/storiesFilter", () => ({
+vi.mock("@/lib/storiesFilter", () => ({
   createStoryFilter: vi.fn().mockReturnValue(() => true),
 }));
 
-vi.mock("../../utils/config-resolver", () => ({
+vi.mock("@/utils/config-resolver", () => ({
   shouldProcessStoryForBrowser: vi.fn().mockReturnValue(true),
-  resolveStoryConfig: vi.fn().mockImplementation((story) => ({
+  resolveStoryConfig: vi.fn().mockImplementation(story => ({
     skip: story.visualTesting?.skip ?? false,
     screenshotTarget: "story-root",
     threshold: story.visualTesting?.threshold ?? 0.1,
@@ -30,7 +30,7 @@ vi.mock("../../utils/config-resolver", () => ({
   })),
 }));
 
-vi.mock("../../utils/logger", () => ({
+vi.mock("@/utils/logger", () => ({
   default: {
     success: vi.fn(),
     error: vi.fn(),
@@ -95,7 +95,7 @@ describe("processBrowserForTest", () => {
   });
 
   it("should call runStoriesOnBrowser with correct parameters", async () => {
-    const { runStoriesOnBrowser } = await import("../../utils/story-runner");
+    const { runStoriesOnBrowser } = await import("@/utils/story-runner");
 
     await processBrowserForTest(
       "firefox" as BrowserName,
@@ -114,8 +114,8 @@ describe("processBrowserForTest", () => {
   });
 
   it("should filter stories correctly", async () => {
-    const { createStoryFilter } = await import("../../lib/storiesFilter");
-    await import("../../utils/config-resolver");
+    const { createStoryFilter } = await import("@/lib/storiesFilter");
+    await import("@/utils/config-resolver");
 
     await processBrowserForTest(
       "chromium" as BrowserName,
@@ -132,9 +132,7 @@ describe("processBrowserForTest", () => {
   });
 
   it("should call compareBaseAndCurrentWithStories with filtered stories and resolved configs", async () => {
-    const { compareBaseAndCurrentWithStories } = await import(
-      "../../lib/compare"
-    );
+    const { compareBaseAndCurrentWithStories } = await import("@/lib/compare");
 
     await processBrowserForTest(
       "chromium" as BrowserName,
@@ -167,9 +165,7 @@ describe("processBrowserForTest", () => {
       },
     ];
 
-    const { compareBaseAndCurrentWithStories } = await import(
-      "../../lib/compare"
-    );
+    const { compareBaseAndCurrentWithStories } = await import("@/lib/compare");
 
     await processBrowserForTest(
       "chromium" as BrowserName,
@@ -188,7 +184,7 @@ describe("processBrowserForTest", () => {
   });
 
   it("should log results correctly", async () => {
-    const { default: log } = await import("../../utils/logger");
+    const { default: log } = await import("@/utils/logger");
 
     await processBrowserForTest(
       "chromium" as BrowserName,
@@ -205,10 +201,8 @@ describe("processBrowserForTest", () => {
   });
 
   it("should handle stories without diffPercentage", async () => {
-    const { compareBaseAndCurrentWithStories } = await import(
-      "../../lib/compare"
-    );
-    const { default: log } = await import("../../utils/logger");
+    const { compareBaseAndCurrentWithStories } = await import("@/lib/compare");
+    const { default: log } = await import("@/utils/logger");
 
     // Mock compare to return result without diffPercentage
     vi.mocked(compareBaseAndCurrentWithStories).mockResolvedValueOnce([
@@ -229,9 +223,7 @@ describe("processBrowserForTest", () => {
   });
 
   it("should return correct passed/total counts", async () => {
-    const { compareBaseAndCurrentWithStories } = await import(
-      "../../lib/compare"
-    );
+    const { compareBaseAndCurrentWithStories } = await import("@/lib/compare");
 
     // Mock different results
     vi.mocked(compareBaseAndCurrentWithStories).mockResolvedValueOnce([
@@ -253,9 +245,7 @@ describe("processBrowserForTest", () => {
   });
 
   it("should handle empty story list", async () => {
-    const { compareBaseAndCurrentWithStories } = await import(
-      "../../lib/compare"
-    );
+    const { compareBaseAndCurrentWithStories } = await import("@/lib/compare");
 
     // Mock compare to return empty results for empty story list
     vi.mocked(compareBaseAndCurrentWithStories).mockResolvedValueOnce([]);

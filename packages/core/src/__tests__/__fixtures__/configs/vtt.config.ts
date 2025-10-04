@@ -1,4 +1,4 @@
-import { type VTTConfig } from "../../../lib";
+import { type VTTConfig } from "@/lib";
 
 export const mockConfig: VTTConfig = {
   storybook: {

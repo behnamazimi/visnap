@@ -3,11 +3,11 @@ import type { Server } from "http";
 
 import serveHandler from "serve-handler";
 
-import { DEFAULT_SERVER_PORT } from "../constants";
-import { loadConfigFile } from "../lib";
-
 import { StorybookError } from "./error-handler";
 import { validateUrl } from "./validation";
+
+import { DEFAULT_SERVER_PORT } from "@/constants";
+import { loadConfigFile } from "@/lib";
 
 export type StorybookServeResult = {
   url: string;

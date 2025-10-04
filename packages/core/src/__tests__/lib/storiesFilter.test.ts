@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { createStoryFilter, type StoryLike } from "../../lib/storiesFilter";
+import { createStoryFilter, type StoryLike } from "@/lib/storiesFilter";
 
 describe("createStoryFilter", () => {
   const mockStories: StoryLike[] = [

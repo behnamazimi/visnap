@@ -1,7 +1,7 @@
-import { DEFAULT_BROWSER, DEFAULT_THRESHOLD } from "../constants";
-import { type VTTConfig, type BrowserName } from "../lib";
-import { type ViewportConfig } from "../lib/config";
-import { type VTTStory } from "../types";
+import { DEFAULT_BROWSER, DEFAULT_THRESHOLD } from "@/constants";
+import { type VTTConfig, type BrowserName } from "@/lib";
+import { type ViewportConfig } from "@/lib/config";
+import { type VTTStory } from "@/types";
 
 export interface ResolvedStoryConfig {
   skip: boolean;

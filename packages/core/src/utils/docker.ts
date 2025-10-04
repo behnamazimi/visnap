@@ -1,8 +1,8 @@
 import { spawnSync } from "node:child_process";
 
-import { type VTTConfig } from "../lib/config";
-
 import log from "./logger";
+
+import { type VTTConfig } from "@/lib/config";
 
 export interface DockerRunOptions {
   image: string;

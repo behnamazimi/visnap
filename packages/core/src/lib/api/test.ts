@@ -1,31 +1,34 @@
-import { DEFAULT_DOCKER_IMAGE } from "../../constants";
-import { runInDockerWithConfig } from "../../utils/docker";
-import {
-  ensureVttDirectories,
-  clearDirectoryFiles,
-  getCurrentDir,
-} from "../../utils/fs";
-import log from "../../utils/logger";
-import {
-  createEmptyReport,
-  appendBrowserResults,
-  writeJsonReport,
-} from "../../utils/report";
-import { globalBrowserManager } from "../../utils/resource-cleanup";
-import { getStorybookUrl } from "../../utils/server";
-import {
-  extractStories,
-  normalizeStories,
-  waitForStorybookReady,
-} from "../../utils/story-utils";
-import { launchBrowser, openPage } from "../browser";
+import { DEFAULT_DOCKER_IMAGE } from "@/constants";
+import { launchBrowser, openPage } from "@/lib/browser";
 import {
   resolveBrowsers,
   resolveFinalConfig,
   type BrowserName,
   type ViewportConfig,
-} from "../config";
-import { processBrowserForTest, type BrowserTestResult } from "../test-service";
+} from "@/lib/config";
+import {
+  processBrowserForTest,
+  type BrowserTestResult,
+} from "@/lib/test-service";
+import { runInDockerWithConfig } from "@/utils/docker";
+import {
+  ensureVttDirectories,
+  clearDirectoryFiles,
+  getCurrentDir,
+} from "@/utils/fs";
+import log from "@/utils/logger";
+import {
+  createEmptyReport,
+  appendBrowserResults,
+  writeJsonReport,
+} from "@/utils/report";
+import { globalBrowserManager } from "@/utils/resource-cleanup";
+import { getStorybookUrl } from "@/utils/server";
+import {
+  extractStories,
+  normalizeStories,
+  waitForStorybookReady,
+} from "@/utils/story-utils";
 
 // High-level API types
 interface BaseOptions {

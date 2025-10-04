@@ -1,12 +1,12 @@
-import { getPackageInfo } from "../lib";
-import { getErrorMessage } from "../utils/error-handler";
-import log from "../utils/logger";
-import { setupCleanup } from "../utils/resource-cleanup";
-
 import { browsersCommand } from "./commands/browsers";
 import { initCommand } from "./commands/init";
 import { testCommand } from "./commands/test";
 import { updateCommand } from "./commands/update";
+
+import { getPackageInfo } from "@/lib";
+import { getErrorMessage } from "@/utils/error-handler";
+import log from "@/utils/logger";
+import { setupCleanup } from "@/utils/resource-cleanup";
 
 const showVersion = async (): Promise<void> => {
   const pkg = await getPackageInfo();

@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 
-import log from "../../utils/logger";
+import log from "@/utils/logger";
 
 // Why this command exists:
 // - This project depends on `playwright-core`, which intentionally does NOT download browser binaries.

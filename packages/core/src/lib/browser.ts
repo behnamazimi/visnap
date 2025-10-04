@@ -1,15 +1,12 @@
 import type { Browser, Page } from "playwright-core";
 import { chromium, firefox, webkit } from "playwright-core";
 
-import { DEFAULT_BROWSER } from "../constants";
-import {
-  BrowserError,
-  createBrowserErrorMessage,
-} from "../utils/error-handler";
-import { globalBrowserManager } from "../utils/resource-cleanup";
-import { validateBrowserName } from "../utils/validation";
-
 import type { BrowserName, ViewportConfig, ViewportSize } from "./config";
+
+import { DEFAULT_BROWSER } from "@/constants";
+import { BrowserError, createBrowserErrorMessage } from "@/utils/error-handler";
+import { globalBrowserManager } from "@/utils/resource-cleanup";
+import { validateBrowserName } from "@/utils/validation";
 
 /**
  * Determines which viewport size to use based on the viewport configuration.

@@ -1,7 +1,7 @@
 import { type Page } from "playwright-core";
 
-import { ViewportConfig, type BrowserName } from "../lib";
-import { type VTTStory } from "../types";
+import { type ViewportConfig, type BrowserName } from "@/lib";
+import { type VTTStory } from "@/types";
 
 declare global {
   interface Window {

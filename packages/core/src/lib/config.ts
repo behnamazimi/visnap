@@ -7,16 +7,16 @@ import {
   DEFAULT_BROWSER,
   DEFAULT_CONCURRENCY,
   DEFAULT_SCREENSHOT_DIR,
-} from "../constants";
-import { parseIncludeExclude } from "../utils/args";
-import { ConfigError, getErrorMessage } from "../utils/error-handler";
+} from "@/constants";
+import { parseIncludeExclude } from "@/utils/args";
+import { ConfigError, getErrorMessage } from "@/utils/error-handler";
 import {
   validateConcurrency,
   validateThreshold,
   validateScreenshotTarget,
   validateStorybookSource,
   validatePatterns,
-} from "../utils/validation";
+} from "@/utils/validation";
 
 export type BrowserName = "chromium" | "firefox" | "webkit";
 

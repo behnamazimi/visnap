@@ -1,6 +1,6 @@
-import { updateBaseline } from "../../lib";
-import { parseIncludeExclude } from "../../utils/args";
-import log from "../../utils/logger";
+import { updateBaseline } from "@/lib";
+import { parseIncludeExclude } from "@/utils/args";
+import log from "@/utils/logger";
 
 export const updateCommand = async (): Promise<void> => {
   const argv = process.argv.slice(2);

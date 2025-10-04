@@ -1,7 +1,7 @@
-import { runTests } from "../../lib";
-import { parseIncludeExclude } from "../../utils/args";
-import { getErrorMessage } from "../../utils/error-handler";
-import log from "../../utils/logger";
+import { runTests } from "@/lib";
+import { parseIncludeExclude } from "@/utils/args";
+import { getErrorMessage } from "@/utils/error-handler";
+import log from "@/utils/logger";
 
 export const testCommand = async (): Promise<void> => {
   const argv = process.argv.slice(2);

@@ -1,21 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { runTests } from "../../lib/api/test";
-import { type TestOptions } from "../../lib/api/test";
-import * as configModule from "../../lib/config";
+import { runTests } from "@/lib/api/test";
+import { type TestOptions } from "@/lib/api/test";
+import * as configModule from "@/lib/config";
 
 // Mock all dependencies
-vi.mock("../../utils/docker", () => ({
+vi.mock("@/utils/docker", () => ({
   runInDockerWithConfig: vi.fn().mockReturnValue(0),
 }));
 
-vi.mock("../../utils/fs", () => ({
+vi.mock("@/utils/fs", () => ({
   ensureVttDirectories: vi.fn(),
   clearDirectoryFiles: vi.fn().mockResolvedValue(undefined),
   getCurrentDir: vi.fn().mockReturnValue("./visual-testing-tool/current"),
 }));
 
-vi.mock("../../utils/logger", () => ({
+vi.mock("@/utils/logger", () => ({
   default: {
     success: vi.fn(),
     info: vi.fn(),
@@ -23,27 +23,27 @@ vi.mock("../../utils/logger", () => ({
   },
 }));
 
-vi.mock("../../utils/resource-cleanup", () => ({
+vi.mock("@/utils/resource-cleanup", () => ({
   globalBrowserManager: {
     removePage: vi.fn(),
     removeBrowser: vi.fn(),
   },
 }));
 
-vi.mock("../../utils/report", () => ({
+vi.mock("@/utils/report", () => ({
   createEmptyReport: vi.fn().mockResolvedValue({}),
   appendBrowserResults: vi.fn(),
   writeJsonReport: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("../../utils/server", () => ({
+vi.mock("@/utils/server", () => ({
   getStorybookUrl: vi.fn().mockResolvedValue({
     url: "http://localhost:6006",
     server: { close: vi.fn() },
   }),
 }));
 
-vi.mock("../../lib/config", async importOriginal => {
+vi.mock("@/lib/config", async importOriginal => {
   const actual = (await importOriginal()) as any;
   return {
     ...actual,
@@ -64,7 +64,7 @@ vi.mock("../../lib/config", async importOriginal => {
   };
 });
 
-vi.mock("../../utils/story-utils", () => ({
+vi.mock("@/utils/story-utils", () => ({
   extractStories: vi.fn().mockResolvedValue([
     {
       id: "story1",
@@ -84,12 +84,12 @@ vi.mock("../../utils/story-utils", () => ({
   waitForStorybookReady: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock("../../lib/browser", () => ({
+vi.mock("@/lib/browser", () => ({
   launchBrowser: vi.fn().mockResolvedValue({ close: vi.fn() }),
   openPage: vi.fn().mockResolvedValue({ close: vi.fn() }),
 }));
 
-vi.mock("../../lib/config", () => ({
+vi.mock("@/lib/config", () => ({
   resolveFinalConfig: vi.fn().mockResolvedValue({
     storybook: { source: "./storybook-static", screenshotTarget: "story-root" },
     screenshotDir: "visual-testing-tool",
@@ -101,7 +101,7 @@ vi.mock("../../lib/config", () => ({
   resolveBrowsers: vi.fn().mockReturnValue(["chromium"]),
 }));
 
-vi.mock("../../lib/test-service", () => ({
+vi.mock("@/lib/test-service", () => ({
   processBrowserForTest: vi.fn().mockResolvedValue({
     browser: "chromium",
     passed: 1,
@@ -137,8 +137,8 @@ describe("runTests", () => {
   });
 
   it("should handle Docker execution", async () => {
-    const { runInDockerWithConfig } = await import("../../utils/docker");
-    const { resolveFinalConfig } = await import("../../lib/config");
+    const { runInDockerWithConfig } = await import("@/utils/docker");
+    const { resolveFinalConfig } = await import("@/lib/config");
 
     // Mock Docker config
     vi.mocked(resolveFinalConfig).mockResolvedValueOnce({
@@ -171,8 +171,8 @@ describe("runTests", () => {
   });
 
   it("should handle custom Docker image", async () => {
-    const { runInDockerWithConfig } = await import("../../utils/docker");
-    const { resolveFinalConfig } = await import("../../lib/config");
+    const { runInDockerWithConfig } = await import("@/utils/docker");
+    const { resolveFinalConfig } = await import("@/lib/config");
 
     // Mock Docker config with custom image
     vi.mocked(resolveFinalConfig).mockResolvedValueOnce({
@@ -201,7 +201,7 @@ describe("runTests", () => {
   });
 
   it("should handle failed tests", async () => {
-    const { processBrowserForTest } = await import("../../lib/test-service");
+    const { processBrowserForTest } = await import("@/lib/test-service");
 
     vi.mocked(processBrowserForTest).mockResolvedValueOnce({
       browser: "chromium",
@@ -243,8 +243,8 @@ describe("runTests", () => {
   });
 
   it("should handle multiple browsers", async () => {
-    const { processBrowserForTest } = await import("../../lib/test-service");
-    const { resolveBrowsers } = await import("../../lib/config");
+    const { processBrowserForTest } = await import("@/lib/test-service");
+    const { resolveBrowsers } = await import("@/lib/config");
 
     vi.mocked(resolveBrowsers).mockReturnValue(["chromium", "firefox"]);
     vi.mocked(processBrowserForTest)
@@ -302,7 +302,7 @@ describe("runTests", () => {
   });
 
   it("should write JSON report when requested", async () => {
-    const { writeJsonReport } = await import("../../utils/report");
+    const { writeJsonReport } = await import("@/utils/report");
 
     await runTests({ jsonReport: "custom-report.json" });
 
@@ -310,7 +310,7 @@ describe("runTests", () => {
   });
 
   it("should write default JSON report when jsonReport is true", async () => {
-    const { writeJsonReport } = await import("../../utils/report");
+    const { writeJsonReport } = await import("@/utils/report");
 
     await runTests({ jsonReport: true });
 
@@ -321,7 +321,7 @@ describe("runTests", () => {
   });
 
   it("should not write JSON report when not requested", async () => {
-    const { writeJsonReport } = await import("../../utils/report");
+    const { writeJsonReport } = await import("@/utils/report");
 
     await runTests();
 
@@ -329,7 +329,7 @@ describe("runTests", () => {
   });
 
   it("should handle Storybook server failure", async () => {
-    const { getStorybookUrl } = await import("../../utils/server");
+    const { getStorybookUrl } = await import("@/utils/server");
 
     vi.mocked(getStorybookUrl).mockResolvedValueOnce(null);
 
@@ -339,7 +339,7 @@ describe("runTests", () => {
   });
 
   it("should pass options to resolveFinalConfig", async () => {
-    const { resolveFinalConfig } = await import("../../lib/config");
+    const { resolveFinalConfig } = await import("@/lib/config");
 
     const options: TestOptions = {
       include: ["story1"],
@@ -363,10 +363,8 @@ describe("runTests", () => {
   });
 
   it("should cleanup resources properly", async () => {
-    const { globalBrowserManager } = await import(
-      "../../utils/resource-cleanup"
-    );
-    const { launchBrowser, openPage } = await import("../../lib/browser");
+    const { globalBrowserManager } = await import("@/utils/resource-cleanup");
+    const { launchBrowser, openPage } = await import("@/lib/browser");
 
     const mockBrowser = { close: vi.fn() };
     const mockPage = { close: vi.fn() };

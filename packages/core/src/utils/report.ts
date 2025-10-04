@@ -1,7 +1,7 @@
-import { type CompareResult } from "../lib";
-import { getPackageInfo } from "../lib";
-
 import log from "./logger";
+
+import { type CompareResult } from "@/lib";
+import { getPackageInfo } from "@/lib";
 
 export interface VTTBrowserReport {
   name: string;

@@ -2,7 +2,7 @@ import { resolve } from "path";
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { ConfigError } from "../../utils/error-handler";
+import { ConfigError } from "@/utils/error-handler";
 import {
   validateSafePath,
   resolveSafePath,
@@ -13,7 +13,7 @@ import {
   validateUrl,
   validateStorybookSource,
   validatePatterns,
-} from "../../utils/validation";
+} from "@/utils/validation";
 
 // Mock fs module
 vi.mock("fs", () => ({

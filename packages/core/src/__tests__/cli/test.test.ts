@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { testCommand } from "../../cli/commands/test";
+import { testCommand } from "@/cli/commands/test";
 
 // Mock dependencies
-vi.mock("../../lib", () => ({
+vi.mock("@/lib", () => ({
   runTests: vi.fn(),
 }));
 
-vi.mock("../../utils/args", () => ({
+vi.mock("@/utils/args", () => ({
   parseIncludeExclude: vi.fn().mockReturnValue({
     include: ["story1"],
     exclude: ["story2"],
@@ -16,11 +16,11 @@ vi.mock("../../utils/args", () => ({
   }),
 }));
 
-vi.mock("../../utils/error-handler", () => ({
+vi.mock("@/utils/error-handler", () => ({
   getErrorMessage: vi.fn().mockImplementation(error => error.message),
 }));
 
-vi.mock("../../utils/logger", () => ({
+vi.mock("@/utils/logger", () => ({
   default: {
     info: vi.fn(),
     success: vi.fn(),
@@ -36,8 +36,8 @@ describe("testCommand", () => {
   });
 
   it("should run tests successfully", async () => {
-    const { runTests } = await import("../../lib");
-    const { default: log } = await import("../../utils/logger");
+    const { runTests } = await import("@/lib");
+    const { default: log } = await import("@/utils/logger");
 
     vi.mocked(runTests).mockResolvedValueOnce({
       passed: true,
@@ -72,8 +72,8 @@ describe("testCommand", () => {
   });
 
   it("should handle failed tests", async () => {
-    const { runTests } = await import("../../lib");
-    const { default: log } = await import("../../utils/logger");
+    const { runTests } = await import("@/lib");
+    const { default: log } = await import("@/utils/logger");
 
     vi.mocked(runTests).mockResolvedValueOnce({
       passed: false,
@@ -105,7 +105,7 @@ describe("testCommand", () => {
   });
 
   it("should handle Docker flag", async () => {
-    const { runTests } = await import("../../lib");
+    const { runTests } = await import("@/lib");
 
     process.argv = ["node", "visual-testing-tool", "test", "--docker"];
 
@@ -121,9 +121,9 @@ describe("testCommand", () => {
   });
 
   it("should handle errors gracefully", async () => {
-    const { runTests } = await import("../../lib");
-    const { default: log } = await import("../../utils/logger");
-    const { getErrorMessage } = await import("../../utils/error-handler");
+    const { runTests } = await import("@/lib");
+    const { default: log } = await import("@/utils/logger");
+    const { getErrorMessage } = await import("@/utils/error-handler");
 
     const error = new Error("Test failed");
     vi.mocked(runTests).mockRejectedValueOnce(error);
@@ -136,7 +136,7 @@ describe("testCommand", () => {
   });
 
   it("should parse command line arguments correctly", async () => {
-    const { parseIncludeExclude } = await import("../../utils/args");
+    const { parseIncludeExclude } = await import("@/utils/args");
 
     process.argv = [
       "node",
@@ -160,8 +160,8 @@ describe("testCommand", () => {
   });
 
   it("should handle multiple browsers in results", async () => {
-    const { runTests } = await import("../../lib");
-    const { default: log } = await import("../../utils/logger");
+    const { runTests } = await import("@/lib");
+    const { default: log } = await import("@/utils/logger");
 
     vi.mocked(runTests).mockResolvedValueOnce({
       passed: false,
@@ -200,8 +200,8 @@ describe("testCommand", () => {
   });
 
   it("should handle empty browser results", async () => {
-    const { runTests } = await import("../../lib");
-    const { default: log } = await import("../../utils/logger");
+    const { runTests } = await import("@/lib");
+    const { default: log } = await import("@/utils/logger");
 
     vi.mocked(runTests).mockResolvedValueOnce({
       passed: true,

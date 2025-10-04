@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { parseIncludeExclude } from "../../utils/args";
+import { parseIncludeExclude } from "@/utils/args";
 
 describe("parseIncludeExclude", () => {
   it("should parse include patterns", () => {

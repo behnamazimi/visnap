@@ -1,12 +1,16 @@
-import { type VTTStory } from "../types";
-import { shouldProcessStoryForBrowser, resolveStoryConfig, type ResolvedStoryConfig } from "../utils/config-resolver";
-import log from "../utils/logger";
-import { runStoriesOnBrowser } from "../utils/story-runner";
-
 import { compareBaseAndCurrentWithStories } from "./compare";
 import { type CompareResult } from "./compare";
 import { type VTTConfig, type BrowserName } from "./config";
 import { createStoryFilter } from "./storiesFilter";
+
+import { type VTTStory } from "@/types";
+import {
+  shouldProcessStoryForBrowser,
+  resolveStoryConfig,
+  type ResolvedStoryConfig,
+} from "@/utils/config-resolver";
+import log from "@/utils/logger";
+import { runStoriesOnBrowser } from "@/utils/story-runner";
 
 export interface BrowserTestResult {
   /** Browser name */
