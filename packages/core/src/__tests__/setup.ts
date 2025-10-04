@@ -41,4 +41,4 @@ Object.defineProperty(process, "argv", {
 });
 
 // Global test utilities
-global.mockExit = mockExit;
+(global as any).mockExit = mockExit;

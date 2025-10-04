@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { runTests } from "../../lib/api/test";
 import { type TestOptions } from "../../lib/api/test";
+import * as configModule from "../../lib/config";
 
 // Mock all dependencies
 vi.mock("../../utils/docker", () => ({
@@ -41,6 +42,27 @@ vi.mock("../../utils/server", () => ({
     server: { close: vi.fn() },
   }),
 }));
+
+vi.mock("../../lib/config", async importOriginal => {
+  const actual = (await importOriginal()) as any;
+  return {
+    ...actual,
+    loadConfigFile: vi.fn().mockResolvedValue({
+      storybook: {
+        source: "./storybook-static",
+        screenshotTarget: "story-root",
+      },
+    }),
+    resolveBrowsers: vi.fn().mockReturnValue(["chromium"]),
+    resolveFinalConfig: vi.fn().mockImplementation(async options => ({
+      storybook: {
+        source: "./storybook-static",
+        screenshotTarget: "story-root",
+      },
+      ...options,
+    })),
+  };
+});
 
 vi.mock("../../utils/story-utils", () => ({
   extractStories: vi.fn().mockResolvedValue([
@@ -357,6 +379,27 @@ describe("runTests", () => {
     expect(globalBrowserManager.removePage).toHaveBeenCalledWith(mockPage);
     expect(globalBrowserManager.removeBrowser).toHaveBeenCalledWith(
       mockBrowser
+    );
+  });
+
+  it("should accept viewport configuration", async () => {
+    const viewportConfig = {
+      mobile: { width: 375, height: 667 },
+      desktop: { width: 1280, height: 720 },
+    };
+
+    const options: TestOptions = {
+      viewport: viewportConfig,
+    };
+
+    const result = await runTests(options);
+
+    expect(result.passed).toBe(true);
+    // The viewport should be passed through to resolveFinalConfig
+    expect(vi.mocked(configModule.resolveFinalConfig)).toHaveBeenCalledWith(
+      expect.objectContaining({
+        viewport: viewportConfig,
+      })
     );
   });
 });

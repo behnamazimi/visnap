@@ -44,13 +44,18 @@ export {
   resolveScreenshotDir,
   resolveFinalConfig,
 } from "./config";
-export type { VTTConfig, BrowserName } from "./config";
+export type {
+  VTTConfig,
+  BrowserName,
+  ViewportConfig,
+  ViewportSize,
+} from "./config";
 export {
   compareDirectories,
   compareBaseAndCurrentWithStories,
 } from "./compare";
 export type { CompareOptions, CompareResult } from "./compare";
-export { launchBrowser, openPage } from "./browser";
+export { launchBrowser, openPage, getViewportInfo } from "./browser";
 export { createConcurrencyPool } from "./pool";
 export { createStoryFilter } from "./storiesFilter";
 

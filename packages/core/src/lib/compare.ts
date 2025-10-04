@@ -5,6 +5,7 @@ import odiff from "odiff-bin";
 
 import { DEFAULT_THRESHOLD } from "../constants";
 import { type VTTStory } from "../types";
+import { type ResolvedStoryConfig } from "../utils/config-resolver";
 import { getErrorMessage } from "../utils/error-handler";
 
 import { type VTTConfig } from "./config";
@@ -83,10 +84,10 @@ export const compareDirectories = async (
  */
 export const compareBaseAndCurrentWithStories = async (
   config: VTTConfig,
-  stories: VTTStory[]
+  stories: VTTStory[],
+  resolvedConfigs: Map<string, ResolvedStoryConfig>
 ): Promise<CompareResult[]> => {
   const { getCurrentDir, getBaseDir, getDiffDir } = await import("../utils/fs");
-  const { resolveStoryConfig } = await import("../utils/config-resolver");
 
   const currentDir = getCurrentDir(config);
   const baseDir = getBaseDir(config);
@@ -120,9 +121,9 @@ export const compareBaseAndCurrentWithStories = async (
     const [, storyId] = match;
     const story = storyMap.get(storyId);
 
-    // Resolve threshold for this specific story
+    // Get threshold for this specific story from resolved configs
     const threshold = story
-      ? resolveStoryConfig(story, config).threshold
+      ? resolvedConfigs.get(storyId)?.threshold ?? (config.threshold ?? DEFAULT_THRESHOLD)
       : (config.threshold ?? DEFAULT_THRESHOLD);
 
     try {

@@ -10,10 +10,10 @@ import {
 import type { VTTStory } from "../types";
 
 import type { ParsedArgs } from "./args";
-import { shouldProcessStoryForBrowser } from "./config-resolver";
+import { resolveStoryConfig, shouldProcessStoryForBrowser } from "./config-resolver";
 import { log } from "./logger";
 import { globalBrowserManager } from "./resource-cleanup";
-import { screenshotStory } from "./screenshot-utils";
+import { screenshotStoryWithViewports } from "./screenshot-utils";
 import {
   extractStories,
   normalizeStories,
@@ -65,15 +65,23 @@ export const runStoriesOnBrowser = async (
 
   const runWithPool = createConcurrencyPool({ concurrency });
   await runWithPool(candidates, async (story: VTTStory) => {
-    await screenshotStory({
+    const resolvedConfig = resolveStoryConfig(story, config);
+
+    await screenshotStoryWithViewports({
       mode,
       sbUrl,
       browserName: browser,
       browser: browserInstance,
       config,
       story,
+      resolvedConfig,
     });
-    processed++;
+    
+    if (resolvedConfig.viewport) {
+      processed += Object.keys(resolvedConfig.viewport).length;
+    } else {
+      processed += 1;
+    }
   });
 
   // Explicitly close browser when done

@@ -27,3 +27,11 @@ export const mockConfigWithCustomScreenshotDir: VTTConfig = {
   ...mockConfig,
   screenshotDir: "custom-screenshots",
 };
+
+export const mockConfigWithViewport: VTTConfig = {
+  ...mockConfig,
+  viewport: {
+    mobile: { width: 375, height: 667 },
+    desktop: { width: 1280, height: 720 },
+  },
+};

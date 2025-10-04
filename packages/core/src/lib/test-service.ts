@@ -1,5 +1,5 @@
 import { type VTTStory } from "../types";
-import { shouldProcessStoryForBrowser } from "../utils/config-resolver";
+import { shouldProcessStoryForBrowser, resolveStoryConfig, type ResolvedStoryConfig } from "../utils/config-resolver";
 import log from "../utils/logger";
 import { runStoriesOnBrowser } from "../utils/story-runner";
 
@@ -56,9 +56,16 @@ export async function processBrowserForTest(
     .filter(storyFilter)
     .filter(s => shouldProcessStoryForBrowser(s, browserName, config));
 
+  // Create resolved configs map for the stories
+  const resolvedConfigs = new Map<string, ResolvedStoryConfig>();
+  storiesForBrowser.forEach(story => {
+    resolvedConfigs.set(story.id, resolveStoryConfig(story, config));
+  });
+
   const results = await compareBaseAndCurrentWithStories(
     config,
-    storiesForBrowser
+    storiesForBrowser,
+    resolvedConfigs
   );
 
   const passed = results.filter(r => r.match).length;

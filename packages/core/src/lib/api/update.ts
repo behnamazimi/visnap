@@ -8,6 +8,7 @@ import {
   resolveBrowsers,
   resolveFinalConfig,
   type BrowserName,
+  type ViewportConfig,
 } from "../config";
 
 // High-level API types
@@ -18,6 +19,8 @@ interface BaseOptions {
   exclude?: string[];
   /** Browsers to test (overrides config) */
   browsers?: BrowserName[];
+  /** Viewport configuration (overrides config) */
+  viewport?: ViewportConfig;
   /** Dry run - don't take screenshots */
   dryRun?: boolean;
   /** Use Docker for execution */
@@ -46,13 +49,21 @@ export interface UpdateResult extends BaseResult {
 export async function updateBaseline(
   options: UpdateOptions = {}
 ): Promise<UpdateResult> {
-  const { include, exclude, browsers, useDocker = false, jsonReport } = options;
+  const {
+    include,
+    exclude,
+    browsers,
+    viewport,
+    useDocker = false,
+    jsonReport,
+  } = options;
 
   // Resolve final configuration (config file → process args → function options)
   const effectiveConfig = await resolveFinalConfig({
     include,
     exclude,
     browser: browsers,
+    viewport,
     jsonReport,
     useDocker,
   });

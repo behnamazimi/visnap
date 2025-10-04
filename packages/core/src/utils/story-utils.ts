@@ -1,6 +1,6 @@
 import { type Page } from "playwright-core";
 
-import { type BrowserName } from "../lib";
+import { ViewportConfig, type BrowserName } from "../lib";
 import { type VTTStory } from "../types";
 
 declare global {
@@ -47,6 +47,7 @@ export const normalizeStories = (
           screenshotTarget?: string;
           threshold?: number;
           browser?: BrowserName | BrowserName[];
+          viewport?: ViewportConfig;
         };
       };
     };
@@ -60,6 +61,7 @@ export const normalizeStories = (
         screenshotTarget: visualTesting.screenshotTarget,
         threshold: visualTesting.threshold,
         browser: visualTesting.browser,
+        viewport: visualTesting.viewport,
       },
     };
   });

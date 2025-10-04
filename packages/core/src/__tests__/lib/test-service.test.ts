@@ -22,6 +22,12 @@ vi.mock("../../lib/storiesFilter", () => ({
 
 vi.mock("../../utils/config-resolver", () => ({
   shouldProcessStoryForBrowser: vi.fn().mockReturnValue(true),
+  resolveStoryConfig: vi.fn().mockImplementation((story) => ({
+    skip: story.visualTesting?.skip ?? false,
+    screenshotTarget: "story-root",
+    threshold: story.visualTesting?.threshold ?? 0.1,
+    browsers: ["chromium"],
+  })),
 }));
 
 vi.mock("../../utils/logger", () => ({
@@ -125,7 +131,7 @@ describe("processBrowserForTest", () => {
     });
   });
 
-  it("should call compareBaseAndCurrentWithStories with filtered stories", async () => {
+  it("should call compareBaseAndCurrentWithStories with filtered stories and resolved configs", async () => {
     const { compareBaseAndCurrentWithStories } = await import(
       "../../lib/compare"
     );
@@ -140,7 +146,8 @@ describe("processBrowserForTest", () => {
 
     expect(compareBaseAndCurrentWithStories).toHaveBeenCalledWith(
       mockConfig,
-      mockStories
+      mockStories,
+      expect.any(Map) // resolvedConfigs map
     );
   });
 
@@ -175,7 +182,8 @@ describe("processBrowserForTest", () => {
     // Should only process non-skipped stories
     expect(compareBaseAndCurrentWithStories).toHaveBeenCalledWith(
       mockConfig,
-      [storiesWithSkip[0]] // Only the non-skipped story
+      [storiesWithSkip[0]], // Only the non-skipped story
+      expect.any(Map) // resolvedConfigs map
     );
   });
 
@@ -191,8 +199,9 @@ describe("processBrowserForTest", () => {
     );
 
     expect(log.success).toHaveBeenCalledWith("Passed: [chromium] story1");
-    expect(log.error).toHaveBeenCalledWith("Failed: [chromium] story2");
-    expect(log.dim).toHaveBeenCalledWith("  pixel-diff (5.2% difference)");
+    expect(log.error).toHaveBeenCalledWith(
+      "Failed: [chromium] story2 >> pixel-diff (5.2% difference)"
+    );
   });
 
   it("should handle stories without diffPercentage", async () => {
@@ -214,8 +223,9 @@ describe("processBrowserForTest", () => {
       {}
     );
 
-    expect(log.error).toHaveBeenCalledWith("Failed: [chromium] story1");
-    expect(log.dim).toHaveBeenCalledWith("  file-not-found");
+    expect(log.error).toHaveBeenCalledWith(
+      "Failed: [chromium] story1 >> file-not-found"
+    );
   });
 
   it("should return correct passed/total counts", async () => {

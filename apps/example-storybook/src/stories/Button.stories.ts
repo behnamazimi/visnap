@@ -33,6 +33,9 @@ export const Primary: Story = {
   parameters: {
     visualTesting: {
       skip: false,
+      viewport: {
+        desktop: { width: 1280, height: 720 },
+      },
     },
   },
 };
@@ -40,6 +43,11 @@ export const Primary: Story = {
 export const Secondary: Story = {
   args: {
     label: "Button",
+  },
+  parameters: {
+    visualTesting: {
+      skip: true,
+    },
   },
 };
 

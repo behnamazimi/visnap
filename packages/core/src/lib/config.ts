@@ -20,6 +20,15 @@ import {
 
 export type BrowserName = "chromium" | "firefox" | "webkit";
 
+export interface ViewportSize {
+  width: number;
+  height: number;
+}
+
+export interface ViewportConfig {
+  [key: string]: ViewportSize;
+}
+
 export interface VTTConfig {
   storybook: {
     /** Single source: URL (http/https) or local path to built storybook directory (e.g. ./storybook-static) */
@@ -45,6 +54,8 @@ export interface VTTConfig {
   include?: string | string[];
   /** Exclude patterns for stories (convenience property) */
   exclude?: string | string[];
+  /** Viewport configuration for mobile and desktop screenshots */
+  viewport?: ViewportConfig;
 }
 
 export const getConfigTsPath = (): string =>
@@ -163,6 +174,7 @@ export const resolveFinalConfig = async (
     ...(options.useDocker !== undefined
       ? { useDocker: options.useDocker }
       : {}),
+    ...(options.viewport ? { viewport: options.viewport } : {}),
     // Top-level include/exclude for convenience
     ...(options.include ? { include: options.include } : {}),
     ...(options.exclude ? { exclude: options.exclude } : {}),

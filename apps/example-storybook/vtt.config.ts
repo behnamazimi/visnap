@@ -10,6 +10,10 @@ const config: VTTConfig = {
   browser: ["chromium"],
   concurrency: 2,
   threshold: 0.1,
+  viewport: {
+    mobile: { width: 375, height: 667 },
+    desktop: { width: 1280, height: 720 },
+  },
 };
 
 export default config;

@@ -9,7 +9,40 @@ import {
 import { globalBrowserManager } from "../utils/resource-cleanup";
 import { validateBrowserName } from "../utils/validation";
 
-import type { BrowserName } from "./config";
+import type { BrowserName, ViewportConfig, ViewportSize } from "./config";
+
+/**
+ * Determines which viewport size to use based on the viewport configuration.
+ * Returns the first available viewport or undefined if none exist.
+ */
+export const getViewportSize = (
+  viewportConfig?: ViewportConfig
+): ViewportSize | undefined => {
+  if (!viewportConfig) return undefined;
+
+  const keys = Object.keys(viewportConfig);
+  if (keys.length === 0) return undefined;
+
+  // Return the first available viewport
+  return viewportConfig[keys[0]];
+};
+
+/**
+ * Gets viewport size and key from configuration.
+ * Returns both the viewport size and the key name for logging and file naming.
+ */
+export const getViewportInfo = (
+  viewportConfig?: ViewportConfig
+): { size: ViewportSize; key: string } | undefined => {
+  if (!viewportConfig) return undefined;
+
+  const keys = Object.keys(viewportConfig);
+  if (keys.length === 0) return undefined;
+
+  // Return the first available viewport with its key
+  const key = keys[0];
+  return { size: viewportConfig[key], key };
+};
 
 export const launchBrowser = async (
   name: BrowserName = DEFAULT_BROWSER
@@ -39,12 +72,18 @@ export const launchBrowser = async (
 
 export const openPage = async (
   browser: Browser,
-  url: string
+  url: string,
+  viewport?: ViewportSize
 ): Promise<Page> => {
   const page = await browser.newPage();
 
   // Register page for cleanup
   globalBrowserManager.registerPage(page);
+
+  // Set viewport if provided
+  if (viewport) {
+    await page.setViewportSize(viewport);
+  }
 
   await page.goto(url);
   return page;

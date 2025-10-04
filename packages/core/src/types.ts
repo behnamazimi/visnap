@@ -1,4 +1,4 @@
-import { type BrowserName } from "./lib/config";
+import { type BrowserName, type ViewportConfig } from "./lib/config";
 
 export interface VTTStory {
   id: string;
@@ -9,5 +9,6 @@ export interface VTTStory {
     screenshotTarget?: "story-root" | "body" | string;
     threshold?: number;
     browser?: BrowserName | BrowserName[];
+    viewport?: ViewportConfig;
   };
 }

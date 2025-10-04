@@ -1,5 +1,6 @@
 import { DEFAULT_BROWSER, DEFAULT_THRESHOLD } from "../constants";
 import { type VTTConfig, type BrowserName } from "../lib";
+import { type ViewportConfig } from "../lib/config";
 import { type VTTStory } from "../types";
 
 export interface ResolvedStoryConfig {
@@ -7,6 +8,7 @@ export interface ResolvedStoryConfig {
   screenshotTarget: string;
   threshold: number;
   browsers: BrowserName[];
+  viewport?: ViewportConfig;
 }
 
 /**
@@ -44,11 +46,15 @@ export const resolveStoryConfig = (
       : [DEFAULT_BROWSER];
   }
 
+  // Resolve viewport - story-level viewport overrides global completely
+  const viewport = storyConfig.viewport ?? globalConfig.viewport;
+
   return {
     skip,
     screenshotTarget,
     threshold,
     browsers,
+    viewport,
   };
 };
 

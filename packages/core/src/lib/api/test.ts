@@ -23,6 +23,7 @@ import {
   resolveBrowsers,
   resolveFinalConfig,
   type BrowserName,
+  type ViewportConfig,
 } from "../config";
 import { processBrowserForTest, type BrowserTestResult } from "../test-service";
 
@@ -34,6 +35,8 @@ interface BaseOptions {
   exclude?: string[];
   /** Browsers to test (overrides config) */
   browsers?: BrowserName[];
+  /** Viewport configuration (overrides config) */
+  viewport?: ViewportConfig;
   /** Dry run - don't take screenshots */
   dryRun?: boolean;
   /** Use Docker for execution */
@@ -65,6 +68,7 @@ export async function runTests(options: TestOptions = {}): Promise<TestResult> {
     include,
     exclude,
     browsers,
+    viewport,
     dryRun = false,
     jsonReport,
     useDocker = false,
@@ -75,6 +79,7 @@ export async function runTests(options: TestOptions = {}): Promise<TestResult> {
     include,
     exclude,
     browser: browsers,
+    viewport,
     dryRun,
     jsonReport,
     useDocker,
