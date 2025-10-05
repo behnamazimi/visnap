@@ -3,6 +3,8 @@ import { join } from "path";
 
 import inquirer from "inquirer";
 
+import { type Command } from "../types";
+
 import { initializeProject } from "@/lib";
 import { type BrowserName } from "@/lib/config";
 import { generateConfigContent } from "@/utils/config-generator";
@@ -69,7 +71,7 @@ const promptUser = async (): Promise<InitOptions> => {
   };
 };
 
-export const initCommand = async (): Promise<void> => {
+const initHandler = async (): Promise<void> => {
   try {
     const currentDir = process.cwd();
     const userOptions = await promptUser();
@@ -114,4 +116,10 @@ export const initCommand = async (): Promise<void> => {
   } catch (error) {
     log.error(`Failed to create config file: ${getErrorMessage(error)}`);
   }
+};
+
+export const command: Command = {
+  name: "init",
+  description: "Initialize a new VTT project with sample config",
+  handler: initHandler,
 };

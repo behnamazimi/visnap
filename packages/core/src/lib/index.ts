@@ -57,7 +57,10 @@ export {
 export type { CompareOptions, CompareResult } from "./compare";
 export { launchBrowser, openPage, getViewportInfo } from "./browser";
 export { createConcurrencyPool } from "./pool";
-export { createStoryFilter } from "./storiesFilter";
+export {
+  createTestCaseFilter,
+  createTestCaseFilter as createStoryFilter,
+} from "./storiesFilter";
 
 // Additional types that might be useful externally
 export type { VTTStory } from "@/types";

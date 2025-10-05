@@ -1,5 +1,9 @@
 import { spawn } from "child_process";
 
+import { type Command as CommanderCommand } from "commander";
+
+import { type Command } from "../types";
+
 import log from "@/utils/logger";
 
 // Why this command exists:
@@ -9,10 +13,11 @@ import log from "@/utils/logger";
 //   without making users remember Playwright-specific commands, improving onboarding and CI setup.
 // - Internally this simply shells out to `npx playwright@latest install [browser]` and streams output.
 
-export const browsersCommand = async (): Promise<void> => {
-  const sub = process.argv[3];
-  if (sub === "install") {
-    const browser = process.argv[4];
+const browsersHandler = async (
+  subcommand: string,
+  browser?: string
+): Promise<void> => {
+  if (subcommand === "install") {
     const args = browser
       ? ["playwright@latest", "install", browser]
       : ["playwright@latest", "install"];
@@ -43,4 +48,21 @@ export const browsersCommand = async (): Promise<void> => {
   log.plain(
     "Usage: visual-testing-tool browsers install [chromium|firefox|webkit]"
   );
+};
+
+export const command: Command = {
+  name: "browsers",
+  description: "Manage Playwright browsers",
+  handler: () => {
+    log.plain(
+      "Usage: visual-testing-tool browsers install [chromium|firefox|webkit]"
+    );
+  },
+  configure: (cmd: CommanderCommand) => {
+    cmd
+      .command("install [browser]")
+      .description("Install Playwright browsers (chromium|firefox|webkit)")
+      .action((browser?: string) => browsersHandler("install", browser));
+    return cmd;
+  },
 };

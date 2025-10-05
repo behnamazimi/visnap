@@ -17,7 +17,7 @@ vi.mock("@/lib/compare", () => ({
 }));
 
 vi.mock("@/lib/storiesFilter", () => ({
-  createStoryFilter: vi.fn().mockReturnValue(() => true),
+  createTestCaseFilter: vi.fn().mockReturnValue(() => true),
 }));
 
 vi.mock("@/utils/config-resolver", () => ({
@@ -114,7 +114,7 @@ describe("processBrowserForTest", () => {
   });
 
   it("should filter stories correctly", async () => {
-    const { createStoryFilter } = await import("@/lib/storiesFilter");
+    const { createTestCaseFilter } = await import("@/lib/storiesFilter");
     await import("@/utils/config-resolver");
 
     await processBrowserForTest(
@@ -125,7 +125,7 @@ describe("processBrowserForTest", () => {
       { include: ["story1"], exclude: ["story2"] }
     );
 
-    expect(createStoryFilter).toHaveBeenCalledWith({
+    expect(createTestCaseFilter).toHaveBeenCalledWith({
       include: mockConfig.include,
       exclude: mockConfig.exclude,
     });

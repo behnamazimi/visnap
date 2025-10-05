@@ -1,7 +1,7 @@
 import { compareBaseAndCurrentWithStories } from "./compare";
 import { type CompareResult } from "./compare";
 import { type VTTConfig, type BrowserName } from "./config";
-import { createStoryFilter } from "./storiesFilter";
+import { createTestCaseFilter } from "./storiesFilter";
 
 import { type VTTStory } from "@/types";
 import {
@@ -50,14 +50,14 @@ export async function processBrowserForTest(
   });
 
   // Filter stories for this specific browser
-  const storyFilter = createStoryFilter({
+  const testCaseFilter = createTestCaseFilter({
     include: config.include,
     exclude: config.exclude,
   });
 
   const storiesForBrowser = allStories
     .filter(s => !s.visualTesting.skip)
-    .filter(storyFilter)
+    .filter(testCaseFilter)
     .filter(s => shouldProcessStoryForBrowser(s, browserName, config));
 
   // Create resolved configs map for the stories

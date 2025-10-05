@@ -1,19 +1,38 @@
+import { type Command as CommanderCommand } from "commander";
+
+import { type Command } from "../types";
+
 import { runTests } from "@/lib";
-import { parseIncludeExclude } from "@/utils/args";
 import { getErrorMessage } from "@/utils/error-handler";
 import log from "@/utils/logger";
 
-export const testCommand = async (): Promise<void> => {
-  const argv = process.argv.slice(2);
-  const useDocker = argv.includes("--docker");
-  const cliFilters = parseIncludeExclude(argv);
+const testHandler = async (options: {
+  include?: string;
+  exclude?: string;
+  json?: string | boolean;
+  dryRun?: boolean;
+  docker?: boolean;
+}): Promise<void> => {
+  const useDocker = options.docker ?? false;
+  const include = options.include
+    ? options.include
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+    : undefined;
+  const exclude = options.exclude
+    ? options.exclude
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+    : undefined;
 
   try {
     const result = await runTests({
-      include: cliFilters.include,
-      exclude: cliFilters.exclude,
-      dryRun: cliFilters.dryRun,
-      jsonReport: cliFilters.json,
+      include,
+      exclude,
+      dryRun: options.dryRun,
+      jsonReport: options.json,
       useDocker,
     });
 
@@ -25,9 +44,9 @@ export const testCommand = async (): Promise<void> => {
     }
 
     if (result.passed) {
-      log.success("All stories are matching in all browsers");
+      log.success("All test cases are matching");
     } else {
-      log.error("Some stories are not matching");
+      log.error("Some test cases are not matching");
     }
 
     process.exitCode = result.exitCode;
@@ -35,4 +54,27 @@ export const testCommand = async (): Promise<void> => {
     log.error(`Error running tests: ${getErrorMessage(error)}`);
     process.exitCode = 1;
   }
+};
+
+export const command: Command = {
+  name: "test",
+  description: "Capture current screenshots and compare with baseline",
+  handler: testHandler,
+  configure: (cmd: CommanderCommand) => {
+    return cmd
+      .option(
+        "--include <patterns>",
+        "Comma-separated list of minimatch patterns for test case ids/titles to include"
+      )
+      .option(
+        "--exclude <patterns>",
+        "Comma-separated list of minimatch patterns for test case ids/titles to exclude"
+      )
+      .option(
+        "--json [path]",
+        "Write JSON report (defaults to visual-testing-tool-report.json)"
+      )
+      .option("--docker", "Run the command inside the VTT Docker image")
+      .option("--dry-run", "List matched stories without taking screenshots");
+  },
 };

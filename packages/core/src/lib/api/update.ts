@@ -39,8 +39,8 @@ interface BaseResult {
 export interface UpdateResult extends BaseResult {
   /** Browsers processed */
   browsers: string[];
-  /** Total stories updated */
-  totalStories: number;
+  /** Total test cases updated */
+  totalTestCases: number;
 }
 
 /**
@@ -79,7 +79,7 @@ export async function updateBaseline(
     return {
       success: status === 0,
       browsers: browsers || [],
-      totalStories: 0,
+      totalTestCases: 0,
     };
   }
 
@@ -98,7 +98,7 @@ export async function updateBaseline(
 
   const updateBrowsers: BrowserName[] =
     browsers || resolveBrowsers(effectiveConfig);
-  let totalStories = 0;
+  let totalTestCases = 0;
 
   // Process each browser
   for (const browserName of updateBrowsers) {
@@ -108,7 +108,7 @@ export async function updateBaseline(
       browser: browserName,
       config: effectiveConfig,
     });
-    totalStories++; // This is a simplified count
+    totalTestCases++; // This is a simplified count
   }
 
   // Cleanup
@@ -117,6 +117,6 @@ export async function updateBaseline(
   return {
     success: true,
     browsers: updateBrowsers,
-    totalStories,
+    totalTestCases,
   };
 }

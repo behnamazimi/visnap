@@ -1,19 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { testCommand } from "@/cli/commands/test";
+import { command } from "@/cli/commands/test";
+
+const testCommand = command.handler;
 
 // Mock dependencies
 vi.mock("@/lib", () => ({
   runTests: vi.fn(),
-}));
-
-vi.mock("@/utils/args", () => ({
-  parseIncludeExclude: vi.fn().mockReturnValue({
-    include: ["story1"],
-    exclude: ["story2"],
-    dryRun: false,
-    json: "report.json",
-  }),
 }));
 
 vi.mock("@/utils/error-handler", () => ({
@@ -54,7 +47,12 @@ describe("testCommand", () => {
       exitCode: 0,
     });
 
-    await testCommand();
+    await testCommand({
+      include: "story1",
+      exclude: "story2",
+      dryRun: false,
+      json: "report.json",
+    });
 
     expect(runTests).toHaveBeenCalledWith({
       include: ["story1"],
@@ -65,9 +63,7 @@ describe("testCommand", () => {
     });
 
     expect(log.info).toHaveBeenCalledWith("[chromium] 2 out of 2 tests passed");
-    expect(log.success).toHaveBeenCalledWith(
-      "All stories are matching in all browsers"
-    );
+    expect(log.success).toHaveBeenCalledWith("All test cases are matching");
     expect(process.exitCode).toBe(0);
   });
 
@@ -96,11 +92,11 @@ describe("testCommand", () => {
       exitCode: 3,
     });
 
-    await testCommand();
+    await testCommand({ dryRun: false });
 
     expect(log.info).toHaveBeenCalledWith("[chromium] 1 out of 2 tests passed");
     expect(log.info).toHaveBeenCalledWith("[firefox] 0 out of 2 tests passed");
-    expect(log.error).toHaveBeenCalledWith("Some stories are not matching");
+    expect(log.error).toHaveBeenCalledWith("Some test cases are not matching");
     expect(process.exitCode).toBe(3);
   });
 
@@ -109,13 +105,13 @@ describe("testCommand", () => {
 
     process.argv = ["node", "visual-testing-tool", "test", "--docker"];
 
-    await testCommand();
+    await testCommand({ docker: true });
 
     expect(runTests).toHaveBeenCalledWith({
-      include: ["story1"],
-      exclude: ["story2"],
-      dryRun: false,
-      jsonReport: "report.json",
+      include: undefined,
+      exclude: undefined,
+      dryRun: undefined,
+      jsonReport: undefined,
       useDocker: true,
     });
   });
@@ -129,34 +125,10 @@ describe("testCommand", () => {
     vi.mocked(runTests).mockRejectedValueOnce(error);
     vi.mocked(getErrorMessage).mockReturnValueOnce("Test failed");
 
-    await testCommand();
+    await testCommand({ dryRun: false });
 
     expect(log.error).toHaveBeenCalledWith("Error running tests: Test failed");
     expect(process.exitCode).toBe(1);
-  });
-
-  it("should parse command line arguments correctly", async () => {
-    const { parseIncludeExclude } = await import("@/utils/args");
-
-    process.argv = [
-      "node",
-      "visual-testing-tool",
-      "test",
-      "--include",
-      "pattern1",
-      "--exclude",
-      "pattern2",
-    ];
-
-    await testCommand();
-
-    expect(parseIncludeExclude).toHaveBeenCalledWith([
-      "test",
-      "--include",
-      "pattern1",
-      "--exclude",
-      "pattern2",
-    ]);
   });
 
   it("should handle multiple browsers in results", async () => {
@@ -190,12 +162,12 @@ describe("testCommand", () => {
       exitCode: 3,
     });
 
-    await testCommand();
+    await testCommand({ dryRun: false });
 
     expect(log.info).toHaveBeenCalledWith("[chromium] 2 out of 2 tests passed");
     expect(log.info).toHaveBeenCalledWith("[firefox] 2 out of 2 tests passed");
     expect(log.info).toHaveBeenCalledWith("[webkit] 1 out of 2 tests passed");
-    expect(log.error).toHaveBeenCalledWith("Some stories are not matching");
+    expect(log.error).toHaveBeenCalledWith("Some test cases are not matching");
     expect(process.exitCode).toBe(3);
   });
 
@@ -211,11 +183,9 @@ describe("testCommand", () => {
       exitCode: 0,
     });
 
-    await testCommand();
+    await testCommand({ dryRun: false });
 
-    expect(log.success).toHaveBeenCalledWith(
-      "All stories are matching in all browsers"
-    );
+    expect(log.success).toHaveBeenCalledWith("All test cases are matching");
     expect(process.exitCode).toBe(0);
   });
 });
