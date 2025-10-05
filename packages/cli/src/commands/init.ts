@@ -1,15 +1,16 @@
 import { existsSync, writeFileSync } from "fs";
 import { join } from "path";
 
+import {
+  initializeProject,
+  type BrowserName,
+  generateConfigContent,
+  getErrorMessage,
+  log,
+} from "@visual-testing-tool/core";
 import inquirer from "inquirer";
 
 import { type Command } from "../types";
-
-import { initializeProject } from "@/lib";
-import { type BrowserName } from "@/lib/config";
-import { generateConfigContent } from "@/utils/config-generator";
-import { getErrorMessage } from "@/utils/error-handler";
-import log from "@/utils/logger";
 
 interface InitOptions {
   configType: "ts" | "js";
@@ -101,16 +102,16 @@ const initHandler = async (): Promise<void> => {
     const configContent = generateConfigContent(userOptions);
     writeFileSync(newConfigPath, configContent);
 
-    log.success("\n✅ Configuration file created successfully!");
-    log.info(`📄 File: ${configFileName}`);
-    log.info("\n📋 Configuration summary:");
-    log.info(
+    log.success("Configuration file created successfully!");
+    log.plain(`📄 File: ${configFileName}`);
+    log.plain("\n📋 Configuration summary:");
+    log.plain(
       `   • Config type: ${userOptions.configType === "ts" ? "TypeScript" : "JavaScript"}`
     );
-    log.info(`   • Browsers: ${userOptions.browsers.join(", ")}`);
-    log.info(`   • Storybook source: ${userOptions.storybookSource}`);
-    log.info("\n🎉 You can now customize the configuration file as needed.");
-    log.info(
+    log.plain(`   • Browsers: ${userOptions.browsers.join(", ")}`);
+    log.plain(`   • Storybook source: ${userOptions.storybookSource}`);
+    log.plain("\n🎉 You can now customize the configuration file as needed.");
+    log.plain(
       "💡 Run 'visual-testing-tool update' to capture baseline screenshots."
     );
   } catch (error) {

@@ -1,9 +1,8 @@
+import { log } from "@visual-testing-tool/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { COMMAND_REGISTRY } from "./command-registry";
 import { type CommandRegistry } from "./types";
-
-import log from "@/utils/logger";
 
 /**
  * Loads all available commands from the centralized registry

@@ -64,3 +64,11 @@ export {
 
 // Additional types that might be useful externally
 export type { VTTStory } from "@/types";
+
+// Utilities for CLI and other packages
+export {
+  getErrorMessage,
+  log,
+  setupCleanup,
+  generateConfigContent,
+} from "@/utils";

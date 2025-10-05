@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { command } from "@/cli/commands/init";
+import { command } from "../commands/init";
 
 const initCommand = command.handler;
 
@@ -16,20 +16,11 @@ vi.mock("inquirer", () => ({
   },
 }));
 
-vi.mock("@/lib", () => ({
+vi.mock("@visual-testing-tool/core", () => ({
   initializeProject: vi.fn(),
-}));
-
-vi.mock("@/utils/config-generator", () => ({
   generateConfigContent: vi.fn().mockReturnValue("// Generated config"),
-}));
-
-vi.mock("@/utils/error-handler", () => ({
   getErrorMessage: vi.fn().mockImplementation(error => error.message),
-}));
-
-vi.mock("@/utils/logger", () => ({
-  default: {
+  log: {
     info: vi.fn(),
     success: vi.fn(),
     warn: vi.fn(),
@@ -38,8 +29,6 @@ vi.mock("@/utils/logger", () => ({
 }));
 
 describe("initCommand", () => {
-  // Will be imported dynamically in tests
-
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock process.cwd
@@ -56,7 +45,9 @@ describe("initCommand", () => {
 
     const fs = await import("fs");
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
-    const { initializeProject } = await import("@/lib");
+    const { initializeProject, generateConfigContent } = await import(
+      "@visual-testing-tool/core"
+    );
     vi.mocked(initializeProject).mockResolvedValueOnce({
       success: true,
       configPath: "vtt.config.ts",
@@ -66,7 +57,6 @@ describe("initCommand", () => {
         storybookSource: "./storybook-static",
       },
     });
-    const { generateConfigContent } = await import("@/utils/config-generator");
     vi.mocked(generateConfigContent).mockReturnValueOnce(
       "// Generated TypeScript config"
     );
@@ -105,18 +95,13 @@ describe("initCommand", () => {
       },
     ]);
 
-    expect(
-      vi.mocked(await import("@/lib")).initializeProject
-    ).toHaveBeenCalledWith({
+    expect(initializeProject).toHaveBeenCalledWith({
       configType: "ts",
       browsers: ["chromium", "firefox"],
       storybookSource: "./storybook-static",
     });
 
-    const { generateConfigContent: generateConfigContent2 } = await import(
-      "@/utils/config-generator"
-    );
-    expect(generateConfigContent2).toHaveBeenCalledWith({
+    expect(generateConfigContent).toHaveBeenCalledWith({
       configType: "ts",
       browsers: ["chromium", "firefox"],
       storybookSource: "./storybook-static",
@@ -127,7 +112,7 @@ describe("initCommand", () => {
       "// Generated TypeScript config"
     );
 
-    const { default: log } = await import("@/utils/logger");
+    const { log } = await import("@visual-testing-tool/core");
     expect(log.success).toHaveBeenCalledWith(
       "\n✅ Configuration file created successfully!"
     );
@@ -144,7 +129,9 @@ describe("initCommand", () => {
 
     const fs = await import("fs");
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
-    const { initializeProject } = await import("@/lib");
+    const { initializeProject, generateConfigContent } = await import(
+      "@visual-testing-tool/core"
+    );
     vi.mocked(initializeProject).mockResolvedValueOnce({
       success: true,
       configPath: "vtt.config.ts",
@@ -154,7 +141,6 @@ describe("initCommand", () => {
         storybookSource: "./storybook-static",
       },
     });
-    const { generateConfigContent } = await import("@/utils/config-generator");
     vi.mocked(generateConfigContent).mockReturnValueOnce(
       "// Generated JavaScript config"
     );
@@ -166,7 +152,7 @@ describe("initCommand", () => {
       "// Generated JavaScript config"
     );
 
-    const { default: log } = await import("@/utils/logger");
+    const { log } = await import("@visual-testing-tool/core");
     expect(log.info).toHaveBeenCalledWith("📄 File: vtt.config.js");
   });
 
@@ -183,7 +169,7 @@ describe("initCommand", () => {
 
     await initCommand();
 
-    const { default: log } = await import("@/utils/logger");
+    const { log } = await import("@visual-testing-tool/core");
     expect(log.error).toHaveBeenCalledWith(
       "vtt.config.ts already exists in the current directory."
     );
@@ -203,7 +189,7 @@ describe("initCommand", () => {
 
     const fs = await import("fs");
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
-    const { initializeProject } = await import("@/lib");
+    const { initializeProject } = await import("@visual-testing-tool/core");
     vi.mocked(initializeProject).mockResolvedValueOnce({
       success: false,
       configPath: "",
@@ -216,7 +202,7 @@ describe("initCommand", () => {
 
     await initCommand();
 
-    const { default: log } = await import("@/utils/logger");
+    const { log } = await import("@visual-testing-tool/core");
     expect(log.error).toHaveBeenCalledWith("Failed to initialize project");
     expect(fs.writeFileSync).not.toHaveBeenCalled();
   });
@@ -228,7 +214,7 @@ describe("initCommand", () => {
 
     await initCommand();
 
-    const { default: log } = await import("@/utils/logger");
+    const { log } = await import("@visual-testing-tool/core");
     expect(log.error).toHaveBeenCalledWith(
       "Failed to create config file: Prompt failed"
     );
@@ -246,7 +232,9 @@ describe("initCommand", () => {
 
     const fs = await import("fs");
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
-    const { initializeProject } = await import("@/lib");
+    const { initializeProject, generateConfigContent } = await import(
+      "@visual-testing-tool/core"
+    );
     vi.mocked(initializeProject).mockResolvedValueOnce({
       success: true,
       configPath: "vtt.config.ts",
@@ -256,7 +244,6 @@ describe("initCommand", () => {
         storybookSource: "./storybook-static",
       },
     });
-    const { generateConfigContent } = await import("@/utils/config-generator");
     vi.mocked(generateConfigContent).mockReturnValueOnce("// Generated config");
 
     await initCommand();
@@ -278,7 +265,9 @@ describe("initCommand", () => {
 
     const fs = await import("fs");
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
-    const { initializeProject } = await import("@/lib");
+    const { initializeProject, generateConfigContent } = await import(
+      "@visual-testing-tool/core"
+    );
     vi.mocked(initializeProject).mockResolvedValueOnce({
       success: true,
       configPath: "vtt.config.ts",
@@ -288,7 +277,6 @@ describe("initCommand", () => {
         storybookSource: "./storybook-static",
       },
     });
-    const { generateConfigContent } = await import("@/utils/config-generator");
     vi.mocked(generateConfigContent).mockReturnValueOnce("// Generated config");
 
     await initCommand();
@@ -309,7 +297,9 @@ describe("initCommand", () => {
 
     const fs = await import("fs");
     vi.mocked(fs.existsSync).mockReturnValueOnce(false);
-    const { initializeProject } = await import("@/lib");
+    const { initializeProject, generateConfigContent } = await import(
+      "@visual-testing-tool/core"
+    );
     vi.mocked(initializeProject).mockResolvedValueOnce({
       success: true,
       configPath: "vtt.config.ts",
@@ -319,12 +309,11 @@ describe("initCommand", () => {
         storybookSource: "./storybook-static",
       },
     });
-    const { generateConfigContent } = await import("@/utils/config-generator");
     vi.mocked(generateConfigContent).mockReturnValueOnce("// Generated config");
 
     await initCommand();
 
-    const { default: log } = await import("@/utils/logger");
+    const { log } = await import("@visual-testing-tool/core");
     expect(log.info).toHaveBeenCalledWith("\n📋 Configuration summary:");
     expect(log.info).toHaveBeenCalledWith("   • Config type: TypeScript");
     expect(log.info).toHaveBeenCalledWith(

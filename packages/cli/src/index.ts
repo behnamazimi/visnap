@@ -1,11 +1,12 @@
+import {
+  getPackageInfo,
+  getErrorMessage,
+  log,
+  setupCleanup,
+} from "@visual-testing-tool/core";
 import { Command } from "commander";
 
 import { loadCommands, registerCommands } from "./command-loader";
-
-import { getPackageInfo } from "@/lib";
-import { getErrorMessage } from "@/utils/error-handler";
-import log from "@/utils/logger";
-import { setupCleanup } from "@/utils/resource-cleanup";
 
 const main = async (): Promise<void> => {
   // Setup resource cleanup

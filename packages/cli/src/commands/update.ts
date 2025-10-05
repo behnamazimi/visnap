@@ -1,9 +1,7 @@
+import { updateBaseline, log } from "@visual-testing-tool/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
-
-import { updateBaseline } from "@/lib";
-import log from "@/utils/logger";
 
 const updateHandler = async (options: {
   include?: string;
