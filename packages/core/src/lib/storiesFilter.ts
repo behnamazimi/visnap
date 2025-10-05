@@ -1,17 +1,17 @@
 import { minimatch } from "minimatch";
 
 /**
- * Story filtering helpers used to decide which stories to run.
+ * Test case filtering helpers used to decide which test cases to run.
  *
  * Matching rules:
- * - Include then exclude: include defaults to all when omitted; exclude prunes matched stories.
- * - For each pattern, we try to match the Storybook `id` first using minimatch (glob).
- * - If `id` does not match, we try the story `title` using a custom glob-to-RegExp that allows `*` to also match `/`.
- *   This is useful because Storybook titles often contain `/`, e.g. "Example/Button".
+ * - Include then exclude: include defaults to all when omitted; exclude prunes matched test cases.
+ * - For each pattern, we try to match the test case `id` first using minimatch patterns.
+ * - If `id` does not match, we try the test case `title` using a custom pattern that allows `*` to also match `/`.
+ *   This is useful because test case titles may contain `/`, e.g. "Example/Button".
  * - Matching is case-sensitive.
  */
 
-export interface StoryLike {
+export interface TestCaseLike {
   id: string;
   title: string;
 }
@@ -27,13 +27,13 @@ export interface FilterConfig {
 }
 
 /**
- * Creates a predicate that filters stories based on include/exclude patterns.
+ * Creates a predicate that filters test cases based on include/exclude patterns.
  *
- * @param cfg.include One or more glob patterns to include (applies to id, then title). When omitted, all are included.
- * @param cfg.exclude One or more glob patterns to exclude (applies to id, then title) after include phase.
- * @returns A predicate function: (story) => boolean
+ * @param cfg.include One or more minimatch patterns to include (applies to id, then title). When omitted, all are included.
+ * @param cfg.exclude One or more minimatch patterns to exclude (applies to id, then title) after include phase.
+ * @returns A predicate function: (testCase) => boolean
  */
-export const createStoryFilter = (config: FilterConfig) => {
+export const createTestCaseFilter = (config: FilterConfig) => {
   const include = normalizeToStringArray(config.include);
   const exclude = normalizeToStringArray(config.exclude);
 
@@ -64,18 +64,18 @@ export const createStoryFilter = (config: FilterConfig) => {
     return false;
   };
 
-  return (story: StoryLike): boolean => {
+  return (testCase: TestCaseLike): boolean => {
     const matchInclude = (patterns: string[]) =>
-      matchesAnyPattern(story.id, patterns) ||
-      matchTitleGlob(story.title, patterns);
+      matchesAnyPattern(testCase.id, patterns) ||
+      matchTitleGlob(testCase.title, patterns);
 
     const included = include.length === 0 ? true : matchInclude(include);
     if (!included) return false;
 
     const excluded =
       exclude.length > 0 &&
-      (matchesAnyPattern(story.id, exclude) ||
-        matchTitleGlob(story.title, exclude));
+      (matchesAnyPattern(testCase.id, exclude) ||
+        matchTitleGlob(testCase.title, exclude));
     if (excluded) return false;
 
     return true;

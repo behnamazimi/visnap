@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { initCommand } from "@/cli/commands/init";
+import { command } from "@/cli/commands/init";
+
+const initCommand = command.handler;
 
 // Mock dependencies
 vi.mock("fs", () => ({
