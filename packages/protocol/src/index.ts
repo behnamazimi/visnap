@@ -30,7 +30,7 @@ export interface TestCaseMeta {
 export interface TestCaseInstance {
   caseId: string;
   variantId: string;
-  source: string; // absolute or relative; if relative, core will prefix adapter.start().baseUrl
+  url: string; // absolute or relative; if relative, core will prefix adapter.start().baseUrl
   selector?: string;
 }
 
