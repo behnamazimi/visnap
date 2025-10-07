@@ -31,6 +31,9 @@ export async function runTestCasesOnBrowser(
   // Log effective configuration for traceability
   logEffectiveConfig(options);
   
+  // Track cleanup state to prevent double cleanup
+  let isCleaningUp = false;
+  
   const { adapters } = options;
 
   const loadBrowserAdapter = async (): Promise<BrowserAdapter> => {
@@ -181,6 +184,7 @@ export async function runTestCasesOnBrowser(
     captureResults = [];
     const maxConcurrency = Math.max(1, options.runtime?.maxConcurrency ?? 4);
     const batchSize = Math.min(50, Math.max(10, Math.floor(cases.length / 4))); // Simple batching
+    const CAPTURE_TIMEOUT_MS = 30000; // 30 seconds per capture
     
     // Prepare output directory based on mode
     ensureVttDirectories(options.screenshotDir);
@@ -215,12 +219,19 @@ export async function runTestCasesOnBrowser(
             adapterToUse = await getBrowserAdapter(firstBrowser.name, firstBrowser.options);
           }
           
-          const result = await adapterToUse.capture({
+          // Add timeout protection to prevent hanging
+          const capturePromise = adapterToUse.capture({
             id,
             url: variant.url,
             screenshotTarget: variant.screenshotTarget,
             viewport: variant.viewport,
           });
+          
+          const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error(`Capture timeout after ${CAPTURE_TIMEOUT_MS}ms`)), CAPTURE_TIMEOUT_MS);
+          });
+          
+          const result = await Promise.race([capturePromise, timeoutPromise]);
           
           // Write screenshot immediately to disk instead of keeping in memory
           const finalPath = join(outDir, `${result.meta.id}.png`);
@@ -245,17 +256,16 @@ export async function runTestCasesOnBrowser(
           const message = (e as Error)?.message ?? String(e);
           log.error(`Capture failed for ${id}: ${message}`);
           captureResults.push({ id, error: message });
-        } finally {
-          active--;
         }
       };
 
       const schedule = async (variant: TestCaseInstance) => {
-        while (active >= maxConcurrency) {
+        while (active >= maxConcurrency && queue.length > 0) {
           await Promise.race(queue);
         }
         active++;
         const p = runCapture(variant).finally(() => {
+          active--;
           const idx = queue.indexOf(p);
           if (idx >= 0) queue.splice(idx, 1);
         });
@@ -281,8 +291,27 @@ export async function runTestCasesOnBrowser(
     throw error;
   } finally {
     // Ensure adapters are torn down regardless of capture/write outcomes
-    await Promise.all(Array.from(browserAdapters.values()).map(adapter => adapter.dispose?.()));
-    await testCaseAdapter.stop?.();
+    if (!isCleaningUp) {
+      isCleaningUp = true;
+      try {
+        const disposePromises = Array.from(browserAdapters.values()).map(async (adapter) => {
+          try {
+            await adapter.dispose?.();
+          } catch (error) {
+            log.dim(`Error disposing browser adapter: ${error}`);
+          }
+        });
+        await Promise.all(disposePromises);
+        
+        try {
+          await testCaseAdapter.stop?.();
+        } catch (error) {
+          log.dim(`Error stopping test case adapter: ${error}`);
+        }
+      } catch (error) {
+        log.dim(`Error during adapter cleanup: ${error}`);
+      }
+    }
   }
 
   // Screenshots are already written to disk during capture

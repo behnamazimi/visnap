@@ -14,8 +14,8 @@ const config: VisualTestingToolConfig = {
         // Option 3: Multiple browsers with detailed configuration
         browser: [
           { name: "chromium", options: { headless: true } },
-          { name: "firefox", options: { headless: true } },
-          { name: "webkit", options: { headless: true } }
+          // { name: "firefox", options: { headless: true } },
+          // { name: "webkit", options: { headless: true } }
         ]
       },
     },

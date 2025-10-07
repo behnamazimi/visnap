@@ -12,9 +12,10 @@ const updateHandler = async (
 
     // TODO: Add more detailed result log in mature versions
     log.success(`Update baseline completed`);
+    process.exit(0);
   } catch (error) {
     log.error(`Error updating baseline: ${getErrorMessage(error)}`);
-    process.exitCode = 1;
+    process.exit(1);
   }
 };
 

@@ -45,10 +45,10 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
       }
     }
 
-    process.exitCode = result.exitCode;
+    process.exit(result.exitCode);
   } catch (error) {
     log.error(`Error running tests: ${getErrorMessage(error)}`);
-    process.exitCode = 1;
+    process.exit(1);
   }
 };
 
