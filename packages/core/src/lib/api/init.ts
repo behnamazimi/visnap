@@ -10,13 +10,6 @@ import {
 export interface InitOptions {
   /** Config file type */
   configType?: "ts" | "js";
-  /** Browsers to include */
-  browsers?: string[];
-  /** Storybook source path */
-  storybookSource?: string;
-  /** Concurrency level */
-  concurrency?: number;
-  /** Pixel difference threshold */
   threshold?: number;
 }
 
@@ -38,19 +31,10 @@ export interface InitResult extends BaseResult {
 export async function initializeProject(
   options: InitOptions = {}
 ): Promise<InitResult> {
-  const {
-    configType = "ts",
-    browsers = ["chromium"],
-    storybookSource = "./storybook-static",
-    concurrency = 4,
-    threshold = 0.1,
-  } = options;
+  const { configType = "ts", threshold = 0.1 } = options;
 
   const configContent = generateConfigContent({
     configType,
-    browsers,
-    storybookSource,
-    concurrency,
     threshold,
   });
 
@@ -86,9 +70,6 @@ export async function initializeProject(
     configPath,
     options: {
       configType,
-      browsers,
-      storybookSource,
-      concurrency,
       threshold,
     },
   };

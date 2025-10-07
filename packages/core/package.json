@@ -22,6 +22,9 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@visual-testing-tool/protocol": "*",
+    "@visual-testing-tool/playwright-adapter": "*",
+    "@visual-testing-tool/storybook-adapter": "*",
     "ajv": "^8.17.1",
     "bundle-require": "^4.0.2",
     "minimatch": "^9.0.5",

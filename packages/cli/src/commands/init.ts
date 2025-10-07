@@ -3,7 +3,6 @@ import { join } from "path";
 
 import {
   initializeProject,
-  type BrowserName,
   generateConfigContent,
   getErrorMessage,
   log,
@@ -14,8 +13,6 @@ import { type Command } from "../types";
 
 interface InitOptions {
   configType: "ts" | "js";
-  browsers: BrowserName[];
-  storybookSource: string;
 }
 
 const promptUser = async (): Promise<InitOptions> => {
@@ -34,41 +31,10 @@ const promptUser = async (): Promise<InitOptions> => {
       ],
       default: "ts",
     },
-    {
-      type: "checkbox",
-      name: "browsers",
-      message:
-        "Select browsers to test (use space to select, enter to confirm):",
-      choices: [
-        { name: "Chromium", value: "chromium", checked: true },
-        { name: "Firefox", value: "firefox" },
-        { name: "WebKit", value: "webkit" },
-      ],
-      validate: input => {
-        if (input.length === 0) {
-          return "Please select at least one browser.";
-        }
-        return true;
-      },
-    },
-    {
-      type: "input",
-      name: "storybookSource",
-      message: "Enter storybook source path:",
-      default: "./storybook-static",
-      validate: input => {
-        if (!input.trim()) {
-          return "Please enter a valid path.";
-        }
-        return true;
-      },
-    },
   ]);
 
   return {
     configType: answers.configType,
-    browsers: answers.browsers,
-    storybookSource: answers.storybookSource,
   };
 };
 
@@ -89,8 +55,6 @@ const initHandler = async (): Promise<void> => {
     // Use the API to generate the config content
     const result = await initializeProject({
       configType: userOptions.configType,
-      browsers: userOptions.browsers,
-      storybookSource: userOptions.storybookSource,
     });
 
     if (!result.success) {
@@ -108,12 +72,7 @@ const initHandler = async (): Promise<void> => {
     log.plain(
       `   • Config type: ${userOptions.configType === "ts" ? "TypeScript" : "JavaScript"}`
     );
-    log.plain(`   • Browsers: ${userOptions.browsers.join(", ")}`);
-    log.plain(`   • Storybook source: ${userOptions.storybookSource}`);
     log.plain("\n🎉 You can now customize the configuration file as needed.");
-    log.plain(
-      "💡 Run 'visual-testing-tool update' to capture baseline screenshots."
-    );
   } catch (error) {
     log.error(`Failed to create config file: ${getErrorMessage(error)}`);
   }

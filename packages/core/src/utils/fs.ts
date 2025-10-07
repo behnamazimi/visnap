@@ -1,14 +1,11 @@
-import { existsSync, mkdirSync, promises as fs } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { join } from "path";
 
-import { getErrorMessage } from "./error-handler";
-import { validateSafePath } from "./validation";
+import { resolveScreenshotDir } from "@/lib";
 
-import { resolveScreenshotDir, type VTTConfig } from "@/lib";
-
-export const ensureVttDirectories = (config?: VTTConfig): void => {
-  const screenshotDir = resolveScreenshotDir(config);
-  const vttDir = join(process.cwd(), screenshotDir);
+export const ensureVttDirectories = (screenshotDir?: string): void => {
+  const effectiveScreenshotDir = resolveScreenshotDir(screenshotDir);
+  const vttDir = join(process.cwd(), effectiveScreenshotDir);
   if (!existsSync(vttDir)) mkdirSync(vttDir);
 
   const ensure = (name: string) => {
@@ -21,36 +18,15 @@ export const ensureVttDirectories = (config?: VTTConfig): void => {
   ensure("diff");
 };
 
-export const clearDirectoryFiles = async (dirPath: string): Promise<void> => {
-  if (!existsSync(dirPath)) return;
-
-  try {
-    const files = await fs.readdir(dirPath);
-    await Promise.all(
-      files.map(file => {
-        const filePath = join(dirPath, file);
-        if (!validateSafePath(filePath)) {
-          throw new Error(`Unsafe file path: ${filePath}`);
-        }
-        return fs.unlink(filePath);
-      })
-    );
-  } catch (error) {
-    throw new Error(
-      `Failed to clear directory ${dirPath}: ${getErrorMessage(error)}`
-    );
-  }
+export const getCurrentDir = (screenshotDir?: string): string => {
+  const effectiveScreenshotDir = resolveScreenshotDir(screenshotDir);
+  return join(process.cwd(), effectiveScreenshotDir, "current");
 };
-
-export const getCurrentDir = (config?: VTTConfig): string => {
-  const screenshotDir = resolveScreenshotDir(config);
-  return join(process.cwd(), screenshotDir, "current");
+export const getBaseDir = (screenshotDir?: string): string => {
+  const effectiveScreenshotDir = resolveScreenshotDir(screenshotDir);
+  return join(process.cwd(), effectiveScreenshotDir, "base");
 };
-export const getBaseDir = (config?: VTTConfig): string => {
-  const screenshotDir = resolveScreenshotDir(config);
-  return join(process.cwd(), screenshotDir, "base");
-};
-export const getDiffDir = (config?: VTTConfig): string => {
-  const screenshotDir = resolveScreenshotDir(config);
-  return join(process.cwd(), screenshotDir, "diff");
+export const getDiffDir = (screenshotDir?: string): string => {
+  const effectiveScreenshotDir = resolveScreenshotDir(screenshotDir);
+  return join(process.cwd(), effectiveScreenshotDir, "diff");
 };

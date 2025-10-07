@@ -1,0 +1,45 @@
+{
+  "name": "@visual-testing-tool/storybook-adapter",
+  "version": "0.1.0",
+  "description": "Storybook test-case adapter for visual-testing-tool",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@visual-testing-tool/protocol": "*",
+    "serve-handler": "^6.1.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@visual-testing-tool/eslint-config": "*",
+    "tsup": "^8.3.5",
+    "typescript": "5.9.2"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
+
+
