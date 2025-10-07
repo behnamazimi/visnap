@@ -6,6 +6,13 @@ export interface Viewport {
   deviceScaleFactor?: number;
 }
 
+export interface BrowserConfig {
+  name: BrowserName;
+  options?: Record<string, unknown>;
+}
+
+export type BrowserConfiguration = BrowserName | BrowserConfig;
+
 export type ViewportMap = Record<string, Viewport>;
 
 export interface ScreenshotOptions {
@@ -19,6 +26,24 @@ export interface ScreenshotOptions {
 export interface ScreenshotResult {
   buffer: Uint8Array;
   meta: { elapsedMs: number; viewportKey?: string; id: string };
+}
+
+// Standardized comparison reasons for non-matching results
+export type CompareReason =
+  | "pixel-diff"
+  | "missing-current"
+  | "missing-base"
+  | "error";
+
+// Aggregate outcome for a run to aid CI reporting
+export interface RunOutcome {
+  total: number;
+  passed: number;
+  failedDiffs: number;
+  failedMissingCurrent: number;
+  failedMissingBase: number;
+  failedErrors: number; // non-standard errors
+  captureFailures: number; // number of captures that failed prior to compare
 }
 
 export interface TestCaseVisualConfig {
@@ -44,6 +69,7 @@ interface BaseTestCaseInstance {
   url: string; // absolute or relative; if relative, core will prefix adapter.start().baseUrl
   screenshotTarget?: string;
   viewport?: Viewport;
+  browser?: BrowserName; // Browser for this specific variant
   /** Optional per-case threshold applied during comparison for this instance */
   threshold?: number;
 }
@@ -69,7 +95,7 @@ export interface BrowserAdapterInitOptions {
 export interface BrowserAdapter {
   name: string;
   init?(opts: BrowserAdapterInitOptions): Promise<void> | void;
-  openPage?(url: string): Promise<any>;
+  openPage?(url: string): Promise<PageWithEvaluate | void>;
   capture(opts: ScreenshotOptions): Promise<ScreenshotResult>;
   dispose?(): Promise<void> | void;
 }
@@ -78,6 +104,8 @@ export interface TestCaseAdapterStartResult {
   // Provide when the adapter serves a directory or is bound to a known remote.
   // If omitted, expand() must return absolute URLs.
   baseUrl?: string;
+  // Initial page URL for the adapter to discover test cases
+  initialPageUrl?: string;
 }
 
 export interface TestCaseAdapter {
@@ -97,6 +125,7 @@ export interface TestCaseAdapter {
 export interface BrowserAdapterOptions {
   name: string;
   options?: {
+    browser?: BrowserConfiguration | BrowserConfiguration[];
     [key: string]: unknown;
   };
 }
@@ -118,6 +147,12 @@ export interface VisualTestingToolConfig {
   };
   threshold: number;
   screenshotDir?: string;
+  runtime?: {
+    /** Maximum number of concurrent captures to run; defaults to 4 */
+    maxConcurrency?: number;
+  };
+  /** Global viewport configuration that applies to all test cases unless overridden */
+  viewport?: ViewportMap;
 }
 
 export type PageWithEvaluate = {

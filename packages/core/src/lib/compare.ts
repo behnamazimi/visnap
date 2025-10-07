@@ -28,7 +28,11 @@ export const compareDirectories = async (
   diffDir: string,
   options: CompareOptions = {}
 ): Promise<CompareResult[]> => {
-  const files = readdirSync(currentDir);
+  // Build deterministic, sorted union of filenames from current and base
+  const currentFiles = new Set(readdirSync(currentDir));
+  const baseFiles = new Set(readdirSync(baseDir));
+  const allFiles = new Set<string>([...currentFiles, ...baseFiles] as string[]);
+  const files = Array.from(allFiles).sort((a, b) => a.localeCompare(b));
   const threshold =
     typeof options.threshold === "number"
       ? options.threshold
@@ -40,6 +44,16 @@ export const compareDirectories = async (
     const currentFile = join(currentDir, file);
     const baseFile = join(baseDir, file);
     const diffFile = join(diffDir, file);
+    const inCurrent = currentFiles.has(file);
+    const inBase = baseFiles.has(file);
+    if (!inCurrent && inBase) {
+      results.push({ id: file, match: false, reason: "missing-current" });
+      continue;
+    }
+    if (inCurrent && !inBase) {
+      results.push({ id: file, match: false, reason: "missing-base" });
+      continue;
+    }
     try {
       const diffResult = await odiff.compare(currentFile, baseFile, diffFile, {
         diffColor,
@@ -58,7 +72,7 @@ export const compareDirectories = async (
         results.push({
           id: file,
           match: false,
-          reason: diffResult.reason,
+          reason: "error",
           diffPercentage: 0,
         });
       }
@@ -70,7 +84,7 @@ export const compareDirectories = async (
       results.push({
         id: file,
         match: false,
-        reason: baseNotFound ? "base does not exist" : message,
+        reason: baseNotFound ? "missing-base" : "error",
       });
     }
   }
@@ -105,13 +119,27 @@ export const compareBaseAndCurrentWithTestCases = async (
     }
   }
 
-  const files = readdirSync(currentDir);
+  // Deterministic union of files between current and base
+  const currentFiles = new Set(readdirSync(currentDir));
+  const baseFiles = new Set(readdirSync(baseDir));
+  const allFiles = new Set<string>([...currentFiles, ...baseFiles] as string[]);
+  const files = Array.from(allFiles).sort((a, b) => a.localeCompare(b));
   const diffColor = "#00ff00";
   const results: CompareResult[] = [];
   for (const file of files) {
     const currentFile = join(currentDir, file);
     const baseFile = join(baseDir, file);
     const diffFile = join(diffDir, file);
+    const inCurrent = currentFiles.has(file);
+    const inBase = baseFiles.has(file);
+    if (!inCurrent && inBase) {
+      results.push({ id: file, match: false, reason: "missing-current" });
+      continue;
+    }
+    if (inCurrent && !inBase) {
+      results.push({ id: file, match: false, reason: "missing-base" });
+      continue;
+    }
     const threshold = idToThreshold.get(file) ?? defaultThreshold;
     try {
       const diffResult = await odiff.compare(currentFile, baseFile, diffFile, {
@@ -131,7 +159,7 @@ export const compareBaseAndCurrentWithTestCases = async (
         results.push({
           id: file,
           match: false,
-          reason: diffResult.reason,
+          reason: "error",
           diffPercentage: 0,
         });
       }
@@ -143,7 +171,7 @@ export const compareBaseAndCurrentWithTestCases = async (
       results.push({
         id: file,
         match: false,
-        reason: baseNotFound ? "base does not exist" : message,
+        reason: baseNotFound ? "missing-base" : "error",
       });
     }
   }

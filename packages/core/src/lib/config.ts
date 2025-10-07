@@ -2,6 +2,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 
 import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
+import merge from "lodash/merge.js";
 import { bundleRequire } from "bundle-require";
 
 import { DEFAULT_SCREENSHOT_DIR } from "@/constants";
@@ -15,6 +16,10 @@ export interface ViewportSize {
 }
 
 export interface ViewportConfig {
+  [key: string]: ViewportSize;
+}
+
+export interface ViewportMap {
   [key: string]: ViewportSize;
 }
 
@@ -34,6 +39,26 @@ export const resolveScreenshotDir = (screenshotDir?: string): string => {
   return screenshotDir ?? DEFAULT_SCREENSHOT_DIR;
 };
 
+// use lodash.merge for deep merging configs
+
+function applyEnvOverrides(cfg: VisualTestingToolConfig): VisualTestingToolConfig {
+  const out = { ...cfg };
+  if (process.env.VTT_SCREENSHOT_DIR) {
+    out.screenshotDir = process.env.VTT_SCREENSHOT_DIR;
+  }
+  if (process.env.VTT_THRESHOLD) {
+    const n = Number(process.env.VTT_THRESHOLD);
+    if (!Number.isNaN(n)) out.threshold = n;
+  }
+  if (process.env.VTT_MAX_CONCURRENCY) {
+    const n = Number(process.env.VTT_MAX_CONCURRENCY);
+    const nextRuntime = { ...(out.runtime ?? {}) } as NonNullable<VisualTestingToolConfig["runtime"]>;
+    if (!Number.isNaN(n)) nextRuntime.maxConcurrency = n;
+    out.runtime = nextRuntime;
+  }
+  return out;
+}
+
 export const resolveEffectiveConfig = async (
   options: Partial<VisualTestingToolConfig> = {}
 ): Promise<VisualTestingToolConfig> => {
@@ -41,6 +66,23 @@ export const resolveEffectiveConfig = async (
   if (!configFile) {
     throw new ConfigError("visual-testing-tool.config not found");
   }
-  // TODO: Make sure nested configs are merged in mature versions
-  return { ...configFile, ...options };
+  const merged = merge({}, configFile, options);
+  const withEnv = applyEnvOverrides(merged);
+  // ensure defaults
+  withEnv.screenshotDir = resolveScreenshotDir(withEnv.screenshotDir);
+  return withEnv;
+};
+
+export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
+  const { log } = require("@/utils/logger");
+  log.info("Effective configuration:");
+  log.dim(`  Screenshot directory: ${config.screenshotDir}`);
+  log.dim(`  Threshold: ${config.threshold}`);
+  log.dim(`  Max concurrency: ${config.runtime?.maxConcurrency ?? 4}`);
+  log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
+  log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
+  if (config.viewport) {
+    const viewportKeys = Object.keys(config.viewport);
+    log.dim(`  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`);
+  }
 };

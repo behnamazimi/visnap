@@ -82,6 +82,16 @@ export function createPlaywrightAdapter(
     }
   }
 
+  async function waitForNetworkIdle(page: Page, timeout: number): Promise<void> {
+    // Heuristic: wait for network to be quiet by waiting on load + short idle
+    try {
+      await page.waitForLoadState("networkidle", { timeout });
+    } catch {
+      // fall back to a small delay; not all drivers support networkidle well
+      await page.waitForTimeout(Math.min(1000, Math.floor(timeout / 10)));
+    }
+  }
+
   return {
     name: "playwright",
     /** Launches a browser instance. Safe to call multiple times. */
@@ -105,6 +115,9 @@ export function createPlaywrightAdapter(
         waitUntil: opts.navigation?.waitUntil ?? "load",
         timeout: defaultTimeout,
       });
+      if ((opts.navigation?.waitUntil ?? "load") === "networkidle") {
+        await waitForNetworkIdle(page, defaultTimeout);
+      }
       return page;
     },
 
@@ -143,6 +156,9 @@ export function createPlaywrightAdapter(
           waitUntil: opts.navigation?.waitUntil ?? "load",
           timeout,
         });
+        if ((opts.navigation?.waitUntil ?? "load") === "networkidle") {
+          await waitForNetworkIdle(page, timeout);
+        }
 
         // Additional waits per protocol
         if (typeof s.waitFor === "number") await page.waitForTimeout(s.waitFor);
@@ -152,6 +168,7 @@ export function createPlaywrightAdapter(
         const screenshotTarget = resolveScreenshotTarget(s.screenshotTarget);
         const storyElement = await page.waitForSelector(screenshotTarget, {
           timeout: 2000,
+          state: "attached",
         });
         if (!storyElement) {
           const message = `Screenshot target not found with selector ${screenshotTarget} for case ${s.id}`;
