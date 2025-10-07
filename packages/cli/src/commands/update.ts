@@ -1,49 +1,19 @@
-import { updateBaseline, log } from "@visual-testing-tool/core";
+import { updateBaseline, log, getErrorMessage } from "@visual-testing-tool/core";
+import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
 
-const updateHandler = async (options: {
-  include?: string;
-  exclude?: string;
-  dryRun?: boolean;
-  docker?: boolean;
-}): Promise<void> => {
-  const useDocker = options.docker ?? false;
-  const include = options.include
-    ? options.include
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
-    : undefined;
-  const exclude = options.exclude
-    ? options.exclude
-        .split(",")
-        .map(s => s.trim())
-        .filter(Boolean)
-    : undefined;
-
+const updateHandler = async (
+  options: VisualTestingToolConfig
+): Promise<void> => {
   try {
-    const result = await updateBaseline({
-      include,
-      exclude,
-      dryRun: options.dryRun,
-      useDocker,
-    });
+    await updateBaseline(options);
 
-    if (result.success) {
-      log.success(
-        `Successfully updated baseline for ${result.browsers.join(", ")}`
-      );
-      log.info(`Total test cases updated: ${result.totalTestCases}`);
-    } else {
-      log.error("Failed to update baseline");
-      process.exitCode = 1;
-    }
+    // TODO: Add more detailed result log in mature versions
+    log.success(`Update baseline completed`);
   } catch (error) {
-    log.error(
-      `Error updating baseline: ${error instanceof Error ? error.message : "Unknown error"}`
-    );
+    log.error(`Error updating baseline: ${getErrorMessage(error)}`);
     process.exitCode = 1;
   }
 };
@@ -53,19 +23,7 @@ export const command: Command = {
   description: "Capture baseline screenshots into visual-testing-tool/base",
   handler: updateHandler,
   configure: (cmd: CommanderCommand) => {
-    return cmd
-      .option(
-        "--include <patterns>",
-        "Comma-separated list of minimatch patterns for test case ids/titles to include"
-      )
-      .option(
-        "--exclude <patterns>",
-        "Comma-separated list of minimatch patterns for test case ids/titles to exclude"
-      )
-      .option("--docker", "Run the command inside the VTT Docker image")
-      .option(
-        "--dry-run",
-        "List matched test cases without taking screenshots"
-      );
+    return cmd;
+    // Options will be added in mature versions
   },
 };

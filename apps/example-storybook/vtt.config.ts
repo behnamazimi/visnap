@@ -1,30 +1,21 @@
-import { type VTTConfig } from "@visual-testing-tool/core";
+import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
 
-const config: VTTConfig = {
-  // Adapters are optional; omit to disable
+const config: VisualTestingToolConfig = {
   adapters: {
-    // Content adapter: Storybook
-    storybook: {
-      // e.g. path to static build or remote url
-      source: "./storybook-static",
-      port: 4477,
-      include: ["*button*"],
-      exclude: ["*page*"],
+    browser: {
+      name: "@visual-testing-tool/playwright-adapter",
     },
-    // Browser automation adapter: Playwright
-    playwright: {
-      // One or more browsers to run
-      browsers: "chromium",
-      // Example viewport presets (optional)
-      viewport: {
-        desktop: { width: 1440, height: 900 },
-        mobile: { width: 375, height: 812 },
+    testCase: [
+      {
+        name: "@visual-testing-tool/storybook-adapter",
+        options: {
+          source: "./storybook-static",
+          include: "*",
+          // exclude: "*page*",
+        },
       },
-      // Default element to screenshot; adapters and stories can override
-      screenshotTarget: "story-root",
-    },
+    ],
   },
-  concurrency: 4,
   threshold: 0.1,
 };
 

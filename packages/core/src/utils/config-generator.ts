@@ -4,31 +4,31 @@ import { type InitOptions } from "@/lib/api/init";
  * Generate configuration file content based on options
  */
 export function generateConfigContent(options: InitOptions): string {
-  const {
-    configType = "ts",
-    browsers = ["chromium"],
-    storybookSource = "./storybook-static",
-  } = options;
-
-  const browserConfig =
-    browsers.length === 1 ? `"${browsers[0]}"` : JSON.stringify(browsers);
+  const { configType = "ts", threshold = 0.1 } = options;
 
   const configObject = `{
-  storybook: {
-    source: "${storybookSource}",
-    screenshotTarget: "story-root",
+  adapters: {
+    browser: {
+      name: "@visual-testing-tool/playwright-adapter",
+    },
+    testCase: [
+      {
+        name: "@visual-testing-tool/storybook-adapter",
+        options: {
+          source: "./storybook-static",
+          include: "*",
+          // exclude: "*page*",
+        },
+      },
+    ],
   },
-  // include: ["Example*"],
-  // exclude: ["*button*"],
-  browser: ${browserConfig},
-  concurrency: 4,
-  threshold: 0.1,
+  threshold: ${threshold},
 }`;
 
   if (configType === "ts") {
-    return `import { type VTTConfig } from "@visual-testing-tool/core";
+    return `import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
 
-const config: VTTConfig = ${configObject};
+const config: VisualTestingToolConfig = ${configObject};
 
 export default config;
 `;

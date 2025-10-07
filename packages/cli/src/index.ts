@@ -2,16 +2,12 @@ import {
   getPackageInfo,
   getErrorMessage,
   log,
-  setupCleanup,
 } from "@visual-testing-tool/core";
 import { Command } from "commander";
 
 import { loadCommands, registerCommands } from "./command-loader";
 
 const main = async (): Promise<void> => {
-  // Setup resource cleanup
-  setupCleanup();
-
   try {
     // Create the commander program
     const program = new Command();

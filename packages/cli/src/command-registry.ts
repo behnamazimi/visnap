@@ -14,7 +14,6 @@
  * ✅ Easy to maintain
  */
 
-import { command as browsersCommand } from "./commands/browsers";
 import { command as initCommand } from "./commands/init";
 import { command as testCommand } from "./commands/test";
 import { command as updateCommand } from "./commands/update";
@@ -28,6 +27,5 @@ export const COMMAND_REGISTRY: readonly Command[] = [
   initCommand,
   testCommand,
   updateCommand,
-  browsersCommand,
   // Add new commands here
 ] as const;

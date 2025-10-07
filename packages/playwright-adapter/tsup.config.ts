@@ -13,10 +13,5 @@ export default defineConfig({
       js: format === "cjs" ? ".cjs" : ".js",
     };
   },
-  external: [
-    "playwright",
-    "playwright-core",
-  ],
+  external: ["playwright-core"],
 });
-
-

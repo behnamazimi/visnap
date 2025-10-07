@@ -18,7 +18,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@visual-testing-tool/protocol": "*"
+    "@visual-testing-tool/protocol": "*",
+    "serve-handler": "^6.1.5"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

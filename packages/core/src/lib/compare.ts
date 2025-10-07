@@ -1,13 +1,13 @@
 import { readdirSync } from "fs";
 import { join } from "path";
 
+import {
+  type TestCaseInstance,
+  type VisualTestingToolConfig,
+} from "@visual-testing-tool/protocol";
 import odiff from "odiff-bin";
 
-import { type VTTConfig } from "./config";
-
 import { DEFAULT_THRESHOLD } from "@/constants";
-import { type VTTStory } from "@/types";
-import { type ResolvedStoryConfig } from "@/utils/config-resolver";
 import { getErrorMessage } from "@/utils/error-handler";
 
 export interface CompareOptions {
@@ -82,58 +82,42 @@ export const compareDirectories = async (
  * Compare base and current screenshots with story-level configuration support.
  * This function can handle different thresholds per story.
  */
-export const compareBaseAndCurrentWithStories = async (
-  config: VTTConfig,
-  stories: VTTStory[],
-  resolvedConfigs: Map<string, ResolvedStoryConfig>
+export const compareBaseAndCurrentWithTestCases = async (
+  config: VisualTestingToolConfig,
+  testCases: TestCaseInstance[]
 ): Promise<CompareResult[]> => {
   const { getCurrentDir, getBaseDir, getDiffDir } = await import("@/utils/fs");
 
-  const currentDir = getCurrentDir(config);
-  const baseDir = getBaseDir(config);
-  const diffDir = getDiffDir(config);
+  const currentDir = getCurrentDir(config.screenshotDir);
+  const baseDir = getBaseDir(config.screenshotDir);
+  const diffDir = getDiffDir(config.screenshotDir);
+
+  const defaultThreshold =
+    typeof config.threshold === "number" ? config.threshold : DEFAULT_THRESHOLD;
+
+  // Map filename -> threshold (supports per-instance override)
+  const idToThreshold = new Map<string, number>();
+  for (const t of testCases) {
+    const file = `${t.caseId}-${t.variantId}.png`;
+    const maybeThreshold = (t as unknown as { threshold?: number }).threshold;
+    if (typeof maybeThreshold === "number") {
+      idToThreshold.set(file, maybeThreshold);
+    }
+  }
 
   const files = readdirSync(currentDir);
+  const diffColor = "#00ff00";
   const results: CompareResult[] = [];
-
-  // Create a map of story ID to story config for quick lookup
-  const storyMap = new Map<string, VTTStory>();
-  stories.forEach(story => {
-    storyMap.set(story.id, story);
-  });
-
   for (const file of files) {
     const currentFile = join(currentDir, file);
     const baseFile = join(baseDir, file);
     const diffFile = join(diffDir, file);
-
-    // Extract story ID and browser from filename (format: storyId--browser.png)
-    const match = file.match(/^(.+)--(.+)\.png$/);
-    if (!match) {
-      results.push({
-        id: file,
-        match: false,
-        reason: "Invalid filename format",
-      });
-      continue;
-    }
-
-    const [, storyId] = match;
-    const story = storyMap.get(storyId);
-
-    // Get threshold for this specific story from resolved configs
-    const threshold = story
-      ? (resolvedConfigs.get(storyId)?.threshold ??
-        config.threshold ??
-        DEFAULT_THRESHOLD)
-      : (config.threshold ?? DEFAULT_THRESHOLD);
-
+    const threshold = idToThreshold.get(file) ?? defaultThreshold;
     try {
       const diffResult = await odiff.compare(currentFile, baseFile, diffFile, {
-        diffColor: "#00ff00",
+        diffColor,
         threshold,
       });
-
       if (diffResult.match) {
         results.push({ id: file, match: true, reason: "", diffPercentage: 0 });
       } else if (diffResult.reason === "pixel-diff") {

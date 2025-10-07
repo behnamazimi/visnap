@@ -22,53 +22,20 @@ export async function getPackageInfo() {
 }
 
 // High-level API functions
-export { runTests, updateBaseline, initializeProject } from "./api";
+export { updateBaseline, initializeProject, runVisualTests } from "./api";
 
 // High-level API types
-export type {
-  TestOptions,
-  UpdateOptions,
-  InitOptions,
-  TestResult,
-  BrowserTestResult,
-  UpdateResult,
-  InitResult,
-} from "./api";
+export type { InitOptions, InitResult } from "./api";
 
 // Low-level utilities
-export {
-  configFileExists,
-  loadConfigFile,
-  resolveBrowsers,
-  resolveConcurrency,
-  resolveScreenshotDir,
-  resolveFinalConfig,
-} from "./config";
-export type {
-  VTTConfig,
-  BrowserName,
-  ViewportConfig,
-  ViewportSize,
-} from "./config";
-export {
-  compareDirectories,
-  compareBaseAndCurrentWithStories,
-} from "./compare";
+export { loadConfigFile, resolveScreenshotDir } from "./config";
+export type { BrowserName, ViewportConfig, ViewportSize } from "./config";
+export { compareBaseAndCurrentWithTestCases } from "./compare";
 export type { CompareOptions, CompareResult } from "./compare";
-export { launchBrowser, openPage, getViewportInfo } from "./browser";
 export { createConcurrencyPool } from "./pool";
-export {
-  createTestCaseFilter,
-  createTestCaseFilter as createStoryFilter,
-} from "./storiesFilter";
 
 // Additional types that might be useful externally
 export type { VTTStory } from "@/types";
 
 // Utilities for CLI and other packages
-export {
-  getErrorMessage,
-  log,
-  setupCleanup,
-  generateConfigContent,
-} from "@/utils";
+export { getErrorMessage, log, generateConfigContent } from "@/utils";
