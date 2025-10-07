@@ -252,6 +252,7 @@ export function createStorybookAdapter(
       exclude?: string | string[];
       baseUrl: string;
       viewportKeys: string[];
+      globalViewport?: ViewportMap;
     }
   ): TestCaseInstanceMeta[] {
     const metas: TestCaseMeta[] = [];
@@ -300,6 +301,9 @@ export function createStorybookAdapter(
     for (const s of filtered) {
       const cfg = s.visualTesting;
       for (const vk of options.viewportKeys) {
+        // Use global viewport configuration as fallback if individual test case doesn't have viewport config
+        const viewportConfig = cfg?.viewport || options.globalViewport?.[vk];
+        
         instances.push({
           id: s.id,
           title: s.title,
@@ -307,7 +311,7 @@ export function createStorybookAdapter(
           variantId: vk,
           url: `${currentBaseUrl}/iframe.html?id=${encodeURIComponent(s.id)}`,
           screenshotTarget: cfg?.screenshotTarget ?? "#storybook-root",
-          viewport: cfg?.viewport,
+          viewport: viewportConfig,
           threshold: cfg?.threshold,
         });
       }
@@ -361,6 +365,7 @@ export function createStorybookAdapter(
         exclude: opts?.exclude,
         baseUrl: currentBaseUrl!,
         viewportKeys: keys,
+        globalViewport: o?.viewport,
       });
     },
     /** Stops the adapter server (if any) and clears `baseUrl`. Safe to call multiple times. */

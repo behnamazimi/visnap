@@ -31,6 +31,12 @@ const config: VisualTestingToolConfig = {
     ],
   },
   threshold: 0.1,
+  // Global viewport configuration that applies to all test cases unless overridden
+  viewport: {
+    desktop: { width: 1920, height: 1080 },
+    tablet: { width: 768, height: 1024 },
+    mobile: { width: 375, height: 667 },
+  },
 };
 
 export default config;

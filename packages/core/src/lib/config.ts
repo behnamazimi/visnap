@@ -19,6 +19,10 @@ export interface ViewportConfig {
   [key: string]: ViewportSize;
 }
 
+export interface ViewportMap {
+  [key: string]: ViewportSize;
+}
+
 export const getConfigTsPath = (): string =>
   join(process.cwd(), "vtt.config.ts");
 
@@ -77,4 +81,8 @@ export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
   log.dim(`  Max concurrency: ${config.runtime?.maxConcurrency ?? 4}`);
   log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
   log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
+  if (config.viewport) {
+    const viewportKeys = Object.keys(config.viewport);
+    log.dim(`  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`);
+  }
 };

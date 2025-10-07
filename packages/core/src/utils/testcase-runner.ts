@@ -133,9 +133,10 @@ export async function runTestCasesOnBrowser(
       }
       page = (await discoveryAdapter.openPage(pageUrl)) as unknown as PageWithEvaluate;
 
-      // Discover test cases
+      // Discover test cases with global viewport configuration
       const discoveredCases = (await testCaseAdapter.listCases(
-        page
+        page,
+        { viewport: options.viewport }
       )) as unknown as TestCaseInstance[];
 
       // Close the discovery page
@@ -163,9 +164,10 @@ export async function runTestCasesOnBrowser(
       }
       page = (await singleAdapter.openPage(pageUrl)) as unknown as PageWithEvaluate;
 
-      // Discover and expand test cases to concrete variants
+      // Discover and expand test cases to concrete variants with global viewport configuration
       cases = (await testCaseAdapter.listCases(
-        page
+        page,
+        { viewport: options.viewport }
       )) as unknown as TestCaseInstance[];
     }
     

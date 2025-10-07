@@ -151,6 +151,8 @@ export interface VisualTestingToolConfig {
     /** Maximum number of concurrent captures to run; defaults to 4 */
     maxConcurrency?: number;
   };
+  /** Global viewport configuration that applies to all test cases unless overridden */
+  viewport?: ViewportMap;
 }
 
 export type PageWithEvaluate = {
