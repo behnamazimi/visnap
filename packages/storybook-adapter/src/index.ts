@@ -1,4 +1,5 @@
 import http from "node:http";
+import { existsSync } from "node:fs";
 
 import type {
   TestCaseAdapter,
@@ -51,6 +52,8 @@ export function createStorybookAdapter(
   const DEFAULT_PORT = 6006;
   const SERVER_START_TIMEOUT_MS = 10000;
   const EVAL_TIMEOUT_MS = 15000;
+  const DISCOVERY_MAX_RETRIES = 3;
+  const DISCOVERY_RETRY_DELAY_MS = 500;
 
   /** Races a promise against a timeout and ensures the timer is always cleared. */
   function withTimeout<T>(promise: Promise<T>, ms: number, message: string) {
@@ -102,6 +105,9 @@ export function createStorybookAdapter(
       baseUrl = opts.source.replace(/\/$/, "");
       return;
     }
+    if (!existsSync(opts.source)) {
+      throw new Error(`Storybook static directory not found: ${opts.source}`);
+    }
     const port = opts.port ?? DEFAULT_PORT;
     server = http.createServer((req, res) =>
       handler(req, res, { public: opts.source, cleanUrls: false })
@@ -140,25 +146,41 @@ export function createStorybookAdapter(
       throw new Error("Page context does not support evaluate()");
     }
 
-    const evalPromise = pageCtx.evaluate(async () => {
-      const storybook = (window as any).__STORYBOOK_PREVIEW__;
-      if (!storybook) {
-        throw new Error("Storybook preview object not found on window");
-      }
-      if (typeof storybook.ready === "function") {
-        await storybook.ready();
-      }
-      if (typeof storybook.extract !== "function") {
-        throw new Error("Storybook extract() is unavailable");
-      }
-      return await storybook.extract();
-    });
+    const attempt = async (): Promise<Record<string, unknown>> => {
+      const evalPromise = (pageCtx.evaluate as NonNullable<PageWithEvaluate["evaluate"]>)(async () => {
+        const storybook = (window as any).__STORYBOOK_PREVIEW__;
+        if (!storybook) {
+          throw new Error("Storybook preview object not found on window");
+        }
+        if (typeof storybook.ready === "function") {
+          await storybook.ready();
+        }
+        if (typeof storybook.extract !== "function") {
+          throw new Error("Storybook extract() is unavailable");
+        }
+        return await storybook.extract();
+      });
+      return (await withTimeout(
+        evalPromise,
+        EVAL_TIMEOUT_MS,
+        "Story discovery timed out"
+      )) as Record<string, unknown>;
+    };
 
-    return (await withTimeout(
-      evalPromise,
-      EVAL_TIMEOUT_MS,
-      "Story discovery timed out"
-    )) as Record<string, unknown>;
+    let lastError: unknown;
+    for (let i = 0; i < DISCOVERY_MAX_RETRIES; i++) {
+      try {
+        return await attempt();
+      } catch (e) {
+        lastError = e;
+        if (i < DISCOVERY_MAX_RETRIES - 1) {
+          await new Promise(res => setTimeout(res, DISCOVERY_RETRY_DELAY_MS * (i + 1)));
+          continue;
+        }
+        throw e;
+      }
+    }
+    throw lastError instanceof Error ? lastError : new Error("Story discovery failed");
   }
 
   /**
@@ -181,10 +203,18 @@ export function createStorybookAdapter(
         : [];
 
     const includeRegexes = includePatterns
-      .map(p => toSafeRegex(p))
+      .map(p => {
+        const r = toSafeRegex(p);
+        if (!r) console.warn(`[storybook-adapter] Ignoring invalid include pattern: ${p}`);
+        return r;
+      })
       .filter((r): r is RegExp => !!r);
     const excludeRegexes = excludePatterns
-      .map(p => toSafeRegex(p))
+      .map(p => {
+        const r = toSafeRegex(p);
+        if (!r) console.warn(`[storybook-adapter] Ignoring invalid exclude pattern: ${p}`);
+        return r;
+      })
       .filter((r): r is RegExp => !!r);
 
     return (story: TestCaseMeta) => {
