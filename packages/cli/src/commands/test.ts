@@ -1,10 +1,7 @@
+import { runTests, getErrorMessage, log } from "@visual-testing-tool/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
-
-import { runTests } from "@/lib";
-import { getErrorMessage } from "@/utils/error-handler";
-import log from "@/utils/logger";
 
 const testHandler = async (options: {
   include?: string;

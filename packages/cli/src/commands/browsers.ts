@@ -1,10 +1,9 @@
 import { spawn } from "child_process";
 
+import { log } from "@visual-testing-tool/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
-
-import log from "@/utils/logger";
 
 // Why this command exists:
 // - This project depends on `playwright-core`, which intentionally does NOT download browser binaries.

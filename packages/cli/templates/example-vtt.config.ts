@@ -1,4 +1,4 @@
-import { type VTTConfig } from "visual-testing-tool/core";
+import { type VTTConfig } from "@visual-testing-tool/core";
 
 const config: VTTConfig = {
   storybook: {

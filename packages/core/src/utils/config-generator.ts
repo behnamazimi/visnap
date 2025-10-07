@@ -26,7 +26,7 @@ export function generateConfigContent(options: InitOptions): string {
 }`;
 
   if (configType === "ts") {
-    return `import { type VTTConfig } from "visual-testing-tool/core";
+    return `import { type VTTConfig } from "@visual-testing-tool/core";
 
 const config: VTTConfig = ${configObject};
 
