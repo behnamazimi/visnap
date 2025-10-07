@@ -85,7 +85,10 @@ export async function runTestCasesOnBrowser(
     )) as unknown as TestCaseInstance[];
 
     captureResults = [];
-    for (const variant of cases) {
+    const maxConcurrency = Math.max(1, options.runtime?.maxConcurrency ?? 4);
+    const queue: Promise<void>[] = [];
+    let active = 0;
+    const runCapture = async (variant: TestCaseInstance) => {
       const id = `${variant.caseId}-${variant.variantId}`;
       log.dim(`Taking screenshot for: ${id}`);
       try {
@@ -100,9 +103,27 @@ export async function runTestCasesOnBrowser(
         const message = (e as Error)?.message ?? String(e);
         log.error(`Capture failed for ${id}: ${message}`);
         captureResults.push({ id, error: message });
-        // continue with next variant
+      } finally {
+        active--;
       }
+    };
+
+    const schedule = async (variant: TestCaseInstance) => {
+      while (active >= maxConcurrency) {
+        await Promise.race(queue);
+      }
+      active++;
+      const p = runCapture(variant).finally(() => {
+        const idx = queue.indexOf(p);
+        if (idx >= 0) queue.splice(idx, 1);
+      });
+      queue.push(p);
+    };
+
+    for (const variant of cases) {
+      await schedule(variant);
     }
+    await Promise.all(queue);
   } finally {
     // Ensure adapters are torn down regardless of capture/write outcomes
     await browserAdapter.dispose?.();
@@ -119,10 +140,16 @@ export async function runTestCasesOnBrowser(
   // Persist all successful screenshots (every variant) in parallel and await completion
   const successful = captureResults.filter(r => r.result);
   await Promise.all(
-    successful.map(r => {
+    successful.map(async r => {
       const buffer: Uint8Array = r.result!.buffer;
-      const path = join(outDir, `${r.result!.meta.id}.png`);
-      return writeFile(path, buffer as Uint8Array);
+      const finalPath = join(outDir, `${r.result!.meta.id}.png`);
+      const tmpPath = `${finalPath}.tmp`;
+      await writeFile(tmpPath, buffer as Uint8Array);
+      // rename is atomic on most platforms; fallback to rewrite if needed
+      await import("fs/promises").then(m => m.rename(tmpPath, finalPath)).catch(async () => {
+        // best-effort fallback
+        await writeFile(finalPath, buffer as Uint8Array);
+      });
     })
   );
 

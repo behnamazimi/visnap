@@ -118,6 +118,10 @@ export interface VisualTestingToolConfig {
   };
   threshold: number;
   screenshotDir?: string;
+  runtime?: {
+    /** Maximum number of concurrent captures to run; defaults to 4 */
+    maxConcurrency?: number;
+  };
 }
 
 export type PageWithEvaluate = {
