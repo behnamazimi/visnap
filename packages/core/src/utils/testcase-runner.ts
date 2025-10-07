@@ -14,6 +14,7 @@ import type {
 import log from "./logger";
 
 import { compareBaseAndCurrentWithTestCases } from "@/lib/compare";
+import { logEffectiveConfig } from "@/lib/config";
 import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
 
 // New function after tool agnostic design
@@ -21,6 +22,9 @@ export async function runTestCasesOnBrowser(
   options: VisualTestingToolConfig,
   mode: "test" | "update"
 ): Promise<{ outcome?: RunOutcome }> {
+  // Log effective configuration for traceability
+  logEffectiveConfig(options);
+  
   const { adapters } = options;
 
   const loadBrowserAdapter = async (): Promise<BrowserAdapter> => {
@@ -84,6 +88,13 @@ export async function runTestCasesOnBrowser(
     cases = (await testCaseAdapter.listCases(
       page
     )) as unknown as TestCaseInstance[];
+    
+    // Sort cases deterministically by caseId, then variantId
+    cases.sort((a, b) => {
+      const caseCompare = a.caseId.localeCompare(b.caseId);
+      if (caseCompare !== 0) return caseCompare;
+      return a.variantId.localeCompare(b.variantId);
+    });
 
     captureResults = [];
     const maxConcurrency = Math.max(1, options.runtime?.maxConcurrency ?? 4);

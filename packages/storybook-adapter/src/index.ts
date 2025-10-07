@@ -349,6 +349,8 @@ export function createStorybookAdapter(
       const currentBaseUrl = baseUrl;
       let keys = o?.viewport ? Object.keys(o.viewport) : ["default"];
       if (!keys || keys.length === 0) keys = ["default"];
+      // Sort viewport keys deterministically
+      keys.sort((a, b) => a.localeCompare(b));
 
       return normalizeStories(cases, {
         include: opts?.include,

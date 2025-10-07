@@ -68,3 +68,13 @@ export const resolveEffectiveConfig = async (
   withEnv.screenshotDir = resolveScreenshotDir(withEnv.screenshotDir);
   return withEnv;
 };
+
+export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
+  const { log } = require("@/utils/logger");
+  log.info("Effective configuration:");
+  log.dim(`  Screenshot directory: ${config.screenshotDir}`);
+  log.dim(`  Threshold: ${config.threshold}`);
+  log.dim(`  Max concurrency: ${config.runtime?.maxConcurrency ?? 4}`);
+  log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
+  log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
+};
