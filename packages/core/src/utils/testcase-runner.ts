@@ -64,7 +64,7 @@ export async function runTestCasesOnBrowser(
 
   let page: PageWithEvaluate | undefined;
   let cases: TestCaseInstance[] = [];
-  let captureResults: ScreenshotResult[][] = [];
+  let captureResults: { id: string; result?: ScreenshotResult; error?: string }[] = [];
 
   try {
     // Start browser + test-case adapter and open Storybook iframe bootstrap page
@@ -86,14 +86,22 @@ export async function runTestCasesOnBrowser(
 
     captureResults = [];
     for (const variant of cases) {
-      log.dim(`Taking screenshot for: ${variant.caseId}-${variant.variantId}`);
-      const result = await browserAdapter.capture({
-        id: `${variant.caseId}-${variant.variantId}`,
-        url: variant.url,
-        screenshotTarget: variant.screenshotTarget,
-        viewport: variant.viewport,
-      });
-      captureResults.push([result]);
+      const id = `${variant.caseId}-${variant.variantId}`;
+      log.dim(`Taking screenshot for: ${id}`);
+      try {
+        const result = await browserAdapter.capture({
+          id,
+          url: variant.url,
+          screenshotTarget: variant.screenshotTarget,
+          viewport: variant.viewport,
+        });
+        captureResults.push({ id, result });
+      } catch (e) {
+        const message = (e as Error)?.message ?? String(e);
+        log.error(`Capture failed for ${id}: ${message}`);
+        captureResults.push({ id, error: message });
+        // continue with next variant
+      }
     }
   } finally {
     // Ensure adapters are torn down regardless of capture/write outcomes
@@ -108,11 +116,12 @@ export async function runTestCasesOnBrowser(
       ? getCurrentDir(options.screenshotDir)
       : getBaseDir(options.screenshotDir);
 
-  // Persist all screenshots (every variant) in parallel and await completion
+  // Persist all successful screenshots (every variant) in parallel and await completion
+  const successful = captureResults.filter(r => r.result);
   await Promise.all(
-    captureResults.flat().map((r: ScreenshotResult) => {
-      const buffer: Uint8Array = r.buffer;
-      const path = join(outDir, `${r.meta.id}.png`);
+    successful.map(r => {
+      const buffer: Uint8Array = r.result!.buffer;
+      const path = join(outDir, `${r.result!.meta.id}.png`);
       return writeFile(path, buffer as Uint8Array);
     })
   );
@@ -122,6 +131,7 @@ export async function runTestCasesOnBrowser(
     const results = await compareBaseAndCurrentWithTestCases(options, cases);
 
     const passed = results.filter(r => r.match).length;
+    const failedCaptures = captureResults.filter(r => r.error).length;
 
     // Log results for each story
     for (const r of results) {
@@ -135,6 +145,9 @@ export async function runTestCasesOnBrowser(
       }
     }
 
+    if (failedCaptures > 0) {
+      log.warn(`Capture failures: ${failedCaptures}`);
+    }
     log.info(`Passed: ${passed} out of ${results.length}`);
   } else {
     // update mode: images written to base dir only
