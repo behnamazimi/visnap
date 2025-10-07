@@ -8,6 +8,7 @@ import type {
   VisualTestingToolConfig,
   ScreenshotResult,
   PageWithEvaluate,
+  RunOutcome,
 } from "@visual-testing-tool/protocol";
 
 import log from "./logger";
@@ -19,7 +20,7 @@ import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
 export async function runTestCasesOnBrowser(
   options: VisualTestingToolConfig,
   mode: "test" | "update"
-): Promise<void> {
+): Promise<{ outcome?: RunOutcome }> {
   const { adapters } = options;
 
   const loadBrowserAdapter = async (): Promise<BrowserAdapter> => {
@@ -182,7 +183,32 @@ export async function runTestCasesOnBrowser(
     log.info(
       `Summary => total:${results.length}, passed:${passed}, diffs:${failedDiffs}, missing-current:${failedMissingCurrent}, missing-base:${failedMissingBase}, errors:${failedErrors}`
     );
+
+    const outcome: RunOutcome = {
+      total: results.length,
+      passed,
+      failedDiffs,
+      failedMissingCurrent,
+      failedMissingBase,
+      failedErrors,
+      captureFailures: failedCaptures,
+    };
+
+    return { outcome };
   } else {
-    // update mode: images written to base dir only
+    // update mode: summarize capture outcomes
+    const total = captureResults.length;
+    const successful = captureResults.filter(r => r.result).length;
+    const failedCaptures = captureResults.filter(r => r.error).length;
+    const outcome: RunOutcome = {
+      total,
+      passed: successful,
+      failedDiffs: 0,
+      failedMissingCurrent: 0,
+      failedMissingBase: 0,
+      failedErrors: 0,
+      captureFailures: failedCaptures,
+    };
+    return { outcome };
   }
 }
