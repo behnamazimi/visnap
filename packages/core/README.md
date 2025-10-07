@@ -42,17 +42,44 @@ Capture current screenshots and compare them with baseline images.
 visual-testing-tool test
 ```
 
+## Memory Management
+
+The visual testing tool includes basic memory management features:
+
+- **Batch Processing**: Test cases are processed in batches to reduce memory usage
+- **Immediate Disk Writing**: Screenshots are written to disk immediately instead of kept in memory
+- **Temporary File Cleanup**: Automatic cleanup of temporary files during failures
+- **Garbage Collection**: Forced garbage collection between batches when available
+
 ## Configuration
 
 The CLI reads configuration from `visual-testing-tool.config.ts` in your project root.
 
 ### Basic Configuration
 
-TBD
+```typescript
+export default {
+  adapters: {
+    browser: {
+      name: "@visual-testing-tool/playwright-adapter",
+      options: {}
+    },
+    testCase: [{
+      name: "@visual-testing-tool/storybook-adapter",
+      options: {
+        source: "./storybook-static",
+        port: 6006
+      }
+    }]
+  },
+  threshold: 0.2,
+  screenshotDir: "visual-testing",
+  runtime: {
+    maxConcurrency: 4
+  }
+};
+```
 
-### Configuration Options
-
-TBD
 
 ## License
 

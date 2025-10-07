@@ -1,4 +1,4 @@
-import { writeFile } from "fs/promises";
+import { writeFile, unlink } from "fs/promises";
 import { join } from "path";
 
 import type {
@@ -74,19 +74,24 @@ export async function runTestCasesOnBrowser(
   let page: PageWithEvaluate | undefined;
   let cases: TestCaseInstance[] = [];
   let captureResults: { id: string; result?: ScreenshotResult; error?: string }[] = [];
+  const tempFiles: string[] = [];
 
   try {
-    // Start browser + test-case adapter and open Storybook iframe bootstrap page
+    // Start browser + test-case adapter
     await browserAdapter.init?.({ browser: "chromium" });
-    const { baseUrl } = (await testCaseAdapter?.start?.()) ?? {};
+    const startResult = (await testCaseAdapter?.start?.()) ?? {};
+    const { baseUrl, initialPageUrl } = startResult;
 
-    const bootstrapPageUrl = `${baseUrl ?? ""}/iframe.html`;
+    // Use initialPageUrl from adapter, or fallback to baseUrl if no specific page is needed
+    const pageUrl = initialPageUrl ?? baseUrl;
+    if (!pageUrl) {
+      throw new Error("Test case adapter must provide either baseUrl or initialPageUrl");
+    }
+    
     if (!browserAdapter.openPage) {
       throw new Error("Browser adapter does not support openPage method");
     }
-    page = (await browserAdapter.openPage(
-      bootstrapPageUrl
-    )) as unknown as PageWithEvaluate;
+    page = (await browserAdapter.openPage(pageUrl)) as unknown as PageWithEvaluate;
 
     // Discover and expand test cases to concrete variants
     cases = (await testCaseAdapter.listCases(
@@ -102,73 +107,98 @@ export async function runTestCasesOnBrowser(
 
     captureResults = [];
     const maxConcurrency = Math.max(1, options.runtime?.maxConcurrency ?? 4);
-    const queue: Promise<void>[] = [];
-    let active = 0;
-    log.info(`Running ${cases.length} test cases with max concurrency: ${maxConcurrency}`);
-    const runCapture = async (variant: TestCaseInstance) => {
-      const id = `${variant.caseId}-${variant.variantId}`;
-      log.dim(`Taking screenshot for: ${id}`);
-      try {
-        const result = await browserAdapter.capture({
-          id,
-          url: variant.url,
-          screenshotTarget: variant.screenshotTarget,
-          viewport: variant.viewport,
+    const batchSize = Math.min(50, Math.max(10, Math.floor(cases.length / 4))); // Simple batching
+    
+    // Prepare output directory based on mode
+    ensureVttDirectories(options.screenshotDir);
+    const outDir =
+      mode === "test"
+        ? getCurrentDir(options.screenshotDir)
+        : getBaseDir(options.screenshotDir);
+    
+    log.info(`Running ${cases.length} test cases in batches of ${batchSize} with max concurrency: ${maxConcurrency}`);
+    
+    // Process in batches to manage memory
+    for (let i = 0; i < cases.length; i += batchSize) {
+      const batch = cases.slice(i, i + batchSize);
+      const queue: Promise<void>[] = [];
+      let active = 0;
+      
+      const runCapture = async (variant: TestCaseInstance) => {
+        const id = `${variant.caseId}-${variant.variantId}`;
+        log.dim(`Taking screenshot for: ${id}`);
+        try {
+          const result = await browserAdapter.capture({
+            id,
+            url: variant.url,
+            screenshotTarget: variant.screenshotTarget,
+            viewport: variant.viewport,
+          });
+          
+          // Write screenshot immediately to disk instead of keeping in memory
+          const finalPath = join(outDir, `${result.meta.id}.png`);
+          const tmpPath = `${finalPath}.tmp`;
+          tempFiles.push(tmpPath);
+          
+          try {
+            await writeFile(tmpPath, result.buffer);
+            await import("fs/promises").then(m => m.rename(tmpPath, finalPath)).catch(async () => {
+              await writeFile(finalPath, result.buffer);
+            });
+            
+            // Remove from temp files on success
+            const index = tempFiles.indexOf(tmpPath);
+            if (index > -1) tempFiles.splice(index, 1);
+            
+            captureResults.push({ id, result: { ...result, buffer: new Uint8Array(0) } }); // Empty buffer
+          } catch (writeError) {
+            throw writeError;
+          }
+        } catch (e) {
+          const message = (e as Error)?.message ?? String(e);
+          log.error(`Capture failed for ${id}: ${message}`);
+          captureResults.push({ id, error: message });
+        } finally {
+          active--;
+        }
+      };
+
+      const schedule = async (variant: TestCaseInstance) => {
+        while (active >= maxConcurrency) {
+          await Promise.race(queue);
+        }
+        active++;
+        const p = runCapture(variant).finally(() => {
+          const idx = queue.indexOf(p);
+          if (idx >= 0) queue.splice(idx, 1);
         });
-        captureResults.push({ id, result });
-      } catch (e) {
-        const message = (e as Error)?.message ?? String(e);
-        log.error(`Capture failed for ${id}: ${message}`);
-        captureResults.push({ id, error: message });
-      } finally {
-        active--;
-      }
-    };
+        queue.push(p);
+      };
 
-    const schedule = async (variant: TestCaseInstance) => {
-      while (active >= maxConcurrency) {
-        await Promise.race(queue);
+      for (const variant of batch) {
+        await schedule(variant);
       }
-      active++;
-      const p = runCapture(variant).finally(() => {
-        const idx = queue.indexOf(p);
-        if (idx >= 0) queue.splice(idx, 1);
-      });
-      queue.push(p);
-    };
-
-    for (const variant of cases) {
-      await schedule(variant);
+      await Promise.all(queue);
+      
+      // Force garbage collection between batches if available
+      if (global.gc) {
+        global.gc();
+      }
     }
-    await Promise.all(queue);
+  } catch (error) {
+    // Cleanup temporary files on failure
+    if (tempFiles.length > 0) {
+      log.info(`Cleaning up ${tempFiles.length} temporary files due to failure`);
+      await cleanupTempFiles(tempFiles);
+    }
+    throw error;
   } finally {
     // Ensure adapters are torn down regardless of capture/write outcomes
     await browserAdapter.dispose?.();
     await testCaseAdapter.stop?.();
   }
 
-  // Prepare output directory based on mode
-  ensureVttDirectories(options.screenshotDir);
-  const outDir =
-    mode === "test"
-      ? getCurrentDir(options.screenshotDir)
-      : getBaseDir(options.screenshotDir);
-
-  // Persist all successful screenshots (every variant) in parallel and await completion
-  const successful = captureResults.filter(r => r.result);
-  await Promise.all(
-    successful.map(async r => {
-      const buffer: Uint8Array = r.result!.buffer;
-      const finalPath = join(outDir, `${r.result!.meta.id}.png`);
-      const tmpPath = `${finalPath}.tmp`;
-      await writeFile(tmpPath, buffer as Uint8Array);
-      // rename is atomic on most platforms; fallback to rewrite if needed
-      await import("fs/promises").then(m => m.rename(tmpPath, finalPath)).catch(async () => {
-        // best-effort fallback
-        await writeFile(finalPath, buffer as Uint8Array);
-      });
-    })
-  );
+  // Screenshots are already written to disk during capture
 
   if (mode === "test") {
     // Compare current screenshots with the base directory and report
@@ -251,4 +281,21 @@ export async function runTestCasesOnBrowser(
 
     return { outcome, captureFailures };
   }
+}
+
+/**
+ * Clean up temporary files
+ */
+async function cleanupTempFiles(tempFiles: string[]): Promise<void> {
+  const cleanupPromises = tempFiles.map(async (file) => {
+    try {
+      await unlink(file);
+    } catch (error) {
+      // Ignore errors during cleanup - file might not exist
+      log.dim(`Failed to cleanup temp file ${file}: ${error}`);
+    }
+  });
+
+  await Promise.all(cleanupPromises);
+  tempFiles.length = 0; // Clear the array
 }

@@ -96,6 +96,8 @@ export interface TestCaseAdapterStartResult {
   // Provide when the adapter serves a directory or is bound to a known remote.
   // If omitted, expand() must return absolute URLs.
   baseUrl?: string;
+  // Initial page URL for the adapter to discover test cases
+  initialPageUrl?: string;
 }
 
 export interface TestCaseAdapter {

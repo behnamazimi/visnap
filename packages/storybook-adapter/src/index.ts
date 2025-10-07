@@ -319,7 +319,10 @@ export function createStorybookAdapter(
     /** Starts the adapter and returns `{ baseUrl }` of the Storybook under test. */
     async start() {
       await ensureStarted();
-      return { baseUrl };
+      return { 
+        baseUrl,
+        initialPageUrl: `${baseUrl}/iframe.html`
+      };
     },
 
     /**
