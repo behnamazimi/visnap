@@ -159,6 +159,10 @@ export async function runTestCasesOnBrowser(
 
     const passed = results.filter(r => r.match).length;
     const failedCaptures = captureResults.filter(r => r.error).length;
+    const failedDiffs = results.filter(r => !r.match && r.reason === "pixel-diff").length;
+    const failedMissingCurrent = results.filter(r => !r.match && r.reason === "missing-current").length;
+    const failedMissingBase = results.filter(r => !r.match && r.reason === "missing-base").length;
+    const failedErrors = results.filter(r => !r.match && r.reason === "error").length;
 
     // Log results for each story
     for (const r of results) {
@@ -175,7 +179,9 @@ export async function runTestCasesOnBrowser(
     if (failedCaptures > 0) {
       log.warn(`Capture failures: ${failedCaptures}`);
     }
-    log.info(`Passed: ${passed} out of ${results.length}`);
+    log.info(
+      `Summary => total:${results.length}, passed:${passed}, diffs:${failedDiffs}, missing-current:${failedMissingCurrent}, missing-base:${failedMissingBase}, errors:${failedErrors}`
+    );
   } else {
     // update mode: images written to base dir only
   }

@@ -72,7 +72,7 @@ export const compareDirectories = async (
         results.push({
           id: file,
           match: false,
-          reason: diffResult.reason,
+          reason: "error",
           diffPercentage: 0,
         });
       }
@@ -84,7 +84,7 @@ export const compareDirectories = async (
       results.push({
         id: file,
         match: false,
-        reason: baseNotFound ? "base does not exist" : message,
+        reason: baseNotFound ? "missing-base" : "error",
       });
     }
   }
@@ -159,7 +159,7 @@ export const compareBaseAndCurrentWithTestCases = async (
         results.push({
           id: file,
           match: false,
-          reason: diffResult.reason,
+          reason: "error",
           diffPercentage: 0,
         });
       }
@@ -171,7 +171,7 @@ export const compareBaseAndCurrentWithTestCases = async (
       results.push({
         id: file,
         match: false,
-        reason: baseNotFound ? "base does not exist" : message,
+        reason: baseNotFound ? "missing-base" : "error",
       });
     }
   }

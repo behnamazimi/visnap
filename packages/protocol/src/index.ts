@@ -21,6 +21,24 @@ export interface ScreenshotResult {
   meta: { elapsedMs: number; viewportKey?: string; id: string };
 }
 
+// Standardized comparison reasons for non-matching results
+export type CompareReason =
+  | "pixel-diff"
+  | "missing-current"
+  | "missing-base"
+  | "error";
+
+// Aggregate outcome for a run to aid CI reporting
+export interface RunOutcome {
+  total: number;
+  passed: number;
+  failedDiffs: number;
+  failedMissingCurrent: number;
+  failedMissingBase: number;
+  failedErrors: number; // non-standard errors
+  captureFailures: number; // number of captures that failed prior to compare
+}
+
 export interface TestCaseVisualConfig {
   skip?: boolean;
   screenshotTarget?: string;
