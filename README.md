@@ -58,6 +58,23 @@ Run tests in Docker for consistent, isolated environments:
 npx visual-testing-tool test --docker
 ```
 
+## ⚙️ Environment Variables
+
+You can control defaults via environment variables (useful in CI):
+
+- `VTT_SCREENSHOT_DIR`: override the screenshots root directory (e.g., `visual-testing`).
+- `VTT_THRESHOLD`: numeric pixel diff threshold used when comparing images.
+- `VTT_MAX_CONCURRENCY`: maximum number of concurrent captures (default 4).
+
+Example (bash):
+
+```bash
+VTT_SCREENSHOT_DIR=visual-testing \
+VTT_THRESHOLD=0.02 \
+VTT_MAX_CONCURRENCY=6 \
+npx visual-testing-tool test
+```
+
 ## 📦 Installation
 
 ```bash
