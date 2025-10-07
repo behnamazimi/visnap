@@ -21,7 +21,11 @@ import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
 export async function runTestCasesOnBrowser(
   options: VisualTestingToolConfig,
   mode: "test" | "update"
-): Promise<{ outcome?: RunOutcome }> {
+): Promise<{ 
+  outcome?: RunOutcome;
+  failures?: Array<{ id: string; reason: string; diffPercentage?: number }>;
+  captureFailures?: Array<{ id: string; error: string }>;
+}> {
   // Log effective configuration for traceability
   logEffectiveConfig(options);
   
@@ -100,6 +104,7 @@ export async function runTestCasesOnBrowser(
     const maxConcurrency = Math.max(1, options.runtime?.maxConcurrency ?? 4);
     const queue: Promise<void>[] = [];
     let active = 0;
+    log.info(`Running ${cases.length} test cases with max concurrency: ${maxConcurrency}`);
     const runCapture = async (variant: TestCaseInstance) => {
       const id = `${variant.caseId}-${variant.variantId}`;
       log.dim(`Taking screenshot for: ${id}`);
@@ -205,7 +210,23 @@ export async function runTestCasesOnBrowser(
       captureFailures: failedCaptures,
     };
 
-    return { outcome };
+    // Collect detailed failure information
+    const failures = results
+      .filter(r => !r.match)
+      .map(r => ({
+        id: r.id,
+        reason: r.reason,
+        diffPercentage: r.diffPercentage,
+      }));
+
+    const captureFailures = captureResults
+      .filter(r => r.error)
+      .map(r => ({
+        id: r.id,
+        error: r.error!,
+      }));
+
+    return { outcome, failures, captureFailures };
   } else {
     // update mode: summarize capture outcomes
     const total = captureResults.length;
@@ -220,6 +241,14 @@ export async function runTestCasesOnBrowser(
       failedErrors: 0,
       captureFailures: failedCaptures,
     };
-    return { outcome };
+
+    const captureFailures = captureResults
+      .filter(r => r.error)
+      .map(r => ({
+        id: r.id,
+        error: r.error!,
+      }));
+
+    return { outcome, captureFailures };
   }
 }

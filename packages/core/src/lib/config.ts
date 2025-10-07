@@ -2,7 +2,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 
 import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
-import merge from "lodash/merge";
+import merge from "lodash/merge.js";
 import { bundleRequire } from "bundle-require";
 
 import { DEFAULT_SCREENSHOT_DIR } from "@/constants";

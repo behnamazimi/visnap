@@ -7,6 +7,15 @@ export interface TestResult {
   success: boolean;
   outcome: RunOutcome;
   exitCode: number;
+  failures?: Array<{
+    id: string;
+    reason: string;
+    diffPercentage?: number;
+  }>;
+  captureFailures?: Array<{
+    id: string;
+    error: string;
+  }>;
 }
 
 // New function after tool agnostic design
@@ -15,11 +24,11 @@ export async function runVisualTests(
 ): Promise<TestResult> {
   const effectiveConfig = await resolveEffectiveConfig(options);
 
-  const { outcome } = await runTestCasesOnBrowser(effectiveConfig, "test");
+  const { outcome, failures, captureFailures } = await runTestCasesOnBrowser(effectiveConfig, "test");
   if (!outcome) {
     throw new Error("Test run did not return outcome data");
   }
   const success = outcome.passed === outcome.total && outcome.captureFailures === 0;
   const exitCode = success ? 0 : 1;
-  return { success, outcome, exitCode };
+  return { success, outcome, exitCode, failures, captureFailures };
 }

@@ -9,33 +9,35 @@ import { writeFileSync } from "fs";
 import { type Command } from "../types";
 
 interface TestCommandOptions {
-  report?: string; // when provided without a path => stdout JSON; when a path => write file
+  jsonReport?: string | boolean; // when provided without a path => stdout JSON; when a path => write file
 }
 
 const testHandler = async (options: TestCommandOptions): Promise<void> => {
   try {
     const result = await runVisualTests({});
 
-    if (options.report) {
+    if (options.jsonReport) {
       const report = {
         success: result.success,
         outcome: result.outcome,
+        failures: result.failures,
+        captureFailures: result.captureFailures,
         timestamp: new Date().toISOString(),
       };
       const reportJson = JSON.stringify(report, null, 2);
 
-      // If report looks like a filename/path (has a slash or ends with .json), write to file; else print
-      const val = options.report.trim();
-      const looksLikePath = /[\\/]|\.json$/i.test(val);
+      // If jsonReport looks like a filename/path (has a slash or ends with .json), write to file; else print
+      const val = typeof options.jsonReport === "string" ? options.jsonReport.trim() : "";
+      const looksLikePath = val ? /[\\/]|\.json$/i.test(val) : false;
       if (looksLikePath) {
         writeFileSync(val, reportJson);
-        log.info(`Report written to: ${val}`);
+        log.info(`JSON report written to: ${val}`);
       } else {
         console.log(reportJson);
       }
     }
 
-    if (!options.report) {
+    if (!options.jsonReport) {
       if (result.success) {
         log.success(`Test run completed successfully`);
       } else {
@@ -56,7 +58,7 @@ export const command: Command = {
   handler: testHandler,
   configure: (cmd: CommanderCommand) => {
     return cmd.option(
-      "--report [path]",
+      "--jsonReport [path]",
       "Output JSON report. Provide a path to write to file; omit to print to stdout"
     );
   },
