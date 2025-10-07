@@ -9,6 +9,8 @@ import type {
   ScreenshotResult,
   PageWithEvaluate,
   RunOutcome,
+  BrowserName,
+  BrowserConfiguration,
 } from "@visual-testing-tool/protocol";
 
 import log from "./logger";
@@ -68,17 +70,50 @@ export async function runTestCasesOnBrowser(
     throw new Error(`Unsupported test case adapter: ${name}`);
   };
 
-  const browserAdapter = await loadBrowserAdapter();
   const testCaseAdapter = await loadTestCaseAdapter();
 
   let page: PageWithEvaluate | undefined;
   let cases: TestCaseInstance[] = [];
   let captureResults: { id: string; result?: ScreenshotResult; error?: string }[] = [];
   const tempFiles: string[] = [];
+  const browserAdapters = new Map<BrowserName, BrowserAdapter>();
+
+  // Function to get or create a browser adapter for a specific browser
+  const getBrowserAdapter = async (browserName: BrowserName, browserOptions?: Record<string, unknown>): Promise<BrowserAdapter> => {
+    if (!browserAdapters.has(browserName)) {
+      const adapter = await loadBrowserAdapter();
+      await adapter.init?.({ 
+        browser: browserName,
+        ...(browserOptions && { options: browserOptions })
+      });
+      browserAdapters.set(browserName, adapter);
+    }
+    return browserAdapters.get(browserName)!;
+  };
 
   try {
-    // Start browser + test-case adapter
-    await browserAdapter.init?.({ browser: "chromium" });
+    // Determine browser configuration
+    const browserConfig = adapters?.browser?.options;
+    const browserConfigurations = browserConfig?.browser as BrowserConfiguration | BrowserConfiguration[] | undefined;
+    
+    // Parse browser configurations into a standardized format
+    let browsersToUse: Array<{ name: BrowserName; options?: Record<string, unknown> }>;
+    
+    if (!browserConfigurations) {
+      browsersToUse = [{ name: "chromium" }]; // Default fallback
+    } else if (Array.isArray(browserConfigurations)) {
+      browsersToUse = browserConfigurations.map(config => 
+        typeof config === 'string' 
+          ? { name: config as BrowserName }
+          : { name: config.name, options: config.options }
+      );
+    } else if (typeof browserConfigurations === 'string') {
+      browsersToUse = [{ name: browserConfigurations as BrowserName }];
+    } else {
+      browsersToUse = [{ name: browserConfigurations.name, options: browserConfigurations.options }];
+    }
+
+    // Start test-case adapter first (browser-agnostic)
     const startResult = (await testCaseAdapter?.start?.()) ?? {};
     const { baseUrl, initialPageUrl } = startResult;
 
@@ -87,16 +122,52 @@ export async function runTestCasesOnBrowser(
     if (!pageUrl) {
       throw new Error("Test case adapter must provide either baseUrl or initialPageUrl");
     }
-    
-    if (!browserAdapter.openPage) {
-      throw new Error("Browser adapter does not support openPage method");
-    }
-    page = (await browserAdapter.openPage(pageUrl)) as unknown as PageWithEvaluate;
 
-    // Discover and expand test cases to concrete variants
-    cases = (await testCaseAdapter.listCases(
-      page
-    )) as unknown as TestCaseInstance[];
+    // For multi-browser, we need to discover cases first, then run them on each browser
+    if (browsersToUse.length > 1) {
+      // Initialize with first browser to discover test cases
+      const discoveryAdapter = await getBrowserAdapter(browsersToUse[0].name, browsersToUse[0].options);
+      
+      if (!discoveryAdapter.openPage) {
+        throw new Error("Browser adapter does not support openPage method");
+      }
+      page = (await discoveryAdapter.openPage(pageUrl)) as unknown as PageWithEvaluate;
+
+      // Discover test cases
+      const discoveredCases = (await testCaseAdapter.listCases(
+        page
+      )) as unknown as TestCaseInstance[];
+
+      // Close the discovery page
+      await page?.close?.();
+      page = undefined;
+
+      // Expand cases for each browser
+      cases = [];
+      for (const discoveredCase of discoveredCases) {
+        for (const browserConfig of browsersToUse) {
+          cases.push({
+            ...discoveredCase,
+            variantId: `${discoveredCase.variantId}-${browserConfig.name}`,
+            browser: browserConfig.name,
+          } as TestCaseInstance & { browser: BrowserName });
+        }
+      }
+    } else {
+      // Single browser mode (existing behavior)
+      const browserConfig = browsersToUse[0];
+      const singleAdapter = await getBrowserAdapter(browserConfig.name, browserConfig.options);
+      
+      if (!singleAdapter.openPage) {
+        throw new Error("Browser adapter does not support openPage method");
+      }
+      page = (await singleAdapter.openPage(pageUrl)) as unknown as PageWithEvaluate;
+
+      // Discover and expand test cases to concrete variants
+      cases = (await testCaseAdapter.listCases(
+        page
+      )) as unknown as TestCaseInstance[];
+    }
     
     // Sort cases deterministically by caseId, then variantId
     cases.sort((a, b) => {
@@ -126,9 +197,23 @@ export async function runTestCasesOnBrowser(
       
       const runCapture = async (variant: TestCaseInstance) => {
         const id = `${variant.caseId}-${variant.variantId}`;
-        log.dim(`Taking screenshot for: ${id}`);
+        const variantWithBrowser = variant as TestCaseInstance & { browser?: BrowserName };
+        const browserInfo = variantWithBrowser.browser ? ` (${variantWithBrowser.browser})` : '';
+        log.dim(`Taking screenshot for: ${id}${browserInfo}`);
+        
         try {
-          const result = await browserAdapter.capture({
+          // Get the appropriate browser adapter for this variant
+          let adapterToUse: BrowserAdapter;
+          if (variantWithBrowser.browser) {
+            const browserConfig = browsersToUse.find(b => b.name === variantWithBrowser.browser);
+            adapterToUse = await getBrowserAdapter(variantWithBrowser.browser, browserConfig?.options);
+          } else {
+            // Fallback to first browser if no browser specified
+            const firstBrowser = browsersToUse[0];
+            adapterToUse = await getBrowserAdapter(firstBrowser.name, firstBrowser.options);
+          }
+          
+          const result = await adapterToUse.capture({
             id,
             url: variant.url,
             screenshotTarget: variant.screenshotTarget,
@@ -194,7 +279,7 @@ export async function runTestCasesOnBrowser(
     throw error;
   } finally {
     // Ensure adapters are torn down regardless of capture/write outcomes
-    await browserAdapter.dispose?.();
+    await Promise.all(Array.from(browserAdapters.values()).map(adapter => adapter.dispose?.()));
     await testCaseAdapter.stop?.();
   }
 

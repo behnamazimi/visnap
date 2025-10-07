@@ -6,6 +6,13 @@ export interface Viewport {
   deviceScaleFactor?: number;
 }
 
+export interface BrowserConfig {
+  name: BrowserName;
+  options?: Record<string, unknown>;
+}
+
+export type BrowserConfiguration = BrowserName | BrowserConfig;
+
 export type ViewportMap = Record<string, Viewport>;
 
 export interface ScreenshotOptions {
@@ -62,6 +69,7 @@ interface BaseTestCaseInstance {
   url: string; // absolute or relative; if relative, core will prefix adapter.start().baseUrl
   screenshotTarget?: string;
   viewport?: Viewport;
+  browser?: BrowserName; // Browser for this specific variant
   /** Optional per-case threshold applied during comparison for this instance */
   threshold?: number;
 }
@@ -117,6 +125,7 @@ export interface TestCaseAdapter {
 export interface BrowserAdapterOptions {
   name: string;
   options?: {
+    browser?: BrowserConfiguration | BrowserConfiguration[];
     [key: string]: unknown;
   };
 }

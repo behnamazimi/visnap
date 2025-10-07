@@ -11,8 +11,6 @@ import type {
   PageWithEvaluate,
 } from "@visual-testing-tool/protocol";
 
-// Import global type declarations
-import "./types/global";
 import handler from "serve-handler";
 
 /**
