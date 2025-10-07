@@ -52,7 +52,7 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
   }
 };
 
-export const command: Command = {
+export const command: Command<TestCommandOptions> = {
   name: "test",
   description: "Capture current screenshots and compare with baseline",
   handler: testHandler,

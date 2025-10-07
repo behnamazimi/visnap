@@ -3,12 +3,12 @@ import { type Command as CommanderCommand } from "commander";
 /**
  * Command handler function type for commander.js
  */
-export type CommandHandler = (...args: any[]) => Promise<void> | void;
+export type CommandHandler<T = unknown> = (options: T) => Promise<void> | void;
 
 /**
  * Command configuration interface for commander.js
  */
-export interface Command {
+export interface Command<T = unknown> {
   /** The command name */
   name: string;
   /** Command description for help text */
@@ -18,7 +18,7 @@ export interface Command {
   /** Command aliases (optional) */
   aliases?: string[];
   /** The command handler function */
-  handler: CommandHandler;
+  handler: CommandHandler<T>;
   /** Function to configure the command with options/arguments */
   configure?: (cmd: CommanderCommand) => CommanderCommand;
 }
@@ -26,4 +26,4 @@ export interface Command {
 /**
  * Registry of all available commands
  */
-export type CommandRegistry = Record<string, Command>;
+export type CommandRegistry = Record<string, Command<unknown>>;

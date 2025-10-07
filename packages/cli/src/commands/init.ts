@@ -38,7 +38,7 @@ const promptUser = async (): Promise<InitOptions> => {
   };
 };
 
-const initHandler = async (): Promise<void> => {
+const initHandler = async (_options: void): Promise<void> => {
   try {
     const currentDir = process.cwd();
     const userOptions = await promptUser();
@@ -78,7 +78,7 @@ const initHandler = async (): Promise<void> => {
   }
 };
 
-export const command: Command = {
+export const command: Command<void> = {
   name: "init",
   description: "Initialize a new VTT project with sample config",
   handler: initHandler,

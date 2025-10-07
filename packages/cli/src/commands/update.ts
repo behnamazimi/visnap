@@ -18,7 +18,7 @@ const updateHandler = async (
   }
 };
 
-export const command: Command = {
+export const command: Command<VisualTestingToolConfig> = {
   name: "update",
   description: "Capture baseline screenshots into visual-testing-tool/base",
   handler: updateHandler,

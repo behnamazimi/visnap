@@ -10,6 +10,9 @@ import type {
   Viewport,
   PageWithEvaluate,
 } from "@visual-testing-tool/protocol";
+
+// Import global type declarations
+import "./types/global";
 import handler from "serve-handler";
 
 /**
@@ -148,7 +151,7 @@ export function createStorybookAdapter(
 
     const attempt = async (): Promise<Record<string, unknown>> => {
       const evalPromise = (pageCtx.evaluate as NonNullable<PageWithEvaluate["evaluate"]>)(async () => {
-        const storybook = (window as any).__STORYBOOK_PREVIEW__;
+        const storybook = window.__STORYBOOK_PREVIEW__;
         if (!storybook) {
           throw new Error("Storybook preview object not found on window");
         }
