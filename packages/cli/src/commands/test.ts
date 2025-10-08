@@ -4,6 +4,8 @@ import {
   runVisualTests,
   getErrorMessage,
   log,
+  runInDocker,
+  DEFAULT_DOCKER_IMAGE,
 } from "@visual-testing-tool/core";
 import { type Command as CommanderCommand } from "commander";
 
@@ -12,10 +14,29 @@ import { exit } from "../utils/exit";
 
 interface TestCommandOptions {
   jsonReport?: string | boolean; // when provided without a path => stdout JSON; when a path => write file
+  docker?: boolean;
 }
 
 const testHandler = async (options: TestCommandOptions): Promise<void> => {
   try {
+    if (options.docker) {
+      const image = DEFAULT_DOCKER_IMAGE;
+      const args: string[] = [
+        "test",
+        // Forward jsonReport flag if present
+        ...(options.jsonReport
+          ? [
+              "--jsonReport",
+              ...(typeof options.jsonReport === "string"
+                ? [options.jsonReport]
+                : []),
+            ]
+          : []),
+      ];
+      const status = runInDocker({ image, args });
+      exit(status);
+      return;
+    }
     const result = await runVisualTests({});
 
     if (options.jsonReport) {
@@ -60,9 +81,11 @@ export const command: Command<TestCommandOptions> = {
   description: "Capture current screenshots and compare with baseline",
   handler: testHandler,
   configure: (cmd: CommanderCommand) => {
-    return cmd.option(
-      "--jsonReport [path]",
-      "Output JSON report. Provide a path to write to file; omit to print to stdout"
-    );
+    return cmd
+      .option(
+        "--jsonReport [path]",
+        "Output JSON report. Provide a path to write to file; omit to print to stdout"
+      )
+      .option("--docker", "Run inside Docker");
   },
 };

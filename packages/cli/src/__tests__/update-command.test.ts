@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { command as updateCommand } from "../commands/update";
 
 vi.mock("@visual-testing-tool/core", () => ({
@@ -28,5 +29,3 @@ describe("update command", () => {
     await expect(updateCommand.handler({} as any)).rejects.toThrow("EXIT:0");
   });
 });
-
-

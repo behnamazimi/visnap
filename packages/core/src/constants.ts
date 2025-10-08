@@ -29,4 +29,4 @@ export const STORYBOOK_SELECTORS = {
   BODY: "body",
 } as const;
 
-export const DEFAULT_DOCKER_IMAGE = "visual-testing-tool/latest";
+export const DEFAULT_DOCKER_IMAGE = "visual-testing-tool:latest";

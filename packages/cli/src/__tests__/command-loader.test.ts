@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+
 import { loadCommands } from "../command-loader";
 
 describe("command-loader", () => {
@@ -10,5 +11,3 @@ describe("command-loader", () => {
     expect(typeof commands.init.handler).toBe("function");
   });
 });
-
-

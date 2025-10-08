@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { command as testCommand } from "../commands/test";
 
 vi.mock("@visual-testing-tool/core", () => ({
@@ -46,5 +47,3 @@ describe("test command", () => {
     }
   });
 });
-
-
