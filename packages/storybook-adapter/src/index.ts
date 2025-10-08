@@ -30,7 +30,7 @@ export interface CreateStorybookAdapterOptions {
  *
  * The returned API shape matches `TestCaseAdapter` and is preserved.
  */
-export function createStorybookAdapter(
+export function createAdapter(
   opts: CreateStorybookAdapterOptions
 ): TestCaseAdapter {
   if (
@@ -38,7 +38,7 @@ export function createStorybookAdapter(
     typeof opts.source !== "string" ||
     opts.source.trim().length === 0
   ) {
-    throw new Error("Invalid 'source' provided to createStorybookAdapter");
+    throw new Error("Invalid 'source' provided to createAdapter");
   }
 
   const serverManager = createServerManager(opts.source, opts.port);

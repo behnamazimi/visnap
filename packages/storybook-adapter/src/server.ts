@@ -8,7 +8,7 @@ import handler from "serve-handler";
  */
 
 const DEFAULT_PORT = 6006;
-const SERVER_START_TIMEOUT_MS = 10000;
+const SERVER_START_TIMEOUT_MS = 5000;
 
 export interface ServerManager {
   ensureStarted(): Promise<void>;

@@ -1,4 +1,4 @@
-import { createStorybookAdapter } from "./index.js";
+import { createAdapter } from "./index.js";
 
 import type {
   PageWithEvaluate,
@@ -27,7 +27,7 @@ const mockCreateServerManager = vi.mocked(createServerManager);
 const mockDiscoverCasesFromBrowser = vi.mocked(discoverCasesFromBrowser);
 const mockNormalizeStories = vi.mocked(normalizeStories);
 
-describe("createStorybookAdapter", () => {
+describe("createAdapter", () => {
   let mockServerManager: any;
   let mockPageCtx: PageWithEvaluate;
 
@@ -50,39 +50,39 @@ describe("createStorybookAdapter", () => {
 
   describe("validation", () => {
     it("should throw error for null options", () => {
-      expect(() => createStorybookAdapter(null as any)).toThrow(
-        "Invalid 'source' provided to createStorybookAdapter"
+      expect(() => createAdapter(null as any)).toThrow(
+        "Invalid 'source' provided to createAdapter"
       );
     });
 
     it("should throw error for undefined options", () => {
-      expect(() => createStorybookAdapter(undefined as any)).toThrow(
-        "Invalid 'source' provided to createStorybookAdapter"
+      expect(() => createAdapter(undefined as any)).toThrow(
+        "Invalid 'source' provided to createAdapter"
       );
     });
 
     it("should throw error for non-string source", () => {
-      expect(() => createStorybookAdapter({ source: 123 as any })).toThrow(
-        "Invalid 'source' provided to createStorybookAdapter"
+      expect(() => createAdapter({ source: 123 as any })).toThrow(
+        "Invalid 'source' provided to createAdapter"
       );
     });
 
     it("should throw error for empty source", () => {
-      expect(() => createStorybookAdapter({ source: "" })).toThrow(
-        "Invalid 'source' provided to createStorybookAdapter"
+      expect(() => createAdapter({ source: "" })).toThrow(
+        "Invalid 'source' provided to createAdapter"
       );
     });
 
     it("should throw error for whitespace-only source", () => {
-      expect(() => createStorybookAdapter({ source: "   " })).toThrow(
-        "Invalid 'source' provided to createStorybookAdapter"
+      expect(() => createAdapter({ source: "   " })).toThrow(
+        "Invalid 'source' provided to createAdapter"
       );
     });
   });
 
   describe("adapter creation", () => {
     it("should create server manager with correct parameters", () => {
-      createStorybookAdapter({
+      createAdapter({
         source: "/path/to/storybook",
         port: 3000,
       });
@@ -94,7 +94,7 @@ describe("createStorybookAdapter", () => {
     });
 
     it("should create server manager without port", () => {
-      createStorybookAdapter({
+      createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -105,7 +105,7 @@ describe("createStorybookAdapter", () => {
     });
 
     it("should return adapter with correct name", () => {
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -117,7 +117,7 @@ describe("createStorybookAdapter", () => {
     it("should start server and return baseUrl", async () => {
       mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
 
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -134,7 +134,7 @@ describe("createStorybookAdapter", () => {
 
   describe("listCases method", () => {
     it("should throw error when page context is not provided", async () => {
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -164,7 +164,7 @@ describe("createStorybookAdapter", () => {
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
         include: ["button*"],
         exclude: ["*test*"],
@@ -187,7 +187,7 @@ describe("createStorybookAdapter", () => {
     it("should throw error when adapter not started", async () => {
       mockServerManager.getBaseUrl.mockReturnValue(undefined);
 
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -209,7 +209,7 @@ describe("createStorybookAdapter", () => {
         desktop: { width: 1920, height: 1080 },
       };
 
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -232,7 +232,7 @@ describe("createStorybookAdapter", () => {
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -253,7 +253,7 @@ describe("createStorybookAdapter", () => {
         new Error("Discovery failed")
       );
 
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -275,7 +275,7 @@ describe("createStorybookAdapter", () => {
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -290,7 +290,7 @@ describe("createStorybookAdapter", () => {
 
   describe("stop method", () => {
     it("should stop server manager", async () => {
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
       });
 
@@ -302,7 +302,7 @@ describe("createStorybookAdapter", () => {
 
   describe("integration", () => {
     it("should work with URL source", () => {
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "https://storybook.example.com",
       });
 
@@ -314,7 +314,7 @@ describe("createStorybookAdapter", () => {
     });
 
     it("should work with all options", () => {
-      const adapter = createStorybookAdapter({
+      const adapter = createAdapter({
         source: "/path/to/storybook",
         port: 3000,
         include: ["button*", "input*"],

@@ -37,6 +37,9 @@ const config: VisualTestingToolConfig = {
     tablet: { width: 768, height: 1024 },
     mobile: { width: 375, height: 667 },
   },
+  runtime: {
+    maxConcurrency: 4,
+  },
 };
 
 export default config;

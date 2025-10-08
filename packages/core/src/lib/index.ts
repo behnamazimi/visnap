@@ -39,3 +39,8 @@ export type { VTTStory } from "@/types";
 
 // Utilities for CLI and other packages
 export { getErrorMessage, log, generateConfigContent } from "@/utils";
+export { runInDocker, runInDockerWithConfig } from "../utils/docker";
+export type { DockerRunOptions, DockerConfigOptions } from "../utils/docker";
+
+// Re-export constants
+export { DEFAULT_DOCKER_IMAGE } from "../constants";

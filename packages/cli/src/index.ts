@@ -6,6 +6,7 @@ import {
 import { Command } from "commander";
 
 import { loadCommands, registerCommands } from "./command-loader";
+import { exit } from "./utils/exit";
 
 const main = async (): Promise<void> => {
   try {
@@ -29,7 +30,7 @@ const main = async (): Promise<void> => {
     await program.parseAsync();
   } catch (error) {
     log.error(`Error: ${getErrorMessage(error)}`);
-    process.exit(1);
+    exit(1);
   }
 };
 
