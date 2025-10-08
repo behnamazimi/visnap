@@ -7,7 +7,7 @@ import {
   mockPage,
 } from "./__mocks__/playwright-core.js";
 
-import { createPlaywrightAdapter } from "./index.js";
+import { createAdapter } from "./index.js";
 import type { PlaywrightAdapterOptions } from "./index.js";
 
 // Mock the utility modules
@@ -32,14 +32,14 @@ vi.mock("./screenshot-capture.js", () => ({
   ),
 }));
 
-describe("createPlaywrightAdapter", () => {
+describe("createAdapter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe("adapter creation", () => {
     it("should create adapter with default options", () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
 
       expect(adapter.name).toBe("playwright");
       expect(adapter.init).toBeDefined();
@@ -63,7 +63,7 @@ describe("createPlaywrightAdapter", () => {
         },
       };
 
-      const adapter = createPlaywrightAdapter(options);
+      const adapter = createAdapter(options);
 
       expect(adapter.name).toBe("playwright");
     });
@@ -71,7 +71,7 @@ describe("createPlaywrightAdapter", () => {
 
   describe("init method", () => {
     it("should initialize browser with default options", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
 
       await adapter.init({ browser: "firefox" });
 
@@ -80,7 +80,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should initialize browser with custom browser from init options", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
 
       await adapter.init({ browser: "webkit" });
 
@@ -94,7 +94,7 @@ describe("createPlaywrightAdapter", () => {
           browser: "firefox",
         },
       };
-      const adapter = createPlaywrightAdapter(options);
+      const adapter = createAdapter(options);
 
       await adapter.init({ browser: "firefox" });
 
@@ -103,7 +103,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should be idempotent - not reinitialize if already initialized", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
 
       await adapter.init({ browser: "firefox" });
       await adapter.init({ browser: "firefox" });
@@ -116,7 +116,7 @@ describe("createPlaywrightAdapter", () => {
 
   describe("openPage method", () => {
     it("should throw error if not initialized", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
 
       await expect(adapter.openPage("https://example.com")).rejects.toThrow(
         "Playwright adapter not initialized"
@@ -124,7 +124,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should open page with URL", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });
 
       const page = await adapter.openPage("https://example.com");
@@ -140,7 +140,7 @@ describe("createPlaywrightAdapter", () => {
           timeoutMs: 60000,
         },
       };
-      const adapter = createPlaywrightAdapter(options);
+      const adapter = createAdapter(options);
       await adapter.init({ browser: "firefox" });
 
       await adapter.openPage("https://example.com");
@@ -154,7 +154,7 @@ describe("createPlaywrightAdapter", () => {
           baseUrl: "https://example.com",
         },
       };
-      const adapter = createPlaywrightAdapter(options);
+      const adapter = createAdapter(options);
       await adapter.init({ browser: "firefox" });
 
       await adapter.openPage("/page");
@@ -169,7 +169,7 @@ describe("createPlaywrightAdapter", () => {
 
   describe("capture method", () => {
     it("should throw error if not initialized", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       const screenshotOptions: ScreenshotOptions = {
         id: "test-case",
         url: "https://example.com",
@@ -181,7 +181,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should capture screenshot", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });
 
       const screenshotOptions: ScreenshotOptions = {
@@ -205,7 +205,7 @@ describe("createPlaywrightAdapter", () => {
           baseUrl: "https://example.com",
         },
       };
-      const adapter = createPlaywrightAdapter(options);
+      const adapter = createAdapter(options);
       await adapter.init({ browser: "firefox" });
 
       const screenshotOptions: ScreenshotOptions = {
@@ -223,7 +223,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should create browser context for capture", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });
 
       const screenshotOptions: ScreenshotOptions = {
@@ -238,7 +238,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should close context after capture", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });
 
       const screenshotOptions: ScreenshotOptions = {
@@ -254,7 +254,7 @@ describe("createPlaywrightAdapter", () => {
 
   describe("dispose method", () => {
     it("should close browser", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });
 
       await adapter.dispose();
@@ -263,7 +263,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should be safe to call multiple times", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });
 
       await adapter.dispose();
@@ -274,7 +274,7 @@ describe("createPlaywrightAdapter", () => {
     });
 
     it("should handle case when browser is not initialized", async () => {
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
 
       // Should not throw
       await expect(adapter.dispose()).resolves.toBeUndefined();
@@ -290,7 +290,7 @@ describe("createPlaywrightAdapter", () => {
       const { selectBrowserType } = await import("./utils.js");
       (selectBrowserType as any).mockReturnValueOnce(mockBrowserType);
 
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
 
       await expect(adapter.init({ browser: "chromium" })).rejects.toThrow(
         "Launch failed"
@@ -300,7 +300,7 @@ describe("createPlaywrightAdapter", () => {
     it("should handle page creation failure", async () => {
       mockBrowser.newPage.mockRejectedValue(new Error("Page creation failed"));
 
-      const adapter = createPlaywrightAdapter();
+      const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });
 
       await expect(adapter.openPage("https://example.com")).rejects.toThrow(

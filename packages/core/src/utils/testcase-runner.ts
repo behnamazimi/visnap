@@ -15,10 +15,194 @@ import type {
 
 import log from "./logger";
 
-import { DEFAULT_CONCURRENCY } from "@/constants";
+import { DEFAULT_CONCURRENCY, DEFAULT_CAPTURE_TIMEOUT_MS, DEFAULT_BROWSER } from "@/constants";
 import { compareBaseAndCurrentWithTestCases } from "@/lib/compare";
 import { logEffectiveConfig } from "@/lib/config";
 import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
+
+type BrowserTarget = { name: BrowserName; options?: Record<string, unknown> };
+
+function parseBrowsersFromConfig(
+  adaptersConfig: VisualTestingToolConfig["adapters"]
+): BrowserTarget[] {
+  const browserConfig = adaptersConfig?.browser?.options;
+  const browserConfigurations = browserConfig?.browser as
+    | BrowserConfiguration
+    | BrowserConfiguration[]
+    | undefined;
+
+  if (!browserConfigurations) return [{ name: DEFAULT_BROWSER }];
+
+  if (Array.isArray(browserConfigurations)) {
+    return browserConfigurations.map(config =>
+      typeof config === "string"
+        ? { name: config as BrowserName }
+        : { name: config.name, options: config.options }
+    );
+  }
+
+  if (typeof browserConfigurations === "string") {
+    return [{ name: browserConfigurations as BrowserName }];
+  }
+
+  return [
+    {
+      name: browserConfigurations.name,
+      options: browserConfigurations.options,
+    },
+  ];
+}
+
+async function startAdapterAndResolvePageUrl(
+  testCaseAdapter: TestCaseAdapter
+): Promise<string> {
+  const startResult = (await testCaseAdapter?.start?.()) ?? {};
+  const { baseUrl, initialPageUrl } = startResult as {
+    baseUrl?: string;
+    initialPageUrl?: string;
+  };
+  const pageUrl = initialPageUrl ?? baseUrl;
+  if (!pageUrl) {
+    throw new Error(
+      "Test case adapter must provide either baseUrl or initialPageUrl"
+    );
+  }
+  return pageUrl;
+}
+
+function sortCasesStable(cases: TestCaseInstance[]): void {
+  cases.sort((a, b) => {
+    const caseCompare = a.caseId.localeCompare(b.caseId);
+    if (caseCompare !== 0) return caseCompare;
+    return a.variantId.localeCompare(b.variantId);
+  });
+}
+
+function computeBatchSize(totalCases: number): number {
+  return Math.min(50, Math.max(10, Math.floor(totalCases / 4)));
+}
+
+async function discoverCases(
+  testCaseAdapter: TestCaseAdapter,
+  page: PageWithEvaluate,
+  viewport: VisualTestingToolConfig["viewport"]
+): Promise<TestCaseInstance[]> {
+  return (await testCaseAdapter.listCases(page, {
+    viewport,
+  })) as unknown as TestCaseInstance[];
+}
+
+function expandCasesForBrowsers(
+  discoveredCases: TestCaseInstance[],
+  browsers: BrowserTarget[]
+): (TestCaseInstance & { browser: BrowserName })[] {
+  const expanded: Array<TestCaseInstance & { browser: BrowserName }> = [];
+  for (const discovered of discoveredCases) {
+    for (const browser of browsers) {
+      expanded.push({
+        ...discovered,
+        variantId: `${discovered.variantId}-${browser.name}`,
+        browser: browser.name,
+      } as TestCaseInstance & { browser: BrowserName });
+    }
+  }
+  return expanded;
+}
+
+async function summarizeTestMode(
+  options: VisualTestingToolConfig,
+  cases: TestCaseInstance[],
+  captureResults: { id: string; result?: ScreenshotResult; error?: string }[]
+): Promise<{
+  outcome: RunOutcome;
+  failures: Array<{ id: string; reason: string; diffPercentage?: number }>;
+  captureFailures: Array<{ id: string; error: string }>;
+}> {
+  const results = await compareBaseAndCurrentWithTestCases(options, cases);
+
+  const passed = results.filter(r => r.match).length;
+  const failedCaptures = captureResults.filter(r => r.error).length;
+  const failedDiffs = results.filter(
+    r => !r.match && r.reason === "pixel-diff"
+  ).length;
+  const failedMissingCurrent = results.filter(
+    r => !r.match && r.reason === "missing-current"
+  ).length;
+  const failedMissingBase = results.filter(
+    r => !r.match && r.reason === "missing-base"
+  ).length;
+  const failedErrors = results.filter(
+    r => !r.match && r.reason === "error"
+  ).length;
+
+  for (const r of results) {
+    if (r.match) {
+      log.success(`Passed: ${r.id}`);
+    } else {
+      const reasonText = r.diffPercentage
+        ? `${r.reason} (${r.diffPercentage}% difference)`
+        : r.reason;
+      log.error(`Failed: ${r.id} >> ${reasonText}`);
+    }
+  }
+
+  if (failedCaptures > 0) {
+    log.warn(`Capture failures: ${failedCaptures}`);
+  }
+  log.info(
+    `Summary => total:${results.length}, passed:${passed}, diffs:${failedDiffs}, missing-current:${failedMissingCurrent}, missing-base:${failedMissingBase}, errors:${failedErrors}`
+  );
+
+  const outcome: RunOutcome = {
+    total: results.length,
+    passed,
+    failedDiffs,
+    failedMissingCurrent,
+    failedMissingBase,
+    failedErrors,
+    captureFailures: failedCaptures,
+  };
+
+  const failures = results
+    .filter(r => !r.match)
+    .map(r => ({
+      id: r.id,
+      reason: r.reason,
+      diffPercentage: r.diffPercentage,
+    }));
+
+  const captureFailures = captureResults
+    .filter(r => r.error)
+    .map(r => ({ id: r.id, error: r.error! }));
+
+  return { outcome, failures, captureFailures };
+}
+
+function summarizeUpdateMode(
+  captureResults: { id: string; result?: ScreenshotResult; error?: string }[]
+): {
+  outcome: RunOutcome;
+  captureFailures: Array<{ id: string; error: string }>;
+} {
+  const total = captureResults.length;
+  const successful = captureResults.filter(r => r.result).length;
+  const failedCaptures = captureResults.filter(r => r.error).length;
+  const outcome: RunOutcome = {
+    total,
+    passed: successful,
+    failedDiffs: 0,
+    failedMissingCurrent: 0,
+    failedMissingBase: 0,
+    failedErrors: 0,
+    captureFailures: failedCaptures,
+  };
+
+  const captureFailures = captureResults
+    .filter(r => r.error)
+    .map(r => ({ id: r.id, error: r.error! }));
+
+  return { outcome, captureFailures };
+}
 
 // New function after tool agnostic design
 export async function runTestCasesOnBrowser(
@@ -37,41 +221,40 @@ export async function runTestCasesOnBrowser(
 
   const { adapters } = options;
 
+  // Tool-agnostic dynamic adapter loaders
   const loadBrowserAdapter = async (): Promise<BrowserAdapter> => {
-    const name = adapters?.browser?.name;
-    if (!name) throw new Error("Browser adapter is required");
-    const browserAdapterOptions = adapters?.browser?.options;
-    if (name === "@visual-testing-tool/playwright-adapter") {
-      const { createPlaywrightAdapter } = await import(
-        "@visual-testing-tool/playwright-adapter"
-      );
-      return createPlaywrightAdapter(
-        browserAdapterOptions as Record<string, unknown>
-      );
+    const moduleName = adapters?.browser?.name;
+    if (!moduleName) throw new Error("Browser adapter is required");
+    const browserAdapterOptions = adapters?.browser?.options as
+      | Record<string, unknown>
+      | undefined;
+
+    const mod = await import(moduleName);
+    if (typeof (mod as any)?.createAdapter === "function") {
+      return (mod as any).createAdapter(browserAdapterOptions);
     }
-    throw new Error(`Unsupported browser adapter: ${name}`);
+
+    throw new Error(
+      `Browser adapter ${moduleName} must export createAdapter function`
+    );
   };
 
   const loadTestCaseAdapter = async (): Promise<TestCaseAdapter> => {
     const first = adapters?.testCase?.[0];
-    const name = first?.name;
-    const opts = first?.options;
-    if (!name) throw new Error("Test case adapter is required");
-    if (name === "@visual-testing-tool/storybook-adapter") {
-      const { createStorybookAdapter } = await import(
-        "@visual-testing-tool/storybook-adapter"
-      );
-      if (!opts) throw new Error("Test case adapter options are required");
-      return createStorybookAdapter(
-        opts as {
-          source: string;
-          port?: number;
-          include?: string | string[];
-          exclude?: string | string[];
-        }
-      );
+    const moduleName = first?.name;
+    const adapterOptions = first?.options as
+      | Record<string, unknown>
+      | undefined;
+    if (!moduleName) throw new Error("Test case adapter is required");
+
+    const mod = await import(moduleName);
+    if (typeof (mod as any)?.createAdapter === "function") {
+      return (mod as any).createAdapter(adapterOptions);
     }
-    throw new Error(`Unsupported test case adapter: ${name}`);
+
+    throw new Error(
+      `Test case adapter ${moduleName} must export createAdapter function`
+    );
   };
 
   const testCaseAdapter = await loadTestCaseAdapter();
@@ -104,48 +287,10 @@ export async function runTestCasesOnBrowser(
 
   try {
     // Determine browser configuration
-    const browserConfig = adapters?.browser?.options;
-    const browserConfigurations = browserConfig?.browser as
-      | BrowserConfiguration
-      | BrowserConfiguration[]
-      | undefined;
+    const browsersToUse: BrowserTarget[] = parseBrowsersFromConfig(adapters);
 
-    // Parse browser configurations into a standardized format
-    let browsersToUse: Array<{
-      name: BrowserName;
-      options?: Record<string, unknown>;
-    }>;
-
-    if (!browserConfigurations) {
-      browsersToUse = [{ name: "chromium" }]; // Default fallback
-    } else if (Array.isArray(browserConfigurations)) {
-      browsersToUse = browserConfigurations.map(config =>
-        typeof config === "string"
-          ? { name: config as BrowserName }
-          : { name: config.name, options: config.options }
-      );
-    } else if (typeof browserConfigurations === "string") {
-      browsersToUse = [{ name: browserConfigurations as BrowserName }];
-    } else {
-      browsersToUse = [
-        {
-          name: browserConfigurations.name,
-          options: browserConfigurations.options,
-        },
-      ];
-    }
-
-    // Start test-case adapter first (browser-agnostic)
-    const startResult = (await testCaseAdapter?.start?.()) ?? {};
-    const { baseUrl, initialPageUrl } = startResult;
-
-    // Use initialPageUrl from adapter, or fallback to baseUrl if no specific page is needed
-    const pageUrl = initialPageUrl ?? baseUrl;
-    if (!pageUrl) {
-      throw new Error(
-        "Test case adapter must provide either baseUrl or initialPageUrl"
-      );
-    }
+    // Start test-case adapter and resolve page URL
+    const pageUrl = await startAdapterAndResolvePageUrl(testCaseAdapter);
 
     // For multi-browser, we need to discover cases first, then run them on each browser
     if (browsersToUse.length > 1) {
@@ -163,25 +308,18 @@ export async function runTestCasesOnBrowser(
       )) as unknown as PageWithEvaluate;
 
       // Discover test cases with global viewport configuration
-      const discoveredCases = (await testCaseAdapter.listCases(page, {
-        viewport: options.viewport,
-      })) as unknown as TestCaseInstance[];
+      const discoveredCases = await discoverCases(
+        testCaseAdapter,
+        page,
+        options.viewport
+      );
 
       // Close the discovery page
       await page?.close?.();
       page = undefined;
 
       // Expand cases for each browser
-      cases = [];
-      for (const discoveredCase of discoveredCases) {
-        for (const browserConfig of browsersToUse) {
-          cases.push({
-            ...discoveredCase,
-            variantId: `${discoveredCase.variantId}-${browserConfig.name}`,
-            browser: browserConfig.name,
-          } as TestCaseInstance & { browser: BrowserName });
-        }
-      }
+      cases = expandCasesForBrowsers(discoveredCases, browsersToUse);
     } else {
       // Single browser mode (existing behavior)
       const browserConfig = browsersToUse[0];
@@ -198,25 +336,18 @@ export async function runTestCasesOnBrowser(
       )) as unknown as PageWithEvaluate;
 
       // Discover and expand test cases to concrete variants with global viewport configuration
-      cases = (await testCaseAdapter.listCases(page, {
-        viewport: options.viewport,
-      })) as unknown as TestCaseInstance[];
+      cases = await discoverCases(testCaseAdapter, page, options.viewport);
     }
 
     // Sort cases deterministically by caseId, then variantId
-    cases.sort((a, b) => {
-      const caseCompare = a.caseId.localeCompare(b.caseId);
-      if (caseCompare !== 0) return caseCompare;
-      return a.variantId.localeCompare(b.variantId);
-    });
+    sortCasesStable(cases);
 
     captureResults = [];
     const maxConcurrency = Math.max(
       1,
       options.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY
     );
-    const batchSize = Math.min(50, Math.max(10, Math.floor(cases.length / 4))); // Simple batching
-    const CAPTURE_TIMEOUT_MS = 30000; // 30 seconds per capture
+    const batchSize = computeBatchSize(cases.length); // Simple batching
 
     // Prepare output directory based on mode
     ensureVttDirectories(options.screenshotDir);
@@ -277,9 +408,11 @@ export async function runTestCasesOnBrowser(
             setTimeout(
               () =>
                 reject(
-                  new Error(`Capture timeout after ${CAPTURE_TIMEOUT_MS}ms`)
+                  new Error(
+                    `Capture timeout after ${DEFAULT_CAPTURE_TIMEOUT_MS}ms`
+                  )
                 ),
-              CAPTURE_TIMEOUT_MS
+              DEFAULT_CAPTURE_TIMEOUT_MS
             );
           });
 
@@ -374,92 +507,14 @@ export async function runTestCasesOnBrowser(
   // Screenshots are already written to disk during capture
 
   if (mode === "test") {
-    // Compare current screenshots with the base directory and report
-    const results = await compareBaseAndCurrentWithTestCases(options, cases);
-
-    const passed = results.filter(r => r.match).length;
-    const failedCaptures = captureResults.filter(r => r.error).length;
-    const failedDiffs = results.filter(
-      r => !r.match && r.reason === "pixel-diff"
-    ).length;
-    const failedMissingCurrent = results.filter(
-      r => !r.match && r.reason === "missing-current"
-    ).length;
-    const failedMissingBase = results.filter(
-      r => !r.match && r.reason === "missing-base"
-    ).length;
-    const failedErrors = results.filter(
-      r => !r.match && r.reason === "error"
-    ).length;
-
-    // Log results for each story
-    for (const r of results) {
-      if (r.match) {
-        log.success(`Passed: ${r.id}`);
-      } else {
-        const reasonText = r.diffPercentage
-          ? `${r.reason} (${r.diffPercentage}% difference)`
-          : r.reason;
-        log.error(`Failed: ${r.id} >> ${reasonText}`);
-      }
-    }
-
-    if (failedCaptures > 0) {
-      log.warn(`Capture failures: ${failedCaptures}`);
-    }
-    log.info(
-      `Summary => total:${results.length}, passed:${passed}, diffs:${failedDiffs}, missing-current:${failedMissingCurrent}, missing-base:${failedMissingBase}, errors:${failedErrors}`
+    const { outcome, failures, captureFailures } = await summarizeTestMode(
+      options,
+      cases,
+      captureResults
     );
-
-    const outcome: RunOutcome = {
-      total: results.length,
-      passed,
-      failedDiffs,
-      failedMissingCurrent,
-      failedMissingBase,
-      failedErrors,
-      captureFailures: failedCaptures,
-    };
-
-    // Collect detailed failure information
-    const failures = results
-      .filter(r => !r.match)
-      .map(r => ({
-        id: r.id,
-        reason: r.reason,
-        diffPercentage: r.diffPercentage,
-      }));
-
-    const captureFailures = captureResults
-      .filter(r => r.error)
-      .map(r => ({
-        id: r.id,
-        error: r.error!,
-      }));
-
     return { outcome, failures, captureFailures };
   } else {
-    // update mode: summarize capture outcomes
-    const total = captureResults.length;
-    const successful = captureResults.filter(r => r.result).length;
-    const failedCaptures = captureResults.filter(r => r.error).length;
-    const outcome: RunOutcome = {
-      total,
-      passed: successful,
-      failedDiffs: 0,
-      failedMissingCurrent: 0,
-      failedMissingBase: 0,
-      failedErrors: 0,
-      captureFailures: failedCaptures,
-    };
-
-    const captureFailures = captureResults
-      .filter(r => r.error)
-      .map(r => ({
-        id: r.id,
-        error: r.error!,
-      }));
-
+    const { outcome, captureFailures } = summarizeUpdateMode(captureResults);
     return { outcome, captureFailures };
   }
 }

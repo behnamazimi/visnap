@@ -13,6 +13,8 @@ export const DEFAULT_SCREENSHOT_TARGET = "story-root" as const;
 export const STORYBOOK_READY_TIMEOUT = 10000;
 export const PAGE_LOAD_TIMEOUT = 30000;
 
+export const DEFAULT_CAPTURE_TIMEOUT_MS = 30000; // 30 seconds per capture
+
 // Server configuration
 export const DEFAULT_SERVER_PORT = 4477;
 

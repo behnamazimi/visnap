@@ -30,7 +30,7 @@ export interface CreateStorybookAdapterOptions {
  *
  * The returned API shape matches `TestCaseAdapter` and is preserved.
  */
-export function createStorybookAdapter(
+export function createAdapter(
   opts: CreateStorybookAdapterOptions
 ): TestCaseAdapter {
   if (

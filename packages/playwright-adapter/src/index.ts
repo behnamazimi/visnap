@@ -41,7 +41,7 @@ export interface PlaywrightAdapterOptions {
  * Creates a Playwright-backed `BrowserAdapter` for opening pages and capturing screenshots.
  * Public API remains unchanged; adds resilient navigation, baseUrl support, and safe cleanup.
  */
-export function createPlaywrightAdapter(
+export function createAdapter(
   opts: PlaywrightAdapterOptions = {}
 ): BrowserAdapter {
   let browserType: BrowserType | null = null;
