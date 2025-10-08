@@ -67,7 +67,10 @@ describe("config", () => {
     it("should load and return config when file exists", async () => {
       mockExistsSync.mockReturnValue(true);
       const mockConfig = { threshold: 0.1, screenshotDir: "test" };
-      mockBundleRequire.mockResolvedValue({ mod: { default: mockConfig } });
+      mockBundleRequire.mockResolvedValue({
+        mod: { default: mockConfig },
+        dependencies: [],
+      });
 
       const result = await loadConfigFile();
 
@@ -80,7 +83,10 @@ describe("config", () => {
     it("should handle config without default export", async () => {
       mockExistsSync.mockReturnValue(true);
       const mockConfig = { threshold: 0.1, screenshotDir: "test" };
-      mockBundleRequire.mockResolvedValue({ mod: mockConfig });
+      mockBundleRequire.mockResolvedValue({
+        mod: mockConfig,
+        dependencies: [],
+      });
 
       const result = await loadConfigFile();
 
@@ -113,7 +119,10 @@ describe("config", () => {
       mockExistsSync.mockReturnValue(true);
       const fileConfig = { threshold: 0.1, screenshotDir: "file-dir" };
       const options = { threshold: 0.2 };
-      mockBundleRequire.mockResolvedValue({ mod: { default: fileConfig } });
+      mockBundleRequire.mockResolvedValue({
+        mod: { default: fileConfig },
+        dependencies: [],
+      });
 
       const result = await resolveEffectiveConfig(options);
 
@@ -124,7 +133,10 @@ describe("config", () => {
     it("should apply environment variable overrides", async () => {
       mockExistsSync.mockReturnValue(true);
       const fileConfig = { threshold: 0.1, screenshotDir: "file-dir" };
-      mockBundleRequire.mockResolvedValue({ mod: { default: fileConfig } });
+      mockBundleRequire.mockResolvedValue({
+        mod: { default: fileConfig },
+        dependencies: [],
+      });
 
       process.env.VTT_SCREENSHOT_DIR = "env-dir";
       process.env.VTT_THRESHOLD = "0.3";
@@ -140,7 +152,10 @@ describe("config", () => {
     it("should ignore invalid environment variable values", async () => {
       mockExistsSync.mockReturnValue(true);
       const fileConfig = { threshold: 0.1 };
-      mockBundleRequire.mockResolvedValue({ mod: { default: fileConfig } });
+      mockBundleRequire.mockResolvedValue({
+        mod: { default: fileConfig },
+        dependencies: [],
+      });
 
       process.env.VTT_THRESHOLD = "invalid";
       process.env.VTT_MAX_CONCURRENCY = "invalid";
@@ -154,7 +169,10 @@ describe("config", () => {
     it("should ensure default screenshot directory", async () => {
       mockExistsSync.mockReturnValue(true);
       const fileConfig = {};
-      mockBundleRequire.mockResolvedValue({ mod: { default: fileConfig } });
+      mockBundleRequire.mockResolvedValue({
+        mod: { default: fileConfig },
+        dependencies: [],
+      });
 
       const result = await resolveEffectiveConfig();
 

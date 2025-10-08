@@ -15,4 +15,12 @@ export default {
   proseWrap: "preserve",
   htmlWhitespaceSensitivity: "css",
   embeddedLanguageFormatting: "auto",
+  overrides: [
+    {
+      files: ["*.js", "*.ts", "*.jsx", "*.tsx"],
+      options: {
+        parser: "typescript",
+      },
+    },
+  ],
 };
