@@ -15,7 +15,11 @@ import type {
 
 import log from "./logger";
 
-import { DEFAULT_CONCURRENCY, DEFAULT_CAPTURE_TIMEOUT_MS, DEFAULT_BROWSER } from "@/constants";
+import {
+  DEFAULT_CONCURRENCY,
+  DEFAULT_CAPTURE_TIMEOUT_MS,
+  DEFAULT_BROWSER,
+} from "@/constants";
 import { compareBaseAndCurrentWithTestCases } from "@/lib/compare";
 import { logEffectiveConfig } from "@/lib/config";
 import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
