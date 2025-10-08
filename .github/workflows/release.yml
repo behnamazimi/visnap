@@ -20,6 +20,7 @@ jobs:
         with:
           node-version: 20.x
           cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
         run: npm ci
@@ -28,7 +29,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          # This expects you to have a script called release which does a build for your packages and calls changeset publish
+          # Build and publish packages in one step
           publish: npm run release
           # Use the version script from package.json for proper versioning
           version: npm run version
@@ -38,6 +39,16 @@ jobs:
           title: "Version Packages"
           # Setup git user for commits
           setupGitUser: true
+          # Create GitHub releases after publishing
+          createGithubReleases: true
+          # Use git-cli for commits (default, but explicit for clarity)
+          commitMode: "git-cli"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Notify on successful publish
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "🎉 Successfully published packages!"
+          echo "Published packages: ${{ steps.changesets.outputs.publishedPackages }}"
