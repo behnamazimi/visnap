@@ -1,5 +1,11 @@
 # @visual-testing-tool/protocol
 
+## 0.1.1
+
+### Patch Changes
+
+- 1001279: Bump patch version to try release workflow
+
 ## 0.1.0
 
 ### Minor Changes
