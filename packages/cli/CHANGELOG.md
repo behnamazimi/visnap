@@ -1,5 +1,13 @@
 # @visual-testing-tool/cli
 
+## 0.1.2
+
+### Patch Changes
+
+- 42df006: Fix release process
+- Updated dependencies [42df006]
+  - @visual-testing-tool/core@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

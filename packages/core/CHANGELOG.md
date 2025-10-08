@@ -1,5 +1,15 @@
 # @visual-testing-tool/core
 
+## 0.1.2
+
+### Patch Changes
+
+- 42df006: Fix release process
+- Updated dependencies [42df006]
+  - @visual-testing-tool/playwright-adapter@0.1.2
+  - @visual-testing-tool/protocol@0.1.2
+  - @visual-testing-tool/storybook-adapter@0.1.2
+
 ## 0.1.1
 
 ### Patch Changes

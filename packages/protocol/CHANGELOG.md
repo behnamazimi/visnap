@@ -1,5 +1,11 @@
 # @visual-testing-tool/protocol
 
+## 0.1.2
+
+### Patch Changes
+
+- 42df006: Fix release process
+
 ## 0.1.1
 
 ### Patch Changes

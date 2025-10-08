@@ -1,5 +1,11 @@
 # @visual-testing-tool/eslint-config
 
+## 0.0.3
+
+### Patch Changes
+
+- 42df006: Fix release process
+
 ## 0.0.2
 
 ### Patch Changes

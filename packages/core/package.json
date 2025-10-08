@@ -1,6 +1,6 @@
 {
   "name": "@visual-testing-tool/core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Visual Testing Tool - Core library for visual regression testing",
   "type": "module",
   "main": "./dist/core.cjs",
@@ -21,9 +21,9 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@visual-testing-tool/playwright-adapter": "^0.1.1",
-    "@visual-testing-tool/protocol": "^0.1.1",
-    "@visual-testing-tool/storybook-adapter": "^0.1.1",
+    "@visual-testing-tool/playwright-adapter": "^0.1.2",
+    "@visual-testing-tool/protocol": "^0.1.2",
+    "@visual-testing-tool/storybook-adapter": "^0.1.2",
     "ajv": "^8.17.1",
     "bundle-require": "^4.0.2",
     "lodash": "^4.17.21",
