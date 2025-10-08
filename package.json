@@ -10,9 +10,12 @@
     "check-types": "turbo run check-types",
     "lint": "turbo run lint -- --fix",
     "lint:ci": "turbo run lint",
-    "test": "turbo run test -- --run"
+    "test": "turbo run test -- --run",
+    "version": "changeset version",
+    "release": "turbo run build --filter=@visual-testing-tool/* && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.1",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "5.9.2"
