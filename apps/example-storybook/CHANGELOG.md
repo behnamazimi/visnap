@@ -1,5 +1,11 @@
 # example-storybook-v8
 
+## 0.0.2
+
+### Patch Changes
+
+- 1001279: Bump patch version to try release workflow
+
 ## 0.0.1
 
 ### Patch Changes

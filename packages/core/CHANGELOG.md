@@ -1,5 +1,15 @@
 # @visual-testing-tool/core
 
+## 0.1.1
+
+### Patch Changes
+
+- 1001279: Bump patch version to try release workflow
+- Updated dependencies [1001279]
+  - @visual-testing-tool/playwright-adapter@0.1.1
+  - @visual-testing-tool/protocol@0.1.1
+  - @visual-testing-tool/storybook-adapter@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes

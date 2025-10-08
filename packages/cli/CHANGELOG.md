@@ -1,5 +1,13 @@
 # @visual-testing-tool/cli
 
+## 0.1.1
+
+### Patch Changes
+
+- 1001279: Bump patch version to try release workflow
+- Updated dependencies [1001279]
+  - @visual-testing-tool/core@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
