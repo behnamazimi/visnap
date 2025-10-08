@@ -7,6 +7,11 @@ on:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
 jobs:
   release:
     name: Create Release Pull Request or Publish to npm
