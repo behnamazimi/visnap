@@ -1,6 +1,6 @@
 {
   "name": "@visual-testing-tool/protocol",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Shared protocol types for visual-testing-tool adapters and core",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -38,4 +38,3 @@
     "access": "public"
   }
 }
-
