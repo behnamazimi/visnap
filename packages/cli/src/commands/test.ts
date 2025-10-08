@@ -8,6 +8,7 @@ import {
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
+import { exit } from "../utils/exit";
 
 interface TestCommandOptions {
   jsonReport?: string | boolean; // when provided without a path => stdout JSON; when a path => write file
@@ -47,10 +48,10 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
       }
     }
 
-    process.exit(result.exitCode);
+    exit(result.exitCode);
   } catch (error) {
     log.error(`Error running tests: ${getErrorMessage(error)}`);
-    process.exit(1);
+    exit(1);
   }
 };
 

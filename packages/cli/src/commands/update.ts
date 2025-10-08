@@ -7,6 +7,7 @@ import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
+import { exit } from "../utils/exit";
 
 const updateHandler = async (
   options: VisualTestingToolConfig
@@ -16,10 +17,10 @@ const updateHandler = async (
 
     // TODO: Add more detailed result log in mature versions
     log.success(`Update baseline completed`);
-    process.exit(0);
+    exit(0);
   } catch (error) {
     log.error(`Error updating baseline: ${getErrorMessage(error)}`);
-    process.exit(1);
+    exit(1);
   }
 };
 
