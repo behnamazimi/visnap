@@ -3,7 +3,7 @@
  */
 
 // Default values
-export const DEFAULT_CONCURRENCY = 2;
+export const DEFAULT_CONCURRENCY = 6;
 export const DEFAULT_SCREENSHOT_DIR = "visual-testing";
 export const DEFAULT_THRESHOLD = 0.1;
 export const DEFAULT_BROWSER = "chromium" as const;

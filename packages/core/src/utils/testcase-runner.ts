@@ -15,6 +15,7 @@ import type {
 
 import log from "./logger";
 
+import { DEFAULT_CONCURRENCY } from "@/constants";
 import { compareBaseAndCurrentWithTestCases } from "@/lib/compare";
 import { logEffectiveConfig } from "@/lib/config";
 import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
@@ -210,7 +211,10 @@ export async function runTestCasesOnBrowser(
     });
 
     captureResults = [];
-    const maxConcurrency = Math.max(1, options.runtime?.maxConcurrency ?? 4);
+    const maxConcurrency = Math.max(
+      1,
+      options.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY
+    );
     const batchSize = Math.min(50, Math.max(10, Math.floor(cases.length / 4))); // Simple batching
     const CAPTURE_TIMEOUT_MS = 30000; // 30 seconds per capture
 

@@ -5,7 +5,7 @@ import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
 import { bundleRequire } from "bundle-require";
 import merge from "lodash/merge.js";
 
-import { DEFAULT_SCREENSHOT_DIR } from "@/constants";
+import { DEFAULT_SCREENSHOT_DIR, DEFAULT_CONCURRENCY } from "@/constants";
 import { ConfigError } from "@/utils/error-handler";
 
 export type BrowserName = "chromium" | "firefox" | "webkit";
@@ -83,7 +83,9 @@ export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
   log.info("Effective configuration:");
   log.dim(`  Screenshot directory: ${config.screenshotDir}`);
   log.dim(`  Threshold: ${config.threshold}`);
-  log.dim(`  Max concurrency: ${config.runtime?.maxConcurrency ?? 4}`);
+  log.dim(
+    `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
+  );
   log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
   log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
   if (config.viewport) {
