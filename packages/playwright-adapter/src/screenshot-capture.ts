@@ -1,7 +1,12 @@
+import type {
+  ScreenshotOptions,
+  ScreenshotResult,
+} from "@visual-testing-tool/protocol";
 import type { Page, BrowserContext } from "playwright-core";
-import type { ScreenshotOptions, ScreenshotResult } from "@visual-testing-tool/protocol";
-import { resolveScreenshotTarget } from "./utils";
+
 import { setupPage, navigateToUrl, handleWaitFor } from "./browser-context";
+import { resolveScreenshotTarget } from "./utils";
+
 import type { PlaywrightAdapterOptions } from "./index";
 
 /**
@@ -13,7 +18,7 @@ export async function captureElementScreenshot(
   caseId: string
 ): Promise<Uint8Array> {
   const selector = resolveScreenshotTarget(screenshotTarget);
-  
+
   const storyElement = await page.waitForSelector(selector, {
     timeout: 2000,
     state: "attached",
@@ -44,16 +49,16 @@ export async function performScreenshotCapture(
 
   try {
     page = await context.newPage();
-    
+
     // Set up the page with viewport and timeout
     await setupPage(page, screenshotOptions.viewport, timeout);
-    
+
     // Navigate to the target URL
     await navigateToUrl(page, screenshotOptions.url, options, timeout);
-    
+
     // Handle additional waiting if specified
     await handleWaitFor(page, screenshotOptions.waitFor, timeout);
-    
+
     // Capture the screenshot
     const buffer = await captureElementScreenshot(
       page,

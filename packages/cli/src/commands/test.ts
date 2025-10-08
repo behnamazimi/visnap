@@ -1,10 +1,11 @@
+import { writeFileSync } from "fs";
+
 import {
   runVisualTests,
   getErrorMessage,
   log,
 } from "@visual-testing-tool/core";
 import { type Command as CommanderCommand } from "commander";
-import { writeFileSync } from "fs";
 
 import { type Command } from "../types";
 
@@ -27,7 +28,8 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
       const reportJson = JSON.stringify(report, null, 2);
 
       // If jsonReport looks like a filename/path (has a slash or ends with .json), write to file; else print
-      const val = typeof options.jsonReport === "string" ? options.jsonReport.trim() : "";
+      const val =
+        typeof options.jsonReport === "string" ? options.jsonReport.trim() : "";
       const looksLikePath = val ? /[\\/]|\.json$/i.test(val) : false;
       if (looksLikePath) {
         writeFileSync(val, reportJson);

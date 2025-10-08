@@ -5,6 +5,7 @@ import type {
   BrowserName,
   Viewport,
 } from "@visual-testing-tool/protocol";
+
 import { toSafeRegex } from "./utils.js";
 
 /**
@@ -33,14 +34,20 @@ export function createTestCaseFilter(opts: {
   const includeRegexes = includePatterns
     .map(p => {
       const r = toSafeRegex(p);
-      if (!r) console.warn(`[storybook-adapter] Ignoring invalid include pattern: ${p}`);
+      if (!r)
+        console.warn(
+          `[storybook-adapter] Ignoring invalid include pattern: ${p}`
+        );
       return r;
     })
     .filter((r): r is RegExp => !!r);
   const excludeRegexes = excludePatterns
     .map(p => {
       const r = toSafeRegex(p);
-      if (!r) console.warn(`[storybook-adapter] Ignoring invalid exclude pattern: ${p}`);
+      if (!r)
+        console.warn(
+          `[storybook-adapter] Ignoring invalid exclude pattern: ${p}`
+        );
       return r;
     })
     .filter((r): r is RegExp => !!r);
@@ -50,17 +57,13 @@ export function createTestCaseFilter(opts: {
 
     // Check include patterns
     if (includeRegexes.length > 0) {
-      const matchesInclude = includeRegexes.some(regex =>
-        regex.test(storyId)
-      );
+      const matchesInclude = includeRegexes.some(regex => regex.test(storyId));
       if (!matchesInclude) return false;
     }
 
     // Check exclude patterns
     if (excludeRegexes.length > 0) {
-      const matchesExclude = excludeRegexes.some(regex =>
-        regex.test(storyId)
-      );
+      const matchesExclude = excludeRegexes.some(regex => regex.test(storyId));
       if (matchesExclude) return false;
     }
 
@@ -84,7 +87,7 @@ export function normalizeStories(
 ): TestCaseInstanceMeta[] {
   const metas: TestCaseMeta[] = [];
   const currentBaseUrl = options.baseUrl.replace(/\/$/, "");
-  
+
   for (const raw of Object.values(stories)) {
     if (!raw || typeof raw !== "object") continue;
     const storyObj = raw as TestCaseMeta;
@@ -97,9 +100,7 @@ export function normalizeStories(
     const vt = storyObj.visualTesting ?? {};
     const skip = typeof vt.skip === "boolean" ? vt.skip : false;
     const screenshotTarget =
-      typeof vt.screenshotTarget === "string"
-        ? vt.screenshotTarget
-        : undefined;
+      typeof vt.screenshotTarget === "string" ? vt.screenshotTarget : undefined;
     const threshold =
       typeof vt.threshold === "number" ? vt.threshold : undefined;
     const browser =
@@ -131,7 +132,7 @@ export function normalizeStories(
     for (const vk of options.viewportKeys) {
       // Use global viewport configuration as fallback if individual test case doesn't have viewport config
       const viewportConfig = cfg?.viewport || options.globalViewport?.[vk];
-      
+
       instances.push({
         id: s.id,
         title: s.title,

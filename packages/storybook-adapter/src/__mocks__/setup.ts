@@ -1,3 +1,5 @@
+import { beforeEach, afterEach, vi } from "vitest";
+
 /**
  * Test setup file for storybook-adapter
  */

@@ -1,4 +1,8 @@
-import { updateBaseline, log, getErrorMessage } from "@visual-testing-tool/core";
+import {
+  updateBaseline,
+  log,
+  getErrorMessage,
+} from "@visual-testing-tool/core";
 import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
 import { type Command as CommanderCommand } from "commander";
 

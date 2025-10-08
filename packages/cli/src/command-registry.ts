@@ -22,7 +22,8 @@ import { type Command } from "./types";
 /**
  * Helper function to cast commands to the registry type
  */
-const asCommand = <T>(command: Command<T>): Command<unknown> => command as Command<unknown>;
+const asCommand = <T>(command: Command<T>): Command<unknown> =>
+  command as Command<unknown>;
 
 /**
  * Registry of all available commands

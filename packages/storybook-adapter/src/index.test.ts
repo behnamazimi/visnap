@@ -1,6 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStorybookAdapter } from "./index.js";
-import type { PageWithEvaluate, ViewportMap } from "@visual-testing-tool/protocol";
+
+import type {
+  PageWithEvaluate,
+  ViewportMap,
+} from "@visual-testing-tool/protocol";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock all the modules
 vi.mock("./server.js", () => ({
@@ -15,9 +19,9 @@ vi.mock("./filtering.js", () => ({
   normalizeStories: vi.fn(),
 }));
 
-import { createServerManager } from "./server.js";
 import { discoverCasesFromBrowser } from "./discovery.js";
 import { normalizeStories } from "./filtering.js";
+import { createServerManager } from "./server.js";
 
 const mockCreateServerManager = vi.mocked(createServerManager);
 const mockDiscoverCasesFromBrowser = vi.mocked(discoverCasesFromBrowser);
@@ -83,7 +87,10 @@ describe("createStorybookAdapter", () => {
         port: 3000,
       });
 
-      expect(mockCreateServerManager).toHaveBeenCalledWith("/path/to/storybook", 3000);
+      expect(mockCreateServerManager).toHaveBeenCalledWith(
+        "/path/to/storybook",
+        3000
+      );
     });
 
     it("should create server manager without port", () => {
@@ -91,7 +98,10 @@ describe("createStorybookAdapter", () => {
         source: "/path/to/storybook",
       });
 
-      expect(mockCreateServerManager).toHaveBeenCalledWith("/path/to/storybook", undefined);
+      expect(mockCreateServerManager).toHaveBeenCalledWith(
+        "/path/to/storybook",
+        undefined
+      );
     });
 
     it("should return adapter with correct name", () => {
@@ -111,7 +121,7 @@ describe("createStorybookAdapter", () => {
         source: "/path/to/storybook",
       });
 
-      const result = await adapter.start();
+      const result = await adapter.start!();
 
       expect(mockServerManager.ensureStarted).toHaveBeenCalled();
       expect(mockServerManager.getBaseUrl).toHaveBeenCalled();
@@ -138,7 +148,7 @@ describe("createStorybookAdapter", () => {
         "button-primary": { id: "button-primary", title: "Primary Button" },
       };
 
-      const mockInstances = [
+      const mockInstances: any[] = [
         {
           id: "button-primary",
           title: "Primary Button",
@@ -188,7 +198,7 @@ describe("createStorybookAdapter", () => {
 
     it("should handle viewport configuration", async () => {
       const mockStories = {};
-      const mockInstances = [];
+      const mockInstances: any[] = [];
 
       mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
@@ -216,7 +226,7 @@ describe("createStorybookAdapter", () => {
 
     it("should handle empty viewport configuration", async () => {
       const mockStories = {};
-      const mockInstances = [];
+      const mockInstances: any[] = [];
 
       mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
@@ -239,13 +249,17 @@ describe("createStorybookAdapter", () => {
 
     it("should close page context even if discovery fails", async () => {
       mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
-      mockDiscoverCasesFromBrowser.mockRejectedValue(new Error("Discovery failed"));
+      mockDiscoverCasesFromBrowser.mockRejectedValue(
+        new Error("Discovery failed")
+      );
 
       const adapter = createStorybookAdapter({
         source: "/path/to/storybook",
       });
 
-      await expect(adapter.listCases(mockPageCtx)).rejects.toThrow("Discovery failed");
+      await expect(adapter.listCases(mockPageCtx)).rejects.toThrow(
+        "Discovery failed"
+      );
       expect(mockPageCtx.close).toHaveBeenCalled();
     });
 
@@ -255,7 +269,7 @@ describe("createStorybookAdapter", () => {
       } as any;
 
       const mockStories = {};
-      const mockInstances = [];
+      const mockInstances: any[] = [];
 
       mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
@@ -268,7 +282,9 @@ describe("createStorybookAdapter", () => {
       await adapter.listCases(pageCtxWithoutClose);
 
       // Should not throw error when close is not available
-      expect(mockDiscoverCasesFromBrowser).toHaveBeenCalledWith(pageCtxWithoutClose);
+      expect(mockDiscoverCasesFromBrowser).toHaveBeenCalledWith(
+        pageCtxWithoutClose
+      );
     });
   });
 
@@ -278,7 +294,7 @@ describe("createStorybookAdapter", () => {
         source: "/path/to/storybook",
       });
 
-      await adapter.stop();
+      await adapter.stop!();
 
       expect(mockServerManager.stop).toHaveBeenCalled();
     });
@@ -290,7 +306,10 @@ describe("createStorybookAdapter", () => {
         source: "https://storybook.example.com",
       });
 
-      expect(mockCreateServerManager).toHaveBeenCalledWith("https://storybook.example.com", undefined);
+      expect(mockCreateServerManager).toHaveBeenCalledWith(
+        "https://storybook.example.com",
+        undefined
+      );
       expect(adapter.name).toBe("storybook");
     });
 
@@ -302,7 +321,10 @@ describe("createStorybookAdapter", () => {
         exclude: ["*test*"],
       });
 
-      expect(mockCreateServerManager).toHaveBeenCalledWith("/path/to/storybook", 3000);
+      expect(mockCreateServerManager).toHaveBeenCalledWith(
+        "/path/to/storybook",
+        3000
+      );
       expect(adapter.name).toBe("storybook");
     });
   });

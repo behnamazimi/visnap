@@ -49,19 +49,19 @@ export const mockElement = {
 beforeEach(() => {
   // Reset all mocks
   vi.clearAllMocks();
-  
+
   // Setup default mock implementations
   chromium.launch.mockResolvedValue(mockBrowser);
   firefox.launch.mockResolvedValue(mockBrowser);
   webkit.launch.mockResolvedValue(mockBrowser);
-  
+
   mockBrowser.newPage.mockResolvedValue(mockPage);
   mockBrowser.newContext.mockResolvedValue(mockContext);
   mockBrowser.close.mockResolvedValue(undefined);
-  
+
   mockContext.newPage.mockResolvedValue(mockPage);
   mockContext.close.mockResolvedValue(undefined);
-  
+
   mockPage.setDefaultTimeout.mockResolvedValue(undefined);
   mockPage.setViewportSize.mockResolvedValue(undefined);
   mockPage.goto.mockResolvedValue(undefined);
@@ -69,6 +69,6 @@ beforeEach(() => {
   mockPage.waitForTimeout.mockResolvedValue(undefined);
   mockPage.waitForSelector.mockResolvedValue(mockElement);
   mockPage.close.mockResolvedValue(undefined);
-  
+
   mockElement.screenshot.mockResolvedValue(new Uint8Array([1, 2, 3, 4]));
 });

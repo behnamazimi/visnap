@@ -1,4 +1,5 @@
 import type { PageWithEvaluate } from "@visual-testing-tool/protocol";
+
 import { withTimeout } from "./utils.js";
 
 /**
@@ -22,7 +23,9 @@ export async function discoverCasesFromBrowser(
   }
 
   const attempt = async (): Promise<Record<string, unknown>> => {
-    const evalPromise = (pageCtx.evaluate as NonNullable<PageWithEvaluate["evaluate"]>)(async () => {
+    const evalPromise = (
+      pageCtx.evaluate as NonNullable<PageWithEvaluate["evaluate"]>
+    )(async () => {
       const storybook = window.__STORYBOOK_PREVIEW__;
       if (!storybook) {
         throw new Error("Storybook preview object not found on window");
@@ -35,7 +38,7 @@ export async function discoverCasesFromBrowser(
       }
       return await storybook.extract();
     });
-    
+
     return (await withTimeout(
       evalPromise,
       EVAL_TIMEOUT_MS,
@@ -50,11 +53,15 @@ export async function discoverCasesFromBrowser(
     } catch (e) {
       lastError = e;
       if (i < DISCOVERY_MAX_RETRIES - 1) {
-        await new Promise(res => setTimeout(res, DISCOVERY_RETRY_DELAY_MS * (i + 1)));
+        await new Promise(res =>
+          setTimeout(res, DISCOVERY_RETRY_DELAY_MS * (i + 1))
+        );
         continue;
       }
       throw e;
     }
   }
-  throw lastError instanceof Error ? lastError : new Error("Story discovery failed");
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Story discovery failed");
 }

@@ -2,7 +2,7 @@ import { log } from "@visual-testing-tool/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { COMMAND_REGISTRY } from "./command-registry";
-import { type Command, type CommandRegistry } from "./types";
+import { type CommandRegistry } from "./types";
 
 /**
  * Loads all available commands from the centralized registry

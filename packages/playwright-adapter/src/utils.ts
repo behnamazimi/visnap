@@ -6,7 +6,7 @@ import { chromium, firefox, webkit, type BrowserType } from "playwright-core";
  */
 export function selectBrowserType(name?: BrowserNameProtocol): BrowserType {
   const browserName = name || "chromium";
-  
+
   switch (browserName) {
     case "firefox":
       return firefox;
@@ -22,11 +22,11 @@ export function selectBrowserType(name?: BrowserNameProtocol): BrowserType {
  */
 export function buildAbsoluteUrl(url: string, baseUrl?: string): string {
   const trimmed = url.trim();
-  
+
   if (!baseUrl) {
     return trimmed;
   }
-  
+
   try {
     return new URL(trimmed, baseUrl).toString();
   } catch {
@@ -41,10 +41,10 @@ export function resolveScreenshotTarget(selector?: string): string {
   if (!selector || selector === "story-root") {
     return "#storybook-root";
   }
-  
+
   if (selector === "body") {
     return "body";
   }
-  
+
   return selector;
 }

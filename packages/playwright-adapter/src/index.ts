@@ -5,14 +5,11 @@ import type {
   BrowserName as BrowserNameProtocol,
   BrowserAdapterInitOptions,
 } from "@visual-testing-tool/protocol";
-import {
-  type BrowserType,
-  type Browser,
-  type Page,
-} from "playwright-core";
-import { selectBrowserType, buildAbsoluteUrl } from "./utils";
+import { type BrowserType, type Browser, type Page } from "playwright-core";
+
 import { createBrowserContext, navigateToUrl } from "./browser-context";
 import { performScreenshotCapture } from "./screenshot-capture";
+import { selectBrowserType, buildAbsoluteUrl } from "./utils";
 
 /**
  * Options to configure the Playwright browser adapter.
@@ -60,7 +57,9 @@ export function createPlaywrightAdapter(
     name: "playwright",
     /** Launches a browser instance. Safe to call multiple times. */
     async init(initOpts?: BrowserAdapterInitOptions) {
-      browserType = selectBrowserType(initOpts?.browser || opts.launch?.browser);
+      browserType = selectBrowserType(
+        initOpts?.browser || opts.launch?.browser
+      );
       if (browser) return; // idempotent
       browser = await browserType.launch({
         headless: opts.launch?.headless ?? true,
@@ -84,15 +83,20 @@ export function createPlaywrightAdapter(
       ensureInitialized();
 
       const targetUrl = buildAbsoluteUrl(s.url, opts.navigation?.baseUrl);
-      
+
       // Create per-capture isolated context
       const context = await createBrowserContext(browser!, opts);
-      
+
       try {
-        return await performScreenshotCapture(context, opts, {
-          ...s,
-          url: targetUrl,
-        }, defaultTimeout);
+        return await performScreenshotCapture(
+          context,
+          opts,
+          {
+            ...s,
+            url: targetUrl,
+          },
+          defaultTimeout
+        );
       } finally {
         await context.close();
       }

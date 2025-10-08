@@ -1,4 +1,5 @@
 import type { Browser, Page, BrowserContext } from "playwright-core";
+
 import type { PlaywrightAdapterOptions } from "./index";
 
 /**
@@ -21,7 +22,10 @@ export async function createBrowserContext(
 /**
  * Waits for network idle state with fallback handling.
  */
-export async function waitForNetworkIdle(page: Page, timeout: number): Promise<void> {
+export async function waitForNetworkIdle(
+  page: Page,
+  timeout: number
+): Promise<void> {
   try {
     await page.waitForLoadState("networkidle", { timeout });
   } catch {

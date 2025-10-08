@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { selectBrowserType, buildAbsoluteUrl, resolveScreenshotTarget } from "./utils.js";
+
+import {
+  selectBrowserType,
+  buildAbsoluteUrl,
+  resolveScreenshotTarget,
+} from "./utils.js";
 
 describe("utils", () => {
   describe("selectBrowserType", () => {

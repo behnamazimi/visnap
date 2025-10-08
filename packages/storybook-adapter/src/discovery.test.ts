@@ -1,10 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { discoverCasesFromBrowser } from "./discovery.js";
 import type { PageWithEvaluate } from "@visual-testing-tool/protocol";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import { discoverCasesFromBrowser } from "./discovery.js";
 
 // Mock the utils module
 vi.mock("./utils.js", () => ({
-  withTimeout: vi.fn((promise) => promise), // Just pass through for most tests
+  withTimeout: vi.fn(promise => promise), // Just pass through for most tests
 }));
 
 import { withTimeout } from "./utils.js";
@@ -17,7 +18,7 @@ describe("discovery", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockEvaluate = vi.fn();
     mockPageCtx = {
       evaluate: mockEvaluate,
@@ -28,7 +29,7 @@ describe("discovery", () => {
   describe("discoverCasesFromBrowser", () => {
     it("should throw error if page context doesn't support evaluate", async () => {
       const invalidPageCtx = {} as PageWithEvaluate;
-      
+
       await expect(discoverCasesFromBrowser(invalidPageCtx)).rejects.toThrow(
         "Page context does not support evaluate()"
       );
@@ -37,7 +38,10 @@ describe("discovery", () => {
     it("should discover stories successfully", async () => {
       const mockStories = {
         "button-primary": { id: "button-primary", title: "Primary Button" },
-        "button-secondary": { id: "button-secondary", title: "Secondary Button" },
+        "button-secondary": {
+          id: "button-secondary",
+          title: "Secondary Button",
+        },
       };
 
       // Mock window.__STORYBOOK_PREVIEW__
@@ -46,7 +50,7 @@ describe("discovery", () => {
         extract: vi.fn().mockResolvedValue(mockStories),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         // Mock the browser environment
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
@@ -70,7 +74,7 @@ describe("discovery", () => {
         extract: vi.fn().mockResolvedValue(mockStories),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
         } as any;
@@ -84,7 +88,7 @@ describe("discovery", () => {
     });
 
     it("should throw error if storybook preview not found", async () => {
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {} as any;
         return fn();
       });
@@ -99,7 +103,7 @@ describe("discovery", () => {
         ready: vi.fn().mockResolvedValue(undefined),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
         } as any;
@@ -117,14 +121,16 @@ describe("discovery", () => {
         extract: vi.fn().mockResolvedValue({}),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
         } as any;
         return fn();
       });
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow("Ready failed");
+      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+        "Ready failed"
+      );
     });
 
     it("should handle extract method rejection", async () => {
@@ -133,14 +139,16 @@ describe("discovery", () => {
         extract: vi.fn().mockRejectedValue(new Error("Extract failed")),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
         } as any;
         return fn();
       });
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow("Extract failed");
+      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+        "Extract failed"
+      );
     });
 
     it("should retry on failure with exponential backoff", async () => {
@@ -150,13 +158,14 @@ describe("discovery", () => {
 
       const mockStorybook = {
         ready: vi.fn().mockResolvedValue(undefined),
-        extract: vi.fn()
+        extract: vi
+          .fn()
           .mockRejectedValueOnce(new Error("First attempt failed"))
           .mockRejectedValueOnce(new Error("Second attempt failed"))
           .mockResolvedValue(mockStories),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
         } as any;
@@ -165,10 +174,10 @@ describe("discovery", () => {
 
       // Mock setTimeout to make tests faster
       const originalSetTimeout = global.setTimeout;
-      global.setTimeout = vi.fn((fn) => {
+      global.setTimeout = vi.fn((fn: () => void) => {
         fn();
         return 1 as any;
-      });
+      }) as any;
 
       const result = await discoverCasesFromBrowser(mockPageCtx);
 
@@ -186,7 +195,7 @@ describe("discovery", () => {
         extract: vi.fn().mockRejectedValue(new Error("Always fails")),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
         } as any;
@@ -195,12 +204,14 @@ describe("discovery", () => {
 
       // Mock setTimeout to make tests faster
       const originalSetTimeout = global.setTimeout;
-      global.setTimeout = vi.fn((fn) => {
+      global.setTimeout = vi.fn((fn: () => void) => {
         fn();
         return 1 as any;
-      });
+      }) as any;
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow("Always fails");
+      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+        "Always fails"
+      );
       expect(mockStorybook.extract).toHaveBeenCalledTimes(3); // Initial + 2 retries
 
       // Restore original setTimeout
@@ -208,13 +219,13 @@ describe("discovery", () => {
     });
 
     it("should apply timeout to evaluation", async () => {
-      const mockStories = { "test": { id: "test" } };
+      const mockStories = { test: { id: "test" } };
       const mockStorybook = {
         ready: vi.fn().mockResolvedValue(undefined),
         extract: vi.fn().mockResolvedValue(mockStories),
       };
 
-      mockEvaluate.mockImplementation((fn) => {
+      mockEvaluate.mockImplementation((fn: () => any) => {
         global.window = {
           __STORYBOOK_PREVIEW__: mockStorybook,
         } as any;

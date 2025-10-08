@@ -6,8 +6,8 @@
  * Races a promise against a timeout and ensures the timer is always cleared.
  */
 export function withTimeout<T>(
-  promise: Promise<T>, 
-  ms: number, 
+  promise: Promise<T>,
+  ms: number,
   message: string
 ): Promise<T> {
   return new Promise<T>((resolve, reject) => {

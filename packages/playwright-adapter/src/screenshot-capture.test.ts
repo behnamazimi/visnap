@@ -1,11 +1,17 @@
+import type { ScreenshotOptions } from "@visual-testing-tool/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import {
+  mockPage,
+  mockContext,
+  mockElement,
+} from "./__mocks__/playwright-core.js";
 import {
   captureElementScreenshot,
   performScreenshotCapture,
 } from "./screenshot-capture.js";
-import { mockPage, mockContext, mockElement } from "./__mocks__/playwright-core.js";
+
 import type { PlaywrightAdapterOptions } from "./index.js";
-import type { ScreenshotOptions } from "@visual-testing-tool/protocol";
 
 // Mock the utils module
 vi.mock("./utils.js", () => ({
@@ -30,8 +36,12 @@ describe("screenshot-capture", () => {
 
   describe("captureElementScreenshot", () => {
     it("should capture screenshot of element with default selector", async () => {
-      const buffer = await captureElementScreenshot(mockPage, "story-root", "test-case-1");
-      
+      const buffer = await captureElementScreenshot(
+        mockPage,
+        "story-root",
+        "test-case-1"
+      );
+
       expect(mockPage.waitForSelector).toHaveBeenCalledWith("#storybook-root", {
         timeout: 2000,
         state: "attached",
@@ -43,8 +53,12 @@ describe("screenshot-capture", () => {
     });
 
     it("should capture screenshot of element with custom selector", async () => {
-      const buffer = await captureElementScreenshot(mockPage, ".my-component", "test-case-2");
-      
+      const buffer = await captureElementScreenshot(
+        mockPage,
+        ".my-component",
+        "test-case-2"
+      );
+
       expect(mockPage.waitForSelector).toHaveBeenCalledWith(".my-component", {
         timeout: 2000,
         state: "attached",
@@ -57,15 +71,17 @@ describe("screenshot-capture", () => {
 
     it("should throw error when element is not found", async () => {
       mockPage.waitForSelector.mockResolvedValue(null);
-      
+
       await expect(
         captureElementScreenshot(mockPage, ".not-found", "test-case-3")
-      ).rejects.toThrow("Screenshot target not found with selector .not-found for case test-case-3");
+      ).rejects.toThrow(
+        "Screenshot target not found with selector .not-found for case test-case-3"
+      );
     });
 
     it("should handle body selector", async () => {
       await captureElementScreenshot(mockPage, "body", "test-case-4");
-      
+
       expect(mockPage.waitForSelector).toHaveBeenCalledWith("body", {
         timeout: 2000,
         state: "attached",
@@ -103,7 +119,7 @@ describe("screenshot-capture", () => {
 
     it("should setup page with viewport", async () => {
       const { setupPage } = await import("./browser-context.js");
-      
+
       await performScreenshotCapture(
         mockContext,
         mockOptions,
@@ -111,12 +127,16 @@ describe("screenshot-capture", () => {
         30000
       );
 
-      expect(setupPage).toHaveBeenCalledWith(mockPage, mockScreenshotOptions.viewport, 30000);
+      expect(setupPage).toHaveBeenCalledWith(
+        mockPage,
+        mockScreenshotOptions.viewport,
+        30000
+      );
     });
 
     it("should navigate to URL", async () => {
       const { navigateToUrl } = await import("./browser-context.js");
-      
+
       await performScreenshotCapture(
         mockContext,
         mockOptions,
@@ -134,7 +154,7 @@ describe("screenshot-capture", () => {
 
     it("should handle wait for option", async () => {
       const { handleWaitFor } = await import("./browser-context.js");
-      
+
       await performScreenshotCapture(
         mockContext,
         mockOptions,
@@ -161,8 +181,10 @@ describe("screenshot-capture", () => {
     });
 
     it("should close page even if capture fails", async () => {
-      mockPage.waitForSelector.mockRejectedValue(new Error("Element not found"));
-      
+      mockPage.waitForSelector.mockRejectedValue(
+        new Error("Element not found")
+      );
+
       await expect(
         performScreenshotCapture(
           mockContext,
@@ -211,7 +233,7 @@ describe("screenshot-capture", () => {
 
     it("should measure elapsed time", async () => {
       const startTime = Date.now();
-      
+
       const result = await performScreenshotCapture(
         mockContext,
         mockOptions,
@@ -221,7 +243,9 @@ describe("screenshot-capture", () => {
 
       const endTime = Date.now();
       expect(result.meta.elapsedMs).toBeGreaterThanOrEqual(0);
-      expect(result.meta.elapsedMs).toBeLessThanOrEqual(endTime - startTime + 100); // Allow some margin
+      expect(result.meta.elapsedMs).toBeLessThanOrEqual(
+        endTime - startTime + 100
+      ); // Allow some margin
     });
   });
 });
