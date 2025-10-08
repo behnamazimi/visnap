@@ -27,9 +27,20 @@ This guide explains how to set up the automated release process for maintainers 
 5. Value: Paste your npm token
 6. Click "Add secret"
 
-### 3. Verify Setup
+### 3. Configure GitHub Actions Permissions
 
-The release process will automatically work once the secret is added. You can test it by:
+**IMPORTANT**: You must enable GitHub Actions to create pull requests for the changesets action to work.
+
+1. Go to your GitHub repository
+2. Navigate to Settings → Actions → General
+3. Scroll down to "Workflow permissions"
+4. Select "Read and write permissions"
+5. Check the box "Allow GitHub Actions to create and approve pull requests"
+6. Click "Save"
+
+### 4. Verify Setup
+
+The release process will automatically work once the secret is added and permissions are configured. You can test it by:
 
 1. Creating a test changeset:
    ```bash
@@ -66,5 +77,9 @@ npm run release
 - **"NPM_TOKEN not found"**: Check that the secret is properly set in GitHub
 - **"Permission denied"**: Verify your npm token has publish access to `@visual-testing-tool` scope
 - **"Package not found"**: Ensure all packages are built before publishing
-- **"GitHub Actions is not permitted to create pull requests"**: This is a repository setting. Go to Settings → Actions → General → Workflow permissions and ensure "Read and write permissions" is selected and "Allow GitHub Actions to create and approve pull requests" is checked
-- **"Resource not accessible by integration"**: The default GITHUB_TOKEN should work fine. If you still get this error, check that your repository allows GitHub Actions to create pull requests
+- **"Resource not accessible by integration"** or **"GitHub Actions is not permitted to create pull requests"**: 
+  - Go to Settings → Actions → General → Workflow permissions
+  - Select "Read and write permissions"
+  - Check "Allow GitHub Actions to create and approve pull requests"
+  - Click "Save"
+  - This is the most common issue with changesets action

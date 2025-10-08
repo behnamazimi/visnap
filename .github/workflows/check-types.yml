@@ -2,9 +2,9 @@ name: Type Check
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, changeset-release/**]
   push:
-    branches: [main]
+    branches: [main, changeset-release/**]
 
 jobs:
   check-types:
