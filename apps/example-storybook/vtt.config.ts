@@ -38,7 +38,7 @@ const config: VisualTestingToolConfig = {
     mobile: { width: 375, height: 667 },
   },
   runtime: {
-    maxConcurrency: 10,
+    maxConcurrency: 4,
   },
 };
 

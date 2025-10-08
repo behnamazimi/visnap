@@ -22,6 +22,7 @@ import {
 } from "@/constants";
 import { compareBaseAndCurrentWithTestCases } from "@/lib/compare";
 import { logEffectiveConfig } from "@/lib/config";
+import { createConcurrencyPool } from "@/lib/pool";
 import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
 
 type BrowserTarget = { name: BrowserName; options?: Record<string, unknown> };
@@ -82,9 +83,6 @@ function sortCasesStable(cases: TestCaseInstance[]): void {
   });
 }
 
-function computeBatchSize(totalCases: number): number {
-  return Math.min(50, Math.max(10, Math.floor(totalCases / 4)));
-}
 
 async function discoverCases(
   testCaseAdapter: TestCaseAdapter,
@@ -351,7 +349,6 @@ export async function runTestCasesOnBrowser(
       1,
       options.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY
     );
-    const batchSize = computeBatchSize(cases.length); // Simple batching
 
     // Prepare output directory based on mode
     ensureVttDirectories(options.screenshotDir);
@@ -361,117 +358,94 @@ export async function runTestCasesOnBrowser(
         : getBaseDir(options.screenshotDir);
 
     log.info(
-      `Running ${cases.length} test cases in batches of ${batchSize} with max concurrency: ${maxConcurrency}`
+      `Running ${cases.length} test cases with max concurrency: ${maxConcurrency}`
     );
 
-    // Process in batches to manage memory
-    for (let i = 0; i < cases.length; i += batchSize) {
-      const batch = cases.slice(i, i + batchSize);
-      const queue: Promise<void>[] = [];
-      let active = 0;
+    // Create concurrency pool for processing test cases
+    const runWithPool = createConcurrencyPool({ concurrency: maxConcurrency });
 
-      const runCapture = async (variant: TestCaseInstance) => {
-        const id = `${variant.caseId}-${variant.variantId}`;
-        const variantWithBrowser = variant as TestCaseInstance & {
-          browser?: BrowserName;
-        };
-        const browserInfo = variantWithBrowser.browser
-          ? ` (${variantWithBrowser.browser})`
-          : "";
-        log.dim(`Taking screenshot for: ${id}${browserInfo}`);
-
-        try {
-          // Get the appropriate browser adapter for this variant
-          let adapterToUse: BrowserAdapter;
-          if (variantWithBrowser.browser) {
-            const browserConfig = browsersToUse.find(
-              b => b.name === variantWithBrowser.browser
-            );
-            adapterToUse = await getBrowserAdapter(
-              variantWithBrowser.browser,
-              browserConfig?.options
-            );
-          } else {
-            // Fallback to first browser if no browser specified
-            const firstBrowser = browsersToUse[0];
-            adapterToUse = await getBrowserAdapter(
-              firstBrowser.name,
-              firstBrowser.options
-            );
-          }
-
-          // Add timeout protection to prevent hanging
-          const capturePromise = adapterToUse.capture({
-            id,
-            url: variant.url,
-            screenshotTarget: variant.screenshotTarget,
-            viewport: variant.viewport,
-          });
-
-          const timeoutPromise = new Promise<never>((_, reject) => {
-            setTimeout(
-              () =>
-                reject(
-                  new Error(
-                    `Capture timeout after ${DEFAULT_CAPTURE_TIMEOUT_MS}ms`
-                  )
-                ),
-              DEFAULT_CAPTURE_TIMEOUT_MS
-            );
-          });
-
-          const result = await Promise.race([capturePromise, timeoutPromise]);
-
-          // Write screenshot immediately to disk instead of keeping in memory
-          const finalPath = join(outDir, `${result.meta.id}.png`);
-          const tmpPath = `${finalPath}.tmp`;
-          tempFiles.push(tmpPath);
-
-          await writeFile(tmpPath, result.buffer);
-          await import("fs/promises")
-            .then(m => m.rename(tmpPath, finalPath))
-            .catch(async () => {
-              await writeFile(finalPath, result.buffer);
-            });
-
-          // Remove from temp files on success
-          const index = tempFiles.indexOf(tmpPath);
-          if (index > -1) tempFiles.splice(index, 1);
-
-          captureResults.push({
-            id,
-            result: { ...result, buffer: new Uint8Array(0) },
-          }); // Empty buffer
-        } catch (e) {
-          const message = (e as Error)?.message ?? String(e);
-          log.error(`Capture failed for ${id}: ${message}`);
-          captureResults.push({ id, error: message });
-        }
+    const runCapture = async (variant: TestCaseInstance, _index: number) => {
+      const id = `${variant.caseId}-${variant.variantId}`;
+      const variantWithBrowser = variant as TestCaseInstance & {
+        browser?: BrowserName;
       };
+      const browserInfo = variantWithBrowser.browser
+        ? ` (${variantWithBrowser.browser})`
+        : "";
+      log.dim(`Taking screenshot for: ${id}${browserInfo}`);
 
-      const schedule = async (variant: TestCaseInstance) => {
-        while (active >= maxConcurrency && queue.length > 0) {
-          await Promise.race(queue);
+      try {
+        // Get the appropriate browser adapter for this variant
+        let adapterToUse: BrowserAdapter;
+        if (variantWithBrowser.browser) {
+          const browserConfig = browsersToUse.find(
+            b => b.name === variantWithBrowser.browser
+          );
+          adapterToUse = await getBrowserAdapter(
+            variantWithBrowser.browser,
+            browserConfig?.options
+          );
+        } else {
+          // Fallback to first browser if no browser specified
+          const firstBrowser = browsersToUse[0];
+          adapterToUse = await getBrowserAdapter(
+            firstBrowser.name,
+            firstBrowser.options
+          );
         }
-        active++;
-        const p = runCapture(variant).finally(() => {
-          active--;
-          const idx = queue.indexOf(p);
-          if (idx >= 0) queue.splice(idx, 1);
+
+        // Add timeout protection to prevent hanging
+        const capturePromise = adapterToUse.capture({
+          id,
+          url: variant.url,
+          screenshotTarget: variant.screenshotTarget,
+          viewport: variant.viewport,
         });
-        queue.push(p);
-      };
 
-      for (const variant of batch) {
-        await schedule(variant);
-      }
-      await Promise.all(queue);
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(
+            () =>
+              reject(
+                new Error(
+                  `Capture timeout after ${DEFAULT_CAPTURE_TIMEOUT_MS}ms`
+                )
+              ),
+            DEFAULT_CAPTURE_TIMEOUT_MS
+          );
+        });
 
-      // Force garbage collection between batches if available
-      if (global.gc) {
-        global.gc();
+        const result = await Promise.race([capturePromise, timeoutPromise]);
+
+        // Write screenshot immediately to disk instead of keeping in memory
+        const finalPath = join(outDir, `${result.meta.id}.png`);
+        const tmpPath = `${finalPath}.tmp`;
+        tempFiles.push(tmpPath);
+
+        await writeFile(tmpPath, result.buffer);
+        await import("fs/promises")
+          .then(m => m.rename(tmpPath, finalPath))
+          .catch(async () => {
+            await writeFile(finalPath, result.buffer);
+          });
+
+        // Remove from temp files on success
+        const tempIndex = tempFiles.indexOf(tmpPath);
+        if (tempIndex > -1) tempFiles.splice(tempIndex, 1);
+
+        return {
+          id,
+          result: { ...result, buffer: new Uint8Array(0) },
+        }; // Empty buffer
+      } catch (e) {
+        const message = (e as Error)?.message ?? String(e);
+        log.error(`Capture failed for ${id}: ${message}`);
+        return { id, error: message };
       }
-    }
+    };
+
+    // Process all test cases using the concurrency pool
+    const results = await runWithPool(cases, runCapture);
+    captureResults = results;
   } catch (error) {
     // Cleanup temporary files on failure
     if (tempFiles.length > 0) {
