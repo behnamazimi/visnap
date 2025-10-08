@@ -1,11 +1,12 @@
 # Release Setup Guide
 
-This guide explains how to set up the automated release process for maintainers.
+This guide explains how to set up the automated release process for maintainers using the [changesets action](https://github.com/changesets/action).
 
 ## Prerequisites
 
 1. **NPM Account**: You need an npm account with publish permissions for the `@visual-testing-tool` scope
 2. **GitHub Repository Access**: Admin access to configure secrets
+3. **No 2FA on npm publish**: The npm token cannot have 2FA enabled for publishing (2FA on auth is fine)
 
 ## Setup Steps
 
@@ -65,3 +66,5 @@ npm run release
 - **"NPM_TOKEN not found"**: Check that the secret is properly set in GitHub
 - **"Permission denied"**: Verify your npm token has publish access to `@visual-testing-tool` scope
 - **"Package not found"**: Ensure all packages are built before publishing
+- **"GitHub Actions is not permitted to create pull requests"**: This is a repository setting. Go to Settings → Actions → General → Workflow permissions and ensure "Read and write permissions" is selected and "Allow GitHub Actions to create and approve pull requests" is checked
+- **"Resource not accessible by integration"**: The default GITHUB_TOKEN should work fine. If you still get this error, check that your repository allows GitHub Actions to create pull requests
