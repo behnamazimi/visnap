@@ -2,7 +2,7 @@
 
 A fast, Dockerized visual regression testing tool designed for **Storybook 8 and above8** with story-level testing capabilities.
 
-## ✨ Key Features
+## ✨ Features
 
 - 🐳 **Dockerized** - Run tests in isolated containers for consistent results
 - 📚 **Great Storybook Integration** - Optimized for modern Storybook versions
