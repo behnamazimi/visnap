@@ -15,7 +15,11 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "peerDependencies": {
     "playwright": ">=1.40.0",
@@ -27,8 +31,11 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@visual-testing-tool/eslint-config": "*",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
     "tsup": "^8.3.5",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^2.1.8"
   },
   "exports": {
     ".": {

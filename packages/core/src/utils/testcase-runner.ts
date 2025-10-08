@@ -85,7 +85,7 @@ export async function runTestCasesOnBrowser(
   const getBrowserAdapter = async (browserName: BrowserName, browserOptions?: Record<string, unknown>): Promise<BrowserAdapter> => {
     if (!browserAdapters.has(browserName)) {
       const adapter = await loadBrowserAdapter();
-      await adapter.init?.({ 
+      await adapter.init({ 
         browser: browserName,
         ...(browserOptions && { options: browserOptions })
       });
@@ -296,7 +296,7 @@ export async function runTestCasesOnBrowser(
       try {
         const disposePromises = Array.from(browserAdapters.values()).map(async (adapter) => {
           try {
-            await adapter.dispose?.();
+            await adapter.dispose();
           } catch (error) {
             log.dim(`Error disposing browser adapter: ${error}`);
           }

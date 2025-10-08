@@ -1,0 +1,79 @@
+import type { Page, BrowserContext } from "playwright-core";
+import type { ScreenshotOptions, ScreenshotResult } from "@visual-testing-tool/protocol";
+import { resolveScreenshotTarget } from "./utils";
+import { setupPage, navigateToUrl, handleWaitFor } from "./browser-context";
+import type { PlaywrightAdapterOptions } from "./index";
+
+/**
+ * Captures a screenshot of the specified element on the page.
+ */
+export async function captureElementScreenshot(
+  page: Page,
+  screenshotTarget: string,
+  caseId: string
+): Promise<Uint8Array> {
+  const selector = resolveScreenshotTarget(screenshotTarget);
+  
+  const storyElement = await page.waitForSelector(selector, {
+    timeout: 2000,
+    state: "attached",
+  });
+
+  if (!storyElement) {
+    const message = `Screenshot target not found with selector ${selector} for case ${caseId}`;
+    console.error(message);
+    throw new Error(message);
+  }
+
+  return (await storyElement.screenshot({
+    type: "png",
+  })) as unknown as Uint8Array;
+}
+
+/**
+ * Performs the complete screenshot capture process for a given URL and options.
+ */
+export async function performScreenshotCapture(
+  context: BrowserContext,
+  options: PlaywrightAdapterOptions,
+  screenshotOptions: ScreenshotOptions,
+  timeout: number
+): Promise<ScreenshotResult> {
+  const start = Date.now();
+  let page: Page | null = null;
+
+  try {
+    page = await context.newPage();
+    
+    // Set up the page with viewport and timeout
+    await setupPage(page, screenshotOptions.viewport, timeout);
+    
+    // Navigate to the target URL
+    await navigateToUrl(page, screenshotOptions.url, options, timeout);
+    
+    // Handle additional waiting if specified
+    await handleWaitFor(page, screenshotOptions.waitFor, timeout);
+    
+    // Capture the screenshot
+    const buffer = await captureElementScreenshot(
+      page,
+      screenshotOptions.screenshotTarget || "story-root",
+      screenshotOptions.id
+    );
+
+    return {
+      buffer,
+      meta: {
+        elapsedMs: Date.now() - start,
+        id: screenshotOptions.id,
+      },
+    };
+  } finally {
+    // Clean up the page
+    try {
+      await page?.close();
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
+}
