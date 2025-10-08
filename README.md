@@ -81,6 +81,39 @@ npx visual-testing-tool test
 npm install visual-testing-tool
 ```
 
+## 🚀 Release Process
+
+This project uses [Changesets](https://github.com/changesets/changesets) for automated versioning and publishing.
+
+### For Contributors
+
+When making changes that should be released:
+
+1. **Create a changeset** describing your changes:
+   ```bash
+   npx changeset
+   ```
+   This creates a markdown file in `.changeset/` describing your changes.
+
+2. **Submit your PR** with the changeset file included.
+
+3. **Merge to main** - The changeset will be included in the next release.
+
+### For Maintainers
+
+1. **Review and merge** the "Version Packages" PR created by the changesets bot
+2. **Automatic publishing** - The packages will be automatically published to npm
+
+### Manual Release (if needed)
+
+```bash
+# Version packages (updates package.json versions and changelog)
+npm run version
+
+# Publish to npm
+npm run release
+```
+
 ## TODOs
 - [ ] Add viewport size to configs
 - [ ] Proper documentation
