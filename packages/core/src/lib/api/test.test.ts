@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { runTestCasesOnBrowser } from "../../../utils/testcase-runner";
+import { runTestCasesOnBrowser } from "../../utils/testcase-runner";
 import { resolveEffectiveConfig } from "../config";
 
 import { runVisualTests } from "./test";
@@ -9,12 +9,12 @@ import { runVisualTests } from "./test";
 vi.mock("../config", async importOriginal => {
   const actual = await importOriginal();
   return {
-    ...actual,
+    ...(actual && typeof actual === "object" ? actual : {}),
     resolveEffectiveConfig: vi.fn(),
   };
 });
 
-vi.mock("../../../utils/testcase-runner", () => ({
+vi.mock("../../utils/testcase-runner", () => ({
   runTestCasesOnBrowser: vi.fn().mockImplementation(async () => ({
     outcome: { passed: 5, total: 5, captureFailures: 0 },
     failures: [],
@@ -45,6 +45,10 @@ describe("test API", () => {
         passed: 5,
         total: 5,
         captureFailures: 0,
+        failedDiffs: 0,
+        failedMissingCurrent: 0,
+        failedMissingBase: 0,
+        failedErrors: 0,
       };
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
@@ -83,6 +87,10 @@ describe("test API", () => {
         passed: 3,
         total: 5,
         captureFailures: 1,
+        failedDiffs: 1,
+        failedMissingCurrent: 1,
+        failedMissingBase: 1,
+        failedErrors: 0,
       };
 
       const mockFailures = [
@@ -122,7 +130,7 @@ describe("test API", () => {
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
       mockRunTestCasesOnBrowser.mockResolvedValue({
-        outcome: null,
+        outcome: undefined,
         failures: [],
         captureFailures: [],
       });
@@ -146,6 +154,10 @@ describe("test API", () => {
         passed: 5,
         total: 5,
         captureFailures: 0,
+        failedDiffs: 0,
+        failedMissingCurrent: 0,
+        failedMissingBase: 0,
+        failedErrors: 0,
       };
 
       const customOptions = { threshold: 0.2 };

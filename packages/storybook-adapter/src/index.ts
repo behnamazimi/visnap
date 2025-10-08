@@ -38,7 +38,7 @@ export function createAdapter(
     typeof opts.source !== "string" ||
     opts.source.trim().length === 0
   ) {
-    throw new Error("Invalid 'source' provided to createStorybookAdapter");
+    throw new Error("Invalid 'source' provided to createAdapter");
   }
 
   const serverManager = createServerManager(opts.source, opts.port);

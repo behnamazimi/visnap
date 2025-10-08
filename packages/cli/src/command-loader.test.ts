@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { loadCommands } from "../command-loader";
+import { loadCommands } from "./command-loader";
 
 describe("command-loader", () => {
   it("loads commands from registry with valid structure", async () => {

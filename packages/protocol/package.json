@@ -15,7 +15,8 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "echo 'No tests available for protocol package'"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

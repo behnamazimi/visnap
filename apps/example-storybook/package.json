@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "echo 'No tests available for example-storybook app'"
   },
   "dependencies": {
     "react": "^19.1.1",
