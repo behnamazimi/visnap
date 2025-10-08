@@ -30,6 +30,14 @@ jobs:
         with:
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
           publish: npm run release
+          # Use the version script from package.json for proper versioning
+          version: npm run version
+          # Custom commit message with version info
+          commit: "chore: version packages"
+          # Custom PR title that will show version information
+          title: "Version Packages"
+          # Setup git user for commits
+          setupGitUser: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
