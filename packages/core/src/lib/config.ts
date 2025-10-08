@@ -2,8 +2,8 @@ import { existsSync } from "fs";
 import { join } from "path";
 
 import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
-import merge from "lodash/merge.js";
 import { bundleRequire } from "bundle-require";
+import merge from "lodash/merge.js";
 
 import { DEFAULT_SCREENSHOT_DIR } from "@/constants";
 import { ConfigError } from "@/utils/error-handler";
@@ -41,7 +41,9 @@ export const resolveScreenshotDir = (screenshotDir?: string): string => {
 
 // use lodash.merge for deep merging configs
 
-function applyEnvOverrides(cfg: VisualTestingToolConfig): VisualTestingToolConfig {
+function applyEnvOverrides(
+  cfg: VisualTestingToolConfig
+): VisualTestingToolConfig {
   const out = { ...cfg };
   if (process.env.VTT_SCREENSHOT_DIR) {
     out.screenshotDir = process.env.VTT_SCREENSHOT_DIR;
@@ -52,7 +54,9 @@ function applyEnvOverrides(cfg: VisualTestingToolConfig): VisualTestingToolConfi
   }
   if (process.env.VTT_MAX_CONCURRENCY) {
     const n = Number(process.env.VTT_MAX_CONCURRENCY);
-    const nextRuntime = { ...(out.runtime ?? {}) } as NonNullable<VisualTestingToolConfig["runtime"]>;
+    const nextRuntime = { ...(out.runtime ?? {}) } as NonNullable<
+      VisualTestingToolConfig["runtime"]
+    >;
     if (!Number.isNaN(n)) nextRuntime.maxConcurrency = n;
     out.runtime = nextRuntime;
   }
@@ -74,6 +78,7 @@ export const resolveEffectiveConfig = async (
 };
 
 export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { log } = require("@/utils/logger");
   log.info("Effective configuration:");
   log.dim(`  Screenshot directory: ${config.screenshotDir}`);
@@ -83,6 +88,8 @@ export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
   log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
   if (config.viewport) {
     const viewportKeys = Object.keys(config.viewport);
-    log.dim(`  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`);
+    log.dim(
+      `  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`
+    );
   }
 };

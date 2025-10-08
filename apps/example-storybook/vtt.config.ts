@@ -7,16 +7,16 @@ const config: VisualTestingToolConfig = {
       options: {
         // Option 1: Single browser (string)
         // browser: "firefox",
-        
+
         // Option 2: Multiple browsers as simple array
         // browser: ["chromium", "firefox", "webkit"],
-        
+
         // Option 3: Multiple browsers with detailed configuration
         browser: [
           { name: "chromium", options: { headless: true } },
           // { name: "firefox", options: { headless: true } },
           // { name: "webkit", options: { headless: true } }
-        ]
+        ],
       },
     },
     testCase: [

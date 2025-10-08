@@ -1,4 +1,7 @@
-import type { VisualTestingToolConfig, RunOutcome } from "@visual-testing-tool/protocol";
+import type {
+  VisualTestingToolConfig,
+  RunOutcome,
+} from "@visual-testing-tool/protocol";
 
 import { resolveEffectiveConfig } from "@/lib/config";
 import { runTestCasesOnBrowser } from "@/utils/testcase-runner";
@@ -24,11 +27,15 @@ export async function runVisualTests(
 ): Promise<TestResult> {
   const effectiveConfig = await resolveEffectiveConfig(options);
 
-  const { outcome, failures, captureFailures } = await runTestCasesOnBrowser(effectiveConfig, "test");
+  const { outcome, failures, captureFailures } = await runTestCasesOnBrowser(
+    effectiveConfig,
+    "test"
+  );
   if (!outcome) {
     throw new Error("Test run did not return outcome data");
   }
-  const success = outcome.passed === outcome.total && outcome.captureFailures === 0;
+  const success =
+    outcome.passed === outcome.total && outcome.captureFailures === 0;
   const exitCode = success ? 0 : 1;
   return { success, outcome, exitCode, failures, captureFailures };
 }

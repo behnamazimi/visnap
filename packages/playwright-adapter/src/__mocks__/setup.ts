@@ -1,8 +1,8 @@
-import { beforeEach, afterEach, vi } from "vitest";
-
 /**
- * Test setup file for storybook-adapter
+ * Test setup file for playwright-adapter
  */
+
+import { beforeEach, afterEach, vi } from "vitest";
 
 // Mock console methods to avoid noise in tests
 const originalConsoleWarn = console.warn;

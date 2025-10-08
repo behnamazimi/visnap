@@ -1,6 +1,7 @@
+import type { TestCaseMeta, ViewportMap } from "@visual-testing-tool/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
 import { createTestCaseFilter, normalizeStories } from "./filtering.js";
-import type { TestCaseMeta, TestCaseInstanceMeta, ViewportMap } from "@visual-testing-tool/protocol";
 
 // Mock the utils module
 vi.mock("./utils.js", () => ({
@@ -15,7 +16,7 @@ describe("filtering", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default mock behavior
-    mockToSafeRegex.mockImplementation((pattern) => {
+    mockToSafeRegex.mockImplementation(pattern => {
       const escaped = pattern.replace(/\*/g, ".*");
       return new RegExp(`^${escaped}$`);
     });
@@ -88,10 +89,12 @@ describe("filtering", () => {
     });
 
     it("should warn about invalid patterns", () => {
-      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      
+      const consoleWarnSpy = vi
+        .spyOn(console, "warn")
+        .mockImplementation(() => {});
+
       mockToSafeRegex.mockReturnValueOnce(null);
-      
+
       const filter = createTestCaseFilter({
         include: ["invalid[pattern"],
       });
@@ -99,10 +102,10 @@ describe("filtering", () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         "[storybook-adapter] Ignoring invalid include pattern: invalid[pattern"
       );
-      
+
       // Should still work - with no valid include patterns, all stories should be included
       expect(filter(createMockStory("button-primary"))).toBe(true);
-      
+
       consoleWarnSpy.mockRestore();
     });
 
@@ -163,13 +166,15 @@ describe("filtering", () => {
       const result = normalizeStories(mockStories, defaultOptions);
 
       expect(result).toHaveLength(4); // 2 valid stories × 2 viewports
-      
+
       const buttonPrimary = result.find(r => r.caseId === "button-primary");
       expect(buttonPrimary).toBeDefined();
       expect(buttonPrimary?.id).toBe("button-primary");
       expect(buttonPrimary?.title).toBe("Primary Button");
       expect(buttonPrimary?.variantId).toBe("default");
-      expect(buttonPrimary?.url).toBe("http://localhost:6006/iframe.html?id=button-primary");
+      expect(buttonPrimary?.url).toBe(
+        "http://localhost:6006/iframe.html?id=button-primary"
+      );
       expect(buttonPrimary?.screenshotTarget).toBe("#button");
       expect(buttonPrimary?.threshold).toBe(0.1);
       expect(buttonPrimary?.viewport).toEqual({ width: 1024, height: 768 });
@@ -177,34 +182,40 @@ describe("filtering", () => {
 
     it("should skip stories marked with skip: true", () => {
       const result = normalizeStories(mockStories, defaultOptions);
-      
+
       const skippedStory = result.find(r => r.caseId === "button-secondary");
       expect(skippedStory).toBeUndefined();
     });
 
     it("should skip invalid stories", () => {
       const result = normalizeStories(mockStories, defaultOptions);
-      
+
       const invalidStory = result.find(r => r.caseId === "invalid-story");
       expect(invalidStory).toBeUndefined();
     });
 
     it("should create instances for each viewport", () => {
       const result = normalizeStories(mockStories, defaultOptions);
-      
-      const buttonPrimaryInstances = result.filter(r => r.caseId === "button-primary");
+
+      const buttonPrimaryInstances = result.filter(
+        r => r.caseId === "button-primary"
+      );
       expect(buttonPrimaryInstances).toHaveLength(2);
-      
-      const defaultInstance = buttonPrimaryInstances.find(r => r.variantId === "default");
-      const mobileInstance = buttonPrimaryInstances.find(r => r.variantId === "mobile");
-      
+
+      const defaultInstance = buttonPrimaryInstances.find(
+        r => r.variantId === "default"
+      );
+      const mobileInstance = buttonPrimaryInstances.find(
+        r => r.variantId === "mobile"
+      );
+
       expect(defaultInstance?.viewport).toEqual({ width: 1024, height: 768 });
       expect(mobileInstance?.viewport).toEqual({ width: 375, height: 667 });
     });
 
     it("should use default screenshot target when not specified", () => {
       const result = normalizeStories(mockStories, defaultOptions);
-      
+
       const inputTextInstance = result.find(r => r.caseId === "input-text");
       expect(inputTextInstance?.screenshotTarget).toBe("#storybook-root");
     });
@@ -218,7 +229,7 @@ describe("filtering", () => {
       };
 
       const result = normalizeStories(storiesWithoutConfig, defaultOptions);
-      
+
       expect(result).toHaveLength(2); // 1 story × 2 viewports
       const instance = result[0];
       expect(instance.screenshotTarget).toBe("#storybook-root");
@@ -235,7 +246,7 @@ describe("filtering", () => {
 
       const buttonPrimary = result.find(r => r.caseId === "button-primary");
       const inputText = result.find(r => r.caseId === "input-text");
-      
+
       expect(buttonPrimary).toBeDefined();
       expect(inputText).toBeUndefined(); // Excluded by include filter
     });
@@ -247,7 +258,9 @@ describe("filtering", () => {
       });
 
       const instance = result[0];
-      expect(instance.url).toBe("http://localhost:6006/iframe.html?id=button-primary");
+      expect(instance.url).toBe(
+        "http://localhost:6006/iframe.html?id=button-primary"
+      );
     });
 
     it("should handle empty viewport keys", () => {
@@ -265,9 +278,11 @@ describe("filtering", () => {
         viewportKeys: ["mobile", "default", "tablet"],
       });
 
-      const buttonPrimaryInstances = result.filter(r => r.caseId === "button-primary");
+      const buttonPrimaryInstances = result.filter(
+        r => r.caseId === "button-primary"
+      );
       expect(buttonPrimaryInstances).toHaveLength(3);
-      
+
       const variantIds = buttonPrimaryInstances.map(r => r.variantId);
       // The actual sorting happens in the main function, not in normalizeStories
       expect(variantIds).toEqual(["mobile", "default", "tablet"]);
@@ -285,7 +300,7 @@ describe("filtering", () => {
       };
 
       const result = normalizeStories(storiesWithViewport, defaultOptions);
-      
+
       const instance = result.find(r => r.caseId === "custom-viewport-story");
       expect(instance?.viewport).toEqual({ width: 1920, height: 1080 });
     });
@@ -302,7 +317,7 @@ describe("filtering", () => {
       };
 
       const result = normalizeStories(storiesWithBrowser, defaultOptions);
-      
+
       const instance = result.find(r => r.caseId === "browser-specific-story");
       expect(instance).toBeDefined();
       // Note: browser config is not part of TestCaseInstanceMeta, so we just verify the story is processed

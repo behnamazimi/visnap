@@ -5,9 +5,9 @@ import type {
   PageWithEvaluate,
 } from "@visual-testing-tool/protocol";
 
-import { createServerManager } from "./server.js";
 import { discoverCasesFromBrowser } from "./discovery.js";
 import { normalizeStories } from "./filtering.js";
+import { createServerManager } from "./server.js";
 
 /**
  * Options to create a Storybook adapter.
@@ -49,9 +49,9 @@ export function createStorybookAdapter(
     async start() {
       await serverManager.ensureStarted();
       const baseUrl = serverManager.getBaseUrl();
-      return { 
+      return {
         baseUrl,
-        initialPageUrl: `${baseUrl}/iframe.html`
+        initialPageUrl: `${baseUrl}/iframe.html`,
       };
     },
 
@@ -80,7 +80,7 @@ export function createStorybookAdapter(
           "Adapter not started. Call start() before listCases()."
         );
       }
-      
+
       let keys = o?.viewport ? Object.keys(o.viewport) : ["default"];
       if (!keys || keys.length === 0) keys = ["default"];
       // Sort viewport keys deterministically

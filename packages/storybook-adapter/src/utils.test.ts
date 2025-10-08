@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+
 import { withTimeout, escapeRegExp, toSafeRegex } from "./utils.js";
 
 describe("utils", () => {
@@ -10,13 +11,19 @@ describe("utils", () => {
     });
 
     it("should reject with timeout error when promise takes too long", async () => {
-      const promise = new Promise(resolve => setTimeout(() => resolve("delayed"), 200));
-      await expect(withTimeout(promise, 100, "timeout")).rejects.toThrow("timeout");
+      const promise = new Promise(resolve =>
+        setTimeout(() => resolve("delayed"), 200)
+      );
+      await expect(withTimeout(promise, 100, "timeout")).rejects.toThrow(
+        "timeout"
+      );
     });
 
     it("should reject with original error when promise rejects", async () => {
       const promise = Promise.reject(new Error("original error"));
-      await expect(withTimeout(promise, 1000, "timeout")).rejects.toThrow("original error");
+      await expect(withTimeout(promise, 1000, "timeout")).rejects.toThrow(
+        "original error"
+      );
     });
 
     it("should clear timeout when promise resolves", async () => {

@@ -1,5 +1,6 @@
-import http from "node:http";
 import { existsSync } from "node:fs";
+import http from "node:http";
+
 import handler from "serve-handler";
 
 /**
@@ -33,21 +34,21 @@ export function createServerManager(
    */
   async function ensureStarted(): Promise<void> {
     if (baseUrl) return;
-    
+
     if (isUrl) {
       baseUrl = source.replace(/\/$/, "");
       return;
     }
-    
+
     if (!existsSync(source)) {
       throw new Error(`Storybook static directory not found: ${source}`);
     }
-    
+
     const serverPort = port ?? DEFAULT_PORT;
     server = http.createServer((req, res) =>
       handler(req, res, { public: source, cleanUrls: false })
     );
-    
+
     await new Promise<void>((resolve, reject) => {
       let done = false;
       const onError = (err: unknown) => {
@@ -55,11 +56,11 @@ export function createServerManager(
         done = true;
         reject(err instanceof Error ? err : new Error("Server start failed"));
       };
-      
+
       const timeout = setTimeout(() => {
         onError(new Error("Server start timed out"));
       }, SERVER_START_TIMEOUT_MS);
-      
+
       server!.once("error", onError);
       server!.listen(serverPort, () => {
         if (done) return;
@@ -69,7 +70,7 @@ export function createServerManager(
         resolve();
       });
     });
-    
+
     baseUrl = `http://localhost:${serverPort}`;
   }
 

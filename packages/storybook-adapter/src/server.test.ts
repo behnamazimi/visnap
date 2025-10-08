@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import { createServerManager } from "./server.js";
 
 // Mock dependencies
@@ -18,18 +19,18 @@ vi.mock("serve-handler", () => ({
 
 import { existsSync } from "node:fs";
 import http from "node:http";
-import handler from "serve-handler";
+// import handler from "serve-handler";
 
 const mockExistsSync = vi.mocked(existsSync);
 const mockCreateServer = vi.mocked(http.createServer);
-const mockHandler = vi.mocked(handler);
+// const mockHandler = vi.mocked(handler);
 
 describe("server", () => {
   let mockServer: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Create a mock server
     mockServer = {
       once: vi.fn(),
@@ -37,7 +38,7 @@ describe("server", () => {
       close: vi.fn(),
       off: vi.fn(),
     };
-    
+
     mockCreateServer.mockReturnValue(mockServer);
   });
 
@@ -49,9 +50,9 @@ describe("server", () => {
     describe("URL source", () => {
       it("should use URL directly without starting server", async () => {
         const manager = createServerManager("https://example.com", 3000);
-        
+
         await manager.ensureStarted();
-        
+
         expect(mockExistsSync).not.toHaveBeenCalled();
         expect(mockCreateServer).not.toHaveBeenCalled();
         expect(manager.getBaseUrl()).toBe("https://example.com");
@@ -59,51 +60,61 @@ describe("server", () => {
 
       it("should remove trailing slash from URL", async () => {
         const manager = createServerManager("https://example.com/", 3000);
-        
+
         await manager.ensureStarted();
-        
+
         expect(manager.getBaseUrl()).toBe("https://example.com");
       });
 
       it("should handle HTTP URLs", async () => {
         const manager = createServerManager("http://localhost:3000", 3000);
-        
+
         await manager.ensureStarted();
-        
+
         expect(manager.getBaseUrl()).toBe("http://localhost:3000");
       });
     });
 
     describe("directory source", () => {
-    it("should start server for existing directory", async () => {
-      mockExistsSync.mockReturnValue(true);
-      mockServer.listen.mockImplementation((port, callback) => {
-        callback();
-      });
+      it("should start server for existing directory", async () => {
+        mockExistsSync.mockReturnValue(true);
+        mockServer.listen.mockImplementation(
+          (_port: any, callback: () => void) => {
+            callback();
+          }
+        );
 
-      const manager = createServerManager("/path/to/storybook", 3000);
-      
-      await manager.ensureStarted();
-      
-      expect(mockExistsSync).toHaveBeenCalledWith("/path/to/storybook");
-      expect(mockCreateServer).toHaveBeenCalled();
-      // The handler is called inside the createServer callback, so we verify the createServer was called with a function
-      expect(mockCreateServer).toHaveBeenCalledWith(expect.any(Function));
-      expect(mockServer.listen).toHaveBeenCalledWith(3000, expect.any(Function));
-      expect(manager.getBaseUrl()).toBe("http://localhost:3000");
-    });
+        const manager = createServerManager("/path/to/storybook", 3000);
+
+        await manager.ensureStarted();
+
+        expect(mockExistsSync).toHaveBeenCalledWith("/path/to/storybook");
+        expect(mockCreateServer).toHaveBeenCalled();
+        // The handler is called inside the createServer callback, so we verify the createServer was called with a function
+        expect(mockCreateServer).toHaveBeenCalledWith(expect.any(Function));
+        expect(mockServer.listen).toHaveBeenCalledWith(
+          3000,
+          expect.any(Function)
+        );
+        expect(manager.getBaseUrl()).toBe("http://localhost:3000");
+      });
 
       it("should use default port when not specified", async () => {
         mockExistsSync.mockReturnValue(true);
-        mockServer.listen.mockImplementation((port, callback) => {
-          callback();
-        });
+        mockServer.listen.mockImplementation(
+          (_port: any, callback: () => void) => {
+            callback();
+          }
+        );
 
         const manager = createServerManager("/path/to/storybook");
-        
+
         await manager.ensureStarted();
-        
-        expect(mockServer.listen).toHaveBeenCalledWith(6006, expect.any(Function));
+
+        expect(mockServer.listen).toHaveBeenCalledWith(
+          6006,
+          expect.any(Function)
+        );
         expect(manager.getBaseUrl()).toBe("http://localhost:6006");
       });
 
@@ -111,7 +122,7 @@ describe("server", () => {
         mockExistsSync.mockReturnValue(false);
 
         const manager = createServerManager("/nonexistent/path");
-        
+
         await expect(manager.ensureStarted()).rejects.toThrow(
           "Storybook static directory not found: /nonexistent/path"
         );
@@ -119,46 +130,56 @@ describe("server", () => {
 
       it("should handle server start timeout", async () => {
         mockExistsSync.mockReturnValue(true);
-        mockServer.listen.mockImplementation(() => {
-          // Don't call callback, simulating timeout
-        });
+        mockServer.listen.mockImplementation(
+          (_port: any, _callback: () => void) => {
+            // Don't call callback, simulating timeout
+          }
+        );
 
         const manager = createServerManager("/path/to/storybook");
-        
-        await expect(manager.ensureStarted()).rejects.toThrow("Server start timed out");
+
+        await expect(manager.ensureStarted()).rejects.toThrow(
+          "Server start timed out"
+        );
       });
 
       it("should handle server start error", async () => {
         mockExistsSync.mockReturnValue(true);
         const error = new Error("Port already in use");
-        mockServer.listen.mockImplementation((port, callback) => {
-          // Simulate error event
-          setTimeout(() => {
-            const errorHandler = mockServer.once.mock.calls.find(
-              call => call[0] === "error"
-            )?.[1];
-            if (errorHandler) {
-              errorHandler(error);
-            }
-          }, 0);
-        });
+        mockServer.listen.mockImplementation(
+          (_port: any, _callback: () => void) => {
+            // Simulate error event
+            setTimeout(() => {
+              const errorHandler = mockServer.once.mock.calls.find(
+                (call: any) => call[0] === "error"
+              )?.[1];
+              if (errorHandler) {
+                errorHandler(error);
+              }
+            }, 0);
+          }
+        );
 
         const manager = createServerManager("/path/to/storybook");
-        
-        await expect(manager.ensureStarted()).rejects.toThrow("Port already in use");
+
+        await expect(manager.ensureStarted()).rejects.toThrow(
+          "Port already in use"
+        );
       });
 
       it("should not start server multiple times", async () => {
         mockExistsSync.mockReturnValue(true);
-        mockServer.listen.mockImplementation((port, callback) => {
-          callback();
-        });
+        mockServer.listen.mockImplementation(
+          (_port: any, callback: () => void) => {
+            callback();
+          }
+        );
 
         const manager = createServerManager("/path/to/storybook");
-        
+
         await manager.ensureStarted();
         await manager.ensureStarted();
-        
+
         expect(mockCreateServer).toHaveBeenCalledTimes(1);
         expect(mockServer.listen).toHaveBeenCalledTimes(1);
       });
@@ -167,18 +188,20 @@ describe("server", () => {
     describe("stop", () => {
       it("should stop server and clear baseUrl", async () => {
         mockExistsSync.mockReturnValue(true);
-        mockServer.listen.mockImplementation((port, callback) => {
-          callback();
-        });
-        mockServer.close.mockImplementation((callback) => {
+        mockServer.listen.mockImplementation(
+          (_port: any, callback: () => void) => {
+            callback();
+          }
+        );
+        mockServer.close.mockImplementation((callback: () => void) => {
           callback();
         });
 
         const manager = createServerManager("/path/to/storybook");
-        
+
         await manager.ensureStarted();
         expect(manager.getBaseUrl()).toBe("http://localhost:6006");
-        
+
         await manager.stop();
         expect(mockServer.close).toHaveBeenCalled();
         expect(manager.getBaseUrl()).toBeUndefined();
@@ -186,29 +209,31 @@ describe("server", () => {
 
       it("should handle stop when no server is running", async () => {
         const manager = createServerManager("https://example.com");
-        
+
         await manager.ensureStarted();
         await manager.stop();
-        
+
         expect(mockServer.close).not.toHaveBeenCalled();
         expect(manager.getBaseUrl()).toBeUndefined();
       });
 
       it("should be safe to call multiple times", async () => {
         mockExistsSync.mockReturnValue(true);
-        mockServer.listen.mockImplementation((port, callback) => {
-          callback();
-        });
-        mockServer.close.mockImplementation((callback) => {
+        mockServer.listen.mockImplementation(
+          (_port: any, callback: () => void) => {
+            callback();
+          }
+        );
+        mockServer.close.mockImplementation((callback: () => void) => {
           callback();
         });
 
         const manager = createServerManager("/path/to/storybook");
-        
+
         await manager.ensureStarted();
         await manager.stop();
         await manager.stop();
-        
+
         expect(mockServer.close).toHaveBeenCalledTimes(1);
       });
     });

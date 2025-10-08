@@ -94,10 +94,10 @@ export interface BrowserAdapterInitOptions {
 
 export interface BrowserAdapter {
   name: string;
-  init?(opts: BrowserAdapterInitOptions): Promise<void> | void;
-  openPage?(url: string): Promise<PageWithEvaluate | void>;
+  init(opts: BrowserAdapterInitOptions): Promise<void> | void;
+  openPage(url: string): Promise<PageWithEvaluate | void>;
   capture(opts: ScreenshotOptions): Promise<ScreenshotResult>;
-  dispose?(): Promise<void> | void;
+  dispose(): Promise<void> | void;
 }
 
 export interface TestCaseAdapterStartResult {

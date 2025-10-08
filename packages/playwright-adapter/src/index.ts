@@ -5,14 +5,11 @@ import type {
   BrowserName as BrowserNameProtocol,
   BrowserAdapterInitOptions,
 } from "@visual-testing-tool/protocol";
-import {
-  chromium,
-  firefox,
-  webkit,
-  type BrowserType,
-  type Browser,
-  type Page,
-} from "playwright-core";
+import { type BrowserType, type Browser, type Page } from "playwright-core";
+
+import { createBrowserContext, navigateToUrl } from "./browser-context";
+import { performScreenshotCapture } from "./screenshot-capture";
+import { selectBrowserType, buildAbsoluteUrl } from "./utils";
 
 /**
  * Options to configure the Playwright browser adapter.
@@ -51,52 +48,18 @@ export function createPlaywrightAdapter(
   let browser: Browser | null = null;
   const defaultTimeout = opts.navigation?.timeoutMs ?? 30000;
 
-  function pickBrowser(name?: BrowserNameProtocol): BrowserType {
-    const b = (name ||
-      opts.launch?.browser ||
-      "chromium") as BrowserNameProtocol;
-    if (b === "firefox") return firefox;
-    if (b === "webkit") return webkit;
-    return chromium;
-  }
-
-  const resolveScreenshotTarget = (selector?: string): string => {
-    if (!selector || selector === "story-root") return "#storybook-root";
-    if (selector === "body") return "body";
-    return selector;
-  };
-
   /** Ensures the adapter has been initialized. */
   function ensureInitialized(): void {
     if (!browser) throw new Error("Playwright adapter not initialized");
-  }
-
-  /** Builds an absolute URL using `navigation.baseUrl` when a relative URL is provided. */
-  function buildUrl(url: string): string {
-    const trimmed = (url ?? "").toString().trim();
-    const base = opts.navigation?.baseUrl;
-    try {
-      return new URL(trimmed, base || undefined).toString();
-    } catch {
-      return trimmed;
-    }
-  }
-
-  async function waitForNetworkIdle(page: Page, timeout: number): Promise<void> {
-    // Heuristic: wait for network to be quiet by waiting on load + short idle
-    try {
-      await page.waitForLoadState("networkidle", { timeout });
-    } catch {
-      // fall back to a small delay; not all drivers support networkidle well
-      await page.waitForTimeout(Math.min(1000, Math.floor(timeout / 10)));
-    }
   }
 
   return {
     name: "playwright",
     /** Launches a browser instance. Safe to call multiple times. */
     async init(initOpts?: BrowserAdapterInitOptions) {
-      browserType = pickBrowser(initOpts?.browser);
+      browserType = selectBrowserType(
+        initOpts?.browser || opts.launch?.browser
+      );
       if (browser) return; // idempotent
       browser = await browserType.launch({
         headless: opts.launch?.headless ?? true,
@@ -110,14 +73,8 @@ export function createPlaywrightAdapter(
       ensureInitialized();
       const page = await browser!.newPage();
       page.setDefaultTimeout(defaultTimeout);
-      const targetUrl = buildUrl(url);
-      await page.goto(targetUrl, {
-        waitUntil: opts.navigation?.waitUntil ?? "load",
-        timeout: defaultTimeout,
-      });
-      if ((opts.navigation?.waitUntil ?? "load") === "networkidle") {
-        await waitForNetworkIdle(page, defaultTimeout);
-      }
+      const targetUrl = buildAbsoluteUrl(url, opts.navigation?.baseUrl);
+      await navigateToUrl(page, targetUrl, opts, defaultTimeout);
       return page;
     },
 
@@ -125,68 +82,22 @@ export function createPlaywrightAdapter(
     async capture(s: ScreenshotOptions): Promise<ScreenshotResult> {
       ensureInitialized();
 
-      const start = Date.now();
-      const timeout = defaultTimeout;
-      const targetUrl = buildUrl(s.url);
+      const targetUrl = buildAbsoluteUrl(s.url, opts.navigation?.baseUrl);
 
-      // Per-capture isolated context
-      const context = await browser!.newContext({
-        ...opts.context,
-        colorScheme: opts.context?.colorScheme ?? "light",
-        reducedMotion: opts.context?.reducedMotion ?? "reduce",
-        ...(opts.context?.storageStatePath
-          ? { storageState: opts.context.storageStatePath }
-          : {}),
-      });
+      // Create per-capture isolated context
+      const context = await createBrowserContext(browser!, opts);
 
-      let page: Page | null = null;
       try {
-        page = await context.newPage();
-        page.setDefaultTimeout(timeout);
-
-        // Viewport handling
-        if (s.viewport) {
-          await page.setViewportSize({
-            width: s.viewport.width,
-            height: s.viewport.height,
-          });
-        }
-
-        await page.goto(targetUrl, {
-          waitUntil: opts.navigation?.waitUntil ?? "load",
-          timeout,
-        });
-        if ((opts.navigation?.waitUntil ?? "load") === "networkidle") {
-          await waitForNetworkIdle(page, timeout);
-        }
-
-        // Additional waits per protocol
-        if (typeof s.waitFor === "number") await page.waitForTimeout(s.waitFor);
-        if (typeof s.waitFor === "string" && s.waitFor.trim())
-          await page.waitForSelector(s.waitFor, { timeout });
-
-        const screenshotTarget = resolveScreenshotTarget(s.screenshotTarget);
-        const storyElement = await page.waitForSelector(screenshotTarget, {
-          timeout: 2000,
-          state: "attached",
-        });
-        if (!storyElement) {
-          const message = `Screenshot target not found with selector ${screenshotTarget} for case ${s.id}`;
-          console.error(message);
-          throw new Error(message);
-        }
-
-        const buffer = (await storyElement.screenshot({
-          type: "png",
-        })) as unknown as Uint8Array;
-
-        return { buffer, meta: { elapsedMs: Date.now() - start, id: s.id } };
+        return await performScreenshotCapture(
+          context,
+          opts,
+          {
+            ...s,
+            url: targetUrl,
+          },
+          defaultTimeout
+        );
       } finally {
-        try {
-          await page?.close();
-        } catch {
-          // ignore
-        }
         await context.close();
       }
     },
