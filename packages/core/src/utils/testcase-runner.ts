@@ -83,7 +83,6 @@ function sortCasesStable(cases: TestCaseInstance[]): void {
   });
 }
 
-
 async function discoverCases(
   testCaseAdapter: TestCaseAdapter,
   page: PageWithEvaluate,

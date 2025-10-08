@@ -6,7 +6,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   generateConfigContent,
   generateGitignoreContent,
-} from "../../../utils/config-generator";
+} from "../../utils/config-generator";
 import { resolveScreenshotDir } from "../config";
 
 import { initializeProject } from "./init";
@@ -21,16 +21,18 @@ vi.mock("fs", () => ({
 vi.mock("../config", async importOriginal => {
   const actual = await importOriginal();
   return {
-    ...actual,
+    ...(actual || {}),
     resolveScreenshotDir: vi.fn(() => "visual-testing"),
   };
 });
 
-vi.mock("../../../utils/config-generator", () => ({
+vi.mock("../../utils/config-generator", () => ({
   generateConfigContent: vi.fn().mockReturnValue("// Generated config content"),
   generateGitignoreContent: vi
     .fn()
-    .mockReturnValue("# Generated gitignore content"),
+    .mockReturnValue(
+      "# Visual Testing Tool - Ignore generated screenshots\n# Keep baseline screenshots in version control, ignore current and diff\ncurrent/\ndiff/\n"
+    ),
 }));
 
 describe("init API", () => {
@@ -45,7 +47,7 @@ describe("init API", () => {
     vi.clearAllMocks();
     mockGenerateConfigContent.mockReturnValue("// Generated config content");
     mockGenerateGitignoreContent.mockReturnValue(
-      "# Generated gitignore content"
+      "# Visual Testing Tool - Ignore generated screenshots\n# Keep baseline screenshots in version control, ignore current and diff\ncurrent/\ndiff/\n"
     );
   });
 
@@ -72,7 +74,7 @@ describe("init API", () => {
       );
     });
 
-    it.skip("should initialize project with custom options", async () => {
+    it("should initialize project with custom options", async () => {
       mockExistsSync.mockReturnValue(false);
 
       const result = await initializeProject({
@@ -107,7 +109,7 @@ describe("init API", () => {
       expect(mockWriteFileSync).not.toHaveBeenCalled();
     });
 
-    it.skip("should create screenshot directory and gitignore when directory doesn't exist", async () => {
+    it("should create screenshot directory and gitignore when directory doesn't exist", async () => {
       mockExistsSync
         .mockReturnValueOnce(false) // config file doesn't exist
         .mockReturnValueOnce(false); // screenshot directory doesn't exist
@@ -120,7 +122,7 @@ describe("init API", () => {
       );
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         join(process.cwd(), "visual-testing", ".gitignore"),
-        "# Generated gitignore content"
+        "# Visual Testing Tool - Ignore generated screenshots\n# Keep baseline screenshots in version control, ignore current and diff\ncurrent/\ndiff/\n"
       );
     });
 

@@ -1,6 +1,7 @@
 {
   "name": "@visual-testing-tool/root",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --filter=!example-storybook-v8",
@@ -8,6 +9,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\" --ignore-path .prettierignore",
     "check-types": "turbo run check-types",
     "lint": "turbo run lint -- --fix",
+    "lint:ci": "turbo run lint",
     "test": "turbo run test -- --run"
   },
   "devDependencies": {

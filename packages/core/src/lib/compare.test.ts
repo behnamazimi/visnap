@@ -4,12 +4,12 @@ import { join } from "path";
 import odiff from "odiff-bin";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { getErrorMessage } from "../../utils/error-handler";
-
 import {
   compareDirectories,
   compareBaseAndCurrentWithTestCases,
 } from "./compare";
+
+import { getErrorMessage } from "@/utils/error-handler";
 
 // Mock dependencies
 vi.mock("fs", () => ({
@@ -22,7 +22,7 @@ vi.mock("odiff-bin", () => ({
   },
 }));
 
-vi.mock("../../utils/error-handler", () => ({
+vi.mock("@/utils/error-handler", () => ({
   getErrorMessage: vi.fn(),
 }));
 
@@ -48,10 +48,11 @@ describe("compare", () => {
         .mockReturnValueOnce(["file1.png", "file2.png"] as any);
 
       mockOdiffCompare
-        .mockResolvedValueOnce({ match: true, reason: "", diffPercentage: 0 })
+        .mockResolvedValueOnce({ match: true })
         .mockResolvedValueOnce({
           match: false,
           reason: "pixel-diff",
+          diffCount: 100,
           diffPercentage: 5.2,
         });
 
@@ -79,8 +80,6 @@ describe("compare", () => {
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
-        reason: "",
-        diffPercentage: 0,
       });
 
       const result = await compareDirectories("/current", "/base", "/diff");
@@ -106,8 +105,6 @@ describe("compare", () => {
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
-        reason: "",
-        diffPercentage: 0,
       });
 
       const result = await compareDirectories("/current", "/base", "/diff");
@@ -133,8 +130,6 @@ describe("compare", () => {
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
-        reason: "",
-        diffPercentage: 0,
       });
 
       await compareDirectories("/current", "/base", "/diff", {
@@ -223,10 +218,11 @@ describe("compare", () => {
         ] as any);
 
       mockOdiffCompare
-        .mockResolvedValueOnce({ match: true, reason: "", diffPercentage: 0 })
+        .mockResolvedValueOnce({ match: true })
         .mockResolvedValueOnce({
           match: false,
           reason: "pixel-diff",
+          diffCount: 50,
           diffPercentage: 3.1,
         });
 
@@ -260,7 +256,9 @@ describe("compare", () => {
 
     it("should handle missing config threshold", async () => {
       const configWithoutThreshold = { ...mockConfig };
-      delete configWithoutThreshold.threshold;
+      if ("threshold" in configWithoutThreshold) {
+        delete (configWithoutThreshold as any).threshold;
+      }
 
       mockReaddirSync
         .mockReturnValueOnce(["story1-default.png"] as any)
@@ -268,8 +266,6 @@ describe("compare", () => {
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
-        reason: "",
-        diffPercentage: 0,
       });
 
       await compareBaseAndCurrentWithTestCases(

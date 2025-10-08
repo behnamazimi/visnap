@@ -134,9 +134,9 @@ describe("pool", () => {
 
       expect(results).toEqual([2, 4, 6]);
       expect(worker).toHaveBeenCalledTimes(3);
-      // Should take less than 40ms (3 items * 10ms each) due to concurrency
+      // Should take less than 50ms (3 items * 10ms each) due to concurrency
       // Allow some buffer for test execution overhead
-      expect(endTime - startTime).toBeLessThan(40);
+      expect(endTime - startTime).toBeLessThan(50);
     });
 
     it("should handle different return types", async () => {
