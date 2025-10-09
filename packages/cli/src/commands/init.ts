@@ -26,8 +26,8 @@ const promptUser = async (): Promise<InitOptions> => {
       name: "configType",
       message: "Choose configuration file type:",
       choices: [
-        { name: "TypeScript (vtt.config.ts)", value: "ts" },
-        { name: "JavaScript (vtt.config.js)", value: "js" },
+        { name: "TypeScript (vividiff.config.ts)", value: "ts" },
+        { name: "JavaScript (vividiff.config.js)", value: "js" },
       ],
       default: "ts",
     },
@@ -43,7 +43,7 @@ const initHandler = async (_options: void): Promise<void> => {
     const currentDir = process.cwd();
     const userOptions = await promptUser();
 
-    const configFileName = `vtt.config.${userOptions.configType}`;
+    const configFileName = `vividiff.config.${userOptions.configType}`;
     const newConfigPath = join(currentDir, configFileName);
 
     if (existsSync(newConfigPath)) {

@@ -17,6 +17,8 @@ const config: VisualTestingToolConfig = {
           // { name: "firefox", options: { headless: true } },
           // { name: "webkit", options: { headless: true } }
         ],
+
+        // injectCSS: "button { display: none !important; }"
       },
     },
     testCase: [

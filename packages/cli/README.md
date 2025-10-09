@@ -26,7 +26,7 @@ vividiff init
 
 **Options:**
 - Interactive prompts for configuration type (TypeScript/JavaScript)
-- Creates `vtt.config.ts` or `vtt.config.js` in the current directory
+- Creates `vividiff.config.ts` or `vividiff.config.js` in the current directory
 - Generates `.gitignore` for screenshot directories
 
 ### `test`
@@ -63,7 +63,7 @@ vividiff update
 
 ## Configuration
 
-The CLI reads configuration from `vtt.config.ts` in your project root. See the [core package documentation](../core/README.md) for configuration details.
+The CLI reads configuration from `vividiff.config.ts` in your project root. See the [core package documentation](../core/README.md) for configuration details.
 
 ## Related Packages
 

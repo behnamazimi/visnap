@@ -24,7 +24,7 @@ export interface ViewportMap {
 }
 
 export const getConfigTsPath = (): string =>
-  join(process.cwd(), "vtt.config.ts");
+  join(process.cwd(), "vividiff.config.ts");
 
 export const loadConfigFile =
   async (): Promise<VisualTestingToolConfig | null> => {

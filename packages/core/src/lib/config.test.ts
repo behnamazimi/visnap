@@ -50,7 +50,7 @@ describe("config", () => {
   describe("getConfigTsPath", () => {
     it("should return correct config file path", () => {
       const result = getConfigTsPath();
-      expect(result).toBe(join(process.cwd(), "vtt.config.ts"));
+      expect(result).toBe(join(process.cwd(), "vividiff.config.ts"));
     });
   });
 
@@ -76,7 +76,7 @@ describe("config", () => {
 
       expect(result).toEqual(mockConfig);
       expect(mockBundleRequire).toHaveBeenCalledWith({
-        filepath: join(process.cwd(), "vtt.config.ts"),
+        filepath: join(process.cwd(), "vividiff.config.ts"),
       });
     });
 
