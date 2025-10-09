@@ -1,7 +1,12 @@
 import type { ScreenshotOptions, ScreenshotResult } from "@vividiff/protocol";
 import type { Page, BrowserContext } from "playwright-core";
 
-import { setupPage, navigateToUrl, handleWaitFor } from "./browser-context";
+import {
+  setupPage,
+  navigateToUrl,
+  handleWaitFor,
+  injectGlobalCSS,
+} from "./browser-context";
 import { resolveScreenshotTarget } from "./utils";
 
 import type { PlaywrightAdapterOptions } from "./index";
@@ -55,6 +60,11 @@ export async function performScreenshotCapture(
 
     // Handle additional waiting if specified
     await handleWaitFor(page, screenshotOptions.waitFor, timeout);
+
+    // Inject global CSS if enabled and not disabled for this test case
+    if (!screenshotOptions.disableCSSInjection && options.injectCSS) {
+      await injectGlobalCSS(page, options.injectCSS);
+    }
 
     // Capture the screenshot
     const buffer = await captureElementScreenshot(

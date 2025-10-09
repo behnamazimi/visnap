@@ -86,3 +86,23 @@ export async function handleWaitFor(
     await page.waitForSelector(waitFor, { timeout });
   }
 }
+
+/**
+ * Injects global CSS into the page for stable screenshots.
+ * Useful for disabling animations, transitions, and hiding elements.
+ */
+export async function injectGlobalCSS(
+  page: Page,
+  cssString?: string
+): Promise<void> {
+  if (!cssString || cssString.trim().length === 0) {
+    return;
+  }
+
+  try {
+    await page.addStyleTag({ content: cssString });
+  } catch (error) {
+    // Log error but don't fail the capture
+    console.warn(`Failed to inject CSS: ${error}`);
+  }
+}

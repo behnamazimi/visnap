@@ -11,6 +11,7 @@ import {
   navigateToUrl,
   setupPage,
   handleWaitFor,
+  injectGlobalCSS,
 } from "./browser-context.js";
 
 import type { PlaywrightAdapterOptions } from "./index.js";
@@ -222,6 +223,91 @@ describe("browser-context", () => {
 
       expect(mockPage.waitForTimeout).not.toHaveBeenCalled();
       expect(mockPage.waitForSelector).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("injectGlobalCSS", () => {
+    it("should inject CSS when valid CSS string is provided", async () => {
+      const cssString = "* { animation: none !important; }";
+
+      await injectGlobalCSS(mockPage, cssString);
+
+      expect(mockPage.addStyleTag).toHaveBeenCalledWith({
+        content: cssString,
+      });
+    });
+
+    it("should not inject CSS when string is empty", async () => {
+      await injectGlobalCSS(mockPage, "");
+
+      expect(mockPage.addStyleTag).not.toHaveBeenCalled();
+    });
+
+    it("should not inject CSS when string is only whitespace", async () => {
+      await injectGlobalCSS(mockPage, "   \n\t  ");
+
+      expect(mockPage.addStyleTag).not.toHaveBeenCalled();
+    });
+
+    it("should not inject CSS when string is undefined", async () => {
+      await injectGlobalCSS(mockPage, undefined);
+
+      expect(mockPage.addStyleTag).not.toHaveBeenCalled();
+    });
+
+    it("should handle CSS injection errors gracefully", async () => {
+      const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      mockPage.addStyleTag.mockRejectedValue(new Error("CSS injection failed"));
+
+      const cssString = "invalid css {";
+
+      await injectGlobalCSS(mockPage, cssString);
+
+      expect(mockPage.addStyleTag).toHaveBeenCalledWith({
+        content: cssString,
+      });
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Failed to inject CSS: Error: CSS injection failed"
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    it("should inject complex CSS with multiple rules", async () => {
+      const cssString = `
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+        .loader {
+          display: none !important;
+        }
+        .spinner {
+          visibility: hidden !important;
+        }
+      `;
+
+      await injectGlobalCSS(mockPage, cssString);
+
+      expect(mockPage.addStyleTag).toHaveBeenCalledWith({
+        content: cssString,
+      });
+    });
+
+    it("should inject CSS with media queries", async () => {
+      const cssString = `
+        @media (prefers-reduced-motion: reduce) {
+          * {
+            animation: none !important;
+          }
+        }
+      `;
+
+      await injectGlobalCSS(mockPage, cssString);
+
+      expect(mockPage.addStyleTag).toHaveBeenCalledWith({
+        content: cssString,
+      });
     });
   });
 });

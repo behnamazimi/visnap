@@ -10,6 +10,9 @@ export function generateConfigContent(options: InitOptions): string {
   adapters: {
     browser: {
       name: "@vividiff/playwright-adapter",
+      options: {
+        // injectCSS: "* { animation: none !important; transition: none !important; }"
+      },
     },
     testCase: [
       {

@@ -111,11 +111,22 @@ export function normalizeStories(
       typeof vt.viewport === "object" && vt.viewport !== null
         ? (vt.viewport as Viewport)
         : undefined;
+    const disableCSSInjection =
+      typeof vt.disableCSSInjection === "boolean"
+        ? vt.disableCSSInjection
+        : undefined;
 
     metas.push({
       id,
       title,
-      visualTesting: { skip, screenshotTarget, threshold, browser, viewport },
+      visualTesting: {
+        skip,
+        screenshotTarget,
+        threshold,
+        browser,
+        viewport,
+        disableCSSInjection,
+      },
     });
   }
 
@@ -142,6 +153,7 @@ export function normalizeStories(
         screenshotTarget: cfg?.screenshotTarget ?? "#storybook-root",
         viewport: viewportConfig,
         threshold: cfg?.threshold,
+        disableCSSInjection: cfg?.disableCSSInjection,
       });
     }
   }

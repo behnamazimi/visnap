@@ -27,6 +27,7 @@ vi.mock("./browser-context.js", () => ({
   setupPage: vi.fn(),
   navigateToUrl: vi.fn(),
   handleWaitFor: vi.fn(),
+  injectGlobalCSS: vi.fn(),
 }));
 
 describe("screenshot-capture", () => {
@@ -246,6 +247,125 @@ describe("screenshot-capture", () => {
       expect(result.meta.elapsedMs).toBeLessThanOrEqual(
         endTime - startTime + 100
       ); // Allow some margin
+    });
+
+    it("should inject CSS when injectCSS option is provided and not disabled", async () => {
+      const { injectGlobalCSS } = await import("./browser-context.js");
+      const optionsWithCSS: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        injectCSS: "* { animation: none !important; }",
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithCSS,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(injectGlobalCSS).toHaveBeenCalledWith(
+        mockPage,
+        "* { animation: none !important; }"
+      );
+    });
+
+    it("should not inject CSS when disableCSSInjection is true", async () => {
+      const { injectGlobalCSS } = await import("./browser-context.js");
+      const optionsWithCSS: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        injectCSS: "* { animation: none !important; }",
+      };
+      const screenshotOptionsWithDisable: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        disableCSSInjection: true,
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithCSS,
+        screenshotOptionsWithDisable,
+        30000
+      );
+
+      expect(injectGlobalCSS).not.toHaveBeenCalled();
+    });
+
+    it("should not inject CSS when injectCSS option is not provided", async () => {
+      const { injectGlobalCSS } = await import("./browser-context.js");
+
+      await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(injectGlobalCSS).not.toHaveBeenCalled();
+    });
+
+    it("should not inject CSS when injectCSS is empty string", async () => {
+      const { injectGlobalCSS } = await import("./browser-context.js");
+      const optionsWithEmptyCSS: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        injectCSS: "",
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithEmptyCSS,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(injectGlobalCSS).not.toHaveBeenCalled();
+    });
+
+    it("should inject CSS when disableCSSInjection is false", async () => {
+      const { injectGlobalCSS } = await import("./browser-context.js");
+      const optionsWithCSS: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        injectCSS: "* { transition: none !important; }",
+      };
+      const screenshotOptionsWithDisable: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        disableCSSInjection: false,
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithCSS,
+        screenshotOptionsWithDisable,
+        30000
+      );
+
+      expect(injectGlobalCSS).toHaveBeenCalledWith(
+        mockPage,
+        "* { transition: none !important; }"
+      );
+    });
+
+    it("should inject CSS when disableCSSInjection is undefined", async () => {
+      const { injectGlobalCSS } = await import("./browser-context.js");
+      const optionsWithCSS: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        injectCSS: ".loader { display: none !important; }",
+      };
+      const screenshotOptionsWithoutDisable: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        disableCSSInjection: undefined,
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithCSS,
+        screenshotOptionsWithoutDisable,
+        30000
+      );
+
+      expect(injectGlobalCSS).toHaveBeenCalledWith(
+        mockPage,
+        ".loader { display: none !important; }"
+      );
     });
   });
 });

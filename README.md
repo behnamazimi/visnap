@@ -12,6 +12,7 @@ A fast, Dockerized visual regression testing tool designed for **Storybook 8 and
 - ⚡ **Quick Setup** - Get started in minutes with `npx vividiff init`
 - 🌐 **Multi-Browser Support** - Test across Chromium, Firefox, and WebKit
 - ⚡ **Fast** - Optimized for speed with concurrent processing
+- 🎨 **CSS Injection** - Inject global CSS for stable screenshots (disable animations, hide elements)
 
 ## 🚀 Quick Start
 

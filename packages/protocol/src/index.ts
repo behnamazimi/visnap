@@ -21,6 +21,7 @@ export interface ScreenshotOptions {
   screenshotTarget?: string;
   viewport?: Viewport;
   waitFor?: string | number;
+  disableCSSInjection?: boolean;
 }
 
 export interface ScreenshotResult {
@@ -52,6 +53,7 @@ export interface TestCaseVisualConfig {
   threshold?: number;
   browser?: BrowserName | BrowserName[];
   viewport?: Viewport;
+  disableCSSInjection?: boolean;
 }
 
 // Base meta fields common to all test case-related types
@@ -72,6 +74,8 @@ interface BaseTestCaseInstance {
   browser?: BrowserName; // Browser for this specific variant
   /** Optional per-case threshold applied during comparison for this instance */
   threshold?: number;
+  /** Optional flag to disable CSS injection for this specific test case */
+  disableCSSInjection?: boolean;
 }
 
 export interface TestCaseMeta extends BaseTestCaseMeta {

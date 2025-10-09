@@ -31,6 +31,7 @@ export const mockPage = {
   waitForLoadState: vi.fn(),
   waitForTimeout: vi.fn(),
   waitForSelector: vi.fn(),
+  addStyleTag: vi.fn(),
   close: vi.fn(),
 } as any;
 
@@ -68,6 +69,7 @@ beforeEach(() => {
   mockPage.waitForLoadState.mockResolvedValue(undefined);
   mockPage.waitForTimeout.mockResolvedValue(undefined);
   mockPage.waitForSelector.mockResolvedValue(mockElement);
+  mockPage.addStyleTag.mockResolvedValue(undefined);
   mockPage.close.mockResolvedValue(undefined);
 
   mockElement.screenshot.mockResolvedValue(new Uint8Array([1, 2, 3, 4]));
