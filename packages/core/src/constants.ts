@@ -4,7 +4,7 @@
 
 // Default values
 export const DEFAULT_CONCURRENCY = 6;
-export const DEFAULT_SCREENSHOT_DIR = "visual-testing";
+export const DEFAULT_SCREENSHOT_DIR = "vividiff";
 export const DEFAULT_THRESHOLD = 0.1;
 export const DEFAULT_BROWSER = "chromium" as const;
 export const DEFAULT_SCREENSHOT_TARGET = "story-root" as const;

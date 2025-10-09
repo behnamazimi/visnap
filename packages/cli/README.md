@@ -52,7 +52,7 @@ vividiff test --docker
 
 ### `update`
 
-Capture baseline screenshots for all stories and save them to `visual-testing/base/`.
+Capture baseline screenshots for all stories and save them to `vividiff/base/`.
 
 ```bash
 vividiff update

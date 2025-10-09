@@ -23,7 +23,7 @@ describe("constants", () => {
     });
 
     it("should have correct default screenshot directory", () => {
-      expect(DEFAULT_SCREENSHOT_DIR).toBe("visual-testing");
+      expect(DEFAULT_SCREENSHOT_DIR).toBe("vividiff");
     });
 
     it("should have correct default threshold", () => {

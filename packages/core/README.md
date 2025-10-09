@@ -21,7 +21,7 @@ import { runVisualTests } from '@vividiff/core';
 
 const result = await runVisualTests({
   threshold: 0.1,
-  screenshotDir: 'visual-testing'
+  screenshotDir: 'vividiff'
 });
 
 console.log(`Tests passed: ${result.success}`);
@@ -36,7 +36,7 @@ Capture baseline screenshots for all test cases.
 import { updateBaseline } from '@vividiff/core';
 
 await updateBaseline({
-  screenshotDir: 'visual-testing'
+  screenshotDir: 'vividiff'
 });
 ```
 
@@ -215,7 +215,7 @@ const config: VisualTestingToolConfig = {
     }]
   },
   threshold: 0.1,
-  screenshotDir: "visual-testing",
+  screenshotDir: "vividiff",
   runtime: {
     maxConcurrency: 4
   }
