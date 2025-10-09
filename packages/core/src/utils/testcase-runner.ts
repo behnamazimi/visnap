@@ -399,6 +399,7 @@ export async function runTestCasesOnBrowser(
           url: variant.url,
           screenshotTarget: variant.screenshotTarget,
           viewport: variant.viewport,
+          disableCSSInjection: variant.disableCSSInjection,
         });
 
         const timeoutPromise = new Promise<never>((_, reject) => {

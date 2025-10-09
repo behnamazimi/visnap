@@ -146,6 +146,22 @@ describe("filtering", () => {
           threshold: 0.2,
         },
       },
+      "button-with-css-disable": {
+        id: "button-with-css-disable",
+        title: "Button with CSS Disabled",
+        visualTesting: {
+          skip: false,
+          disableCSSInjection: true,
+        },
+      },
+      "button-with-css-enable": {
+        id: "button-with-css-enable",
+        title: "Button with CSS Enabled",
+        visualTesting: {
+          skip: false,
+          disableCSSInjection: false,
+        },
+      },
       "invalid-story": {
         // Missing required fields
         title: "Invalid Story",
@@ -165,7 +181,7 @@ describe("filtering", () => {
     it("should normalize stories and create instances", () => {
       const result = normalizeStories(mockStories, defaultOptions);
 
-      expect(result).toHaveLength(4); // 2 valid stories × 2 viewports
+      expect(result).toHaveLength(8); // 4 valid stories × 2 viewports
 
       const buttonPrimary = result.find(r => r.caseId === "button-primary");
       expect(buttonPrimary).toBeDefined();
@@ -321,6 +337,63 @@ describe("filtering", () => {
       const instance = result.find(r => r.caseId === "browser-specific-story");
       expect(instance).toBeDefined();
       // Note: browser config is not part of TestCaseInstanceMeta, so we just verify the story is processed
+    });
+
+    it("should handle disableCSSInjection property", () => {
+      const result = normalizeStories(mockStories, defaultOptions);
+
+      const cssDisabledStory = result.find(
+        r => r.caseId === "button-with-css-disable"
+      );
+      expect(cssDisabledStory).toBeDefined();
+      expect(cssDisabledStory?.disableCSSInjection).toBe(true);
+
+      const cssEnabledStory = result.find(
+        r => r.caseId === "button-with-css-enable"
+      );
+      expect(cssEnabledStory).toBeDefined();
+      expect(cssEnabledStory?.disableCSSInjection).toBe(false);
+
+      const defaultStory = result.find(r => r.caseId === "button-primary");
+      expect(defaultStory).toBeDefined();
+      expect(defaultStory?.disableCSSInjection).toBeUndefined();
+    });
+
+    it("should handle disableCSSInjection with undefined value", () => {
+      const storiesWithUndefinedCSS = {
+        "story-undefined-css": {
+          id: "story-undefined-css",
+          title: "Story with Undefined CSS",
+          visualTesting: {
+            skip: false,
+            disableCSSInjection: undefined,
+          },
+        },
+      };
+
+      const result = normalizeStories(storiesWithUndefinedCSS, defaultOptions);
+
+      const instance = result.find(r => r.caseId === "story-undefined-css");
+      expect(instance).toBeDefined();
+      expect(instance?.disableCSSInjection).toBeUndefined();
+    });
+
+    it("should handle disableCSSInjection with missing property", () => {
+      const storiesWithoutCSS = {
+        "story-no-css": {
+          id: "story-no-css",
+          title: "Story without CSS property",
+          visualTesting: {
+            skip: false,
+          },
+        },
+      };
+
+      const result = normalizeStories(storiesWithoutCSS, defaultOptions);
+
+      const instance = result.find(r => r.caseId === "story-no-css");
+      expect(instance).toBeDefined();
+      expect(instance?.disableCSSInjection).toBeUndefined();
     });
   });
 });

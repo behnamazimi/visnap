@@ -38,7 +38,7 @@ export async function initializeProject(
     threshold,
   });
 
-  const configFileName = `vtt.config.${configType}`;
+  const configFileName = `vividiff.config.${configType}`;
   const configPath = join(process.cwd(), configFileName);
 
   // Check if config file already exists

@@ -35,6 +35,7 @@ export interface PlaywrightAdapterOptions {
     waitUntil?: "load" | "domcontentloaded" | "networkidle";
     timeoutMs?: number;
   };
+  injectCSS?: string;
 }
 
 /**

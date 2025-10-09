@@ -110,6 +110,11 @@ Navigation behavior:
 - `waitUntil`: Wait condition for page load
 - `timeoutMs`: Navigation timeout in milliseconds
 
+#### `injectCSS`
+Global CSS injection for stable screenshots:
+- `injectCSS`: CSS string to inject before each screenshot capture
+- Useful for disabling animations, transitions, and hiding elements
+
 ## Features
 
 ### Isolated Contexts
@@ -179,6 +184,20 @@ const adapter = createAdapter({
     waitUntil: 'networkidle',
     timeoutMs: 60000
   }
+});
+```
+
+### With CSS Injection
+
+```typescript
+const adapter = createAdapter({
+  injectCSS: `
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
+    .loader { display: none !important; }
+  `
 });
 ```
 

@@ -144,7 +144,8 @@ export default {
       screenshotTarget: '#root',     // Custom screenshot target
       threshold: 0.05,               // Custom threshold
       browser: ['chromium', 'firefox'], // Specific browsers
-      viewport: { width: 1200, height: 800 } // Custom viewport
+      viewport: { width: 1200, height: 800 }, // Custom viewport
+      disableCSSInjection: true      // Disable global CSS injection for this story
     }
   }
 };
