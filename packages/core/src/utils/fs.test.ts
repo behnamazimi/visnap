@@ -18,7 +18,7 @@ vi.mock("fs", () => ({
 
 // Mock the resolveScreenshotDir function
 vi.mock("../../lib", () => ({
-  resolveScreenshotDir: vi.fn(dir => dir || "visual-testing"),
+  resolveScreenshotDir: vi.fn(dir => dir || "vividiff"),
 }));
 
 describe("fs utilities", () => {
@@ -36,16 +36,16 @@ describe("fs utilities", () => {
       ensureVttDirectories();
 
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing")
+        join(process.cwd(), "vividiff")
       );
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing", "base")
+        join(process.cwd(), "vividiff", "base")
       );
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing", "current")
+        join(process.cwd(), "vividiff", "current")
       );
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing", "diff")
+        join(process.cwd(), "vividiff", "diff")
       );
     });
 
@@ -60,10 +60,10 @@ describe("fs utilities", () => {
 
       expect(mockMkdirSync).toHaveBeenCalledTimes(2);
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing", "base")
+        join(process.cwd(), "vividiff", "base")
       );
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing", "diff")
+        join(process.cwd(), "vividiff", "diff")
       );
     });
 
@@ -90,7 +90,7 @@ describe("fs utilities", () => {
   describe("getCurrentDir", () => {
     it("should return current directory path with default screenshot dir", () => {
       const result = getCurrentDir();
-      expect(result).toBe(join(process.cwd(), "visual-testing", "current"));
+      expect(result).toBe(join(process.cwd(), "vividiff", "current"));
     });
 
     it("should return current directory path with custom screenshot dir", () => {
@@ -102,7 +102,7 @@ describe("fs utilities", () => {
   describe("getBaseDir", () => {
     it("should return base directory path with default screenshot dir", () => {
       const result = getBaseDir();
-      expect(result).toBe(join(process.cwd(), "visual-testing", "base"));
+      expect(result).toBe(join(process.cwd(), "vividiff", "base"));
     });
 
     it("should return base directory path with custom screenshot dir", () => {
@@ -114,7 +114,7 @@ describe("fs utilities", () => {
   describe("getDiffDir", () => {
     it("should return diff directory path with default screenshot dir", () => {
       const result = getDiffDir();
-      expect(result).toBe(join(process.cwd(), "visual-testing", "diff"));
+      expect(result).toBe(join(process.cwd(), "vividiff", "diff"));
     });
 
     it("should return diff directory path with custom screenshot dir", () => {

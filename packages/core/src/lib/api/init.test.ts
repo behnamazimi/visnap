@@ -22,7 +22,7 @@ vi.mock("../config", async importOriginal => {
   const actual = await importOriginal();
   return {
     ...(actual || {}),
-    resolveScreenshotDir: vi.fn(() => "visual-testing"),
+    resolveScreenshotDir: vi.fn(() => "vividiff"),
   };
 });
 
@@ -117,11 +117,11 @@ describe("init API", () => {
       await initializeProject();
 
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing"),
+        join(process.cwd(), "vividiff"),
         { recursive: true }
       );
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing", ".gitignore"),
+        join(process.cwd(), "vividiff", ".gitignore"),
         "# Visual Testing Tool - Ignore generated screenshots\n# Keep baseline screenshots in version control, ignore current and diff\ncurrent/\ndiff/\n"
       );
     });
@@ -135,7 +135,7 @@ describe("init API", () => {
 
       expect(mockMkdirSync).not.toHaveBeenCalled();
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        join(process.cwd(), "visual-testing", ".gitignore"),
+        join(process.cwd(), "vividiff", ".gitignore"),
         "# Visual Testing Tool - Ignore generated screenshots\n# Keep baseline screenshots in version control, ignore current and diff\ncurrent/\ndiff/\n"
       );
     });

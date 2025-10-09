@@ -97,7 +97,7 @@ describe("config", () => {
   describe("resolveScreenshotDir", () => {
     it("should return default screenshot directory when none provided", () => {
       const result = resolveScreenshotDir();
-      expect(result).toBe("visual-testing");
+      expect(result).toBe("vividiff");
     });
 
     it("should return provided screenshot directory", () => {
@@ -176,7 +176,7 @@ describe("config", () => {
 
       const result = await resolveEffectiveConfig();
 
-      expect(result.screenshotDir).toBe("visual-testing");
+      expect(result.screenshotDir).toBe("vividiff");
     });
   });
 

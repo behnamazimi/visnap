@@ -304,7 +304,7 @@ const config: VisualTestingToolConfig = {
     }]
   },
   threshold: 0.1,
-  screenshotDir: 'visual-testing'
+  screenshotDir: 'vividiff'
 };
 ```
 
