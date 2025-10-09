@@ -37,7 +37,7 @@ RUN npm run build
 FROM mcr.microsoft.com/playwright:v1.56.0-noble AS test-runner
 
 # Set working directory for global install of the CLI
-WORKDIR /visual-testing-tool
+WORKDIR /vividiff
 
 # Copy the built monorepo (only what's needed)
 COPY --from=builder /app/package*.json ./
@@ -57,4 +57,4 @@ RUN npm link \
 # Set working directory back to /app
 WORKDIR /app
 
-ENTRYPOINT [ "visual-testing-tool" ]
+ENTRYPOINT [ "vividiff" ]

@@ -1,9 +1,9 @@
-import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
+import { type VisualTestingToolConfig } from "@vividiff/protocol";
 
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: "@visual-testing-tool/playwright-adapter",
+      name: "@vividiff/playwright-adapter",
       options: {
         // Option 1: Single browser (string)
         // browser: "firefox",
@@ -21,7 +21,7 @@ const config: VisualTestingToolConfig = {
     },
     testCase: [
       {
-        name: "@visual-testing-tool/storybook-adapter",
+        name: "@vividiff/storybook-adapter",
         options: {
           source: "./storybook-static",
           include: "*",

@@ -83,7 +83,7 @@ describe("constants", () => {
 
   describe("docker configuration", () => {
     it("should have correct default docker image", () => {
-      expect(DEFAULT_DOCKER_IMAGE).toBe("visual-testing-tool:latest");
+      expect(DEFAULT_DOCKER_IMAGE).toBe("vividiff:latest");
     });
   });
 });

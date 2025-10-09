@@ -4,11 +4,11 @@
   "commit": false,
   "fixed": [
     [
-      "@visual-testing-tool/protocol",
-      "@visual-testing-tool/playwright-adapter", 
-      "@visual-testing-tool/storybook-adapter",
-      "@visual-testing-tool/core",
-      "@visual-testing-tool/cli"
+      "@vividiff/protocol",
+      "@vividiff/playwright-adapter", 
+      "@vividiff/storybook-adapter",
+      "@vividiff/core",
+      "@vividiff/cli"
     ]
   ],
   "linked": [],

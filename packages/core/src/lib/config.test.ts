@@ -111,7 +111,7 @@ describe("config", () => {
       mockExistsSync.mockReturnValue(false);
 
       await expect(resolveEffectiveConfig()).rejects.toThrow(
-        "visual-testing-tool.config not found"
+        "vividiff.config not found"
       );
     });
 

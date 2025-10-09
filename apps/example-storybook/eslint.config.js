@@ -1,4 +1,4 @@
-import { reactInternalConfig } from "@visual-testing-tool/eslint-config/react-internal";
+import { reactInternalConfig } from "@vividiff/eslint-config/react-internal";
 
 /** @type {import("eslint").Linter.Config} */
 export default [

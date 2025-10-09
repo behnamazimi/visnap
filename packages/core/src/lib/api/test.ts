@@ -1,7 +1,4 @@
-import type {
-  VisualTestingToolConfig,
-  RunOutcome,
-} from "@visual-testing-tool/protocol";
+import type { VisualTestingToolConfig, RunOutcome } from "@vividiff/protocol";
 
 import { resolveEffectiveConfig } from "@/lib/config";
 import { runTestCasesOnBrowser } from "@/utils/testcase-runner";

@@ -1,13 +1,13 @@
 # Contributing
 
-Thank you for your interest in contributing to visual-testing-tool! This document provides guidelines for contributing to this project.
+Thank you for your interest in contributing to vividiff! This document provides guidelines for contributing to this project.
 
 ## Development Setup
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd visual-testing-tool
+   cd vividiff
    ```
 
 2. **Install dependencies**
@@ -70,11 +70,11 @@ This project uses automated releases with Changesets:
 
 This is a monorepo with the following packages:
 
-- `@visual-testing-tool/protocol` - Shared types and interfaces
-- `@visual-testing-tool/playwright-adapter` - Playwright browser integration
-- `@visual-testing-tool/storybook-adapter` - Storybook integration
-- `@visual-testing-tool/core` - Core functionality
-- `@visual-testing-tool/cli` - Command-line interface
+- `@vividiff/protocol` - Shared types and interfaces
+- `@vividiff/playwright-adapter` - Playwright browser integration
+- `@vividiff/storybook-adapter` - Storybook integration
+- `@vividiff/core` - Core functionality
+- `@vividiff/cli` - Command-line interface
 
 All packages share the same version number (fixed versioning).
 

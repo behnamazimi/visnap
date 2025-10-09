@@ -1,4 +1,4 @@
-import type { TestCaseMeta, ViewportMap } from "@visual-testing-tool/protocol";
+import type { TestCaseMeta, ViewportMap } from "@vividiff/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createTestCaseFilter, normalizeStories } from "./filtering.js";

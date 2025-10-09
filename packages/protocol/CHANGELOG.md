@@ -1,4 +1,4 @@
-# @visual-testing-tool/protocol
+# @vividiff/protocol
 
 ## 0.1.2
 

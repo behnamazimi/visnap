@@ -1,4 +1,4 @@
-import type { BrowserName as BrowserNameProtocol } from "@visual-testing-tool/protocol";
+import type { BrowserName as BrowserNameProtocol } from "@vividiff/protocol";
 import { chromium, firefox, webkit, type BrowserType } from "playwright-core";
 
 /**

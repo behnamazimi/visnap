@@ -1,5 +1,5 @@
 {
-  "name": "@visual-testing-tool/root",
+  "name": "@vividiff/root",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,7 @@
     "lint:ci": "turbo run lint",
     "test": "turbo run test -- --run",
     "version": "changeset version",
-    "release": "turbo run build --filter=@visual-testing-tool/* && changeset publish"
+    "release": "turbo run build --filter=@vividiff/* && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",

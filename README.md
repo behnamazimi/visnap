@@ -1,4 +1,4 @@
-# visual-testing-tool
+# vividiff
 
 A fast, Dockerized visual regression testing tool designed for **Storybook 8 and above8** with story-level testing capabilities.
 
@@ -9,7 +9,7 @@ A fast, Dockerized visual regression testing tool designed for **Storybook 8 and
 - 🎯 **Story-Level Visual Testing** - Test individual stories with precision
 - 🎛️ **Flexible Filtering** - Run specific stories or exclude unwanted ones
 - 🚀 **Easy CLI Interface** - Simple commands for all operations
-- ⚡ **Quick Setup** - Get started in minutes with `npx visual-testing-tool init`
+- ⚡ **Quick Setup** - Get started in minutes with `npx vividiff init`
 - 🌐 **Multi-Browser Support** - Test across Chromium, Firefox, and WebKit
 - ⚡ **Fast** - Optimized for speed with concurrent processing
 
@@ -19,12 +19,12 @@ Install and run:
 
 ```bash
 # Install globally
-npm install -g visual-testing-tool
+npm install -g vividiff
 
 # Or use with npx (no installation needed)
-npx visual-testing-tool init
-npx visual-testing-tool update
-npx visual-testing-tool test
+npx vividiff init
+npx vividiff update
+npx vividiff test
 ```
 
 ## 📖 Documentation
@@ -35,27 +35,27 @@ For detailed usage, configuration options, and advanced features, see the [Core 
 
 1. **Initialize** in your Storybook project:
    ```bash
-   npx visual-testing-tool init
+   npx vividiff init
    ```
 
 2. **Create baseline** screenshots:
    ```bash
-   npx visual-testing-tool update
+   npx vividiff update
    ```
 
 3. **Run tests** on changes:
    ```bash
-   npx visual-testing-tool test
+   npx vividiff test
    ```
 
-Screenshots are automatically saved to `visual-testing-tool/` directory.
+Screenshots are automatically saved to `vividiff/` directory.
 
 ## 🐳 Docker Support
 
 Run tests in Docker for consistent, isolated environments:
 
 ```bash
-npx visual-testing-tool test --docker
+npx vividiff test --docker
 ```
 
 ## ⚙️ Environment Variables
@@ -72,13 +72,13 @@ Example (bash):
 VTT_SCREENSHOT_DIR=visual-testing \
 VTT_THRESHOLD=0.02 \
 VTT_MAX_CONCURRENCY=6 \
-npx visual-testing-tool test
+npx vividiff test
 ```
 
 ## 📦 Installation
 
 ```bash
-npm install visual-testing-tool
+npm install vividiff
 ```
 
 ## 🚀 Release Process

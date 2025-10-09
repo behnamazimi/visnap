@@ -6,7 +6,7 @@ import {
   log,
   runInDocker,
   DEFAULT_DOCKER_IMAGE,
-} from "@visual-testing-tool/core";
+} from "@vividiff/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";

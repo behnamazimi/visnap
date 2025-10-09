@@ -9,11 +9,11 @@ export function generateConfigContent(options: InitOptions): string {
   const configObject = `{
   adapters: {
     browser: {
-      name: "@visual-testing-tool/playwright-adapter",
+      name: "@vividiff/playwright-adapter",
     },
     testCase: [
       {
-        name: "@visual-testing-tool/storybook-adapter",
+        name: "@vividiff/storybook-adapter",
         options: {
           source: "./storybook-static",
           include: "*",
@@ -32,7 +32,7 @@ export function generateConfigContent(options: InitOptions): string {
 }`;
 
   if (configType === "ts") {
-    return `import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
+    return `import { type VisualTestingToolConfig } from "@vividiff/protocol";
 
 const config: VisualTestingToolConfig = ${configObject};
 

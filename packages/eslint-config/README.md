@@ -1,11 +1,11 @@
-# @visual-testing-tool/eslint-config
+# @vividiff/eslint-config
 
 Shared ESLint configurations for the visual testing tool monorepo. Provides consistent linting rules across all packages.
 
 ## Installation
 
 ```bash
-npm install @visual-testing-tool/eslint-config --save-dev
+npm install @vividiff/eslint-config --save-dev
 ```
 
 ## Available Configurations
@@ -16,7 +16,7 @@ Base configuration with common rules for all packages.
 
 ```javascript
 // eslint.config.js
-import baseConfig from '@visual-testing-tool/eslint-config/base.js';
+import baseConfig from '@vividiff/eslint-config/base.js';
 
 export default [
   ...baseConfig,
@@ -30,7 +30,7 @@ React-specific configuration for internal packages.
 
 ```javascript
 // eslint.config.js
-import reactConfig from '@visual-testing-tool/eslint-config/react-internal.js';
+import reactConfig from '@vividiff/eslint-config/react-internal.js';
 
 export default [
   ...reactConfig,
@@ -44,7 +44,7 @@ Next.js specific configuration.
 
 ```javascript
 // eslint.config.js
-import nextConfig from '@visual-testing-tool/eslint-config/next.js';
+import nextConfig from '@vividiff/eslint-config/next.js';
 
 export default [
   ...nextConfig,
@@ -58,7 +58,7 @@ export default [
 {
   "name": "my-package",
   "devDependencies": {
-    "@visual-testing-tool/eslint-config": "*"
+    "@vividiff/eslint-config": "*"
   },
   "scripts": {
     "lint": "eslint .",
@@ -99,7 +99,7 @@ This package is designed for use within the visual testing tool monorepo:
 
 ```bash
 # In package.json dependencies
-"@visual-testing-tool/eslint-config": "*"
+"@vividiff/eslint-config": "*"
 ```
 
 The `*` version ensures packages always use the latest configuration from the monorepo.
@@ -110,7 +110,7 @@ You can extend any configuration:
 
 ```javascript
 // eslint.config.js
-import baseConfig from '@visual-testing-tool/eslint-config/base.js';
+import baseConfig from '@vividiff/eslint-config/base.js';
 
 export default [
   ...baseConfig,
@@ -138,11 +138,11 @@ eslint-config/
 
 This configuration is used by all packages in the monorepo:
 
-- [`@visual-testing-tool/core`](../core/README.md)
-- [`@visual-testing-tool/cli`](../cli/README.md)
-- [`@visual-testing-tool/playwright-adapter`](../playwright-adapter/README.md)
-- [`@visual-testing-tool/storybook-adapter`](../storybook-adapter/README.md)
-- [`@visual-testing-tool/protocol`](../protocol/README.md)
+- [`@vividiff/core`](../core/README.md)
+- [`@vividiff/cli`](../cli/README.md)
+- [`@vividiff/playwright-adapter`](../playwright-adapter/README.md)
+- [`@vividiff/storybook-adapter`](../storybook-adapter/README.md)
+- [`@vividiff/protocol`](../protocol/README.md)
 
 ## License
 

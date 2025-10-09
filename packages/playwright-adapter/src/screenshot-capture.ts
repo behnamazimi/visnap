@@ -1,7 +1,4 @@
-import type {
-  ScreenshotOptions,
-  ScreenshotResult,
-} from "@visual-testing-tool/protocol";
+import type { ScreenshotOptions, ScreenshotResult } from "@vividiff/protocol";
 import type { Page, BrowserContext } from "playwright-core";
 
 import { setupPage, navigateToUrl, handleWaitFor } from "./browser-context";

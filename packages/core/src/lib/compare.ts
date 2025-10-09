@@ -4,7 +4,7 @@ import { join } from "path";
 import {
   type TestCaseInstance,
   type VisualTestingToolConfig,
-} from "@visual-testing-tool/protocol";
+} from "@vividiff/protocol";
 import odiff from "odiff-bin";
 
 import { DEFAULT_THRESHOLD } from "@/constants";
