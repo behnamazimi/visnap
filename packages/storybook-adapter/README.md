@@ -1,11 +1,11 @@
-# @visual-testing-tool/storybook-adapter
+# @vividiff/storybook-adapter
 
 Storybook test case adapter for visual regression testing. Discovers and normalizes Storybook stories into test case instances for visual testing.
 
 ## Installation
 
 ```bash
-npm install @visual-testing-tool/storybook-adapter
+npm install @vividiff/storybook-adapter
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install @visual-testing-tool/storybook-adapter
 ### Basic Usage
 
 ```typescript
-import { createAdapter } from '@visual-testing-tool/storybook-adapter';
+import { createAdapter } from '@vividiff/storybook-adapter';
 
 const adapter = createAdapter({
   source: './storybook-static',
@@ -194,9 +194,9 @@ The adapter includes robust error handling:
 
 ## Related Packages
 
-- [`@visual-testing-tool/protocol`](../protocol/README.md) - Shared types and interfaces
-- [`@visual-testing-tool/core`](../core/README.md) - Core testing utilities
-- [`@visual-testing-tool/playwright-adapter`](../playwright-adapter/README.md) - Browser automation
+- [`@vividiff/protocol`](../protocol/README.md) - Shared types and interfaces
+- [`@vividiff/core`](../core/README.md) - Core testing utilities
+- [`@vividiff/playwright-adapter`](../playwright-adapter/README.md) - Browser automation
 
 ## License
 

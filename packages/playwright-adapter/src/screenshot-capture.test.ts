@@ -1,4 +1,4 @@
-import type { ScreenshotOptions } from "@visual-testing-tool/protocol";
+import type { ScreenshotOptions } from "@vividiff/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import {

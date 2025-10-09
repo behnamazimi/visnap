@@ -4,8 +4,8 @@ import {
   getErrorMessage,
   runInDocker,
   DEFAULT_DOCKER_IMAGE,
-} from "@visual-testing-tool/core";
-import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
+} from "@vividiff/core";
+import { type VisualTestingToolConfig } from "@vividiff/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
@@ -37,7 +37,7 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
 
 export const command: Command<UpdateCommandOptions> = {
   name: "update",
-  description: "Capture baseline screenshots into visual-testing-tool/base",
+  description: "Capture baseline screenshots into vividiff/base",
   handler: updateHandler,
   configure: (cmd: CommanderCommand) => {
     return cmd.option("--docker", "Run inside Docker");

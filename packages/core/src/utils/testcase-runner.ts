@@ -11,7 +11,7 @@ import type {
   RunOutcome,
   BrowserName,
   BrowserConfiguration,
-} from "@visual-testing-tool/protocol";
+} from "@vividiff/protocol";
 
 import log from "./logger";
 

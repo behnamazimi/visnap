@@ -6,7 +6,7 @@ import {
   generateConfigContent,
   getErrorMessage,
   log,
-} from "@visual-testing-tool/core";
+} from "@vividiff/core";
 import inquirer from "inquirer";
 
 import { type Command } from "../types";

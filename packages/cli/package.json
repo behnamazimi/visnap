@@ -1,5 +1,5 @@
 {
-  "name": "@visual-testing-tool/cli",
+  "name": "@vividiff/cli",
   "version": "0.1.2",
   "description": "Visual Testing Tool - CLI for visual regression testing",
   "type": "module",
@@ -7,7 +7,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "visual-testing-tool": "./dist/index.js"
+    "vividiff": "./dist/index.js"
   },
   "files": [
     "dist",
@@ -25,14 +25,14 @@
   },
   "dependencies": {
     "@types/inquirer": "^9.0.9",
-    "@visual-testing-tool/core": "^0.1.2",
+    "@vividiff/core": "^0.1.2",
     "chalk": "^5.6.2",
     "commander": "^14.0.0",
     "inquirer": "^12.9.6"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@visual-testing-tool/eslint-config": "*",
+    "@vividiff/eslint-config": "*",
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/ui": "^2.1.8",
     "msw": "^2.6.6",

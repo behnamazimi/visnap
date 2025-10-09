@@ -1,11 +1,11 @@
-# @visual-testing-tool/core
+# @vividiff/core
 
 Core library for visual regression testing with Storybook. Provides programmatic APIs for capturing, comparing, and managing visual baselines.
 
 ## Installation
 
 ```bash
-npm install @visual-testing-tool/core
+npm install @vividiff/core
 ```
 
 ## Programmatic API
@@ -17,7 +17,7 @@ npm install @visual-testing-tool/core
 Run visual tests and compare with baseline images.
 
 ```typescript
-import { runVisualTests } from '@visual-testing-tool/core';
+import { runVisualTests } from '@vividiff/core';
 
 const result = await runVisualTests({
   threshold: 0.1,
@@ -33,7 +33,7 @@ console.log(`Exit code: ${result.exitCode}`);
 Capture baseline screenshots for all test cases.
 
 ```typescript
-import { updateBaseline } from '@visual-testing-tool/core';
+import { updateBaseline } from '@vividiff/core';
 
 await updateBaseline({
   screenshotDir: 'visual-testing'
@@ -45,7 +45,7 @@ await updateBaseline({
 Initialize a new project with configuration.
 
 ```typescript
-import { initializeProject } from '@visual-testing-tool/core';
+import { initializeProject } from '@vividiff/core';
 
 const result = await initializeProject({
   configType: 'ts',
@@ -60,7 +60,7 @@ console.log(`Config created: ${result.configPath}`);
 #### Configuration Management
 
 ```typescript
-import { loadConfigFile, resolveEffectiveConfig } from '@visual-testing-tool/core';
+import { loadConfigFile, resolveEffectiveConfig } from '@vividiff/core';
 
 // Load configuration from file
 const config = await loadConfigFile();
@@ -75,7 +75,7 @@ const effectiveConfig = await resolveEffectiveConfig({
 #### Screenshot Comparison
 
 ```typescript
-import { compareBaseAndCurrentWithTestCases } from '@visual-testing-tool/core';
+import { compareBaseAndCurrentWithTestCases } from '@vividiff/core';
 
 const results = await compareBaseAndCurrentWithTestCases(config, testCases);
 
@@ -91,7 +91,7 @@ for (const result of results) {
 #### Concurrency Pool
 
 ```typescript
-import { createConcurrencyPool } from '@visual-testing-tool/core';
+import { createConcurrencyPool } from '@vividiff/core';
 
 const runWithPool = createConcurrencyPool({ concurrency: 4 });
 
@@ -137,11 +137,11 @@ The core library dynamically loads adapters based on configuration:
 
 ```typescript
 // Browser adapter loading
-const browserAdapter = await import('@visual-testing-tool/playwright-adapter');
+const browserAdapter = await import('@vividiff/playwright-adapter');
 const adapter = browserAdapter.createAdapter(options);
 
 // Test case adapter loading
-const testCaseAdapter = await import('@visual-testing-tool/storybook-adapter');
+const testCaseAdapter = await import('@vividiff/storybook-adapter');
 const adapter = testCaseAdapter.createAdapter(options);
 ```
 
@@ -160,7 +160,7 @@ The visual testing tool includes advanced memory management:
 ### Logging
 
 ```typescript
-import { log } from '@visual-testing-tool/core';
+import { log } from '@vividiff/core';
 
 log.info('Starting visual tests');
 log.success('Test completed');
@@ -172,7 +172,7 @@ log.dim('Debug information');
 ### Error Handling
 
 ```typescript
-import { getErrorMessage } from '@visual-testing-tool/core';
+import { getErrorMessage } from '@vividiff/core';
 
 try {
   await runVisualTests();
@@ -184,7 +184,7 @@ try {
 ### Docker Support
 
 ```typescript
-import { runInDocker, DEFAULT_DOCKER_IMAGE } from '@visual-testing-tool/core';
+import { runInDocker, DEFAULT_DOCKER_IMAGE } from '@vividiff/core';
 
 const exitCode = runInDocker({
   image: DEFAULT_DOCKER_IMAGE,
@@ -197,16 +197,16 @@ const exitCode = runInDocker({
 ### Basic Configuration
 
 ```typescript
-import { type VisualTestingToolConfig } from '@visual-testing-tool/protocol';
+import { type VisualTestingToolConfig } from '@vividiff/protocol';
 
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: "@visual-testing-tool/playwright-adapter",
+      name: "@vividiff/playwright-adapter",
       options: { browser: 'chromium' }
     },
     testCase: [{
-      name: "@visual-testing-tool/storybook-adapter",
+      name: "@vividiff/storybook-adapter",
       options: {
         source: "./storybook-static",
         port: 6006,
@@ -228,13 +228,13 @@ const config: VisualTestingToolConfig = {
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: "@visual-testing-tool/playwright-adapter",
+      name: "@vividiff/playwright-adapter",
       options: {
         browser: ['chromium', 'firefox', 'webkit']
       }
     },
     testCase: [{
-      name: "@visual-testing-tool/storybook-adapter",
+      name: "@vividiff/storybook-adapter",
       options: {
         source: "./storybook-static"
       }
@@ -261,10 +261,10 @@ VTT_MAX_CONCURRENCY=8
 
 ## Related Packages
 
-- [`@visual-testing-tool/cli`](../cli/README.md) - Command-line interface
-- [`@visual-testing-tool/playwright-adapter`](../playwright-adapter/README.md) - Browser automation
-- [`@visual-testing-tool/storybook-adapter`](../storybook-adapter/README.md) - Storybook integration
-- [`@visual-testing-tool/protocol`](../protocol/README.md) - Shared types
+- [`@vividiff/cli`](../cli/README.md) - Command-line interface
+- [`@vividiff/playwright-adapter`](../playwright-adapter/README.md) - Browser automation
+- [`@vividiff/storybook-adapter`](../storybook-adapter/README.md) - Storybook integration
+- [`@vividiff/protocol`](../protocol/README.md) - Shared types
 
 ## License
 

@@ -18,13 +18,13 @@
     "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@visual-testing-tool/eslint-config": "*",
+    "@vividiff/eslint-config": "*",
     "@storybook/react-vite": "^9.1.10",
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
-    "@visual-testing-tool/cli": "^0.1.1",
+    "@vividiff/cli": "^0.1.1",
     "globals": "^16.4.0",
     "storybook": "^9.1.10",
     "typescript": "~5.9.3",

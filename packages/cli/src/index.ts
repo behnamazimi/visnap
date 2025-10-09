@@ -1,8 +1,4 @@
-import {
-  getPackageInfo,
-  getErrorMessage,
-  log,
-} from "@visual-testing-tool/core";
+import { getPackageInfo, getErrorMessage, log } from "@vividiff/core";
 import { Command } from "commander";
 
 import { loadCommands, registerCommands } from "./command-loader";
@@ -18,7 +14,7 @@ const main = async (): Promise<void> => {
 
     // Configure the main program
     program
-      .name("visual-testing-tool")
+      .name("vividiff")
       .description("Visual Testing Tool - CLI for visual regression testing")
       .version(pkg.version, "-v, --version", "Show version information");
 

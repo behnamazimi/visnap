@@ -1,4 +1,4 @@
-# @visual-testing-tool/storybook-adapter
+# @vividiff/storybook-adapter
 
 ## 0.1.2
 
@@ -6,7 +6,7 @@
 
 - 42df006: Fix release process
 - Updated dependencies [42df006]
-  - @visual-testing-tool/protocol@0.1.2
+  - @vividiff/protocol@0.1.2
 
 ## 0.1.1
 
@@ -14,7 +14,7 @@
 
 - 1001279: Bump patch version to try release workflow
 - Updated dependencies [1001279]
-  - @visual-testing-tool/protocol@0.1.1
+  - @vividiff/protocol@0.1.1
 
 ## 0.1.0
 
@@ -31,4 +31,4 @@
 - Updated dependencies [1eda9a6]
 - Updated dependencies [01c5a94]
 - Updated dependencies [c6aa610]
-  - @visual-testing-tool/protocol@0.1.0
+  - @vividiff/protocol@0.1.0

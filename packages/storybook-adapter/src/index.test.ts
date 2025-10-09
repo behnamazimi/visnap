@@ -1,9 +1,6 @@
 import { createAdapter } from "./index.js";
 
-import type {
-  PageWithEvaluate,
-  ViewportMap,
-} from "@visual-testing-tool/protocol";
+import type { PageWithEvaluate, ViewportMap } from "@vividiff/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock all the modules

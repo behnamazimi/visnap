@@ -1,11 +1,11 @@
-# @visual-testing-tool/playwright-adapter
+# @vividiff/playwright-adapter
 
 Playwright browser adapter for visual regression testing. Provides browser automation capabilities for capturing screenshots and interacting with web pages.
 
 ## Installation
 
 ```bash
-npm install @visual-testing-tool/playwright-adapter
+npm install @vividiff/playwright-adapter
 ```
 
 **Peer Dependencies:**
@@ -18,7 +18,7 @@ npm install playwright@>=1.40.0 playwright-core@>=1.40.0
 ### Basic Usage
 
 ```typescript
-import { createAdapter } from '@visual-testing-tool/playwright-adapter';
+import { createAdapter } from '@vividiff/playwright-adapter';
 
 const adapter = createAdapter({
   launch: {
@@ -184,9 +184,9 @@ const adapter = createAdapter({
 
 ## Related Packages
 
-- [`@visual-testing-tool/protocol`](../protocol/README.md) - Shared types and interfaces
-- [`@visual-testing-tool/core`](../core/README.md) - Core testing utilities
-- [`@visual-testing-tool/storybook-adapter`](../storybook-adapter/README.md) - Storybook integration
+- [`@vividiff/protocol`](../protocol/README.md) - Shared types and interfaces
+- [`@vividiff/core`](../core/README.md) - Core testing utilities
+- [`@vividiff/storybook-adapter`](../storybook-adapter/README.md) - Storybook integration
 
 ## License
 

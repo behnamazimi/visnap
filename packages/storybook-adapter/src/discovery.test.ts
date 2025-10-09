@@ -1,4 +1,4 @@
-import type { PageWithEvaluate } from "@visual-testing-tool/protocol";
+import type { PageWithEvaluate } from "@vividiff/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { discoverCasesFromBrowser } from "./discovery.js";

@@ -1,4 +1,4 @@
-# @visual-testing-tool/eslint-config
+# @vividiff/eslint-config
 
 ## 0.0.3
 

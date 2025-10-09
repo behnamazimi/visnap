@@ -1,17 +1,17 @@
-# @visual-testing-tool/cli
+# @vividiff/cli
 
 Command-line interface for visual regression testing with Storybook.
 
 ## Installation
 
 ```bash
-npm install @visual-testing-tool/cli
+npm install @vividiff/cli
 ```
 
 Or use directly with npx:
 
 ```bash
-npx @visual-testing-tool/cli [command]
+npx @vividiff/cli [command]
 ```
 
 ## Commands
@@ -21,7 +21,7 @@ npx @visual-testing-tool/cli [command]
 Initialize a new visual testing project with a sample configuration file.
 
 ```bash
-visual-testing-tool init
+vividiff init
 ```
 
 **Options:**
@@ -34,7 +34,7 @@ visual-testing-tool init
 Capture current screenshots and compare them with baseline images.
 
 ```bash
-visual-testing-tool test
+vividiff test
 ```
 
 **Options:**
@@ -44,10 +44,10 @@ visual-testing-tool test
 **Example:**
 ```bash
 # Run tests and output JSON to file
-visual-testing-tool test --jsonReport ./test-results.json
+vividiff test --jsonReport ./test-results.json
 
 # Run tests in Docker
-visual-testing-tool test --docker
+vividiff test --docker
 ```
 
 ### `update`
@@ -55,7 +55,7 @@ visual-testing-tool test --docker
 Capture baseline screenshots for all stories and save them to `visual-testing/base/`.
 
 ```bash
-visual-testing-tool update
+vividiff update
 ```
 
 **Options:**
@@ -67,10 +67,10 @@ The CLI reads configuration from `vtt.config.ts` in your project root. See the [
 
 ## Related Packages
 
-- [`@visual-testing-tool/core`](../core/README.md) - Core API and utilities
-- [`@visual-testing-tool/playwright-adapter`](../playwright-adapter/README.md) - Browser automation
-- [`@visual-testing-tool/storybook-adapter`](../storybook-adapter/README.md) - Storybook integration
-- [`@visual-testing-tool/protocol`](../protocol/README.md) - Shared types
+- [`@vividiff/core`](../core/README.md) - Core API and utilities
+- [`@vividiff/playwright-adapter`](../playwright-adapter/README.md) - Browser automation
+- [`@vividiff/storybook-adapter`](../storybook-adapter/README.md) - Storybook integration
+- [`@vividiff/protocol`](../protocol/README.md) - Shared types
 
 ## License
 

@@ -1,11 +1,11 @@
-# @visual-testing-tool/protocol
+# @vividiff/protocol
 
 Shared TypeScript types and interfaces for the visual testing tool ecosystem. This package contains all the type definitions used across adapters and the core library.
 
 ## Installation
 
 ```bash
-npm install @visual-testing-tool/protocol
+npm install @vividiff/protocol
 ```
 
 ## Usage
@@ -18,7 +18,7 @@ import type {
   TestCaseInstance,
   ScreenshotOptions,
   RunOutcome
-} from '@visual-testing-tool/protocol';
+} from '@vividiff/protocol';
 ```
 
 ## Core Types
@@ -261,7 +261,7 @@ interface VTTStory {
 ### Creating a Custom Adapter
 
 ```typescript
-import type { BrowserAdapter, ScreenshotOptions, ScreenshotResult } from '@visual-testing-tool/protocol';
+import type { BrowserAdapter, ScreenshotOptions, ScreenshotResult } from '@vividiff/protocol';
 
 class MyBrowserAdapter implements BrowserAdapter {
   name = 'my-adapter';
@@ -287,16 +287,16 @@ class MyBrowserAdapter implements BrowserAdapter {
 ### Type-Safe Configuration
 
 ```typescript
-import type { VisualTestingToolConfig } from '@visual-testing-tool/protocol';
+import type { VisualTestingToolConfig } from '@vividiff/protocol';
 
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: '@visual-testing-tool/playwright-adapter',
+      name: '@vividiff/playwright-adapter',
       options: { browser: 'chromium' }
     },
     testCase: [{
-      name: '@visual-testing-tool/storybook-adapter',
+      name: '@vividiff/storybook-adapter',
       options: {
         source: './storybook-static',
         include: '*'
@@ -310,9 +310,9 @@ const config: VisualTestingToolConfig = {
 
 ## Related Packages
 
-- [`@visual-testing-tool/core`](../core/README.md) - Core implementation using these types
-- [`@visual-testing-tool/playwright-adapter`](../playwright-adapter/README.md) - Browser adapter implementation
-- [`@visual-testing-tool/storybook-adapter`](../storybook-adapter/README.md) - Test case adapter implementation
+- [`@vividiff/core`](../core/README.md) - Core implementation using these types
+- [`@vividiff/playwright-adapter`](../playwright-adapter/README.md) - Browser adapter implementation
+- [`@vividiff/storybook-adapter`](../storybook-adapter/README.md) - Test case adapter implementation
 
 ## License
 

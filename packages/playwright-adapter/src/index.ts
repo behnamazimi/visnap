@@ -4,7 +4,7 @@ import type {
   ScreenshotResult,
   BrowserName as BrowserNameProtocol,
   BrowserAdapterInitOptions,
-} from "@visual-testing-tool/protocol";
+} from "@vividiff/protocol";
 import { type BrowserType, type Browser, type Page } from "playwright-core";
 
 import { createBrowserContext, navigateToUrl } from "./browser-context";

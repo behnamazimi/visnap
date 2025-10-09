@@ -4,7 +4,7 @@ import type {
   ViewportMap,
   BrowserName,
   Viewport,
-} from "@visual-testing-tool/protocol";
+} from "@vividiff/protocol";
 
 import { toSafeRegex } from "./utils.js";
 

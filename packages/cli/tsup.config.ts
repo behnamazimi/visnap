@@ -9,7 +9,7 @@ export default defineConfig({
   clean: true,
   external: [
     // Keep core package as external dependency
-    "@visual-testing-tool/core",
+    "@vividiff/core",
   ],
   banner: {
     js: "#!/usr/bin/env node",

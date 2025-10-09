@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 
-import { type VisualTestingToolConfig } from "@visual-testing-tool/protocol";
+import { type VisualTestingToolConfig } from "@vividiff/protocol";
 import { bundleRequire } from "bundle-require";
 import merge from "lodash/merge.js";
 
@@ -68,7 +68,7 @@ export const resolveEffectiveConfig = async (
 ): Promise<VisualTestingToolConfig> => {
   const configFile = await loadConfigFile();
   if (!configFile) {
-    throw new ConfigError("visual-testing-tool.config not found");
+    throw new ConfigError("vividiff.config not found");
   }
   const merged = merge({}, configFile, options);
   const withEnv = applyEnvOverrides(merged);
