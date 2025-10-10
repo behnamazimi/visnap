@@ -22,7 +22,13 @@ export async function getPackageInfo() {
 }
 
 // High-level API functions
-export { updateBaseline, initializeProject, runVisualTests } from "./api";
+export {
+  updateBaseline,
+  updateBaselineCli,
+  initializeProject,
+  runVisualTests,
+  runVisualTestsCli,
+} from "./api";
 
 // High-level API types
 export type { InitOptions, InitResult } from "./api";

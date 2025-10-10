@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { runTestCasesOnBrowser } from "../../utils/testcase-runner";
 import { resolveEffectiveConfig } from "../config";
 
-import { runVisualTests } from "./test";
+import { runVisualTests, runVisualTestsCli } from "./test";
 
 // Mock dependencies
 vi.mock("../config", async importOriginal => {
@@ -66,7 +66,7 @@ describe("test API", () => {
       expect(result.failures).toEqual([]);
       expect(result.captureFailures).toEqual([]);
 
-      expect(mockResolveEffectiveConfig).toHaveBeenCalledWith({});
+      expect(mockResolveEffectiveConfig).toHaveBeenCalledWith({}, undefined);
       expect(mockRunTestCasesOnBrowser).toHaveBeenCalledWith(
         mockConfig,
         "test"
@@ -171,7 +171,49 @@ describe("test API", () => {
 
       await runVisualTests(customOptions);
 
-      expect(mockResolveEffectiveConfig).toHaveBeenCalledWith(customOptions);
+      expect(mockResolveEffectiveConfig).toHaveBeenCalledWith(
+        customOptions,
+        undefined
+      );
+    });
+  });
+
+  describe("runVisualTestsCli", () => {
+    it("should pass CLI options to resolveEffectiveConfig", async () => {
+      const mockConfig = {
+        screenshotDir: "test-dir",
+        threshold: 0.1,
+        adapters: {
+          browser: { name: "playwright" },
+          testCase: [{ name: "storybook" }],
+        },
+      };
+
+      const mockOutcome = {
+        passed: 5,
+        total: 5,
+        captureFailures: 0,
+        failedDiffs: 0,
+        failedMissingCurrent: 0,
+        failedMissingBase: 0,
+        failedErrors: 0,
+      };
+
+      const cliOptions = {
+        include: ["button*"],
+        exclude: ["*page*"],
+      };
+
+      mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
+      mockRunTestCasesOnBrowser.mockResolvedValue({
+        outcome: mockOutcome,
+        failures: [],
+        captureFailures: [],
+      });
+
+      await runVisualTestsCli({}, cliOptions);
+
+      expect(mockResolveEffectiveConfig).toHaveBeenCalledWith({}, cliOptions);
     });
   });
 });

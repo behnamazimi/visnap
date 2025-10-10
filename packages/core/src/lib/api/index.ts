@@ -1,10 +1,10 @@
 // API barrel file - exports all API functions and types
 
 // Test API
-export { runVisualTests } from "./test";
+export { runVisualTests, runVisualTestsCli } from "./test";
 
 // Update API
-export { updateBaseline } from "./update";
+export { updateBaseline, updateBaselineCli } from "./update";
 
 // Init API
 export { initializeProject } from "./init";

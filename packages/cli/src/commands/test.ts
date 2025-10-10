@@ -1,7 +1,7 @@
 import { writeFileSync } from "fs";
 
 import {
-  runVisualTests,
+  runVisualTestsCli,
   getErrorMessage,
   log,
   runInDocker,
@@ -10,9 +10,10 @@ import {
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
+import { type CliOptions } from "../types/cli-options";
 import { exit } from "../utils/exit";
 
-interface TestCommandOptions {
+interface TestCommandOptions extends CliOptions {
   jsonReport?: string | boolean; // when provided without a path => stdout JSON; when a path => write file
   docker?: boolean;
 }
@@ -37,7 +38,11 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
       exit(status);
       return;
     }
-    const result = await runVisualTests({});
+    const cliOptions: CliOptions = {
+      include: options.include,
+      exclude: options.exclude,
+    };
+    const result = await runVisualTestsCli({}, cliOptions);
 
     if (options.jsonReport) {
       const report = {
@@ -86,6 +91,14 @@ export const command: Command<TestCommandOptions> = {
         "--jsonReport [path]",
         "Output JSON report. Provide a path to write to file; omit to print to stdout"
       )
-      .option("--docker", "Run inside Docker");
+      .option("--docker", "Run inside Docker")
+      .option(
+        "--include <pattern>",
+        "Include test cases matching pattern (can be used multiple times)"
+      )
+      .option(
+        "--exclude <pattern>",
+        "Exclude test cases matching pattern (can be used multiple times)"
+      );
   },
 };

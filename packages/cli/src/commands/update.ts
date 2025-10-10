@@ -1,5 +1,5 @@
 import {
-  updateBaseline,
+  updateBaselineCli,
   log,
   getErrorMessage,
   runInDocker,
@@ -9,9 +9,12 @@ import { type VisualTestingToolConfig } from "@vividiff/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
+import { type CliOptions } from "../types/cli-options";
 import { exit } from "../utils/exit";
 
-interface UpdateCommandOptions extends Partial<VisualTestingToolConfig> {
+interface UpdateCommandOptions
+  extends Partial<VisualTestingToolConfig>,
+    CliOptions {
   docker?: boolean;
 }
 
@@ -24,7 +27,11 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
       exit(status);
       return;
     }
-    await updateBaseline(options);
+    const cliOptions: CliOptions = {
+      include: options.include,
+      exclude: options.exclude,
+    };
+    await updateBaselineCli(options, cliOptions);
 
     // TODO: Add more detailed result log in mature versions
     log.success(`Update baseline completed`);
@@ -40,7 +47,15 @@ export const command: Command<UpdateCommandOptions> = {
   description: "Capture baseline screenshots into vividiff/base",
   handler: updateHandler,
   configure: (cmd: CommanderCommand) => {
-    return cmd.option("--docker", "Run inside Docker");
-    // Options will be added in mature versions
+    return cmd
+      .option("--docker", "Run inside Docker")
+      .option(
+        "--include <pattern>",
+        "Include test cases matching pattern (can be used multiple times)"
+      )
+      .option(
+        "--exclude <pattern>",
+        "Exclude test cases matching pattern (can be used multiple times)"
+      );
   },
 };
