@@ -30,6 +30,11 @@ vi.mock("./browser-context.js", () => ({
   injectGlobalCSS: vi.fn(),
 }));
 
+// Mock the interaction-executor module
+vi.mock("./interaction-executor.js", () => ({
+  executeInteractions: vi.fn(),
+}));
+
 describe("screenshot-capture", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -365,6 +370,133 @@ describe("screenshot-capture", () => {
       expect(injectGlobalCSS).toHaveBeenCalledWith(
         mockPage,
         ".loader { display: none !important; }"
+      );
+    });
+
+    it("should execute interactions when provided", async () => {
+      const { executeInteractions } = await import("./interaction-executor.js");
+      const screenshotOptionsWithInteractions: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        interactions: [
+          { type: "click", selector: "button" },
+          { type: "fill", selector: "input", text: "test" },
+        ],
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        screenshotOptionsWithInteractions,
+        30000
+      );
+
+      expect(executeInteractions).toHaveBeenCalledWith(
+        mockPage,
+        screenshotOptionsWithInteractions.interactions,
+        screenshotOptionsWithInteractions.id
+      );
+    });
+
+    it("should not execute interactions when not provided", async () => {
+      const { executeInteractions } = await import("./interaction-executor.js");
+
+      await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(executeInteractions).not.toHaveBeenCalled();
+    });
+
+    it("should not execute interactions when empty array provided", async () => {
+      const { executeInteractions } = await import("./interaction-executor.js");
+      const screenshotOptionsWithEmptyInteractions: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        interactions: [],
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        screenshotOptionsWithEmptyInteractions,
+        30000
+      );
+
+      expect(executeInteractions).not.toHaveBeenCalled();
+    });
+
+    it("should execute interactions before CSS injection", async () => {
+      const { executeInteractions } = await import("./interaction-executor.js");
+      const { injectGlobalCSS } = await import("./browser-context.js");
+
+      const optionsWithCSS: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        injectCSS: "* { animation: none !important; }",
+      };
+
+      const screenshotOptionsWithInteractions: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        interactions: [{ type: "click", selector: "button" }],
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithCSS,
+        screenshotOptionsWithInteractions,
+        30000
+      );
+
+      // Verify both functions are called
+      expect(executeInteractions).toHaveBeenCalled();
+      expect(injectGlobalCSS).toHaveBeenCalled();
+    });
+
+    it("should execute interactions after waitFor", async () => {
+      const { executeInteractions } = await import("./interaction-executor.js");
+      const { handleWaitFor } = await import("./browser-context.js");
+
+      const screenshotOptionsWithInteractions: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        interactions: [{ type: "click", selector: "button" }],
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        screenshotOptionsWithInteractions,
+        30000
+      );
+
+      // Verify both functions are called
+      expect(handleWaitFor).toHaveBeenCalled();
+      expect(executeInteractions).toHaveBeenCalled();
+    });
+
+    it("should handle interaction execution errors", async () => {
+      const { executeInteractions } = await import("./interaction-executor.js");
+      const interactionError = new Error("Interaction failed");
+      (executeInteractions as any).mockRejectedValue(interactionError);
+
+      const screenshotOptionsWithInteractions: ScreenshotOptions = {
+        ...mockScreenshotOptions,
+        interactions: [{ type: "click", selector: "button" }],
+      };
+
+      await expect(
+        performScreenshotCapture(
+          mockContext,
+          mockOptions,
+          screenshotOptionsWithInteractions,
+          30000
+        )
+      ).rejects.toThrow("Interaction failed");
+
+      expect(executeInteractions).toHaveBeenCalledWith(
+        mockPage,
+        screenshotOptionsWithInteractions.interactions,
+        screenshotOptionsWithInteractions.id
       );
     });
   });

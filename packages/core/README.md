@@ -155,6 +155,19 @@ The visual testing tool includes advanced memory management:
 - **Resource Disposal**: Proper cleanup of browser contexts and adapters
 - **Concurrency Control**: Configurable concurrency limits to prevent memory issues
 
+## Interactive Testing
+
+The core supports executing user interactions before capturing screenshots:
+
+```typescript
+const result = await runVisualTests({
+  // Interactions are automatically executed by browser adapters
+  // when defined in story parameters
+});
+```
+
+Interactions are defined declaratively and executed by browser adapters, supporting 20+ action types including clicks, form filling, scrolling, and waiting.
+
 ## Utilities
 
 ### Logging

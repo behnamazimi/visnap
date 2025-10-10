@@ -6,6 +6,159 @@ export interface Viewport {
   deviceScaleFactor?: number;
 }
 
+// ============= Interaction Option Types =============
+
+export interface ClickOptions {
+  button?: "left" | "right" | "middle";
+  clickCount?: number;
+  delay?: number;
+  position?: { x: number; y: number };
+  modifiers?: Array<"Alt" | "Control" | "Meta" | "Shift">;
+  force?: boolean;
+  noWaitAfter?: boolean;
+  timeout?: number;
+}
+
+export interface HoverOptions {
+  position?: { x: number; y: number };
+  modifiers?: Array<"Alt" | "Control" | "Meta" | "Shift">;
+  force?: boolean;
+  timeout?: number;
+}
+
+export interface TypeOptions {
+  delay?: number;
+  noWaitAfter?: boolean;
+  timeout?: number;
+}
+
+export interface FillOptions {
+  force?: boolean;
+  noWaitAfter?: boolean;
+  timeout?: number;
+}
+
+export interface SelectOptions {
+  force?: boolean;
+  noWaitAfter?: boolean;
+  timeout?: number;
+}
+
+export interface CheckOptions {
+  force?: boolean;
+  noWaitAfter?: boolean;
+  timeout?: number;
+}
+
+export interface PressOptions {
+  delay?: number;
+  noWaitAfter?: boolean;
+  timeout?: number;
+}
+
+export interface FocusOptions {
+  timeout?: number;
+}
+
+export interface ScrollOptions {
+  behavior?: "auto" | "smooth";
+  block?: "start" | "center" | "end" | "nearest";
+  inline?: "start" | "center" | "end" | "nearest";
+  timeout?: number;
+}
+
+export interface DragAndDropOptions {
+  force?: boolean;
+  noWaitAfter?: boolean;
+  sourcePosition?: { x: number; y: number };
+  targetPosition?: { x: number; y: number };
+  timeout?: number;
+}
+
+export interface WaitForSelectorOptions {
+  state?: "attached" | "detached" | "visible" | "hidden";
+  timeout?: number;
+}
+
+export interface WaitForLoadStateOptions {
+  timeout?: number;
+}
+
+export interface SetInputFilesOptions {
+  noWaitAfter?: boolean;
+  timeout?: number;
+}
+
+// ============= Main Interaction Action Type =============
+
+export type InteractionAction =
+  // Click actions
+  | { type: "click"; selector: string; options?: ClickOptions }
+  | { type: "dblclick"; selector: string; options?: ClickOptions }
+
+  // Hover/Focus actions
+  | { type: "hover"; selector: string; options?: HoverOptions }
+  | { type: "focus"; selector: string; options?: FocusOptions }
+  | { type: "blur"; selector: string; options?: { timeout?: number } }
+
+  // Input actions
+  | { type: "type"; selector: string; text: string; options?: TypeOptions }
+  | { type: "fill"; selector: string; text: string; options?: FillOptions }
+  | { type: "clear"; selector: string; options?: { timeout?: number } }
+  | { type: "press"; selector: string; key: string; options?: PressOptions }
+
+  // Selection actions
+  | {
+      type: "select";
+      selector: string;
+      value: string | string[];
+      options?: SelectOptions;
+    }
+  | {
+      type: "selectOption";
+      selector: string;
+      values: Array<{ value?: string; label?: string; index?: number }>;
+      options?: SelectOptions;
+    }
+
+  // Checkbox/Radio actions
+  | { type: "check"; selector: string; options?: CheckOptions }
+  | { type: "uncheck"; selector: string; options?: CheckOptions }
+  | {
+      type: "setChecked";
+      selector: string;
+      checked: boolean;
+      options?: CheckOptions;
+    }
+
+  // File upload
+  | {
+      type: "setInputFiles";
+      selector: string;
+      files: string | string[];
+      options?: SetInputFilesOptions;
+    }
+
+  // Scroll actions
+  | { type: "scrollIntoView"; selector: string; options?: ScrollOptions }
+
+  // Drag and drop
+  | {
+      type: "dragAndDrop";
+      sourceSelector: string;
+      targetSelector: string;
+      options?: DragAndDropOptions;
+    }
+
+  // Wait actions
+  | { type: "wait"; selector: string; options?: WaitForSelectorOptions }
+  | { type: "waitForTimeout"; duration: number }
+  | {
+      type: "waitForLoadState";
+      state?: "load" | "domcontentloaded" | "networkidle";
+      options?: WaitForLoadStateOptions;
+    };
+
 export interface BrowserConfig {
   name: BrowserName;
   options?: Record<string, unknown>;
@@ -22,6 +175,7 @@ export interface ScreenshotOptions {
   viewport?: Viewport;
   waitFor?: string | number;
   disableCSSInjection?: boolean;
+  interactions?: InteractionAction[];
 }
 
 export interface ScreenshotResult {
@@ -54,6 +208,7 @@ export interface TestCaseVisualConfig {
   browser?: BrowserName | BrowserName[];
   viewport?: Viewport;
   disableCSSInjection?: boolean;
+  interactions?: InteractionAction[];
 }
 
 // Base meta fields common to all test case-related types
@@ -76,6 +231,8 @@ interface BaseTestCaseInstance {
   threshold?: number;
   /** Optional flag to disable CSS injection for this specific test case */
   disableCSSInjection?: boolean;
+  /** Optional interactions to execute before screenshot */
+  interactions?: InteractionAction[];
 }
 
 export interface TestCaseMeta extends BaseTestCaseMeta {

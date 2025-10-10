@@ -125,41 +125,51 @@ describe("filtering", () => {
       "button-primary": {
         id: "button-primary",
         title: "Primary Button",
-        visualTesting: {
-          skip: false,
-          screenshotTarget: "#button",
-          threshold: 0.1,
+        parameters: {
+          visualTesting: {
+            skip: false,
+            screenshotTarget: "#button",
+            threshold: 0.1,
+          },
         },
       },
       "button-secondary": {
         id: "button-secondary",
         title: "Secondary Button",
-        visualTesting: {
-          skip: true,
+        parameters: {
+          visualTesting: {
+            skip: true,
+          },
         },
       },
       "input-text": {
         id: "input-text",
         title: "Text Input",
-        visualTesting: {
-          skip: false,
-          threshold: 0.2,
+        parameters: {
+          visualTesting: {
+            skip: false,
+            threshold: 0.2,
+          },
         },
       },
       "button-with-css-disable": {
         id: "button-with-css-disable",
         title: "Button with CSS Disabled",
-        visualTesting: {
-          skip: false,
-          disableCSSInjection: true,
+        parameters: {
+          visualTesting: {
+            skip: false,
+            disableCSSInjection: true,
+          },
         },
       },
       "button-with-css-enable": {
         id: "button-with-css-enable",
         title: "Button with CSS Enabled",
-        visualTesting: {
-          skip: false,
-          disableCSSInjection: false,
+        parameters: {
+          visualTesting: {
+            skip: false,
+            disableCSSInjection: false,
+          },
         },
       },
       "invalid-story": {
@@ -309,8 +319,10 @@ describe("filtering", () => {
         "custom-viewport-story": {
           id: "custom-viewport-story",
           title: "Custom Viewport Story",
-          visualTesting: {
-            viewport: { width: 1920, height: 1080 },
+          parameters: {
+            visualTesting: {
+              viewport: { width: 1920, height: 1080 },
+            },
           },
         },
       };
@@ -326,8 +338,10 @@ describe("filtering", () => {
         "browser-specific-story": {
           id: "browser-specific-story",
           title: "Browser Specific Story",
-          visualTesting: {
-            browser: "chromium",
+          parameters: {
+            visualTesting: {
+              browser: "chromium",
+            },
           },
         },
       };
@@ -394,6 +408,209 @@ describe("filtering", () => {
       const instance = result.find(r => r.caseId === "story-no-css");
       expect(instance).toBeDefined();
       expect(instance?.disableCSSInjection).toBeUndefined();
+    });
+
+    it("should handle interactions property", () => {
+      const storiesWithInteractions = {
+        "story-with-interactions": {
+          id: "story-with-interactions",
+          title: "Story with Interactions",
+          parameters: {
+            visualTesting: {
+              skip: false,
+              interactions: [
+                { type: "click", selector: "button" },
+                { type: "fill", selector: "input", text: "test" },
+              ],
+            },
+          },
+        },
+        "story-with-empty-interactions": {
+          id: "story-with-empty-interactions",
+          title: "Story with Empty Interactions",
+          parameters: {
+            visualTesting: {
+              skip: false,
+              interactions: [],
+            },
+          },
+        },
+        "story-without-interactions": {
+          id: "story-without-interactions",
+          title: "Story without Interactions",
+          parameters: {
+            visualTesting: {
+              skip: false,
+            },
+          },
+        },
+      };
+
+      const result = normalizeStories(storiesWithInteractions, defaultOptions);
+
+      const storyWithInteractions = result.find(
+        r => r.caseId === "story-with-interactions"
+      );
+      expect(storyWithInteractions).toBeDefined();
+      expect(storyWithInteractions?.interactions).toEqual([
+        { type: "click", selector: "button" },
+        { type: "fill", selector: "input", text: "test" },
+      ]);
+
+      const storyWithEmptyInteractions = result.find(
+        r => r.caseId === "story-with-empty-interactions"
+      );
+      expect(storyWithEmptyInteractions).toBeDefined();
+      expect(storyWithEmptyInteractions?.interactions).toEqual([]);
+
+      const storyWithoutInteractions = result.find(
+        r => r.caseId === "story-without-interactions"
+      );
+      expect(storyWithoutInteractions).toBeDefined();
+      expect(storyWithoutInteractions?.interactions).toBeUndefined();
+    });
+
+    it("should handle invalid interactions (not array)", () => {
+      const storiesWithInvalidInteractions = {
+        "story-invalid-interactions": {
+          id: "story-invalid-interactions",
+          title: "Story with Invalid Interactions",
+          parameters: {
+            visualTesting: {
+              skip: false,
+              interactions: "not-an-array" as any,
+            },
+          },
+        },
+      };
+
+      const result = normalizeStories(
+        storiesWithInvalidInteractions,
+        defaultOptions
+      );
+
+      const story = result.find(r => r.caseId === "story-invalid-interactions");
+      expect(story).toBeDefined();
+      expect(story?.interactions).toBeUndefined();
+    });
+
+    it("should handle complex interactions with all action types", () => {
+      const storiesWithComplexInteractions = {
+        "complex-interactions": {
+          id: "complex-interactions",
+          title: "Complex Interactions Story",
+          parameters: {
+            visualTesting: {
+              skip: false,
+              interactions: [
+                {
+                  type: "click",
+                  selector: "button",
+                  options: { timeout: 1000 },
+                },
+                {
+                  type: "dblclick",
+                  selector: "button",
+                  options: { modifiers: ["Shift"] },
+                },
+                {
+                  type: "hover",
+                  selector: "button",
+                  options: { position: { x: 10, y: 20 } },
+                },
+                { type: "focus", selector: "input" },
+                { type: "blur", selector: "input" },
+                {
+                  type: "type",
+                  selector: "input",
+                  text: "typed text",
+                  options: { delay: 50 },
+                },
+                {
+                  type: "fill",
+                  selector: "input",
+                  text: "filled text",
+                  options: { force: true },
+                },
+                { type: "clear", selector: "input" },
+                {
+                  type: "press",
+                  selector: "input",
+                  key: "Enter",
+                  options: { delay: 100 },
+                },
+                {
+                  type: "select",
+                  selector: "select",
+                  value: "option1",
+                  options: { force: true },
+                },
+                {
+                  type: "selectOption",
+                  selector: "select",
+                  values: [{ label: "Option 1" }],
+                },
+                {
+                  type: "check",
+                  selector: 'input[type="checkbox"]',
+                  options: { force: true },
+                },
+                { type: "uncheck", selector: 'input[type="checkbox"]' },
+                {
+                  type: "setChecked",
+                  selector: 'input[type="checkbox"]',
+                  checked: true,
+                },
+                {
+                  type: "setInputFiles",
+                  selector: 'input[type="file"]',
+                  files: ["file.txt"],
+                },
+                {
+                  type: "scrollIntoView",
+                  selector: "div",
+                  options: { timeout: 2000 },
+                },
+                {
+                  type: "dragAndDrop",
+                  sourceSelector: ".source",
+                  targetSelector: ".target",
+                },
+                {
+                  type: "wait",
+                  selector: ".loading",
+                  options: { state: "visible" },
+                },
+                { type: "waitForTimeout", duration: 500 },
+                {
+                  type: "waitForLoadState",
+                  state: "networkidle",
+                  options: { timeout: 5000 },
+                },
+              ],
+            },
+          },
+        },
+      };
+
+      const result = normalizeStories(
+        storiesWithComplexInteractions,
+        defaultOptions
+      );
+
+      const story = result.find(r => r.caseId === "complex-interactions");
+      expect(story).toBeDefined();
+      expect(story?.interactions).toHaveLength(20);
+      expect(story?.interactions?.[0]).toEqual({
+        type: "click",
+        selector: "button",
+        options: { timeout: 1000 },
+      });
+      expect(story?.interactions?.[19]).toEqual({
+        type: "waitForLoadState",
+        state: "networkidle",
+        options: { timeout: 5000 },
+      });
     });
   });
 });

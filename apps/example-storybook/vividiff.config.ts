@@ -13,7 +13,7 @@ const config: VisualTestingToolConfig = {
 
         // Option 3: Multiple browsers with detailed configuration
         browser: [
-          { name: "chromium", options: { headless: true } },
+          { name: "chromium", options: { headless: false } },
           // { name: "firefox", options: { headless: true } },
           // { name: "webkit", options: { headless: true } }
         ],
@@ -36,8 +36,8 @@ const config: VisualTestingToolConfig = {
   // Global viewport configuration that applies to all test cases unless overridden
   viewport: {
     desktop: { width: 1920, height: 1080 },
-    tablet: { width: 768, height: 1024 },
-    mobile: { width: 375, height: 667 },
+    // tablet: { width: 768, height: 1024 },
+    // mobile: { width: 375, height: 667 },
   },
   runtime: {
     maxConcurrency: 4,

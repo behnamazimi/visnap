@@ -13,6 +13,7 @@ A fast, Dockerized visual regression testing tool designed for **Storybook 8 and
 - 🌐 **Multi-Browser Support** - Test across Chromium, Firefox, and WebKit
 - ⚡ **Fast** - Optimized for speed with concurrent processing
 - 🎨 **CSS Injection** - Inject global CSS for stable screenshots (disable animations, hide elements)
+- 🖱️ **Interactive Testing** - Execute user interactions before capturing screenshots
 
 ## 🚀 Quick Start
 
@@ -50,6 +51,27 @@ For detailed usage, configuration options, and advanced features, see the [Core 
    ```
 
 Screenshots are automatically saved to `vividiff/` directory.
+
+## 🖱️ Interactive Testing
+
+Test user interactions by defining them in your Storybook stories:
+
+```typescript
+// In your story file
+export const FilledForm: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+        { type: 'select', selector: 'select[name="country"]', value: 'us' },
+        { type: 'check', selector: 'input[type="checkbox"]' }
+      ]
+    }
+  }
+};
+```
+
+Supports 20+ interaction types: clicks, form filling, scrolling, waiting, and more.
 
 ## 🐳 Docker Support
 
