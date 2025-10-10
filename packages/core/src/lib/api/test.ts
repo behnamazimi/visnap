@@ -18,11 +18,12 @@ export interface TestResult {
   }>;
 }
 
-// New function after tool agnostic design
-export async function runVisualTests(
-  options: Partial<VisualTestingToolConfig> = {}
+// Internal function that handles the core logic
+async function runVisualTestsInternal(
+  options: Partial<VisualTestingToolConfig> = {},
+  cliOptions?: { include?: string | string[]; exclude?: string | string[] }
 ): Promise<TestResult> {
-  const effectiveConfig = await resolveEffectiveConfig(options);
+  const effectiveConfig = await resolveEffectiveConfig(options, cliOptions);
 
   const { outcome, failures, captureFailures } = await runTestCasesOnBrowser(
     effectiveConfig,
@@ -35,4 +36,19 @@ export async function runVisualTests(
     outcome.passed === outcome.total && outcome.captureFailures === 0;
   const exitCode = success ? 0 : 1;
   return { success, outcome, exitCode, failures, captureFailures };
+}
+
+// New function after tool agnostic design
+export async function runVisualTests(
+  options: Partial<VisualTestingToolConfig> = {}
+): Promise<TestResult> {
+  return runVisualTestsInternal(options);
+}
+
+// CLI-specific function that handles CLI options
+export async function runVisualTestsCli(
+  options: Partial<VisualTestingToolConfig> = {},
+  cliOptions: { include?: string | string[]; exclude?: string | string[] }
+): Promise<TestResult> {
+  return runVisualTestsInternal(options, cliOptions);
 }

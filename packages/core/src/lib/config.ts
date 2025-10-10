@@ -64,13 +64,28 @@ function applyEnvOverrides(
 }
 
 export const resolveEffectiveConfig = async (
-  options: Partial<VisualTestingToolConfig> = {}
+  options: Partial<VisualTestingToolConfig> = {},
+  cliOptions?: { include?: string | string[]; exclude?: string | string[] }
 ): Promise<VisualTestingToolConfig> => {
   const configFile = await loadConfigFile();
   if (!configFile) {
     throw new ConfigError("vividiff.config not found");
   }
   const merged = merge({}, configFile, options);
+
+  // Apply CLI option overrides if provided
+  if (cliOptions && (cliOptions.include || cliOptions.exclude)) {
+    // Override the test case adapter options with CLI options
+    // For now we only support one test case adapter
+    if (merged.adapters.testCase[0]) {
+      merged.adapters.testCase[0].options = {
+        ...merged.adapters.testCase[0].options,
+        include: cliOptions.include,
+        exclude: cliOptions.exclude,
+      } as any;
+    }
+  }
+
   const withEnv = applyEnvOverrides(merged);
   // ensure defaults
   withEnv.screenshotDir = resolveScreenshotDir(withEnv.screenshotDir);
