@@ -39,12 +39,16 @@ const adapter = createAdapter({
 // Initialize the adapter
 await adapter.init({ browser: 'chromium' });
 
-// Capture a screenshot
+// Capture a screenshot with interactions
 const result = await adapter.capture({
   id: 'button-story',
   url: '/iframe.html?id=button--primary',
   screenshotTarget: '#storybook-root',
-  viewport: { width: 1920, height: 1080 }
+  viewport: { width: 1920, height: 1080 },
+  interactions: [
+    { type: 'click', selector: 'button' },
+    { type: 'waitForTimeout', duration: 300 }
+  ]
 });
 
 // Clean up
@@ -132,6 +136,9 @@ Each screenshot capture uses an isolated browser context to ensure visual stabil
 
 ### Multi-Browser Support
 Supports Chromium, Firefox, and WebKit browsers with per-browser configuration.
+
+### Interactive Testing
+Executes user interactions before capturing screenshots, supporting 20+ action types including clicks, form filling, scrolling, and waiting.
 
 ## BrowserAdapter Interface
 

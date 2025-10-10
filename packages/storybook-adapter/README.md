@@ -118,6 +118,7 @@ interface TestCaseAdapter {
 - Converts raw Storybook data to standardized test case instances
 - Handles story-level visual testing configuration
 - Supports per-story viewport and browser configuration
+- Extracts and passes through interaction definitions
 
 ### Static File Serving
 - Automatic local server for `storybook-static` directories
@@ -145,7 +146,11 @@ export default {
       threshold: 0.05,               // Custom threshold
       browser: ['chromium', 'firefox'], // Specific browsers
       viewport: { width: 1200, height: 800 }, // Custom viewport
-      disableCSSInjection: true      // Disable global CSS injection for this story
+      disableCSSInjection: true,     // Disable global CSS injection for this story
+      interactions: [                // Execute interactions before screenshot - needs a browser adapter
+        { type: 'click', selector: 'button' },
+        { type: 'fill', selector: 'input', text: 'test' }
+      ]
     }
   }
 };

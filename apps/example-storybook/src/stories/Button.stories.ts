@@ -30,14 +30,6 @@ export const Primary: Story = {
     primary: true,
     label: "Button",
   },
-  parameters: {
-    visualTesting: {
-      skip: false,
-      viewport: {
-        desktop: { width: 1280, height: 720 },
-      },
-    },
-  },
 };
 
 export const Secondary: Story = {
@@ -62,5 +54,64 @@ export const Small: Story = {
   args: {
     size: "small",
     label: "Button",
+  },
+};
+
+// ============= Interaction Examples =============
+
+export const HoverState: Story = {
+  args: {
+    primary: true,
+    label: "Hover Me",
+  },
+  parameters: {
+    visualTesting: {
+      interactions: [{ type: "hover", selector: ".storybook-button" }],
+    },
+  },
+};
+
+export const ClickedState: Story = {
+  args: {
+    label: "Click Me",
+  },
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: "click", selector: ".storybook-button" },
+        { type: "waitForTimeout", duration: 300 },
+      ],
+    },
+  },
+};
+
+export const DoubleClickWithModifiers: Story = {
+  args: {
+    primary: true,
+    label: "Double Click Me",
+  },
+  parameters: {
+    visualTesting: {
+      interactions: [
+        {
+          type: "dblclick",
+          selector: ".storybook-button",
+          options: {
+            modifiers: ["Shift"],
+          },
+        },
+      ],
+    },
+  },
+};
+
+export const FocusState: Story = {
+  args: {
+    label: "Focus Me",
+  },
+  parameters: {
+    visualTesting: {
+      interactions: [{ type: "focus", selector: ".storybook-button" }],
+    },
   },
 };

@@ -97,7 +97,13 @@ export function normalizeStories(
       typeof storyObj.title === "string" ? storyObj.title : (id ?? "");
     if (!id) continue;
 
-    const vt = storyObj.visualTesting ?? {};
+    // Get visualTesting under parameters.visualTesting, fallback to empty object
+    const vt =
+      (storyObj as any).parameters &&
+      typeof (storyObj as any).parameters.visualTesting === "object"
+        ? (storyObj as any).parameters.visualTesting
+        : {};
+
     const skip = typeof vt.skip === "boolean" ? vt.skip : false;
     const screenshotTarget =
       typeof vt.screenshotTarget === "string" ? vt.screenshotTarget : undefined;
@@ -115,6 +121,9 @@ export function normalizeStories(
       typeof vt.disableCSSInjection === "boolean"
         ? vt.disableCSSInjection
         : undefined;
+    const interactions = Array.isArray(vt.interactions)
+      ? vt.interactions
+      : undefined;
 
     metas.push({
       id,
@@ -126,6 +135,7 @@ export function normalizeStories(
         browser,
         viewport,
         disableCSSInjection,
+        interactions,
       },
     });
   }
@@ -154,6 +164,7 @@ export function normalizeStories(
         viewport: viewportConfig,
         threshold: cfg?.threshold,
         disableCSSInjection: cfg?.disableCSSInjection,
+        interactions: cfg?.interactions,
       });
     }
   }

@@ -111,3 +111,6 @@ export function createAdapter(
     },
   };
 }
+
+// Re-export interaction types for user convenience
+export type { InteractionAction } from "@vividiff/protocol";

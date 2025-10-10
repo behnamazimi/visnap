@@ -7,6 +7,7 @@ import {
   handleWaitFor,
   injectGlobalCSS,
 } from "./browser-context";
+import { executeInteractions } from "./interaction-executor";
 import { resolveScreenshotTarget } from "./utils";
 
 import type { PlaywrightAdapterOptions } from "./index";
@@ -60,6 +61,18 @@ export async function performScreenshotCapture(
 
     // Handle additional waiting if specified
     await handleWaitFor(page, screenshotOptions.waitFor, timeout);
+
+    // Execute interactions if provided
+    if (
+      screenshotOptions.interactions &&
+      screenshotOptions.interactions.length > 0
+    ) {
+      await executeInteractions(
+        page,
+        screenshotOptions.interactions,
+        screenshotOptions.id
+      );
+    }
 
     // Inject global CSS if enabled and not disabled for this test case
     if (!screenshotOptions.disableCSSInjection && options.injectCSS) {
