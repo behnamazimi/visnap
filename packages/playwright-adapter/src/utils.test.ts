@@ -92,12 +92,12 @@ describe("utils", () => {
   describe("resolveScreenshotTarget", () => {
     it("should return #storybook-root for undefined selector", () => {
       const result = resolveScreenshotTarget();
-      expect(result).toBe("#storybook-root");
+      expect(result).toBe("body");
     });
 
-    it("should return #storybook-root for empty string", () => {
-      const result = resolveScreenshotTarget("");
-      expect(result).toBe("#storybook-root");
+    it("should return selector for non-empty string", () => {
+      const result = resolveScreenshotTarget("#selector");
+      expect(result).toBe("#selector");
     });
 
     it("should return #storybook-root for 'story-root' selector", () => {

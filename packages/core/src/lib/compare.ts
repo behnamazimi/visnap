@@ -266,11 +266,18 @@ export const compareBaseAndCurrentWithTestCases = async (
     }
   }
 
-  // Deterministic union of files between current and base
+  // Only compare files that correspond to the test cases that were actually run
+  const expectedFiles = new Set<string>();
+  for (const testCase of testCases) {
+    expectedFiles.add(`${testCase.caseId}-${testCase.variantId}.png`);
+  }
+
+  // Get files that exist in current and base directories
   const currentFiles = new Set(readdirSync(currentDir));
   const baseFiles = new Set(readdirSync(baseDir));
-  const allFiles = new Set<string>([...currentFiles, ...baseFiles] as string[]);
-  const files = Array.from(allFiles).sort((a, b) => a.localeCompare(b));
+
+  // Only include files that are expected from the test cases
+  const files = Array.from(expectedFiles).sort((a, b) => a.localeCompare(b));
 
   const engine = createComparisonEngine(comparisonConfig.core);
   const results: CompareResult[] = [];

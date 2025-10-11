@@ -29,6 +29,7 @@ export async function loadBrowserAdapter(
 
 /**
  * Load a test case adapter dynamically based on configuration
+ * @deprecated Use loadAllTestCaseAdapters for multiple adapter support
  */
 export async function loadTestCaseAdapter(
   adapters: VisualTestingToolConfig["adapters"]
@@ -46,6 +47,29 @@ export async function loadTestCaseAdapter(
   throw new Error(
     `Test case adapter ${moduleName} must export createAdapter function`
   );
+}
+
+/**
+ * Load all test case adapters dynamically based on configuration
+ */
+export async function loadAllTestCaseAdapters(
+  adapters: VisualTestingToolConfig["adapters"]
+): Promise<TestCaseAdapter[]> {
+  const testCaseAdapters = adapters?.testCase ?? [];
+  if (testCaseAdapters.length === 0) {
+    throw new Error("At least one test case adapter is required");
+  }
+
+  const loaded: TestCaseAdapter[] = [];
+  for (const adapterConfig of testCaseAdapters) {
+    const mod = await import(adapterConfig.name);
+    if (typeof mod?.createAdapter === "function") {
+      loaded.push(mod.createAdapter(adapterConfig.options));
+    } else {
+      throw new Error(`${adapterConfig.name} must export createAdapter`);
+    }
+  }
+  return loaded;
 }
 
 /**

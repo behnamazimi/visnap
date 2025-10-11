@@ -7,7 +7,7 @@ import { createSpinner } from "./spinner";
 
 export interface AdapterSelection {
   browserAdapter: "playwright" | "skip";
-  testCaseAdapter: "storybook" | "skip";
+  testCaseAdapter: "storybook" | "url" | "skip";
   browsers: string[];
   storybookSource: string;
   storybookPort: number;
@@ -103,8 +103,12 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
       message: "Choose test case adapter:",
       choices: [
         {
-          name: "@vividiff/storybook-adapter (recommended)",
+          name: "@vividiff/storybook-adapter (for Storybook projects)",
           value: "storybook",
+        },
+        {
+          name: "@vividiff/url-adapter (for any website/URL)",
+          value: "url",
         },
         { name: "Skip - configure later", value: "skip" },
       ],
@@ -113,8 +117,8 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
   ]);
 
   const selection: AdapterSelection = {
-    browserAdapter: answers.browserAdapter,
-    testCaseAdapter: answers.testCaseAdapter,
+    browserAdapter: answers.browserAdapter as "playwright" | "skip",
+    testCaseAdapter: answers.testCaseAdapter as "storybook" | "url" | "skip",
     browsers: [],
     storybookSource: "",
     storybookPort: 6006,
@@ -140,7 +144,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
           input.length > 0 || "Please select at least one browser",
       },
     ]);
-    selection.browsers = browserAnswers.browsers;
+    selection.browsers = browserAnswers.browsers as string[];
   }
 
   // Configure test case adapter
@@ -151,7 +155,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
         name: "source",
         message: "Storybook source (directory path or URL):",
         default: "./storybook-static",
-        validate: input => {
+        validate: (input: string) => {
           if (!input.trim()) return "Source is required";
           if (input.startsWith("http")) return true; // URL
           if (existsSync(input)) return true; // Existing directory
@@ -163,16 +167,17 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
         name: "port",
         message: "Port for local server:",
         default: 6006,
-        when: answers => !answers.source.startsWith("http"),
-        validate: input => {
+        when: (answers: { source: string }) =>
+          !answers.source.startsWith("http"),
+        validate: (input: string) => {
           const port = Number(input);
           return (
             (port > 0 && port < 65536) || "Port must be between 1 and 65535"
           );
         },
       },
-    ]);
-    selection.storybookSource = storybookAnswers.source;
+    ] as any);
+    selection.storybookSource = storybookAnswers.source as string;
     selection.storybookPort = Number(storybookAnswers.port) || 6006;
   }
 
@@ -200,9 +205,11 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
         );
       },
     },
-  ] as any);
-  selection.comparisonEngine = comparisonAnswers.engine;
-  selection.threshold = parseFloat(comparisonAnswers.threshold);
+  ]);
+  selection.comparisonEngine = comparisonAnswers.engine as
+    | "odiff"
+    | "pixelmatch";
+  selection.threshold = parseFloat(comparisonAnswers.threshold as string);
 
   // Install missing packages
   const packagesToInstall: string[] = [];
@@ -219,6 +226,13 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
     !isPackageInstalled("@vividiff/storybook-adapter")
   ) {
     packagesToInstall.push("@vividiff/storybook-adapter");
+  }
+
+  if (
+    selection.testCaseAdapter === "url" &&
+    !isPackageInstalled("@vividiff/url-adapter")
+  ) {
+    packagesToInstall.push("@vividiff/url-adapter");
   }
 
   if (packagesToInstall.length > 0) {
@@ -280,15 +294,33 @@ export function generateConfigFromSelection(
       },
     },
     testCase: [
-      {
+      ${
+        selection.testCaseAdapter === "storybook"
+          ? `{
         name: "@vividiff/storybook-adapter",
         options: {
+          screenshotTarget: "#storybook-root",
           source: "${selection.storybookSource}",
           port: ${selection.storybookPort},
           include: "*",
           // exclude: "*page*",
         },
-      },
+      }`
+          : selection.testCaseAdapter === "url"
+            ? `{
+        name: "@vividiff/url-adapter",
+        options: {
+          urls: [
+          // { id: "homepage", url: "http://localhost:3000/" },
+            // { id: "about", url: "http://localhost:3000/about" },
+            // Add more URLs as needed
+          ],
+          include: "*",
+          // exclude: "*admin*",
+        },
+      }`
+            : `// Add your test case adapter configuration here`
+      }
     ],
   },
   comparison: {

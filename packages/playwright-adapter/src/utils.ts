@@ -38,11 +38,11 @@ export function buildAbsoluteUrl(url: string, baseUrl?: string): string {
  * Resolves the screenshot target selector to the appropriate DOM selector.
  */
 export function resolveScreenshotTarget(selector?: string): string {
-  if (!selector || selector === "story-root") {
+  if (selector === "story-root") {
     return "#storybook-root";
   }
 
-  if (selector === "body") {
+  if (!selector || selector === "body") {
     return "body";
   }
 

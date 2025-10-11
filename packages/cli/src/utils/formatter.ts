@@ -60,8 +60,6 @@ export function formatTestSummary(summary: TestSummary): void {
  * Format next steps suggestions
  */
 export function formatNextSteps(summary: TestSummary): void {
-  log.plain("\n💡 Next Steps:");
-
   if (summary.failed > 0) {
     log.plain(
       "• Review failed tests and update baselines if changes are intentional:"

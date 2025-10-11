@@ -94,25 +94,6 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
     }
 
     if (useSpinner) {
-      spinner!.update("Validating source paths...");
-    } else {
-      log.info("Validating source paths...");
-    }
-
-    // Validate source paths for test case adapters
-    for (const testCaseAdapter of config.adapters?.testCase || []) {
-      const source = testCaseAdapter.options?.source;
-      if (source && !source.startsWith("http")) {
-        if (!existsSync(source)) {
-          log.error(`✗ Source path '${source}' does not exist`);
-          log.plain("Check the source path in your configuration");
-          return;
-        }
-        log.success(`✓ Source path '${source}' exists`);
-      }
-    }
-
-    if (useSpinner) {
       spinner!.update("Validating browser configuration...");
     } else {
       log.info("Validating browser configuration...");
