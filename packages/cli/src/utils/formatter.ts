@@ -27,33 +27,29 @@ export function formatTestResults(results: TestResult[]): void {
     ...results.map(result => [
       formatStatus(result.status),
       result.id,
-      formatDetails(result)
-    ])
+      formatDetails(result),
+    ]),
   ];
 
   const config = {
-    columns: [
-      { width: 10 },
-      { width: 40 },
-      { width: 50 }
-    ],
+    columns: [{ width: 10 }, { width: 40 }, { width: 50 }],
     border: {
-      topBody: '─',
-      topJoin: '┬',
-      topLeft: '┌',
-      topRight: '┐',
-      bottomBody: '─',
-      bottomJoin: '┴',
-      bottomLeft: '└',
-      bottomRight: '┘',
-      bodyLeft: '│',
-      bodyRight: '│',
-      bodyJoin: '│',
-      joinBody: '─',
-      joinLeft: '├',
-      joinRight: '┤',
-      joinJoin: '┼'
-    }
+      topBody: "─",
+      topJoin: "┬",
+      topLeft: "┌",
+      topRight: "┐",
+      bottomBody: "─",
+      bottomJoin: "┴",
+      bottomLeft: "└",
+      bottomRight: "┘",
+      bodyLeft: "│",
+      bodyRight: "│",
+      bodyJoin: "│",
+      joinBody: "─",
+      joinLeft: "├",
+      joinRight: "┤",
+      joinJoin: "┼",
+    },
   };
 
   log.plain(table(data, config));
@@ -77,32 +73,28 @@ export function formatTestSummary(summary: TestSummary): void {
     ["Passed", summary.passed.toString(), `${passedPct}%`],
     ["Failed", summary.failed.toString(), `${failedPct}%`],
     ["Errors", summary.errors.toString(), `${errorPct}%`],
-    ["Capture Failures", summary.captureFailures.toString(), "-"]
+    ["Capture Failures", summary.captureFailures.toString(), "-"],
   ];
 
   const config = {
-    columns: [
-      { width: 20 },
-      { width: 10 },
-      { width: 12 }
-    ],
+    columns: [{ width: 20 }, { width: 10 }, { width: 12 }],
     border: {
-      topBody: '─',
-      topJoin: '┬',
-      topLeft: '┌',
-      topRight: '┐',
-      bottomBody: '─',
-      bottomJoin: '┴',
-      bottomLeft: '└',
-      bottomRight: '┘',
-      bodyLeft: '│',
-      bodyRight: '│',
-      bodyJoin: '│',
-      joinBody: '─',
-      joinLeft: '├',
-      joinRight: '┤',
-      joinJoin: '┼'
-    }
+      topBody: "─",
+      topJoin: "┬",
+      topLeft: "┌",
+      topRight: "┐",
+      bottomBody: "─",
+      bottomJoin: "┴",
+      bottomLeft: "└",
+      bottomRight: "┘",
+      bodyLeft: "│",
+      bodyRight: "│",
+      bodyJoin: "│",
+      joinBody: "─",
+      joinLeft: "├",
+      joinRight: "┤",
+      joinJoin: "┼",
+    },
   };
 
   log.plain("\n📊 Test Summary:");
@@ -207,39 +199,39 @@ export function formatTestCases(
   }
 
   const data = [
-    [chalk.cyan("Test ID"), chalk.cyan("Title"), chalk.cyan("Kind"), chalk.cyan("Browser")],
+    [
+      chalk.cyan("Test ID"),
+      chalk.cyan("Title"),
+      chalk.cyan("Kind"),
+      chalk.cyan("Browser"),
+    ],
     ...testCases.map(testCase => [
       testCase.id,
       testCase.title,
       testCase.kind,
-      testCase.browser || "-"
-    ])
+      testCase.browser || "-",
+    ]),
   ];
 
   const config = {
-    columns: [
-      { width: 25 },
-      { width: 35 },
-      { width: 20 },
-      { width: 15 }
-    ],
+    columns: [{ width: 25 }, { width: 35 }, { width: 20 }, { width: 15 }],
     border: {
-      topBody: '─',
-      topJoin: '┬',
-      topLeft: '┌',
-      topRight: '┐',
-      bottomBody: '─',
-      bottomJoin: '┴',
-      bottomLeft: '└',
-      bottomRight: '┘',
-      bodyLeft: '│',
-      bodyRight: '│',
-      bodyJoin: '│',
-      joinBody: '─',
-      joinLeft: '├',
-      joinRight: '┤',
-      joinJoin: '┼'
-    }
+      topBody: "─",
+      topJoin: "┬",
+      topLeft: "┌",
+      topRight: "┐",
+      bottomBody: "─",
+      bottomJoin: "┴",
+      bottomLeft: "└",
+      bottomRight: "┘",
+      bodyLeft: "│",
+      bodyRight: "│",
+      bodyJoin: "│",
+      joinBody: "─",
+      joinLeft: "├",
+      joinRight: "┤",
+      joinJoin: "┼",
+    },
   };
 
   log.plain(`\n📋 Found ${testCases.length} test cases:`);

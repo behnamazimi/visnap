@@ -61,7 +61,7 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
     const result = await runVisualTestsCli({}, cliOptions);
 
     if (options.jsonReport) {
-      spinner.update("Generating JSON report...\n");
+      spinner.update("Generagting JSON report...\n");
       const report = {
         success: result.success,
         outcome: result.outcome,

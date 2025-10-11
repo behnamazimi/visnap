@@ -223,6 +223,7 @@ export interface TestCaseVisualConfig {
 interface BaseTestCaseMeta {
   id: string;
   title: string;
+  kind: string;
   parameters?: Record<string, unknown>;
   tags?: string[];
 }

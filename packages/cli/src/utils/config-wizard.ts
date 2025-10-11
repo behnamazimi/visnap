@@ -13,6 +13,7 @@ export interface AdapterSelection {
   storybookPort: number;
   comparisonEngine: "odiff" | "pixelmatch";
   threshold: number;
+  viewportPreset: string;
 }
 
 export interface PackageManager {
