@@ -160,7 +160,12 @@ describe("test API", () => {
         failedErrors: 0,
       };
 
-      const customOptions = { threshold: 0.2 };
+      const customOptions = {
+        comparison: {
+          core: "odiff" as const,
+          threshold: 0.2,
+        },
+      };
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
       mockRunTestCasesOnBrowser.mockResolvedValue({

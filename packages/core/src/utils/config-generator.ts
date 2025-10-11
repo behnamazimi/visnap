@@ -25,7 +25,11 @@ export function generateConfigContent(options: InitOptions): string {
       },
     ],
   },
-  threshold: ${threshold},
+  comparison: {
+    core: "odiff", // or "pixelmatch"
+    threshold: ${threshold},
+    diffColor: "#00ff00",
+  },
   // Global viewport configuration that applies to all test cases unless overridden
   viewport: {
     desktop: { width: 1920, height: 1080 },

@@ -85,16 +85,16 @@ npx vividiff test --docker
 
 You can control defaults via environment variables (useful in CI):
 
-- `VTT_SCREENSHOT_DIR`: override the screenshots root directory (e.g., `vividiff`).
-- `VTT_THRESHOLD`: numeric pixel diff threshold used when comparing images.
-- `VTT_MAX_CONCURRENCY`: maximum number of concurrent captures (default 4).
+- `VIVIDIFF_SCREENSHOT_DIR`: override the screenshots root directory (e.g., `vividiff`).
+- `VIVIDIFF_THRESHOLD`: numeric pixel diff threshold used when comparing images.
+- `VIVIDIFF_MAX_CONCURRENCY`: maximum number of concurrent captures (default 4).
 
 Example (bash):
 
 ```bash
-VTT_SCREENSHOT_DIR=vividiff \
-VTT_THRESHOLD=0.02 \
-VTT_MAX_CONCURRENCY=6 \
+VIVIDIFF_SCREENSHOT_DIR=vividiff \
+VIVIDIFF_THRESHOLD=0.02 \
+VIVIDIFF_MAX_CONCURRENCY=6 \
 npx vividiff test
 ```
 

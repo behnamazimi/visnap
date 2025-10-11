@@ -5,7 +5,13 @@ import { type VisualTestingToolConfig } from "@vividiff/protocol";
 import { bundleRequire } from "bundle-require";
 import merge from "lodash/merge.js";
 
-import { DEFAULT_SCREENSHOT_DIR, DEFAULT_CONCURRENCY } from "@/constants";
+import {
+  DEFAULT_SCREENSHOT_DIR,
+  DEFAULT_CONCURRENCY,
+  DEFAULT_COMPARISON_CORE,
+  DEFAULT_THRESHOLD,
+  DEFAULT_DIFF_COLOR,
+} from "@/constants";
 import { ConfigError } from "@/utils/error-handler";
 
 export type BrowserName = "chromium" | "firefox" | "webkit";
@@ -45,21 +51,47 @@ function applyEnvOverrides(
   cfg: VisualTestingToolConfig
 ): VisualTestingToolConfig {
   const out = { ...cfg };
-  if (process.env.VTT_SCREENSHOT_DIR) {
-    out.screenshotDir = process.env.VTT_SCREENSHOT_DIR;
+  if (process.env.VIVIDIFF_SCREENSHOT_DIR) {
+    out.screenshotDir = process.env.VIVIDIFF_SCREENSHOT_DIR;
   }
-  if (process.env.VTT_THRESHOLD) {
-    const n = Number(process.env.VTT_THRESHOLD);
-    if (!Number.isNaN(n)) out.threshold = n;
-  }
-  if (process.env.VTT_MAX_CONCURRENCY) {
-    const n = Number(process.env.VTT_MAX_CONCURRENCY);
+  if (process.env.VIVIDIFF_MAX_CONCURRENCY) {
+    const n = Number(process.env.VIVIDIFF_MAX_CONCURRENCY);
     const nextRuntime = { ...(out.runtime ?? {}) } as NonNullable<
       VisualTestingToolConfig["runtime"]
     >;
     if (!Number.isNaN(n)) nextRuntime.maxConcurrency = n;
     out.runtime = nextRuntime;
   }
+
+  // Handle comparison config overrides
+  if (
+    process.env.VIVIDIFF_COMPARISON_CORE ||
+    process.env.VIVIDIFF_COMPARISON_THRESHOLD ||
+    process.env.VIVIDIFF_COMPARISON_DIFF_COLOR ||
+    process.env.VIVIDIFF_THRESHOLD
+  ) {
+    out.comparison = {
+      core:
+        (process.env.VIVIDIFF_COMPARISON_CORE as any) ??
+        out.comparison?.core ??
+        DEFAULT_COMPARISON_CORE,
+      threshold: out.comparison?.threshold ?? DEFAULT_THRESHOLD,
+      diffColor: out.comparison?.diffColor ?? DEFAULT_DIFF_COLOR,
+    };
+
+    if (process.env.VIVIDIFF_COMPARISON_THRESHOLD) {
+      const n = Number(process.env.VIVIDIFF_COMPARISON_THRESHOLD);
+      if (!Number.isNaN(n)) out.comparison.threshold = n;
+    } else if (process.env.VIVIDIFF_THRESHOLD) {
+      // Backward compatibility for old VIVIDIFF_THRESHOLD env var
+      const n = Number(process.env.VIVIDIFF_THRESHOLD);
+      if (!Number.isNaN(n)) out.comparison.threshold = n;
+    }
+    if (process.env.VIVIDIFF_COMPARISON_DIFF_COLOR) {
+      out.comparison.diffColor = process.env.VIVIDIFF_COMPARISON_DIFF_COLOR;
+    }
+  }
+
   return out;
 }
 
@@ -89,6 +121,16 @@ export const resolveEffectiveConfig = async (
   const withEnv = applyEnvOverrides(merged);
   // ensure defaults
   withEnv.screenshotDir = resolveScreenshotDir(withEnv.screenshotDir);
+
+  // Ensure comparison config has defaults
+  if (!withEnv.comparison) {
+    withEnv.comparison = {
+      core: DEFAULT_COMPARISON_CORE,
+      threshold: DEFAULT_THRESHOLD,
+      diffColor: DEFAULT_DIFF_COLOR,
+    };
+  }
+
   return withEnv;
 };
 
@@ -97,7 +139,15 @@ export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
   const { log } = require("@/utils/logger");
   log.info("Effective configuration:");
   log.dim(`  Screenshot directory: ${config.screenshotDir}`);
-  log.dim(`  Threshold: ${config.threshold}`);
+  log.dim(
+    `  Comparison core: ${config.comparison?.core ?? DEFAULT_COMPARISON_CORE}`
+  );
+  log.dim(
+    `  Comparison threshold: ${config.comparison?.threshold ?? DEFAULT_THRESHOLD}`
+  );
+  log.dim(
+    `  Comparison diff color: ${config.comparison?.diffColor ?? DEFAULT_DIFF_COLOR}`
+  );
   log.dim(
     `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
   );

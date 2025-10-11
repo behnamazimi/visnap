@@ -8,6 +8,8 @@ export const DEFAULT_SCREENSHOT_DIR = "vividiff";
 export const DEFAULT_THRESHOLD = 0.1;
 export const DEFAULT_BROWSER = "chromium" as const;
 export const DEFAULT_SCREENSHOT_TARGET = "story-root" as const;
+export const DEFAULT_COMPARISON_CORE = "odiff" as const;
+export const DEFAULT_DIFF_COLOR = "#00ff00";
 
 // Timeouts (in milliseconds)
 export const STORYBOOK_READY_TIMEOUT = 10000;

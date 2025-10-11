@@ -267,9 +267,9 @@ const config: VisualTestingToolConfig = {
 The core library supports environment variable overrides:
 
 ```bash
-VTT_SCREENSHOT_DIR=./screenshots
-VTT_THRESHOLD=0.05
-VTT_MAX_CONCURRENCY=8
+VIVIDIFF_SCREENSHOT_DIR=./screenshots
+VIVIDIFF_THRESHOLD=0.05
+VIVIDIFF_MAX_CONCURRENCY=8
 ```
 
 ## Related Packages
