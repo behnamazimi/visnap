@@ -1,16 +1,25 @@
-import { readdirSync } from "fs";
+import { readdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import {
   type TestCaseInstance,
   type VisualTestingToolConfig,
+  type ComparisonCore,
+  type ComparisonConfig,
 } from "@vividiff/protocol";
 import odiff from "odiff-bin";
+import pixelmatch from "pixelmatch";
+import { PNG } from "pngjs";
 
-import { DEFAULT_THRESHOLD } from "@/constants";
+import {
+  DEFAULT_THRESHOLD,
+  DEFAULT_COMPARISON_CORE,
+  DEFAULT_DIFF_COLOR,
+} from "@/constants";
 import { getErrorMessage } from "@/utils/error-handler";
 
 export interface CompareOptions {
+  comparisonCore: ComparisonCore;
   threshold?: number;
   diffColor?: string;
 }
@@ -22,30 +31,185 @@ export interface CompareResult {
   diffPercentage?: number;
 }
 
+interface ComparisonEngine {
+  compare(
+    currentFile: string,
+    baseFile: string,
+    diffFile: string,
+    options: { threshold: number; diffColor?: string }
+  ): Promise<{ match: boolean; reason: string; diffPercentage?: number }>;
+}
+
+class OdiffEngine implements ComparisonEngine {
+  async compare(
+    currentFile: string,
+    baseFile: string,
+    diffFile: string,
+    options: { threshold: number; diffColor?: string }
+  ): Promise<{ match: boolean; reason: string; diffPercentage?: number }> {
+    try {
+      const diffResult = await odiff.compare(currentFile, baseFile, diffFile, {
+        diffColor: options.diffColor ?? DEFAULT_DIFF_COLOR,
+        threshold: options.threshold,
+      });
+
+      if (diffResult.match) {
+        return { match: true, reason: "", diffPercentage: 0 };
+      } else if (diffResult.reason === "pixel-diff") {
+        return {
+          match: false,
+          reason: diffResult.reason,
+          diffPercentage: diffResult.diffPercentage,
+        };
+      } else {
+        return {
+          match: false,
+          reason: "error",
+          diffPercentage: 0,
+        };
+      }
+    } catch (error) {
+      const message = getErrorMessage(error);
+      const baseNotFound = message.match(
+        /Could not load comparison image: (.*)/
+      );
+      if (baseNotFound) {
+        return {
+          match: false,
+          reason: "missing-base",
+          diffPercentage: 0,
+        };
+      }
+      return {
+        match: false,
+        reason: "error",
+        diffPercentage: 0,
+      };
+    }
+  }
+}
+
+class PixelmatchEngine implements ComparisonEngine {
+  async compare(
+    currentFile: string,
+    baseFile: string,
+    diffFile: string,
+    options: { threshold: number; diffColor?: string }
+  ): Promise<{ match: boolean; reason: string; diffPercentage?: number }> {
+    try {
+      // Read and decode PNG files
+      const currentPng = PNG.sync.read(readFileSync(currentFile));
+      const basePng = PNG.sync.read(readFileSync(baseFile));
+
+      // Ensure images have same dimensions
+      if (
+        currentPng.width !== basePng.width ||
+        currentPng.height !== basePng.height
+      ) {
+        return {
+          match: false,
+          reason: "error",
+          diffPercentage: 0,
+        };
+      }
+
+      const { width, height } = currentPng;
+      const totalPixels = width * height;
+
+      // Create diff image buffer
+      const diffPng = new PNG({ width, height });
+
+      // Compare images using pixelmatch
+      const mismatchedPixels = pixelmatch(
+        currentPng.data,
+        basePng.data,
+        diffPng.data,
+        width,
+        height,
+        {
+          threshold: options.threshold,
+          diffColor: options.diffColor
+            ? hexToRgb(options.diffColor)
+            : undefined,
+        }
+      );
+
+      // Write diff image
+      writeFileSync(diffFile, PNG.sync.write(diffPng));
+
+      const diffPercentage = (mismatchedPixels / totalPixels) * 100;
+
+      return {
+        match: mismatchedPixels === 0,
+        reason: mismatchedPixels === 0 ? "" : "pixel-diff",
+        diffPercentage,
+      };
+    } catch (error) {
+      const message = getErrorMessage(error);
+      if (message.includes("ENOENT") && message.includes(baseFile)) {
+        return {
+          match: false,
+          reason: "missing-base",
+          diffPercentage: 0,
+        };
+      }
+      return {
+        match: false,
+        reason: "error",
+        diffPercentage: 0,
+      };
+    }
+  }
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) {
+    throw new Error(`Invalid hex color: ${hex}`);
+  }
+  return [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16),
+  ];
+}
+
+function createComparisonEngine(core: ComparisonCore): ComparisonEngine {
+  switch (core) {
+    case "odiff":
+      return new OdiffEngine();
+    case "pixelmatch":
+      return new PixelmatchEngine();
+    default:
+      throw new Error(`Unsupported comparison core: ${core}`);
+  }
+}
+
 export const compareDirectories = async (
   currentDir: string,
   baseDir: string,
   diffDir: string,
-  options: CompareOptions = {}
+  options: CompareOptions
 ): Promise<CompareResult[]> => {
   // Build deterministic, sorted union of filenames from current and base
   const currentFiles = new Set(readdirSync(currentDir));
   const baseFiles = new Set(readdirSync(baseDir));
   const allFiles = new Set<string>([...currentFiles, ...baseFiles] as string[]);
   const files = Array.from(allFiles).sort((a, b) => a.localeCompare(b));
-  const threshold =
-    typeof options.threshold === "number"
-      ? options.threshold
-      : DEFAULT_THRESHOLD;
-  const diffColor = options.diffColor ?? "#00ff00";
 
+  const threshold = options.threshold ?? DEFAULT_THRESHOLD;
+  const diffColor = options.diffColor ?? DEFAULT_DIFF_COLOR;
+
+  const engine = createComparisonEngine(options.comparisonCore);
   const results: CompareResult[] = [];
+
   for (const file of files) {
     const currentFile = join(currentDir, file);
     const baseFile = join(baseDir, file);
     const diffFile = join(diffDir, file);
     const inCurrent = currentFiles.has(file);
     const inBase = baseFiles.has(file);
+
     if (!inCurrent && inBase) {
       results.push({ id: file, match: false, reason: "missing-current" });
       continue;
@@ -54,39 +218,18 @@ export const compareDirectories = async (
       results.push({ id: file, match: false, reason: "missing-base" });
       continue;
     }
-    try {
-      const diffResult = await odiff.compare(currentFile, baseFile, diffFile, {
-        diffColor,
-        threshold,
-      });
-      if (diffResult.match) {
-        results.push({ id: file, match: true, reason: "", diffPercentage: 0 });
-      } else if (diffResult.reason === "pixel-diff") {
-        results.push({
-          id: file,
-          match: false,
-          reason: diffResult.reason,
-          diffPercentage: diffResult.diffPercentage,
-        });
-      } else {
-        results.push({
-          id: file,
-          match: false,
-          reason: "error",
-          diffPercentage: 0,
-        });
-      }
-    } catch (error) {
-      const message = getErrorMessage(error);
-      const baseNotFound = message.match(
-        /Could not load comparison image: (.*)/
-      );
-      results.push({
-        id: file,
-        match: false,
-        reason: baseNotFound ? "missing-base" : "error",
-      });
-    }
+
+    const diffResult = await engine.compare(currentFile, baseFile, diffFile, {
+      threshold,
+      diffColor,
+    });
+
+    results.push({
+      id: file,
+      match: diffResult.match,
+      reason: diffResult.reason,
+      diffPercentage: diffResult.diffPercentage,
+    });
   }
 
   return results;
@@ -106,8 +249,12 @@ export const compareBaseAndCurrentWithTestCases = async (
   const baseDir = getBaseDir(config.screenshotDir);
   const diffDir = getDiffDir(config.screenshotDir);
 
-  const defaultThreshold =
-    typeof config.threshold === "number" ? config.threshold : DEFAULT_THRESHOLD;
+  // Extract comparison config with defaults
+  const comparisonConfig: ComparisonConfig = {
+    core: config.comparison?.core ?? DEFAULT_COMPARISON_CORE,
+    threshold: config.comparison?.threshold ?? DEFAULT_THRESHOLD,
+    diffColor: config.comparison?.diffColor ?? DEFAULT_DIFF_COLOR,
+  };
 
   // Map filename -> threshold (supports per-instance override)
   const idToThreshold = new Map<string, number>();
@@ -124,14 +271,17 @@ export const compareBaseAndCurrentWithTestCases = async (
   const baseFiles = new Set(readdirSync(baseDir));
   const allFiles = new Set<string>([...currentFiles, ...baseFiles] as string[]);
   const files = Array.from(allFiles).sort((a, b) => a.localeCompare(b));
-  const diffColor = "#00ff00";
+
+  const engine = createComparisonEngine(comparisonConfig.core);
   const results: CompareResult[] = [];
+
   for (const file of files) {
     const currentFile = join(currentDir, file);
     const baseFile = join(baseDir, file);
     const diffFile = join(diffDir, file);
     const inCurrent = currentFiles.has(file);
     const inBase = baseFiles.has(file);
+
     if (!inCurrent && inBase) {
       results.push({ id: file, match: false, reason: "missing-current" });
       continue;
@@ -140,40 +290,20 @@ export const compareBaseAndCurrentWithTestCases = async (
       results.push({ id: file, match: false, reason: "missing-base" });
       continue;
     }
-    const threshold = idToThreshold.get(file) ?? defaultThreshold;
-    try {
-      const diffResult = await odiff.compare(currentFile, baseFile, diffFile, {
-        diffColor,
-        threshold,
-      });
-      if (diffResult.match) {
-        results.push({ id: file, match: true, reason: "", diffPercentage: 0 });
-      } else if (diffResult.reason === "pixel-diff") {
-        results.push({
-          id: file,
-          match: false,
-          reason: diffResult.reason,
-          diffPercentage: diffResult.diffPercentage,
-        });
-      } else {
-        results.push({
-          id: file,
-          match: false,
-          reason: "error",
-          diffPercentage: 0,
-        });
-      }
-    } catch (error) {
-      const message = getErrorMessage(error);
-      const baseNotFound = message.match(
-        /Could not load comparison image: (.*)/
-      );
-      results.push({
-        id: file,
-        match: false,
-        reason: baseNotFound ? "missing-base" : "error",
-      });
-    }
+
+    const threshold = idToThreshold.get(file) ?? comparisonConfig.threshold;
+
+    const diffResult = await engine.compare(currentFile, baseFile, diffFile, {
+      threshold,
+      diffColor: comparisonConfig.diffColor,
+    });
+
+    results.push({
+      id: file,
+      match: diffResult.match,
+      reason: diffResult.reason,
+      diffPercentage: diffResult.diffPercentage,
+    });
   }
 
   return results;

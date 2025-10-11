@@ -42,9 +42,9 @@ describe("config", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset environment variables
-    delete process.env.VTT_SCREENSHOT_DIR;
-    delete process.env.VTT_THRESHOLD;
-    delete process.env.VTT_MAX_CONCURRENCY;
+    delete process.env.VIVIDIFF_SCREENSHOT_DIR;
+    delete process.env.VIVIDIFF_THRESHOLD;
+    delete process.env.VIVIDIFF_MAX_CONCURRENCY;
   });
 
   describe("getConfigTsPath", () => {
@@ -66,7 +66,10 @@ describe("config", () => {
 
     it("should load and return config when file exists", async () => {
       mockExistsSync.mockReturnValue(true);
-      const mockConfig = { threshold: 0.1, screenshotDir: "test" };
+      const mockConfig = {
+        comparison: { core: "odiff" as const, threshold: 0.1 },
+        screenshotDir: "test",
+      };
       mockBundleRequire.mockResolvedValue({
         mod: { default: mockConfig },
         dependencies: [],
@@ -82,7 +85,10 @@ describe("config", () => {
 
     it("should handle config without default export", async () => {
       mockExistsSync.mockReturnValue(true);
-      const mockConfig = { threshold: 0.1, screenshotDir: "test" };
+      const mockConfig = {
+        comparison: { core: "odiff" as const, threshold: 0.1 },
+        screenshotDir: "test",
+      };
       mockBundleRequire.mockResolvedValue({
         mod: mockConfig,
         dependencies: [],
@@ -117,8 +123,13 @@ describe("config", () => {
 
     it("should merge config file with options", async () => {
       mockExistsSync.mockReturnValue(true);
-      const fileConfig = { threshold: 0.1, screenshotDir: "file-dir" };
-      const options = { threshold: 0.2 };
+      const fileConfig = {
+        comparison: { core: "odiff" as const, threshold: 0.1 },
+        screenshotDir: "file-dir",
+      };
+      const options = {
+        comparison: { core: "odiff" as const, threshold: 0.2 },
+      };
       mockBundleRequire.mockResolvedValue({
         mod: { default: fileConfig },
         dependencies: [],
@@ -126,43 +137,48 @@ describe("config", () => {
 
       const result = await resolveEffectiveConfig(options);
 
-      expect(result.threshold).toBe(0.2);
+      expect(result.comparison?.threshold).toBe(0.2);
       expect(result.screenshotDir).toBe("file-dir");
     });
 
     it("should apply environment variable overrides", async () => {
       mockExistsSync.mockReturnValue(true);
-      const fileConfig = { threshold: 0.1, screenshotDir: "file-dir" };
+      const fileConfig = {
+        comparison: { core: "odiff" as const, threshold: 0.1 },
+        screenshotDir: "file-dir",
+      };
       mockBundleRequire.mockResolvedValue({
         mod: { default: fileConfig },
         dependencies: [],
       });
 
-      process.env.VTT_SCREENSHOT_DIR = "env-dir";
-      process.env.VTT_THRESHOLD = "0.3";
-      process.env.VTT_MAX_CONCURRENCY = "8";
+      process.env.VIVIDIFF_SCREENSHOT_DIR = "env-dir";
+      process.env.VIVIDIFF_THRESHOLD = "0.3";
+      process.env.VIVIDIFF_MAX_CONCURRENCY = "8";
 
       const result = await resolveEffectiveConfig();
 
       expect(result.screenshotDir).toBe("env-dir");
-      expect(result.threshold).toBe(0.3);
+      expect(result.comparison?.threshold).toBe(0.3);
       expect(result.runtime?.maxConcurrency).toBe(8);
     });
 
     it("should ignore invalid environment variable values", async () => {
       mockExistsSync.mockReturnValue(true);
-      const fileConfig = { threshold: 0.1 };
+      const fileConfig = {
+        comparison: { core: "odiff" as const, threshold: 0.1 },
+      };
       mockBundleRequire.mockResolvedValue({
         mod: { default: fileConfig },
         dependencies: [],
       });
 
-      process.env.VTT_THRESHOLD = "invalid";
-      process.env.VTT_MAX_CONCURRENCY = "invalid";
+      process.env.VIVIDIFF_THRESHOLD = "invalid";
+      process.env.VIVIDIFF_MAX_CONCURRENCY = "invalid";
 
       const result = await resolveEffectiveConfig();
 
-      expect(result.threshold).toBe(0.1);
+      expect(result.comparison?.threshold).toBe(0.1);
       expect(result.runtime?.maxConcurrency).toBeUndefined();
     });
 

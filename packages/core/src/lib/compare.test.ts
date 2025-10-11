@@ -2,6 +2,8 @@ import { readdirSync } from "fs";
 import { join } from "path";
 
 import odiff from "odiff-bin";
+import pixelmatch from "pixelmatch";
+import { PNG } from "pngjs";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import {
@@ -14,12 +16,38 @@ import { getErrorMessage } from "@/utils/error-handler";
 // Mock dependencies
 vi.mock("fs", () => ({
   readdirSync: vi.fn(),
+  readFileSync: vi.fn(),
+  writeFileSync: vi.fn(),
 }));
 
 vi.mock("odiff-bin", () => ({
   default: {
     compare: vi.fn(),
   },
+}));
+
+vi.mock("pixelmatch", () => ({
+  default: vi.fn(),
+}));
+
+vi.mock("pngjs", () => ({
+  PNG: Object.assign(
+    vi.fn().mockImplementation(() => ({
+      data: new Uint8Array(40000),
+      width: 100,
+      height: 100,
+    })),
+    {
+      sync: {
+        read: vi.fn().mockReturnValue({
+          data: new Uint8Array(40000),
+          width: 100,
+          height: 100,
+        }),
+        write: vi.fn().mockReturnValue(Buffer.from("mock-png-data")),
+      },
+    }
+  ),
 }));
 
 vi.mock("@/utils/error-handler", () => ({
@@ -35,13 +63,15 @@ vi.mock("../../utils/fs", () => ({
 describe("compare", () => {
   const mockReaddirSync = vi.mocked(readdirSync);
   const mockOdiffCompare = vi.mocked(odiff.compare);
+  const mockPixelmatch = vi.mocked(pixelmatch);
+  const mockPNG = vi.mocked(PNG);
   const mockGetErrorMessage = vi.mocked(getErrorMessage);
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  describe("compareDirectories", () => {
+  describe("compareDirectories with odiff", () => {
     it("should compare files and return match results", async () => {
       mockReaddirSync
         .mockReturnValueOnce(["file1.png", "file2.png"] as any)
@@ -56,7 +86,9 @@ describe("compare", () => {
           diffPercentage: 5.2,
         });
 
-      const result = await compareDirectories("/current", "/base", "/diff");
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "odiff",
+      });
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
@@ -82,7 +114,9 @@ describe("compare", () => {
         match: true,
       });
 
-      const result = await compareDirectories("/current", "/base", "/diff");
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "odiff",
+      });
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
@@ -107,7 +141,9 @@ describe("compare", () => {
         match: true,
       });
 
-      const result = await compareDirectories("/current", "/base", "/diff");
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "odiff",
+      });
 
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
@@ -133,6 +169,7 @@ describe("compare", () => {
       });
 
       await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "odiff",
         threshold: 0.2,
         diffColor: "#ff0000",
       });
@@ -161,13 +198,16 @@ describe("compare", () => {
         "Could not load comparison image: /base/file1.png"
       );
 
-      const result = await compareDirectories("/current", "/base", "/diff");
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "odiff",
+      });
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         id: "file1.png",
         match: false,
         reason: "missing-base",
+        diffPercentage: 0,
       });
     });
 
@@ -180,13 +220,85 @@ describe("compare", () => {
       mockOdiffCompare.mockRejectedValueOnce(error);
       mockGetErrorMessage.mockReturnValue("Generic error");
 
-      const result = await compareDirectories("/current", "/base", "/diff");
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "odiff",
+      });
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         id: "file1.png",
         match: false,
         reason: "error",
+        diffPercentage: 0,
+      });
+    });
+  });
+
+  describe("compareDirectories with pixelmatch", () => {
+    it("should compare files using pixelmatch", async () => {
+      mockReaddirSync
+        .mockReturnValueOnce(["file1.png"] as any)
+        .mockReturnValueOnce(["file1.png"] as any);
+
+      // Mock PNG data is handled by global mock
+      mockPixelmatch.mockReturnValue(50); // 50 mismatched pixels
+
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "pixelmatch",
+        threshold: 0.1,
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        id: "file1.png",
+        match: false,
+        reason: "pixel-diff",
+        diffPercentage: 0.5, // 50/10000 * 100
+      });
+    });
+
+    it("should handle pixelmatch with matching images", async () => {
+      mockReaddirSync
+        .mockReturnValueOnce(["file1.png"] as any)
+        .mockReturnValueOnce(["file1.png"] as any);
+
+      // Mock PNG data is handled by global mock
+      mockPixelmatch.mockReturnValue(0); // No mismatched pixels
+
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "pixelmatch",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        id: "file1.png",
+        match: true,
+        reason: "",
+        diffPercentage: 0,
+      });
+    });
+
+    it("should handle pixelmatch errors", async () => {
+      mockReaddirSync
+        .mockReturnValueOnce(["file1.png"] as any)
+        .mockReturnValueOnce(["file1.png"] as any);
+
+      const error = new Error("ENOENT: no such file or directory");
+      (mockPNG.sync.read as any).mockImplementation(() => {
+        throw error;
+      });
+      mockGetErrorMessage.mockReturnValue("ENOENT: no such file or directory");
+
+      const result = await compareDirectories("/current", "/base", "/diff", {
+        comparisonCore: "pixelmatch",
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        id: "file1.png",
+        match: false,
+        reason: "error",
+        diffPercentage: 0,
       });
     });
   });
@@ -194,7 +306,11 @@ describe("compare", () => {
   describe("compareBaseAndCurrentWithTestCases", () => {
     const mockConfig = {
       screenshotDir: "test-dir",
-      threshold: 0.1,
+      comparison: {
+        core: "odiff" as const,
+        threshold: 0.1,
+        diffColor: "#00ff00",
+      },
       adapters: {
         browser: { name: "playwright" },
         testCase: [{ name: "storybook" }],
@@ -254,11 +370,9 @@ describe("compare", () => {
       );
     });
 
-    it("should handle missing config threshold", async () => {
-      const configWithoutThreshold = { ...mockConfig };
-      if ("threshold" in configWithoutThreshold) {
-        delete (configWithoutThreshold as any).threshold;
-      }
+    it("should handle missing comparison config with defaults", async () => {
+      const configWithoutComparison = { ...mockConfig };
+      delete (configWithoutComparison as any).comparison;
 
       mockReaddirSync
         .mockReturnValueOnce(["story1-default.png"] as any)
@@ -269,7 +383,7 @@ describe("compare", () => {
       });
 
       await compareBaseAndCurrentWithTestCases(
-        configWithoutThreshold as any,
+        configWithoutComparison as any,
         [mockTestCases[0]] as any
       );
 
@@ -279,7 +393,7 @@ describe("compare", () => {
         expect.any(String),
         {
           threshold: 0.1, // DEFAULT_THRESHOLD
-          diffColor: "#00ff00",
+          diffColor: "#00ff00", // DEFAULT_DIFF_COLOR
         }
       );
     });

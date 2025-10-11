@@ -1,5 +1,13 @@
 export type BrowserName = "chromium" | "firefox" | "webkit" | (string & {});
 
+export type ComparisonCore = "odiff" | "pixelmatch";
+
+export interface ComparisonConfig {
+  core: ComparisonCore;
+  threshold: number;
+  diffColor?: string;
+}
+
 export interface Viewport {
   width: number;
   height: number;
@@ -306,7 +314,7 @@ export interface VisualTestingToolConfig {
     browser: BrowserAdapterOptions;
     testCase: TestCaseAdapterOptions[];
   };
-  threshold: number;
+  comparison?: ComparisonConfig;
   screenshotDir?: string;
   runtime?: {
     /** Maximum number of concurrent captures to run; defaults to 4 */
