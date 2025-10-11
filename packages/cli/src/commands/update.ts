@@ -11,7 +11,7 @@ import { type Command } from "../types";
 import { type CliOptions } from "../types/cli-options";
 import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
-import { createSpinner } from "../utils/spinner";
+import { createSpinner, shouldUseSpinner } from "../utils/spinner";
 
 interface UpdateCommandOptions
   extends Partial<VisualTestingToolConfig>,
@@ -20,29 +20,50 @@ interface UpdateCommandOptions
 }
 
 const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
-  const spinner = createSpinner();
+  const useSpinner = shouldUseSpinner();
+  const spinner = useSpinner ? createSpinner() : null;
 
   try {
     if (options.docker) {
-      spinner.start("Starting Docker container...");
+      if (useSpinner) {
+        spinner!.start("Starting Docker container...");
+      } else {
+        log.info("Starting Docker container...");
+      }
       const image = DEFAULT_DOCKER_IMAGE;
       const args: string[] = ["update"];
       const status = runInDocker({ image, args });
-      spinner.succeed("Docker update completed");
+      if (useSpinner) {
+        spinner!.succeed("Docker update completed");
+      } else {
+        log.success("Docker update completed");
+      }
       exit(status);
       return;
     }
 
-    spinner.start("Discovering test cases...");
+    if (useSpinner) {
+      spinner!.start("Discovering test cases...");
+    } else {
+      log.info("Discovering test cases...");
+    }
     const cliOptions: CliOptions = {
       include: options.include,
       exclude: options.exclude,
     };
 
-    spinner.update("Capturing baseline screenshots...");
+    if (useSpinner) {
+      spinner!.update("Capturing baseline screenshots...");
+    } else {
+      log.info("Capturing baseline screenshots...");
+    }
     await updateBaselineCli(options, cliOptions);
 
-    spinner.succeed("Baseline update completed successfully! ✅");
+    if (useSpinner) {
+      spinner!.succeed("Baseline update completed successfully! ✅");
+    } else {
+      log.success("Baseline update completed successfully! ✅");
+    }
 
     log.plain(
       "\n📸 Baseline screenshots have been captured and saved to the 'vividiff/base/' directory"
@@ -65,7 +86,11 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
 
     exit(0);
   } catch (error) {
-    spinner.fail("Baseline update failed");
+    if (useSpinner) {
+      spinner!.fail("Baseline update failed");
+    } else {
+      log.error("Baseline update failed");
+    }
     ErrorHandler.handle(error, {
       command: "update",
       operation: "baseline capture",

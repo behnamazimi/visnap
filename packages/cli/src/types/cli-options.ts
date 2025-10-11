@@ -5,7 +5,5 @@ export interface CliOptions {
 
 export interface GlobalCliOptions {
   config?: string;
-  verbose?: boolean;
   quiet?: boolean;
-  noColor?: boolean;
 }

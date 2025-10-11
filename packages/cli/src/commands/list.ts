@@ -5,27 +5,40 @@ import { type Command } from "../types";
 import { type CliOptions } from "../types/cli-options";
 import { ErrorHandler } from "../utils/error-handler";
 import { formatTestCases } from "../utils/formatter";
-import { createSpinner } from "../utils/spinner";
+import { createSpinner, shouldUseSpinner } from "../utils/spinner";
 
 interface ListOptions extends CliOptions {
   config?: string;
 }
 
 const listHandler = async (options: ListOptions): Promise<void> => {
-  const spinner = createSpinner();
+  const useSpinner = shouldUseSpinner();
+  const spinner = useSpinner ? createSpinner() : null;
 
   try {
-    spinner.start("Discovering test cases...");
+    if (useSpinner) {
+      spinner!.start("Discovering test cases...");
+    } else {
+      log.info("Discovering test cases...");
+    }
 
     const cliOptions: CliOptions = {
       include: options.include,
       exclude: options.exclude,
     };
 
-    spinner.update("Loading configuration and adapters...");
+    if (useSpinner) {
+      spinner!.update("Loading configuration and adapters...");
+    } else {
+      log.info("Loading configuration and adapters...");
+    }
     const result = await listTestCasesCli({}, cliOptions);
 
-    spinner.succeed(`Found ${result.testCases.length} test cases`);
+    if (useSpinner) {
+      spinner!.succeed(`Found ${result.testCases.length} test cases`);
+    } else {
+      log.success(`Found ${result.testCases.length} test cases`);
+    }
 
     // Format and display results
     const formattedTestCases = result.testCases.map(testCase => ({
@@ -55,7 +68,11 @@ const listHandler = async (options: ListOptions): Promise<void> => {
       );
     }
   } catch (error) {
-    spinner.fail("Failed to discover test cases");
+    if (useSpinner) {
+      spinner!.fail("Failed to discover test cases");
+    } else {
+      log.error("Failed to discover test cases");
+    }
     ErrorHandler.handle(error, {
       command: "list",
       operation: "test case discovery",

@@ -1,4 +1,4 @@
-import { getPackageInfo, log } from "@vividiff/core";
+import { getPackageInfo, setQuietMode } from "@vividiff/core";
 import { Command } from "commander";
 
 import { loadCommands, registerCommands } from "./command-loader";
@@ -25,32 +25,14 @@ const main = async (): Promise<void> => {
       .description("Visual Testing Tool - CLI for visual regression testing")
       .version(pkg.version, "-v, --version", "Show version information")
       .option("--config <path>", "Path to configuration file")
-      .option("--verbose", "Enable verbose output")
       .option("--quiet", "Suppress output except errors")
-      .option("--no-color", "Disable colored output")
       .hook("preAction", (thisCommand, _actionCommand) => {
         // Apply global options
         const globalOptions = thisCommand.opts() as GlobalCliOptions;
 
         // Handle quiet mode
         if (globalOptions.quiet) {
-          // Suppress all log output except errors
-          const originalLog = log;
-          Object.keys(originalLog).forEach(key => {
-            if (key !== "error") {
-              (originalLog as Record<string, unknown>)[key] = () => {};
-            }
-          });
-        }
-
-        // Handle no-color mode
-        if (globalOptions.noColor) {
-          process.env.FORCE_COLOR = "0";
-        }
-
-        // Handle verbose mode
-        if (globalOptions.verbose) {
-          process.env.VIVIDIFF_VERBOSE = "1";
+          setQuietMode(true);
         }
       });
 

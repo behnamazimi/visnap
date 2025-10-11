@@ -2,57 +2,12 @@ import { log } from "@vividiff/core";
 import chalk from "chalk";
 import { table } from "table";
 
-export interface TestResult {
-  id: string;
-  status: "passed" | "failed" | "error";
-  reason?: string;
-  diffPercentage?: number;
-  error?: string;
-}
-
 export interface TestSummary {
   total: number;
   passed: number;
   failed: number;
   errors: number;
   captureFailures: number;
-}
-
-/**
- * Format test results into a beautiful table
- */
-export function formatTestResults(results: TestResult[]): void {
-  const data = [
-    [chalk.cyan("Status"), chalk.cyan("Test ID"), chalk.cyan("Details")],
-    ...results.map(result => [
-      formatStatus(result.status),
-      result.id,
-      formatDetails(result),
-    ]),
-  ];
-
-  const config = {
-    columns: [{ width: 10 }, { width: 40 }, { width: 50 }],
-    border: {
-      topBody: "─",
-      topJoin: "┬",
-      topLeft: "┌",
-      topRight: "┐",
-      bottomBody: "─",
-      bottomJoin: "┴",
-      bottomLeft: "└",
-      bottomRight: "┘",
-      bodyLeft: "│",
-      bodyRight: "│",
-      bodyJoin: "│",
-      joinBody: "─",
-      joinLeft: "├",
-      joinRight: "┤",
-      joinJoin: "┼",
-    },
-  };
-
-  log.plain(table(data, config));
 }
 
 /**
@@ -97,47 +52,8 @@ export function formatTestSummary(summary: TestSummary): void {
     },
   };
 
-  log.plain("\n📊 Test Summary:");
-  log.plain(table(data, config));
-}
-
-/**
- * Format individual test status
- */
-function formatStatus(status: TestResult["status"]): string {
-  switch (status) {
-    case "passed":
-      return chalk.green("✅ PASS");
-    case "failed":
-      return chalk.red("❌ FAIL");
-    case "error":
-      return chalk.red("💥 ERROR");
-    default:
-      return chalk.gray("❓ UNKNOWN");
-  }
-}
-
-/**
- * Format test details
- */
-function formatDetails(result: TestResult): string {
-  if (result.status === "passed") {
-    return chalk.gray("No issues detected");
-  }
-
-  if (result.error) {
-    return chalk.red(result.error);
-  }
-
-  if (result.reason) {
-    let details = result.reason;
-    if (result.diffPercentage !== undefined) {
-      details += ` (${result.diffPercentage.toFixed(2)}% difference)`;
-    }
-    return chalk.yellow(details);
-  }
-
-  return chalk.gray("Unknown issue");
+  log.plain("\n📊 Test Summary:", true);
+  log.plain(table(data, config), true);
 }
 
 /**

@@ -5,39 +5,60 @@ import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
 import { ErrorHandler } from "../utils/error-handler";
-import { createSpinner } from "../utils/spinner";
+import { createSpinner, shouldUseSpinner } from "../utils/spinner";
 
 interface ValidateOptions {
   config?: string;
 }
 
 const validateHandler = async (options: ValidateOptions): Promise<void> => {
-  const spinner = createSpinner();
+  const useSpinner = shouldUseSpinner();
+  const spinner = useSpinner ? createSpinner() : null;
 
   try {
-    spinner.start("Validating configuration...");
+    if (useSpinner) {
+      spinner!.start("Validating configuration...");
+    } else {
+      log.info("Validating configuration...");
+    }
 
     // Check if config file exists
     const configPath = options.config || "vividiff.config.ts";
     if (!existsSync(configPath) && !existsSync("vividiff.config.js")) {
-      spinner.fail("Configuration file not found");
+      if (useSpinner) {
+        spinner!.fail("Configuration file not found");
+      } else {
+        log.error("Configuration file not found");
+      }
       log.error(`No configuration file found at ${configPath}`);
       log.plain("Run 'vividiff init' to create a configuration file");
       return;
     }
 
-    spinner.update("Loading configuration...");
+    if (useSpinner) {
+      spinner!.update("Loading configuration...");
+    } else {
+      log.info("Loading configuration...");
+    }
 
     // Load and validate config
     const config = await loadConfigFile();
 
     if (!config) {
-      spinner.fail("Failed to load configuration");
+      if (useSpinner) {
+        spinner!.fail("Failed to load configuration");
+      } else {
+        log.error("Failed to load configuration");
+      }
       log.error("Configuration file is invalid or empty");
       return;
     }
 
-    spinner.update("Validating adapters...");
+    if (useSpinner) {
+      spinner!.update("Validating adapters...");
+    } else {
+      log.info("Validating adapters...");
+    }
 
     // Validate browser adapter
     if (config.adapters?.browser?.name) {
@@ -72,7 +93,11 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
       log.warn("No test case adapters configured");
     }
 
-    spinner.update("Validating source paths...");
+    if (useSpinner) {
+      spinner!.update("Validating source paths...");
+    } else {
+      log.info("Validating source paths...");
+    }
 
     // Validate source paths for test case adapters
     for (const testCaseAdapter of config.adapters?.testCase || []) {
@@ -87,7 +112,11 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
       }
     }
 
-    spinner.update("Validating browser configuration...");
+    if (useSpinner) {
+      spinner!.update("Validating browser configuration...");
+    } else {
+      log.info("Validating browser configuration...");
+    }
 
     // Validate browser configuration
     if (config.adapters?.browser?.options?.browser) {
@@ -102,7 +131,11 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
       }
     }
 
-    spinner.succeed("Configuration is valid! ✅");
+    if (useSpinner) {
+      spinner!.succeed("Configuration is valid! ✅");
+    } else {
+      log.success("Configuration is valid! ✅");
+    }
 
     log.plain("\n📋 Configuration Summary:");
     log.plain(
@@ -121,7 +154,11 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
       log.plain(`• Viewports: ${viewportKeys.join(", ")}`);
     }
   } catch (error) {
-    spinner.fail("Configuration validation failed");
+    if (useSpinner) {
+      spinner!.fail("Configuration validation failed");
+    } else {
+      log.error("Configuration validation failed");
+    }
     ErrorHandler.handle(error, {
       command: "validate",
       operation: "configuration validation",

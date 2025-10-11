@@ -1,3 +1,4 @@
+import { isQuiet } from "@vividiff/core";
 import ora, { type Ora } from "ora";
 
 /**
@@ -86,4 +87,11 @@ export class Spinner {
  */
 export function createSpinner(): Spinner {
   return new Spinner();
+}
+
+/**
+ * Check if we should use spinner (only in quiet mode)
+ */
+export function shouldUseSpinner(): boolean {
+  return isQuiet();
 }

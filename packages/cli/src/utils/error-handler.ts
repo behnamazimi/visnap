@@ -122,7 +122,7 @@ export class ErrorHandler {
 
       default:
         log.plain("• Check the logs for more details");
-        log.plain("• Run with --verbose for debug information");
+        log.plain("• Check the configuration and try again");
         log.plain("• Report issues at the project repository");
     }
   }

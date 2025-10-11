@@ -258,7 +258,25 @@ export function generateConfigFromSelection(
     browser: {
       name: "@vividiff/playwright-adapter",
       options: {
-        browser: ${JSON.stringify(selection.browsers.length === 1 ? selection.browsers[0] : selection.browsers)},
+        // Option 1: Single browser (string)
+        ${selection.browsers.length === 1 ? `browser: "${selection.browsers[0]}",` : '// browser: "chromium",'}
+
+        // Option 2: Multiple browsers as simple array
+        ${
+          selection.browsers.length > 1 &&
+          selection.browsers.every(b => typeof b === "string")
+            ? `browser: ${JSON.stringify(selection.browsers)},`
+            : '// browser: ["chromium", "firefox", "webkit"],'
+        }
+
+        // Option 3: Multiple browsers with detailed configuration
+        // browser: [
+          // { name: "chromium", options: { headless: false } },
+          // { name: "firefox", options: { headless: true } },
+          // { name: "webkit", options: { headless: true } }
+        // ],
+
+        // injectCSS: "button { display: none !important; }"
       },
     },
     testCase: [
@@ -268,6 +286,7 @@ export function generateConfigFromSelection(
           source: "${selection.storybookSource}",
           port: ${selection.storybookPort},
           include: "*",
+          // exclude: "*page*",
         },
       },
     ],
@@ -277,8 +296,15 @@ export function generateConfigFromSelection(
     threshold: ${selection.threshold},
     diffColor: "#00ff00",
   },
+  // Global viewport configuration that applies to all test cases unless overridden
+  viewport: {
+    desktop: { width: 1920, height: 1080 },
+    // tablet: { width: 768, height: 1024 },
+    // mobile: { width: 375, height: 667 },
+  },
   runtime: {
     maxConcurrency: 4,
+    quiet: false,
   },
 }`;
 

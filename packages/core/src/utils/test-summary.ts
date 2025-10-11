@@ -40,21 +40,18 @@ export async function summarizeTestMode(
 
   for (const r of results) {
     if (r.match) {
-      log.success(`Passed: ${r.id}`);
+      log.success(`Passed: ${r.id}`, true);
     } else {
       const reasonText = r.diffPercentage
         ? `${r.reason} (${r.diffPercentage}% difference)`
         : r.reason;
-      log.error(`Failed: ${r.id} >> ${reasonText}`);
+      log.error(`Failed: ${r.id} >> ${reasonText}`, true);
     }
   }
 
   if (failedCaptures > 0) {
     log.warn(`Capture failures: ${failedCaptures}`);
   }
-  log.info(
-    `Summary => total:${results.length}, passed:${passed}, diffs:${failedDiffs}, missing-current:${failedMissingCurrent}, missing-base:${failedMissingBase}, errors:${failedErrors}`
-  );
 
   const outcome: RunOutcome = {
     total: results.length,
