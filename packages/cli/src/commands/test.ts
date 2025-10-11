@@ -129,9 +129,7 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
       formatTestSummary(summary);
       formatNextSteps(summary);
 
-      if (result.success) {
-        log.success("All tests passed! 🎉");
-      } else {
+      if (!result.success) {
         log.error("Some tests failed");
       }
     }

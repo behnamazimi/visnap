@@ -31,6 +31,14 @@ const config: VisualTestingToolConfig = {
           // exclude: "*page*",
         },
       },
+      // {
+      //   name: "@vividiff/url-adapter",
+      //   options: {
+      //     urls: [{ id: "homepage", url: "https://www.example.com/" }],
+      //     include: "*",
+      //     // exclude: "*admin*",
+      //   },
+      // },
     ],
   },
   comparison: {

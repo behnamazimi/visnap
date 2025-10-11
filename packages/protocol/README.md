@@ -58,21 +58,6 @@ interface BrowserAdapterOptions {
 }
 ```
 
-#### `TestCaseAdapterOptions`
-
-Test case adapter configuration.
-
-```typescript
-interface TestCaseAdapterOptions {
-  name: string;
-  options?: {
-    source: string;
-    port?: number;
-    include?: string | string[];
-    exclude?: string | string[];
-  };
-}
-```
 
 ### Adapter Interfaces
 
@@ -240,7 +225,6 @@ interface VTTStory {
 ### Configuration Types
 - `VisualTestingToolConfig` - Main configuration
 - `BrowserAdapterOptions` - Browser adapter config
-- `TestCaseAdapterOptions` - Test case adapter config
 
 ### Data Types
 - `TestCaseInstance` - Test case representation

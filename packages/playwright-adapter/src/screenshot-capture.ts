@@ -82,7 +82,7 @@ export async function performScreenshotCapture(
     // Capture the screenshot
     const buffer = await captureElementScreenshot(
       page,
-      screenshotOptions.screenshotTarget || "story-root",
+      screenshotOptions.screenshotTarget || "body",
       screenshotOptions.id
     );
 

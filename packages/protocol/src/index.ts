@@ -300,14 +300,10 @@ export interface BrowserAdapterOptions {
   };
 }
 
-export interface TestCaseAdapterOptions {
+// Generic test case adapter options - consumers define their own specific options
+interface TestCaseAdapterOptions<T = Record<string, unknown>> {
   name: string;
-  options?: {
-    source: string;
-    port?: number;
-    include?: string | string[];
-    exclude?: string | string[];
-  };
+  options?: T;
 }
 
 export interface VisualTestingToolConfig {

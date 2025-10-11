@@ -4,6 +4,7 @@ import type {
   VisualTestingToolConfig,
   PageWithEvaluate,
   BrowserName,
+  BrowserAdapter,
 } from "@vividiff/protocol";
 
 import { type BrowserTarget } from "./browser-config";
@@ -106,4 +107,69 @@ export async function discoverTestCasesWithBrowsers(
     }));
 
   return testCaseMetas;
+}
+
+/**
+ * Discover test cases from multiple adapters
+ */
+export async function discoverCasesFromAllAdapters(
+  testCaseAdapters: TestCaseAdapter[],
+  browserAdapter: BrowserAdapter,
+  viewport: VisualTestingToolConfig["viewport"],
+  browsers: BrowserTarget[]
+): Promise<(TestCaseInstanceMeta & { browser: BrowserName })[]> {
+  const allCases: (TestCaseInstanceMeta & { browser: BrowserName })[] = [];
+
+  for (
+    let adapterIndex = 0;
+    adapterIndex < testCaseAdapters.length;
+    adapterIndex++
+  ) {
+    const adapter = testCaseAdapters[adapterIndex];
+
+    try {
+      // Start adapter and resolve page URL
+      const pageUrl = await startAdapterAndResolvePageUrl(adapter);
+
+      // Open page for this adapter
+      if (!browserAdapter.openPage) {
+        throw new Error("Browser adapter does not support openPage method");
+      }
+
+      const page = (await browserAdapter.openPage(
+        pageUrl
+      )) as unknown as PageWithEvaluate;
+
+      try {
+        // Discover test cases with global viewport configuration
+        const discoveredCases = await discoverCases(adapter, page, viewport);
+
+        // Expand cases for each browser
+        const expandedCases = expandCasesForBrowsers(discoveredCases, browsers);
+
+        // Add adapter prefix to case IDs to avoid conflicts
+        const prefixedCases = expandedCases.map(case_ => ({
+          ...case_,
+          caseId: `${adapter.name}-${case_.caseId}`,
+          id: `${adapter.name}-${case_.caseId}`,
+        }));
+
+        allCases.push(...prefixedCases);
+      } finally {
+        // Close the page
+        await page?.close?.();
+      }
+    } catch (error) {
+      console.warn(
+        `Error discovering cases from adapter ${adapter.name}:`,
+        error
+      );
+      // Continue with other adapters
+    }
+  }
+
+  // Sort cases deterministically by caseId, then variantId
+  sortCasesStable(allCases);
+
+  return allCases;
 }

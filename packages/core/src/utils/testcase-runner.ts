@@ -3,26 +3,19 @@ import type {
   TestCaseInstanceMeta,
   VisualTestingToolConfig,
   ScreenshotResult,
-  PageWithEvaluate,
   RunOutcome,
   BrowserName,
 } from "@vividiff/protocol";
 
 import {
   loadBrowserAdapter,
-  loadTestCaseAdapter,
+  loadAllTestCaseAdapters,
   BrowserAdapterPool,
 } from "./adapter-loader";
 import { parseBrowsersFromConfig } from "./browser-config";
 import log from "./logger";
 import { writeScreenshotToFile, cleanupTempFiles } from "./screenshot-writer";
-import {
-  startAdapterAndResolvePageUrl,
-  discoverTestCasesWithBrowsers,
-  discoverCases,
-  expandCasesForBrowsers,
-  sortCasesStable,
-} from "./test-discovery";
+import { discoverCasesFromAllAdapters } from "./test-discovery";
 import { summarizeTestMode, summarizeUpdateMode } from "./test-summary";
 
 import { DEFAULT_CONCURRENCY, DEFAULT_CAPTURE_TIMEOUT_MS } from "@/constants";
@@ -36,42 +29,26 @@ export async function discoverTestCases(
   const { adapters } = options;
 
   // Load adapters
-  const testCaseAdapter = await loadTestCaseAdapter(adapters);
+  const testCaseAdapters = await loadAllTestCaseAdapters(adapters);
   const browserAdapter = await loadBrowserAdapter(adapters);
 
   // Determine browser configuration
   const browsersToUse = parseBrowsersFromConfig(adapters);
 
   try {
-    // Start test-case adapter and resolve page URL
-    const pageUrl = await startAdapterAndResolvePageUrl(testCaseAdapter);
-
     // Initialize browser adapter for discovery
     await browserAdapter.init({
       browser: browsersToUse[0].name,
       ...(browsersToUse[0].options && { options: browsersToUse[0].options }),
     });
 
-    if (!browserAdapter.openPage) {
-      throw new Error("Browser adapter does not support openPage method");
-    }
-
-    const page = (await browserAdapter.openPage(
-      pageUrl
-    )) as unknown as PageWithEvaluate;
-
-    try {
-      // Use unified discovery function
-      return await discoverTestCasesWithBrowsers(
-        testCaseAdapter,
-        page,
-        options.viewport,
-        browsersToUse
-      );
-    } finally {
-      // Close the discovery page
-      await page?.close?.();
-    }
+    // Discover test cases from all adapters
+    return await discoverCasesFromAllAdapters(
+      testCaseAdapters,
+      browserAdapter,
+      options.viewport,
+      browsersToUse
+    );
   } finally {
     // Clean up adapters
     try {
@@ -80,10 +57,13 @@ export async function discoverTestCases(
       log.dim(`Error disposing browser adapter: ${error}`);
     }
 
-    try {
-      await testCaseAdapter.stop?.();
-    } catch (error) {
-      log.dim(`Error stopping test case adapter: ${error}`);
+    // Stop all test case adapters
+    for (const adapter of testCaseAdapters) {
+      try {
+        await adapter.stop?.();
+      } catch (error) {
+        log.dim(`Error stopping test case adapter ${adapter.name}: ${error}`);
+      }
     }
   }
 }
@@ -104,10 +84,9 @@ export async function runTestCasesOnBrowser(
 
   const { adapters } = options;
 
-  // Load test case adapter
-  const testCaseAdapter = await loadTestCaseAdapter(adapters);
+  // Load test case adapters
+  const testCaseAdapters = await loadAllTestCaseAdapters(adapters);
 
-  let page: PageWithEvaluate | undefined;
   let cases: (TestCaseInstanceMeta & { browser: BrowserName })[] = [];
   let captureResults: {
     id: string;
@@ -131,63 +110,15 @@ export async function runTestCasesOnBrowser(
     // Determine browser configuration
     const browsersToUse = parseBrowsersFromConfig(adapters);
 
-    // Start test-case adapter and resolve page URL
-    const pageUrl = await startAdapterAndResolvePageUrl(testCaseAdapter);
+    // Discover test cases from all adapters
+    cases = await discoverCasesFromAllAdapters(
+      testCaseAdapters,
+      await getBrowserAdapter(browsersToUse[0].name, browsersToUse[0].options),
+      options.viewport,
+      browsersToUse
+    );
 
-    // For multi-browser, we need to discover cases first, then run them on each browser
-    if (browsersToUse.length > 1) {
-      // Initialize with first browser to discover test cases
-      const discoveryAdapter = await getBrowserAdapter(
-        browsersToUse[0].name,
-        browsersToUse[0].options
-      );
-
-      if (!discoveryAdapter.openPage) {
-        throw new Error("Browser adapter does not support openPage method");
-      }
-      page = (await discoveryAdapter.openPage(
-        pageUrl
-      )) as unknown as PageWithEvaluate;
-
-      // Discover test cases with global viewport configuration
-      const discoveredCases = await discoverCases(
-        testCaseAdapter,
-        page,
-        options.viewport
-      );
-
-      // Close the discovery page
-      await page?.close?.();
-      page = undefined;
-
-      // Expand cases for each browser
-      cases = expandCasesForBrowsers(discoveredCases, browsersToUse);
-    } else {
-      // Single browser mode (existing behavior)
-      const browserConfig = browsersToUse[0];
-      const singleAdapter = await getBrowserAdapter(
-        browserConfig.name,
-        browserConfig.options
-      );
-
-      if (!singleAdapter.openPage) {
-        throw new Error("Browser adapter does not support openPage method");
-      }
-      page = (await singleAdapter.openPage(
-        pageUrl
-      )) as unknown as PageWithEvaluate;
-
-      // Discover and expand test cases to concrete variants with global viewport configuration
-      const discoveredCases = await discoverCases(
-        testCaseAdapter,
-        page,
-        options.viewport
-      );
-      cases = expandCasesForBrowsers(discoveredCases, browsersToUse);
-    }
-
-    // Sort cases deterministically by caseId, then variantId
-    sortCasesStable(cases);
+    // Cases are already discovered and expanded by discoverCasesFromAllAdapters
 
     captureResults = [];
     const maxConcurrency = Math.max(
@@ -303,10 +234,15 @@ export async function runTestCasesOnBrowser(
       try {
         await browserAdapterPool.disposeAll();
 
-        try {
-          await testCaseAdapter.stop?.();
-        } catch (error) {
-          log.dim(`Error stopping test case adapter: ${error}`);
+        // Clean up test case adapters
+        for (const adapter of testCaseAdapters) {
+          try {
+            await adapter.stop?.();
+          } catch (error) {
+            log.dim(
+              `Error stopping test case adapter ${adapter.name}: ${error}`
+            );
+          }
         }
       } catch (error) {
         log.dim(`Error during adapter cleanup: ${error}`);
