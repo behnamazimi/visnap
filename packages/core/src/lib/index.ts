@@ -28,10 +28,12 @@ export {
   initializeProject,
   runVisualTests,
   runVisualTestsCli,
+  listTestCases,
+  listTestCasesCli,
 } from "./api";
 
 // High-level API types
-export type { InitOptions, InitResult } from "./api";
+export type { InitOptions, InitResult, ListResult } from "./api";
 
 // Low-level utilities
 export { loadConfigFile, resolveScreenshotDir } from "./config";

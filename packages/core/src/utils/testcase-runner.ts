@@ -5,6 +5,7 @@ import type {
   BrowserAdapter,
   TestCaseAdapter,
   TestCaseInstance,
+  TestCaseInstanceMeta,
   VisualTestingToolConfig,
   ScreenshotResult,
   PageWithEvaluate,
@@ -24,6 +25,118 @@ import { compareBaseAndCurrentWithTestCases } from "@/lib/compare";
 import { logEffectiveConfig } from "@/lib/config";
 import { createConcurrencyPool } from "@/lib/pool";
 import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
+
+export async function discoverTestCases(
+  options: VisualTestingToolConfig
+): Promise<(TestCaseInstanceMeta & { browser: BrowserName })[]> {
+  const { adapters } = options;
+
+  // Tool-agnostic dynamic adapter loaders
+  const loadBrowserAdapter = async (): Promise<BrowserAdapter> => {
+    const moduleName = adapters?.browser?.name;
+    if (!moduleName) throw new Error("Browser adapter is required");
+    const browserAdapterOptions = adapters?.browser?.options as
+      | Record<string, unknown>
+      | undefined;
+
+    const mod = await import(moduleName);
+    if (typeof (mod as any)?.createAdapter === "function") {
+      return (mod as any).createAdapter(browserAdapterOptions);
+    }
+
+    throw new Error(
+      `Browser adapter ${moduleName} must export createAdapter function`
+    );
+  };
+
+  const loadTestCaseAdapter = async (): Promise<TestCaseAdapter> => {
+    const first = adapters?.testCase?.[0];
+    const moduleName = first?.name;
+    const adapterOptions = first?.options as
+      | Record<string, unknown>
+      | undefined;
+    if (!moduleName) throw new Error("Test case adapter is required");
+
+    const mod = await import(moduleName);
+    if (typeof (mod as any)?.createAdapter === "function") {
+      return (mod as any).createAdapter(adapterOptions);
+    }
+
+    throw new Error(
+      `Test case adapter ${moduleName} must export createAdapter function`
+    );
+  };
+
+  const testCaseAdapter = await loadTestCaseAdapter();
+  const browserAdapter = await loadBrowserAdapter();
+
+  // Determine browser configuration
+  const browsersToUse: BrowserTarget[] = parseBrowsersFromConfig(adapters);
+
+  try {
+    // Start test-case adapter and resolve page URL
+    const pageUrl = await startAdapterAndResolvePageUrl(testCaseAdapter);
+
+    // Initialize browser adapter for discovery
+    const discoveryAdapter = await loadBrowserAdapter();
+    await discoveryAdapter.init({
+      browser: browsersToUse[0].name,
+      ...(browsersToUse[0].options && { options: browsersToUse[0].options }),
+    });
+
+    if (!discoveryAdapter.openPage) {
+      throw new Error("Browser adapter does not support openPage method");
+    }
+
+    const page = (await discoveryAdapter.openPage(
+      pageUrl
+    )) as unknown as PageWithEvaluate;
+
+    try {
+      // Discover test cases with global viewport configuration
+      const discoveredCases = await discoverCases(
+        testCaseAdapter,
+        page,
+        options.viewport
+      );
+
+      // Expand cases for each browser
+      const expandedCases = expandCasesForBrowsers(discoveredCases, browsersToUse);
+
+      // Sort cases deterministically by caseId, then variantId
+      sortCasesStable(expandedCases);
+
+      // Convert to TestCaseInstanceMeta format with required browser property
+      const testCaseMetas: (TestCaseInstanceMeta & { browser: BrowserName })[] = expandedCases.map(case_ => ({
+        ...case_,
+        id: case_.caseId,
+        title: (case_ as any).title || `Test Case ${case_.caseId}`,
+        parameters: (case_ as any).parameters || {},
+        tags: (case_ as any).tags || [],
+        visualTesting: (case_ as any).visualTesting,
+        browser: case_.browser, // This is guaranteed to be present from expandCasesForBrowsers
+      }));
+
+      return testCaseMetas;
+    } finally {
+      // Close the discovery page
+      await page?.close?.();
+    }
+  } finally {
+    // Clean up adapters
+    try {
+      await browserAdapter.dispose();
+    } catch (error) {
+      log.dim(`Error disposing browser adapter: ${error}`);
+    }
+
+    try {
+      await testCaseAdapter.stop?.();
+    } catch (error) {
+      log.dim(`Error stopping test case adapter: ${error}`);
+    }
+  }
+}
 
 type BrowserTarget = { name: BrowserName; options?: Record<string, unknown> };
 

@@ -5,20 +5,7 @@ const config: VisualTestingToolConfig = {
     browser: {
       name: "@vividiff/playwright-adapter",
       options: {
-        // Option 1: Single browser (string)
-        // browser: "firefox",
-
-        // Option 2: Multiple browsers as simple array
-        // browser: ["chromium", "firefox", "webkit"],
-
-        // Option 3: Multiple browsers with detailed configuration
-        browser: [
-          { name: "chromium", options: { headless: false } },
-          // { name: "firefox", options: { headless: true } },
-          // { name: "webkit", options: { headless: true } }
-        ],
-
-        // injectCSS: "button { display: none !important; }"
+        browser: ["chromium", "firefox"],
       },
     },
     testCase: [
@@ -26,22 +13,16 @@ const config: VisualTestingToolConfig = {
         name: "@vividiff/storybook-adapter",
         options: {
           source: "./storybook-static",
+          port: 6006,
           include: "*",
-          // exclude: "*page*",
         },
       },
     ],
   },
   comparison: {
-    core: "odiff", // or "pixelmatch"
+    core: "odiff",
     threshold: 0.1,
     diffColor: "#00ff00",
-  },
-  // Global viewport configuration that applies to all test cases unless overridden
-  viewport: {
-    desktop: { width: 1920, height: 1080 },
-    // tablet: { width: 768, height: 1024 },
-    // mobile: { width: 375, height: 667 },
   },
   runtime: {
     maxConcurrency: 4,

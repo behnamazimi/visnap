@@ -15,8 +15,11 @@
  */
 
 import { command as initCommand } from "./commands/init";
+import { command as listCommand } from "./commands/list";
+import { command as openCommand } from "./commands/open";
 import { command as testCommand } from "./commands/test";
 import { command as updateCommand } from "./commands/update";
+import { command as validateCommand } from "./commands/validate";
 import { type Command } from "./types";
 
 /**
@@ -33,5 +36,8 @@ export const COMMAND_REGISTRY = [
   asCommand(initCommand),
   asCommand(testCommand),
   asCommand(updateCommand),
+  asCommand(validateCommand),
+  asCommand(listCommand),
+  asCommand(openCommand),
   // Add new commands here
 ] as const;

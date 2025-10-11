@@ -1,18 +1,19 @@
 import { existsSync, writeFileSync } from "fs";
 import { join } from "path";
 
-import {
-  initializeProject,
-  generateConfigContent,
-  getErrorMessage,
-  log,
-} from "@vividiff/core";
+import { initializeProject, generateConfigContent, log } from "@vividiff/core";
 import inquirer from "inquirer";
 
 import { type Command } from "../types";
+import {
+  runConfigWizard,
+  generateConfigFromSelection,
+} from "../utils/config-wizard";
+import { ErrorHandler } from "../utils/error-handler";
 
 interface InitOptions {
-  configType: "ts" | "js";
+  configType?: "ts" | "js";
+  wizard?: boolean;
 }
 
 const promptUser = async (): Promise<InitOptions> => {
@@ -23,6 +24,16 @@ const promptUser = async (): Promise<InitOptions> => {
   const answers = await inquirer.prompt([
     {
       type: "list",
+      name: "setupType",
+      message: "Choose setup method:",
+      choices: [
+        { name: "Interactive wizard (recommended)", value: "wizard" },
+        { name: "Quick setup with defaults", value: "quick" },
+      ],
+      default: "wizard",
+    },
+    {
+      type: "list",
       name: "configType",
       message: "Choose configuration file type:",
       choices: [
@@ -30,11 +41,13 @@ const promptUser = async (): Promise<InitOptions> => {
         { name: "JavaScript (vividiff.config.js)", value: "js" },
       ],
       default: "ts",
+      when: answers => answers.setupType === "quick",
     },
   ]);
 
   return {
-    configType: answers.configType,
+    configType: answers.configType || "ts",
+    wizard: answers.setupType === "wizard",
   };
 };
 
@@ -52,18 +65,32 @@ const initHandler = async (_options: void): Promise<void> => {
       return;
     }
 
-    // Use the API to generate the config content
-    const result = await initializeProject({
-      configType: userOptions.configType,
-    });
+    let configContent: string;
 
-    if (!result.success) {
-      log.error("Failed to initialize project");
-      return;
+    if (userOptions.wizard) {
+      // Use interactive wizard
+      const selection = await runConfigWizard();
+      configContent = generateConfigFromSelection(
+        selection,
+        userOptions.configType!
+      );
+    } else {
+      // Use the API to generate the config content
+      const result = await initializeProject({
+        configType: userOptions.configType!,
+      });
+
+      if (!result.success) {
+        log.error("Failed to initialize project");
+        return;
+      }
+
+      // Write the config file
+      configContent = generateConfigContent({
+        configType: userOptions.configType!,
+      });
     }
 
-    // Write the config file
-    const configContent = generateConfigContent(userOptions);
     writeFileSync(newConfigPath, configContent);
 
     log.success("Configuration file created successfully!");
@@ -72,9 +99,20 @@ const initHandler = async (_options: void): Promise<void> => {
     log.plain(
       `   • Config type: ${userOptions.configType === "ts" ? "TypeScript" : "JavaScript"}`
     );
+    if (userOptions.wizard) {
+      log.plain("   • Interactive wizard configuration applied");
+    }
     log.plain("\n🎉 You can now customize the configuration file as needed.");
+    log.plain("\nNext steps:");
+    log.plain("  1. Run 'vividiff validate' to check your configuration");
+    log.plain("  2. Run 'vividiff update' to create baseline screenshots");
+    log.plain("  3. Run 'vividiff test' to run visual tests");
   } catch (error) {
-    log.error(`Failed to create config file: ${getErrorMessage(error)}`);
+    ErrorHandler.handle(error, {
+      command: "init",
+      operation: "project initialization",
+      suggestion: "Check your permissions and try again",
+    });
   }
 };
 
