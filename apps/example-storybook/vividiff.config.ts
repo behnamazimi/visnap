@@ -32,7 +32,11 @@ const config: VisualTestingToolConfig = {
       },
     ],
   },
-  threshold: 0.1,
+  comparison: {
+    core: "odiff", // or "pixelmatch"
+    threshold: 0.1,
+    diffColor: "#00ff00",
+  },
   // Global viewport configuration that applies to all test cases unless overridden
   viewport: {
     desktop: { width: 1920, height: 1080 },

@@ -101,7 +101,6 @@ export const compareBaseAndCurrentWithTestCases = async (
   testCases: TestCaseInstance[]
 ): Promise<CompareResult[]> => {
   const { getCurrentDir, getBaseDir, getDiffDir } = await import("@/utils/fs");
-
   const currentDir = getCurrentDir(config.screenshotDir);
   const baseDir = getBaseDir(config.screenshotDir);
   const diffDir = getDiffDir(config.screenshotDir);
@@ -113,17 +112,24 @@ export const compareBaseAndCurrentWithTestCases = async (
   const idToThreshold = new Map<string, number>();
   for (const t of testCases) {
     const file = `${t.caseId}-${t.variantId}.png`;
-    const maybeThreshold = (t as unknown as { threshold?: number }).threshold;
+    const maybeThreshold = t.threshold;
     if (typeof maybeThreshold === "number") {
       idToThreshold.set(file, maybeThreshold);
     }
   }
 
-  // Deterministic union of files between current and base
+  // Get expected files from test cases
+  const expectedFiles = new Set(
+    testCases.map(t => `${t.caseId}-${t.variantId}.png`)
+  );
+  
+  // Deterministic union of files between current and base, filtered by test cases
   const currentFiles = new Set(readdirSync(currentDir));
   const baseFiles = new Set(readdirSync(baseDir));
   const allFiles = new Set<string>([...currentFiles, ...baseFiles] as string[]);
-  const files = Array.from(allFiles).sort((a, b) => a.localeCompare(b));
+  const files = Array.from(allFiles)
+    .filter(file => expectedFiles.has(file))
+    .sort((a, b) => a.localeCompare(b));
   const diffColor = "#00ff00";
   const results: CompareResult[] = [];
   for (const file of files) {
