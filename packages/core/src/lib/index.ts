@@ -28,10 +28,12 @@ export {
   initializeProject,
   runVisualTests,
   runVisualTestsCli,
+  listTestCases,
+  listTestCasesCli,
 } from "./api";
 
 // High-level API types
-export type { InitOptions, InitResult } from "./api";
+export type { InitOptions, InitResult, ListResult } from "./api";
 
 // Low-level utilities
 export { loadConfigFile, resolveScreenshotDir } from "./config";
@@ -44,7 +46,13 @@ export { createConcurrencyPool } from "./pool";
 export type { VTTStory } from "@/types";
 
 // Utilities for CLI and other packages
-export { getErrorMessage, log, generateConfigContent } from "@/utils";
+export {
+  getErrorMessage,
+  log,
+  generateConfigContent,
+  setQuietMode,
+  isQuiet,
+} from "@/utils";
 export { runInDocker, runInDockerWithConfig } from "../utils/docker";
 export type { DockerRunOptions, DockerConfigOptions } from "../utils/docker";
 

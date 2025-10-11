@@ -223,6 +223,7 @@ export interface TestCaseVisualConfig {
 interface BaseTestCaseMeta {
   id: string;
   title: string;
+  kind: string;
   parameters?: Record<string, unknown>;
   tags?: string[];
 }
@@ -319,6 +320,8 @@ export interface VisualTestingToolConfig {
   runtime?: {
     /** Maximum number of concurrent captures to run; defaults to 4 */
     maxConcurrency?: number;
+    /** Suppress output except errors; defaults to false */
+    quiet?: boolean;
   };
   /** Global viewport configuration that applies to all test cases unless overridden */
   viewport?: ViewportMap;

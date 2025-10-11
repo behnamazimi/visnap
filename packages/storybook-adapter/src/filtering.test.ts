@@ -26,6 +26,7 @@ describe("filtering", () => {
     const createMockStory = (id: string): TestCaseMeta => ({
       id,
       title: `Story ${id}`,
+      kind: "story",
       visualTesting: {},
     });
 

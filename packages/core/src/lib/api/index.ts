@@ -9,3 +9,7 @@ export { updateBaseline, updateBaselineCli } from "./update";
 // Init API
 export { initializeProject } from "./init";
 export type { InitOptions, InitResult } from "./init";
+
+// List API
+export { listTestCases, listTestCasesCli } from "./list";
+export type { ListResult } from "./list";

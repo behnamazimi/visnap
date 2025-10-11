@@ -6,17 +6,17 @@ const config: VisualTestingToolConfig = {
       name: "@vividiff/playwright-adapter",
       options: {
         // Option 1: Single browser (string)
-        // browser: "firefox",
+        browser: "chromium",
 
         // Option 2: Multiple browsers as simple array
         // browser: ["chromium", "firefox", "webkit"],
 
         // Option 3: Multiple browsers with detailed configuration
-        browser: [
-          { name: "chromium", options: { headless: false } },
-          // { name: "firefox", options: { headless: true } },
-          // { name: "webkit", options: { headless: true } }
-        ],
+        // browser: [
+        // { name: "chromium", options: { headless: false } },
+        // { name: "firefox", options: { headless: true } },
+        // { name: "webkit", options: { headless: true } }
+        // ],
 
         // injectCSS: "button { display: none !important; }"
       },
@@ -26,6 +26,7 @@ const config: VisualTestingToolConfig = {
         name: "@vividiff/storybook-adapter",
         options: {
           source: "./storybook-static",
+          port: 6006,
           include: "*",
           // exclude: "*page*",
         },
@@ -33,7 +34,7 @@ const config: VisualTestingToolConfig = {
     ],
   },
   comparison: {
-    core: "odiff", // or "pixelmatch"
+    core: "odiff",
     threshold: 0.1,
     diffColor: "#00ff00",
   },
@@ -45,6 +46,7 @@ const config: VisualTestingToolConfig = {
   },
   runtime: {
     maxConcurrency: 4,
+    quiet: false,
   },
 };
 

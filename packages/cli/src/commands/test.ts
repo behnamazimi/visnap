@@ -2,7 +2,6 @@ import { writeFileSync } from "fs";
 
 import {
   runVisualTestsCli,
-  getErrorMessage,
   log,
   runInDocker,
   DEFAULT_DOCKER_IMAGE,
@@ -11,7 +10,14 @@ import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
 import { type CliOptions } from "../types/cli-options";
+import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
+import {
+  formatTestSummary,
+  formatNextSteps,
+  type TestSummary,
+} from "../utils/formatter";
+import { createSpinner, shouldUseSpinner } from "../utils/spinner";
 
 interface TestCommandOptions extends CliOptions {
   jsonReport?: string | boolean; // when provided without a path => stdout JSON; when a path => write file
@@ -19,8 +25,16 @@ interface TestCommandOptions extends CliOptions {
 }
 
 const testHandler = async (options: TestCommandOptions): Promise<void> => {
+  const useSpinner = shouldUseSpinner();
+  const spinner = useSpinner ? createSpinner() : null;
+
   try {
     if (options.docker) {
+      if (useSpinner) {
+        spinner!.start("Starting Docker container...");
+      } else {
+        log.info("Starting Docker container...");
+      }
       const image = DEFAULT_DOCKER_IMAGE;
       const args: string[] = [
         "test",
@@ -35,16 +49,41 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
           : []),
       ];
       const status = runInDocker({ image, args });
+      if (useSpinner) {
+        spinner!.succeed("Docker test completed");
+      } else {
+        log.success("Docker test completed");
+      }
       exit(status);
       return;
+    }
+
+    if (useSpinner) {
+      spinner!.start("Discovering test cases...");
+    } else {
+      log.info("Discovering test cases...");
     }
     const cliOptions: CliOptions = {
       include: options.include,
       exclude: options.exclude,
     };
+
+    if (useSpinner) {
+      spinner!.update("Running visual tests...");
+    } else {
+      log.info("Running visual tests...");
+    }
     const result = await runVisualTestsCli({}, cliOptions);
+    if (useSpinner) {
+      spinner!.succeed("Visual tests completed");
+    }
 
     if (options.jsonReport) {
+      if (useSpinner) {
+        spinner!.update("Generating JSON report...");
+      } else {
+        log.info("Generating JSON report...");
+      }
       const report = {
         success: result.success,
         outcome: result.outcome,
@@ -60,23 +99,55 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
       const looksLikePath = val ? /[\\/]|\.json$/i.test(val) : false;
       if (looksLikePath) {
         writeFileSync(val, reportJson);
-        log.info(`JSON report written to: ${val}`);
+        if (useSpinner) {
+          spinner!.succeed(`JSON report written to: ${val}`);
+        } else {
+          log.success(`JSON report written to: ${val}`);
+        }
       } else {
+        if (useSpinner) {
+          spinner!.stop();
+        }
         console.log(reportJson);
       }
-    }
+    } else {
+      if (useSpinner) {
+        spinner!.stop();
+      }
 
-    if (!options.jsonReport) {
+      // Display summary
+      const summary: TestSummary = {
+        total: result.outcome.total || 0,
+        passed: result.outcome.passed || 0,
+        failed: result.outcome.failedDiffs || 0,
+        errors:
+          (result.outcome.failedErrors || 0) +
+          (result.outcome.captureFailures || 0),
+        captureFailures: result.outcome.captureFailures || 0,
+      };
+
+      formatTestSummary(summary);
+      formatNextSteps(summary);
+
       if (result.success) {
-        log.success(`Test run completed successfully`);
+        log.success("All tests passed! 🎉");
       } else {
-        log.error(`Test run failed`);
+        log.error("Some tests failed");
       }
     }
 
     exit(result.exitCode);
   } catch (error) {
-    log.error(`Error running tests: ${getErrorMessage(error)}`);
+    if (useSpinner) {
+      spinner!.fail("Test execution failed");
+    } else {
+      log.error("Test execution failed");
+    }
+    ErrorHandler.handle(error, {
+      command: "test",
+      operation: "visual testing",
+      suggestion: "Check your configuration and ensure Storybook is running",
+    });
     exit(1);
   }
 };

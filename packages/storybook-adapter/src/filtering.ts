@@ -128,6 +128,7 @@ export function normalizeStories(
     metas.push({
       id,
       title,
+      kind: "story",
       visualTesting: {
         skip,
         screenshotTarget,
@@ -157,6 +158,7 @@ export function normalizeStories(
       instances.push({
         id: s.id,
         title: s.title,
+        kind: "story",
         caseId: s.id,
         variantId: vk,
         url: `${currentBaseUrl}/iframe.html?id=${encodeURIComponent(s.id)}`,
