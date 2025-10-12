@@ -25,13 +25,14 @@ interface TestCommandOptions extends CliOptions {
   docker?: boolean;
 }
 
-function resolveReporterConfig(
+/**
+ * Resolves HTML reporter configuration from CLI and config options
+ */
+function resolveHtmlReporterConfig(
   configReporter: VisualTestingToolConfig["reporter"],
   cliHtmlReport?: string | boolean,
-  cliJsonReport?: string | boolean,
   screenshotDir: string = "./vividiff"
 ) {
-  // Determine HTML report configuration
   let htmlEnabled = true; // default
   let htmlPath: string | undefined;
 
@@ -62,7 +63,17 @@ function resolveReporterConfig(
     htmlPath = `${screenshotDir}/report.html`;
   }
 
-  // Determine JSON report configuration
+  return { enabled: htmlEnabled, outputPath: htmlPath };
+}
+
+/**
+ * Resolves JSON reporter configuration from CLI and config options
+ */
+function resolveJsonReporterConfig(
+  configReporter: VisualTestingToolConfig["reporter"],
+  cliJsonReport?: string | boolean,
+  screenshotDir: string = "./vividiff"
+) {
   let jsonEnabled = true; // default
   let jsonPath: string | undefined;
 
@@ -93,9 +104,29 @@ function resolveReporterConfig(
     jsonPath = `${screenshotDir}/report.json`;
   }
 
+  return { enabled: jsonEnabled, outputPath: jsonPath };
+}
+
+/**
+ * Resolves complete reporter configuration from CLI and config options
+ */
+function resolveReporterConfig(
+  configReporter: VisualTestingToolConfig["reporter"],
+  cliHtmlReport?: string | boolean,
+  cliJsonReport?: string | boolean,
+  screenshotDir: string = "./vividiff"
+) {
   return {
-    html: { enabled: htmlEnabled, outputPath: htmlPath },
-    json: { enabled: jsonEnabled, outputPath: jsonPath },
+    html: resolveHtmlReporterConfig(
+      configReporter,
+      cliHtmlReport,
+      screenshotDir
+    ),
+    json: resolveJsonReporterConfig(
+      configReporter,
+      cliJsonReport,
+      screenshotDir
+    ),
   };
 }
 
@@ -132,7 +163,7 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
             ]
           : []),
       ];
-      const status = runInDocker({ image, args });
+      const status = await runInDocker({ image, args });
       if (useSpinner) {
         spinner!.succeed("Docker test completed");
       } else {

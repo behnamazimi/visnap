@@ -6,11 +6,7 @@ export type { DockerRunOptions, DockerConfigOptions } from "./docker";
 export { generateConfigContent } from "./config-generator";
 
 // Export new testcase-runner utilities
-export {
-  loadBrowserAdapter,
-  loadTestCaseAdapter,
-  BrowserAdapterPool,
-} from "./adapter-loader";
+export { loadBrowserAdapter, BrowserAdapterPool } from "./adapter-loader";
 export { parseBrowsersFromConfig } from "./browser-config";
 export type { BrowserTarget } from "./browser-config";
 export {

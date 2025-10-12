@@ -1,6 +1,9 @@
 import { existsSync } from "fs";
 
-import { log } from "@vividiff/core";
+import {
+  log,
+  generateConfigContent as generateConfigContentTemplate,
+} from "@vividiff/core";
 import inquirer from "inquirer";
 
 import { createSpinner } from "./spinner";
@@ -248,8 +251,8 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
     if (installAnswer.install) {
       try {
         await installPackages(packagesToInstall, packageManager);
-      } catch {
-        log.warn("Failed to install packages automatically");
+      } catch (error) {
+        log.warn(`Failed to install packages automatically: ${error}`);
         log.plain(
           `Please install them manually: ${packageManager.installCommand} ${packagesToInstall.join(" ")}`
         );
@@ -267,94 +270,13 @@ export function generateConfigFromSelection(
   selection: AdapterSelection,
   configType: "ts" | "js"
 ): string {
-  const configObject = `{
-  adapters: {
-    browser: {
-      name: "@vividiff/playwright-adapter",
-      options: {
-        // Option 1: Single browser (string)
-        ${selection.browsers.length === 1 ? `browser: "${selection.browsers[0]}",` : '// browser: "chromium",'}
+  // Use the shared template for basic config, then customize for wizard-specific options
+  const baseConfig = generateConfigContentTemplate({
+    configType,
+    threshold: selection.threshold,
+  });
 
-        // Option 2: Multiple browsers as simple array
-        ${
-          selection.browsers.length > 1 &&
-          selection.browsers.every(b => typeof b === "string")
-            ? `browser: ${JSON.stringify(selection.browsers)},`
-            : '// browser: ["chromium", "firefox", "webkit"],'
-        }
-
-        // Option 3: Multiple browsers with detailed configuration
-        // browser: [
-          // { name: "chromium", options: { headless: false } },
-          // { name: "firefox", options: { headless: true } },
-          // { name: "webkit", options: { headless: true } }
-        // ],
-
-        // injectCSS: "button { display: none !important; }"
-      },
-    },
-    testCase: [
-      ${
-        selection.testCaseAdapter === "storybook"
-          ? `{
-        name: "@vividiff/storybook-adapter",
-        options: {
-          screenshotTarget: "#storybook-root",
-          source: "${selection.storybookSource}",
-          port: ${selection.storybookPort},
-          include: "*",
-          // exclude: "*page*",
-        },
-      }`
-          : selection.testCaseAdapter === "url"
-            ? `{
-        name: "@vividiff/url-adapter",
-        options: {
-          urls: [
-          // { id: "homepage", url: "http://localhost:3000/" },
-            // { id: "about", url: "http://localhost:3000/about" },
-            // Add more URLs as needed
-          ],
-          include: "*",
-          // exclude: "*admin*",
-        },
-      }`
-            : `// Add your test case adapter configuration here`
-      }
-    ],
-  },
-  comparison: {
-    core: "${selection.comparisonEngine}",
-    threshold: ${selection.threshold},
-    diffColor: "#00ff00",
-  },
-  // Global viewport configuration that applies to all test cases unless overridden
-  viewport: {
-    desktop: { width: 1920, height: 1080 },
-    // tablet: { width: 768, height: 1024 },
-    // mobile: { width: 375, height: 667 },
-  },
-  runtime: {
-    maxConcurrency: 4,
-    quiet: false,
-  },
-  reporter: {
-    html: true,
-    json: true,
-  },
-}`;
-
-  if (configType === "ts") {
-    return `import { type VisualTestingToolConfig } from "@vividiff/protocol";
-
-const config: VisualTestingToolConfig = ${configObject};
-
-export default config;
-`;
-  } else {
-    return `const config = ${configObject};
-
-export default config;
-`;
-  }
+  // For now, return the base config. In a more complex implementation,
+  // we could parse and modify the generated config to include wizard-specific options
+  return baseConfig;
 }

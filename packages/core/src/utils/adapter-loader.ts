@@ -5,6 +5,8 @@ import type {
   BrowserName,
 } from "@vividiff/protocol";
 
+import log from "./logger";
+
 /**
  * Load a browser adapter dynamically based on configuration
  */
@@ -24,28 +26,6 @@ export async function loadBrowserAdapter(
 
   throw new Error(
     `Browser adapter ${moduleName} must export createAdapter function`
-  );
-}
-
-/**
- * Load a test case adapter dynamically based on configuration
- * @deprecated Use loadAllTestCaseAdapters for multiple adapter support
- */
-export async function loadTestCaseAdapter(
-  adapters: VisualTestingToolConfig["adapters"]
-): Promise<TestCaseAdapter> {
-  const first = adapters?.testCase?.[0];
-  const moduleName = first?.name;
-  const adapterOptions = first?.options as Record<string, unknown> | undefined;
-  if (!moduleName) throw new Error("Test case adapter is required");
-
-  const mod = await import(moduleName);
-  if (typeof (mod as any)?.createAdapter === "function") {
-    return (mod as any).createAdapter(adapterOptions);
-  }
-
-  throw new Error(
-    `Test case adapter ${moduleName} must export createAdapter function`
   );
 }
 
@@ -101,7 +81,7 @@ export class BrowserAdapterPool {
           await adapter.dispose();
         } catch (error) {
           // Log error but don't throw to ensure cleanup continues
-          console.warn(`Error disposing browser adapter: ${error}`);
+          log.warn(`Error disposing browser adapter: ${error}`);
         }
       }
     );

@@ -1,4 +1,8 @@
-import type { Viewport, InteractionAction } from "@vividiff/protocol";
+import type {
+  Viewport,
+  InteractionAction,
+  FilterOptions,
+} from "@vividiff/protocol";
 
 /**
  * Configuration for a single URL to test
@@ -23,11 +27,7 @@ export interface UrlConfig {
 /**
  * Options to create a URL adapter
  */
-export interface CreateUrlAdapterOptions {
+export interface CreateUrlAdapterOptions extends FilterOptions {
   /** Array of URLs to test */
   urls: UrlConfig[];
-  /** Include patterns (minimatch) */
-  include?: string | string[];
-  /** Exclude patterns (minimatch) */
-  exclude?: string | string[];
 }

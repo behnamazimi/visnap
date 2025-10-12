@@ -1,4 +1,9 @@
-import type { VisualTestingToolConfig, RunOutcome } from "@vividiff/protocol";
+import type {
+  VisualTestingToolConfig,
+  RunOutcome,
+  ViewportMap,
+  ComparisonConfig,
+} from "@vividiff/protocol";
 
 import { resolveEffectiveConfig } from "@/lib/config";
 import { runTestCasesOnBrowser } from "@/utils/testcase-runner";
@@ -22,19 +27,12 @@ export interface TestResult {
       browser?: { name: string; options?: Record<string, unknown> };
       testCase?: Array<{ name: string; options?: Record<string, unknown> }>;
     };
-    comparison?: {
-      core?: string;
-      threshold?: number;
-      diffColor?: string;
-    };
+    comparison?: ComparisonConfig;
     runtime?: {
       maxConcurrency?: number;
       quiet?: boolean;
     };
-    viewport?: Record<
-      string,
-      { width: number; height: number; deviceScaleFactor?: number }
-    >;
+    viewport?: ViewportMap;
     reporter?: {
       html?: boolean | string;
       json?: boolean | string;

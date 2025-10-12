@@ -8,6 +8,7 @@ import type {
 } from "@vividiff/protocol";
 
 import { type BrowserTarget } from "./browser-config";
+import log from "./logger";
 
 /**
  * Start test case adapter and resolve page URL
@@ -160,9 +161,8 @@ export async function discoverCasesFromAllAdapters(
         await page?.close?.();
       }
     } catch (error) {
-      console.warn(
-        `Error discovering cases from adapter ${adapter.name}:`,
-        error
+      log.warn(
+        `Error discovering cases from adapter ${adapter.name}: ${error}`
       );
       // Continue with other adapters
     }

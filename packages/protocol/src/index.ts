@@ -355,3 +355,8 @@ export type PageWithEvaluate = {
   evaluate?: (fn: () => Promise<unknown>) => Promise<unknown>;
   close?: () => Promise<void>;
 };
+
+export interface FilterOptions {
+  include?: string | string[];
+  exclude?: string | string[];
+}

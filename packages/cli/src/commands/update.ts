@@ -32,7 +32,7 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
       }
       const image = DEFAULT_DOCKER_IMAGE;
       const args: string[] = ["update"];
-      const status = runInDocker({ image, args });
+      const status = await runInDocker({ image, args });
       if (useSpinner) {
         spinner!.succeed("Docker update completed");
       } else {

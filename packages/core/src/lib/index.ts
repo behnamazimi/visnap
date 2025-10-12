@@ -1,4 +1,15 @@
+// Cache package info to avoid repeated file system reads
+let cachedPackageInfo: {
+  name: string;
+  version: string;
+  description: string;
+} | null = null;
+
 export async function getPackageInfo() {
+  if (cachedPackageInfo) {
+    return cachedPackageInfo;
+  }
+
   let pkg: { name: string; version: string; description: string } = {
     name: "vividiff",
     version: "0.0.0",
@@ -14,11 +25,13 @@ export async function getPackageInfo() {
     // Fallback to default values if package.json cannot be loaded
   }
 
-  return {
+  cachedPackageInfo = {
     name: pkg.name,
     version: pkg.version,
     description: pkg?.description,
   };
+
+  return cachedPackageInfo;
 }
 
 // High-level API functions
@@ -41,13 +54,9 @@ export {
   resolveScreenshotDir,
   resolveEffectiveConfig,
 } from "./config";
-export type { BrowserName, ViewportConfig, ViewportSize } from "./config";
 export { compareBaseAndCurrentWithTestCases } from "./compare";
 export type { CompareOptions, CompareResult } from "./compare";
 export { createConcurrencyPool } from "./pool";
-
-// Additional types that might be useful externally
-export type { VTTStory } from "@/types";
 
 // Utilities for CLI and other packages
 export {

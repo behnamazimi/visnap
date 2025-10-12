@@ -1,3 +1,4 @@
+import type { FilterOptions } from "@vividiff/protocol";
 import { minimatch } from "minimatch";
 
 import type { UrlConfig } from "./types.js";
@@ -6,10 +7,7 @@ import type { UrlConfig } from "./types.js";
  * Creates a predicate function that filters URLs by include and exclude patterns.
  * Patterns support minimatch wildcards. Invalid patterns are ignored.
  */
-export function createUrlFilter(opts: {
-  include?: string | string[];
-  exclude?: string | string[];
-}) {
+export function createUrlFilter(opts: FilterOptions) {
   const includePatterns = Array.isArray(opts.include)
     ? opts.include
     : opts.include

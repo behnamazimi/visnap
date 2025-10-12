@@ -1,4 +1,4 @@
-import type { TestCaseDetail, RunOutcome } from "@vividiff/protocol";
+import type { TestCaseDetail, RunOutcome, ComparisonConfig, ViewportMap } from "@vividiff/protocol";
 
 export interface ReporterOptions {
   outputPath?: string;
@@ -28,14 +28,10 @@ export interface ReportData {
   timestamp: string;
   config?: {
     screenshotDir?: string;
-    comparison?: {
-      core?: string;
-      threshold?: number;
-      diffColor?: string;
-    };
+    comparison?: ComparisonConfig;
     adapters?: Record<string, unknown>;
     runtime?: Record<string, unknown>;
-    viewport?: Record<string, unknown>;
+    viewport?: ViewportMap;
   };
 }
 

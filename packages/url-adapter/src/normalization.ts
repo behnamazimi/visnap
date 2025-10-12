@@ -1,4 +1,8 @@
-import type { TestCaseInstanceMeta, ViewportMap } from "@vividiff/protocol";
+import type {
+  TestCaseInstanceMeta,
+  ViewportMap,
+  FilterOptions,
+} from "@vividiff/protocol";
 
 import type { UrlConfig } from "./types.js";
 
@@ -8,9 +12,7 @@ import type { UrlConfig } from "./types.js";
  */
 export function normalizeUrls(
   urlConfigs: UrlConfig[],
-  options: {
-    include?: string | string[];
-    exclude?: string | string[];
+  options: FilterOptions & {
     viewportKeys: string[];
     globalViewport?: ViewportMap;
   }

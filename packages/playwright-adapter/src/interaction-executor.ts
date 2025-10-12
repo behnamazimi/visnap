@@ -1,6 +1,11 @@
 import type { InteractionAction } from "@vividiff/protocol";
 import type { Page } from "playwright-core";
 
+import {
+  INTERACTION_DEFAULT_TIMEOUT,
+  INTERACTION_SETTLE_TIME,
+} from "./constants";
+
 /**
  * Executes a single interaction action by mapping generic action to Playwright API
  */
@@ -8,7 +13,7 @@ async function executeAction(
   page: Page,
   action: InteractionAction
 ): Promise<void> {
-  const defaultTimeout = 5000;
+  const defaultTimeout = INTERACTION_DEFAULT_TIMEOUT;
 
   switch (action.type) {
     case "click":
@@ -216,5 +221,5 @@ export async function executeInteractions(
   }
 
   // Settle time after interactions
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(INTERACTION_SETTLE_TIME);
 }

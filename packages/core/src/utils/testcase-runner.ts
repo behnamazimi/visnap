@@ -54,7 +54,7 @@ export async function discoverTestCases(
     try {
       await browserAdapter.dispose();
     } catch (error) {
-      log.dim(`Error disposing browser adapter: ${error}`);
+      log.warn(`Error disposing browser adapter: ${error}`);
     }
 
     // Stop all test case adapters
@@ -62,7 +62,7 @@ export async function discoverTestCases(
       try {
         await adapter.stop?.();
       } catch (error) {
-        log.dim(`Error stopping test case adapter ${adapter.name}: ${error}`);
+        log.warn(`Error stopping test case adapter ${adapter.name}: ${error}`);
       }
     }
   }
@@ -198,6 +198,7 @@ export async function runTestCasesOnBrowser(
         const result = await Promise.race([capturePromise, timeoutPromise]);
 
         // Write screenshot immediately to disk instead of keeping in memory
+        // This prevents memory accumulation during concurrent captures
         const finalPath = await writeScreenshotToFile(
           result.buffer,
           outDir,
@@ -214,10 +215,10 @@ export async function runTestCasesOnBrowser(
 
         return {
           id,
-          result: { ...result, buffer: new Uint8Array(0) },
+          result: { ...result, buffer: new Uint8Array(0) }, // Empty buffer - memory optimization
           captureDurationMs,
           captureFilename,
-        }; // Empty buffer
+        };
       } catch (e) {
         const message = (e as Error)?.message ?? String(e);
         log.error(`Capture failed for ${id}: ${message}`);
@@ -256,13 +257,13 @@ export async function runTestCasesOnBrowser(
           try {
             await adapter.stop?.();
           } catch (error) {
-            log.dim(
+            log.warn(
               `Error stopping test case adapter ${adapter.name}: ${error}`
             );
           }
         }
       } catch (error) {
-        log.dim(`Error during adapter cleanup: ${error}`);
+        log.warn(`Error during adapter cleanup: ${error}`);
       }
     }
   }
