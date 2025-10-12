@@ -27,3 +27,5 @@ dist-ssr
 storybook-static
 vividiff/current
 vividiff/diff
+vividiff/**/*.html
+vividiff/**/*.json

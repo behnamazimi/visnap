@@ -65,6 +65,16 @@ describe("test API", () => {
       expect(result.exitCode).toBe(0);
       expect(result.failures).toEqual([]);
       expect(result.captureFailures).toEqual([]);
+      expect(result.config).toEqual({
+        screenshotDir: "test-dir",
+        adapters: {
+          browser: { name: "playwright" },
+          testCase: [{ name: "storybook" }],
+        },
+        comparison: undefined,
+        runtime: undefined,
+        viewport: undefined,
+      });
 
       expect(mockResolveEffectiveConfig).toHaveBeenCalledWith({}, undefined);
       expect(mockRunTestCasesOnBrowser).toHaveBeenCalledWith(
@@ -116,6 +126,16 @@ describe("test API", () => {
       expect(result.exitCode).toBe(1);
       expect(result.failures).toEqual(mockFailures);
       expect(result.captureFailures).toEqual(mockCaptureFailures);
+      expect(result.config).toEqual({
+        screenshotDir: "test-dir",
+        adapters: {
+          browser: { name: "playwright" },
+          testCase: [{ name: "storybook" }],
+        },
+        comparison: undefined,
+        runtime: undefined,
+        viewport: undefined,
+      });
     });
 
     it("should throw error when no outcome is returned", async () => {
@@ -219,6 +239,99 @@ describe("test API", () => {
       await runVisualTestsCli({}, cliOptions);
 
       expect(mockResolveEffectiveConfig).toHaveBeenCalledWith({}, cliOptions);
+    });
+
+    it("should include test case details and durations in outcome", async () => {
+      const mockConfig = {
+        screenshotDir: "test-dir",
+        threshold: 0.1,
+        adapters: {
+          browser: { name: "playwright" },
+          testCase: [{ name: "storybook" }],
+        },
+      };
+
+      const mockTestCases = [
+        {
+          id: "button-default",
+          captureFilename: "button-default.png",
+          captureDurationMs: 1250.5,
+          comparisonDurationMs: 45.2,
+          totalDurationMs: 1295.7,
+          status: "passed" as const,
+          reason: undefined,
+          diffPercentage: undefined,
+          title: "Default",
+          kind: "Components/Button",
+          browser: "chromium",
+          viewport: "1280x720",
+        },
+        {
+          id: "button-hover",
+          captureFilename: "button-hover.png",
+          captureDurationMs: 1180.3,
+          comparisonDurationMs: 42.1,
+          totalDurationMs: 1222.4,
+          status: "failed" as const,
+          reason: "pixel-diff",
+          diffPercentage: 2.5,
+          title: "Hover",
+          kind: "Components/Button",
+          browser: "chromium",
+          viewport: "1280x720",
+        },
+      ];
+
+      const mockDurations = {
+        totalCaptureDurationMs: 2430.8,
+        totalComparisonDurationMs: 87.3,
+        totalDurationMs: 2518.1,
+      };
+
+      const mockOutcome = {
+        passed: 1,
+        total: 2,
+        captureFailures: 0,
+        failedDiffs: 1,
+        failedMissingCurrent: 0,
+        failedMissingBase: 0,
+        failedErrors: 0,
+        testCases: mockTestCases,
+        durations: mockDurations,
+      };
+
+      mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
+      mockRunTestCasesOnBrowser.mockResolvedValue({
+        outcome: mockOutcome,
+        failures: [
+          { id: "button-hover", reason: "pixel-diff", diffPercentage: 2.5 },
+        ],
+        captureFailures: [],
+      });
+
+      const result = await runVisualTests();
+
+      expect(result.success).toBe(false);
+      expect(result.outcome).toEqual(mockOutcome);
+      expect(result.outcome.testCases).toEqual(mockTestCases);
+      expect(result.outcome.durations).toEqual(mockDurations);
+      expect(result.outcome.testCases?.[0].captureDurationMs).toBe(1250.5);
+      expect(result.outcome.testCases?.[0].comparisonDurationMs).toBe(45.2);
+      expect(result.outcome.testCases?.[0].totalDurationMs).toBe(1295.7);
+      expect(result.outcome.testCases?.[0].captureFilename).toBe(
+        "button-default.png"
+      );
+      expect(result.outcome.testCases?.[0].status).toBe("passed");
+      expect(result.config).toEqual({
+        screenshotDir: "test-dir",
+        adapters: {
+          browser: { name: "playwright" },
+          testCase: [{ name: "storybook" }],
+        },
+        comparison: undefined,
+        runtime: undefined,
+        viewport: undefined,
+      });
     });
   });
 });

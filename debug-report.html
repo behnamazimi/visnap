@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Report</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/[email protected]/dist/cdn.min.js"></script>
+</head>
+<body>
+  <div x-data="debugApp()" x-init="init()">
+    <h1>Debug Report</h1>
+    <div>
+      <h2>Data:</h2>
+      <pre x-text="JSON.stringify(data, null, 2)"></pre>
+    </div>
+    <div>
+      <h2>Test Cases Count:</h2>
+      <span x-text="data.outcome?.testCases?.length || 'No test cases'"></span>
+    </div>
+    <div>
+      <h2>Alpine.js Working:</h2>
+      <span x-text="'Yes, Alpine.js is working!'"></span>
+    </div>
+  </div>
+
+  <script>
+    window.__VIVIDIFF_DATA__ = {"success":true,"outcome":{"total":17,"passed":17,"failedDiffs":0,"failedMissingCurrent":0,"failedMissingBase":0,"failedErrors":0,"captureFailures":0,"testCases":[{"id":"storybook-example-button--clicked-state-desktop-chromium","captureFilename":"storybook-example-button--clicked-state-desktop-chromium.png","captureDurationMs":930.52,"totalDurationMs":930.52,"status":"failed","reason":"missing-comparison-result","title":"Example/Button","kind":"story","browser":"chromium","viewport":"1920x1080","baseImage":"./base/storybook-example-button--clicked-state-desktop-chromium.png","currentImage":"./current/storybook-example-button--clicked-state-desktop-chromium.png","diffImage":"./diff/storybook-example-button--clicked-state-desktop-chromium.png"}]}};
+  </script>
+
+  <script>
+    function debugApp() {
+      return {
+        data: window.__VIVIDIFF_DATA__,
+        
+        init() {
+          console.log('Debug app initialized');
+          console.log('Data:', this.data);
+        }
+      };
+    }
+  </script>
+</body>
+</html>
