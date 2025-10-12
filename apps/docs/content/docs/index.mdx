@@ -1,0 +1,115 @@
+---
+title: Introduction
+description: Visual regression testing tool that captures and compares screenshots of your components
+---
+
+## What is ViviDiff?
+
+ViviDiff helps you catch visual changes in your UI components by automatically taking screenshots and comparing them with previous versions. When something changes visually, you'll know immediately.
+
+## Key Features
+
+- **CLI Interface** - Simple commands for init, test, and update operations
+- **Storybook Integration** - Test individual stories with precision
+- **URL Testing** - Test any web page or application without Storybook
+- **Multi-Browser Support** - Test across Chromium, Firefox, and WebKit
+- **Multiple Viewports** - Test across desktop, tablet, and mobile screen sizes
+- **Interactive Testing** - Execute 20+ user interactions before capturing screenshots
+- **Docker Support** - Run tests in isolated containers for consistent results
+- **CSS Injection** - Disable animations and hide elements for stable screenshots
+- **Dual Comparison Engines** - Choose between `odiff` and `pixelmatch` for image comparison
+- **Flexible Filtering** - Run specific stories or exclude unwanted ones with minimatch patterns
+- **Concurrent Processing** - Parallel test execution with configurable concurrency
+- **TypeScript Support** - Full type safety with shared protocol types
+- **Configuration Management** - TypeScript/JavaScript config files with validation
+- **Comprehensive Reporting** - Generate both JSON and interactive HTML reports
+
+## Installation
+
+Install ViviDiff globally:
+
+```bash
+npm install -g vividiff
+```
+
+Or use with npx (no installation needed):
+
+```bash
+npx vividiff init
+npx vividiff update
+npx vividiff test
+```
+
+## Quick Start
+
+1. **Initialize** in your Storybook project:
+   ```bash
+   npx vividiff init
+   ```
+
+2. **Create baseline** screenshots:
+   ```bash
+   npx vividiff update
+   ```
+
+3. **Run tests** on changes:
+   ```bash
+   npx vividiff test
+   ```
+
+Screenshots are saved to the `vividiff/` directory.
+
+## Basic Configuration
+
+ViviDiff uses a `vividiff.config.ts` file for configuration:
+
+```typescript
+// vividiff.config.ts
+import { type VisualTestingToolConfig } from '@vividiff/protocol';
+
+const config: VisualTestingToolConfig = {
+  adapters: {
+    browser: {
+      name: "@vividiff/playwright-adapter",
+      options: { 
+        browser: 'chromium',
+        launch: { headless: true },
+        injectCSS: `
+          * { animation: none !important; transition: none !important; }
+        `
+      }
+    },
+    testCase: [{
+      name: "@vividiff/storybook-adapter",
+      options: {
+        source: "./storybook-static",
+        port: 6006,
+        include: "*",
+        exclude: "*-to-skip*"
+      }
+    }]
+  },
+  threshold: 0.1,
+  screenshotDir: "vividiff",
+  runtime: { maxConcurrency: 4 },
+  viewport: {
+    desktop: { width: 1920, height: 1080 },
+    mobile: { width: 375, height: 667 }
+  },
+  report: {
+    html: true,
+    json: true
+  }
+};
+
+export default config;
+```
+
+## Next Steps
+
+<Cards>
+  <Card title="Configuration" href="/docs/configuration" description="Learn about all configuration options" />
+  <Card title="Storybook Adapter" href="/docs/adapters/storybook" description="Test your Storybook stories" />
+  <Card title="CLI Commands" href="/docs/cli" description="All available commands and options" />
+  <Card title="Interactive Testing" href="/docs/guides/interactive-testing" description="Execute interactions before screenshots" />
+</Cards>

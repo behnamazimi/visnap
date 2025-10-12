@@ -1,0 +1,270 @@
+---
+title: Playwright Adapter
+description: Browser automation for ViviDiff using Playwright
+---
+
+The Playwright adapter handles browser automation for ViviDiff. It supports Chromium, Firefox, and WebKit browsers with advanced features like CSS injection and user interactions.
+
+## Installation
+
+Install the adapter and Playwright:
+
+```bash
+npm install @vividiff/playwright-adapter playwright
+```
+
+## Basic Configuration
+
+```typescript
+adapters: {
+  browser: {
+    name: "@vividiff/playwright-adapter",
+    options: {
+      browser: 'chromium',
+      launch: { headless: true },
+      context: {
+        colorScheme: 'light',
+        reducedMotion: 'reduce'
+      }
+    }
+  }
+}
+```
+
+## Browser Options
+
+### Single Browser
+
+Test with one browser:
+
+```typescript
+options: {
+  browser: 'chromium' // or 'firefox', 'webkit'
+}
+```
+
+### Multiple Browsers
+
+Test across all browsers:
+
+```typescript
+options: {
+  browser: ['chromium', 'firefox', 'webkit']
+}
+```
+
+### Browser-Specific Settings
+
+Configure each browser differently:
+
+```typescript
+options: {
+  browser: [
+    { name: 'chromium', options: { headless: false } },
+    { name: 'firefox', options: { headless: true } },
+    { name: 'webkit', options: { headless: true } }
+  ]
+}
+```
+
+## Launch Configuration
+
+Control how browsers start:
+
+```typescript
+launch: {
+  headless: true,        // run in background
+  channel: 'chrome',     // use Chrome instead of Chromium
+  args: ['--no-sandbox'] // additional browser arguments
+}
+```
+
+## Context Configuration
+
+Set browser context options:
+
+```typescript
+context: {
+  colorScheme: 'light',      // or 'dark'
+  reducedMotion: 'reduce',   // or 'no-preference'
+  storageStatePath: './auth.json', // saved login state
+  locale: 'en-US',          // browser locale
+  timezoneId: 'America/New_York'
+}
+```
+
+## Navigation Settings
+
+Control page loading behavior:
+
+```typescript
+navigation: {
+  baseUrl: 'http://localhost:3000', // base URL for relative paths
+  waitUntil: 'load',                // when to consider page loaded
+  timeoutMs: 30000                  // navigation timeout
+}
+```
+
+## CSS Injection
+
+Disable animations and hide elements for stable screenshots:
+
+```typescript
+injectCSS: `
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .loader { display: none !important; }
+  .cookie-banner { display: none !important; }
+`
+```
+
+## User Interactions
+
+Execute interactions before taking screenshots:
+
+```typescript
+// In your story parameters
+visualTesting: {
+  interactions: [
+    { type: 'click', selector: 'button.primary' },
+    { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+    { type: 'hover', selector: '.tooltip-trigger' },
+    { type: 'waitForTimeout', duration: 500 },
+    { type: 'waitForSelector', selector: '.loaded' }
+  ]
+}
+```
+
+## Available Interactions
+
+### Click Actions
+
+```typescript
+{ type: 'click', selector: 'button' }
+{ type: 'click', selector: 'button', button: 'right' } // right-click
+{ type: 'doubleClick', selector: 'button' }
+```
+
+### Input Actions
+
+```typescript
+{ type: 'fill', selector: 'input', text: 'Hello World' }
+{ type: 'type', selector: 'input', text: 'Hello World' } // slower typing
+{ type: 'clear', selector: 'input' }
+```
+
+### Mouse Actions
+
+```typescript
+{ type: 'hover', selector: '.button' }
+{ type: 'drag', selector: '.draggable', target: '.drop-zone' }
+```
+
+### Keyboard Actions
+
+```typescript
+{ type: 'keyPress', key: 'Enter' }
+{ type: 'keyPress', key: 'Tab' }
+{ type: 'keyPress', key: 'Escape' }
+```
+
+### Wait Actions
+
+```typescript
+{ type: 'waitForTimeout', duration: 1000 }
+{ type: 'waitForSelector', selector: '.loaded' }
+{ type: 'waitForText', text: 'Success' }
+```
+
+### Scroll Actions
+
+```typescript
+{ type: 'scroll', selector: '.scrollable', x: 0, y: 100 }
+{ type: 'scrollToBottom', selector: '.scrollable' }
+{ type: 'scrollToTop', selector: '.scrollable' }
+```
+
+## Multi-Browser Testing
+
+Test across different browsers to catch browser-specific issues:
+
+```typescript
+options: {
+  browser: ['chromium', 'firefox', 'webkit']
+}
+```
+
+Each browser will run the same tests, and you'll get separate screenshots for comparison.
+
+## Performance Tips
+
+### Headless Mode
+
+Always use headless mode for faster execution:
+
+```typescript
+launch: { headless: true }
+```
+
+### Concurrency
+
+Control parallel test execution:
+
+```typescript
+runtime: {
+  maxConcurrency: 4 // adjust based on your system
+}
+```
+
+### CSS Injection
+
+Use CSS injection to disable animations and improve consistency:
+
+```typescript
+injectCSS: `
+  * { 
+    animation: none !important; 
+    transition: none !important; 
+  }
+`
+```
+
+## Troubleshooting
+
+### Browser Not Found
+
+Install Playwright browsers:
+
+```bash
+npx playwright install
+```
+
+### Timeout Issues
+
+Increase navigation timeout:
+
+```typescript
+navigation: {
+  timeoutMs: 60000 // 60 seconds
+}
+```
+
+### Screenshot Issues
+
+Check your screenshot target selector:
+
+```typescript
+screenshotTarget: '#storybook-root' // make sure this element exists
+```
+
+### Memory Issues
+
+Reduce concurrency for large test suites:
+
+```typescript
+runtime: {
+  maxConcurrency: 2
+}
+```

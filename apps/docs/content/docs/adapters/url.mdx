@@ -1,0 +1,279 @@
+---
+title: URL Adapter
+description: Test any URL with ViviDiff without requiring Storybook
+---
+
+The URL adapter lets you test any web page or application without needing Storybook. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
+
+## Setup
+
+Add the URL adapter to your configuration:
+
+```typescript
+testCase: [{
+  name: "@vividiff/url-adapter",
+  options: {
+    urls: [
+      { id: "homepage", url: "http://localhost:3000/" },
+      { id: "about", url: "http://localhost:3000/about" },
+      { id: "pricing", url: "http://localhost:3000/pricing" }
+    ]
+  }
+}]
+```
+
+## Basic URL Configuration
+
+Each URL needs an `id` and `url`:
+
+```typescript
+urls: [
+  { id: "homepage", url: "http://localhost:3000/" },
+  { id: "about-page", url: "http://localhost:3000/about" },
+  { id: "contact", url: "http://localhost:3000/contact" }
+]
+```
+
+## Advanced URL Options
+
+Configure each URL with custom settings:
+
+```typescript
+urls: [
+  {
+    id: "homepage",
+    url: "http://localhost:3000/",
+    title: "Homepage", // display name
+    viewport: { width: 1200, height: 800 },
+    threshold: 0.05,
+    screenshotTarget: "body",
+    interactions: [
+      { type: "click", selector: "button.cta" },
+      { type: "waitForTimeout", duration: 500 }
+    ]
+  }
+]
+```
+
+## URL-Specific Settings
+
+### `title`
+
+Display name for the URL in reports:
+
+```typescript
+{ id: "homepage", url: "http://localhost:3000/", title: "Homepage" }
+```
+
+### `viewport`
+
+Custom viewport for this URL:
+
+```typescript
+{ 
+  id: "mobile-homepage", 
+  url: "http://localhost:3000/", 
+  viewport: { width: 375, height: 667 } 
+}
+```
+
+### `threshold`
+
+Custom threshold for this URL:
+
+```typescript
+{ 
+  id: "precise-page", 
+  url: "http://localhost:3000/precise", 
+  threshold: 0.01 // 1% threshold
+}
+```
+
+### `screenshotTarget`
+
+Specify which element to screenshot:
+
+```typescript
+{ 
+  id: "hero-section", 
+  url: "http://localhost:3000/", 
+  screenshotTarget: ".hero" 
+}
+```
+
+### `interactions`
+
+Execute interactions before taking the screenshot:
+
+```typescript
+{
+  id: "interactive-form",
+  url: "http://localhost:3000/form",
+  interactions: [
+    { type: "fill", selector: "input[name='email']", text: "test@example.com" },
+    { type: "click", selector: "button[type='submit']" },
+    { type: "waitForTimeout", duration: 1000 }
+  ]
+}
+```
+
+## Pattern Filtering
+
+Filter URLs using minimatch patterns:
+
+```typescript
+options: {
+  urls: [
+    { id: "homepage", url: "http://localhost:3000/" },
+    { id: "about-page", url: "http://localhost:3000/about" },
+    { id: "pricing-page", url: "http://localhost:3000/pricing" },
+    { id: "admin-dashboard", url: "http://localhost:3000/admin" }
+  ],
+  include: ["*page*"], // Only test pages with "page" in the ID
+  exclude: ["*admin*"] // Exclude admin pages
+}
+```
+
+## Common Use Cases
+
+### Marketing Website
+
+Test your marketing site across different pages:
+
+```typescript
+urls: [
+  { id: "homepage", url: "https://mycompany.com/" },
+  { id: "features", url: "https://mycompany.com/features" },
+  { id: "pricing", url: "https://mycompany.com/pricing" },
+  { id: "contact", url: "https://mycompany.com/contact" }
+]
+```
+
+### Application Testing
+
+Test different parts of your application:
+
+```typescript
+urls: [
+  { id: "login", url: "http://localhost:3000/login" },
+  { id: "dashboard", url: "http://localhost:3000/dashboard" },
+  { id: "settings", url: "http://localhost:3000/settings" }
+]
+```
+
+### Mobile-First Testing
+
+Test mobile-specific views:
+
+```typescript
+urls: [
+  { 
+    id: "mobile-homepage", 
+    url: "http://localhost:3000/", 
+    viewport: { width: 375, height: 667 },
+    title: "Homepage (Mobile)"
+  },
+  { 
+    id: "mobile-menu", 
+    url: "http://localhost:3000/", 
+    viewport: { width: 375, height: 667 },
+    interactions: [
+      { type: "click", selector: ".menu-toggle" }
+    ]
+  }
+]
+```
+
+### Interactive Pages
+
+Test pages with user interactions:
+
+```typescript
+urls: [
+  {
+    id: "search-results",
+    url: "http://localhost:3000/search",
+    interactions: [
+      { type: "fill", selector: "input[type='search']", text: "test query" },
+      { type: "click", selector: "button[type='submit']" },
+      { type: "waitForSelector", selector: ".search-results" }
+    ]
+  }
+]
+```
+
+## Mixed Testing
+
+Combine URL testing with Storybook testing:
+
+```typescript
+testCase: [
+  {
+    name: "@vividiff/storybook-adapter",
+    options: {
+      source: "./storybook-static",
+      include: "*"
+    }
+  },
+  {
+    name: "@vividiff/url-adapter",
+    options: {
+      urls: [
+        { id: "homepage", url: "http://localhost:3000/" },
+        { id: "about", url: "http://localhost:3000/about" }
+      ]
+    }
+  }
+]
+```
+
+## When to Use URL Adapter
+
+Use the URL adapter when you need to test:
+
+- **Marketing websites** - Landing pages, product pages
+- **Applications without Storybook** - Legacy apps, non-React apps
+- **External websites** - Third-party integrations
+- **Full page flows** - Multi-step processes
+- **Server-rendered pages** - SSR applications
+
+For component testing, use the [Storybook Adapter](/docs/adapters/storybook) instead.
+
+## Troubleshooting
+
+### URL Not Loading
+
+Check that the URL is accessible:
+
+```bash
+curl http://localhost:3000/
+```
+
+### Timeout Issues
+
+Increase navigation timeout in your browser adapter:
+
+```typescript
+navigation: {
+  timeoutMs: 60000 // 60 seconds
+}
+```
+
+### Screenshot Issues
+
+Verify your screenshot target exists on the page:
+
+```typescript
+screenshotTarget: "body" // make sure this element exists
+```
+
+### Authentication
+
+For pages requiring login, use browser context with saved state:
+
+```typescript
+// In your browser adapter config
+context: {
+  storageStatePath: './auth.json' // saved login state
+}
+```

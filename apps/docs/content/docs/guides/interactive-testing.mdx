@@ -1,0 +1,327 @@
+---
+title: Interactive Testing
+description: Execute user interactions before capturing screenshots
+---
+
+Interactive testing lets you execute user actions before taking screenshots. This is essential for testing components that change state based on user interaction.
+
+## How It Works
+
+1. Load the page/story
+2. Execute defined interactions
+3. Wait for any animations to complete
+4. Take the screenshot
+
+## Basic Usage
+
+Define interactions in your story parameters:
+
+```typescript
+export const FilledForm: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+        { type: 'click', selector: 'button[type="submit"]' }
+      ]
+    }
+  }
+};
+```
+
+## Available Interactions
+
+### Click Actions
+
+**Basic click:**
+```typescript
+{ type: 'click', selector: 'button.primary' }
+```
+
+**Right-click:**
+```typescript
+{ type: 'click', selector: 'button', button: 'right' }
+```
+
+**Double-click:**
+```typescript
+{ type: 'doubleClick', selector: 'button' }
+```
+
+### Input Actions
+
+**Fill input field:**
+```typescript
+{ type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' }
+```
+
+**Type slowly (simulates real typing):**
+```typescript
+{ type: 'type', selector: 'input[name="search"]', text: 'search query' }
+```
+
+**Clear input field:**
+```typescript
+{ type: 'clear', selector: 'input[name="email"]' }
+```
+
+### Mouse Actions
+
+**Hover over element:**
+```typescript
+{ type: 'hover', selector: '.tooltip-trigger' }
+```
+
+**Drag and drop:**
+```typescript
+{ type: 'drag', selector: '.draggable', target: '.drop-zone' }
+```
+
+### Keyboard Actions
+
+**Press Enter:**
+```typescript
+{ type: 'keyPress', key: 'Enter' }
+```
+
+**Press Tab:**
+```typescript
+{ type: 'keyPress', key: 'Tab' }
+```
+
+**Press Escape:**
+```typescript
+{ type: 'keyPress', key: 'Escape' }
+```
+
+### Wait Actions
+
+**Wait for specific duration:**
+```typescript
+{ type: 'waitForTimeout', duration: 1000 } // 1 second
+```
+
+**Wait for element to appear:**
+```typescript
+{ type: 'waitForSelector', selector: '.loaded' }
+```
+
+**Wait for text to appear:**
+```typescript
+{ type: 'waitForText', text: 'Success!' }
+```
+
+### Scroll Actions
+
+**Scroll to specific position:**
+```typescript
+{ type: 'scroll', selector: '.scrollable', x: 0, y: 100 }
+```
+
+**Scroll to bottom:**
+```typescript
+{ type: 'scrollToBottom', selector: '.scrollable' }
+```
+
+**Scroll to top:**
+```typescript
+{ type: 'scrollToTop', selector: '.scrollable' }
+```
+
+## Common Patterns
+
+### Form Submission
+
+Test form submission flow:
+
+```typescript
+export const FormSubmission: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'fill', selector: 'input[name="name"]', text: 'John Doe' },
+        { type: 'fill', selector: 'input[name="email"]', text: 'john@example.com' },
+        { type: 'click', selector: 'button[type="submit"]' },
+        { type: 'waitForSelector', selector: '.success-message' }
+      ]
+    }
+  }
+};
+```
+
+### Modal/Dropdown Opening
+
+Test modal or dropdown opening:
+
+```typescript
+export const ModalOpen: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'click', selector: 'button.open-modal' },
+        { type: 'waitForSelector', selector: '.modal' }
+      ]
+    }
+  }
+};
+```
+
+### Hover States
+
+Test hover effects:
+
+```typescript
+export const HoverState: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'hover', selector: '.button' }
+      ]
+    }
+  }
+};
+```
+
+### Loading States
+
+Test loading states:
+
+```typescript
+export const LoadingState: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'click', selector: 'button.load-data' },
+        { type: 'waitForSelector', selector: '.loading-spinner' },
+        { type: 'waitForTimeout', duration: 2000 }
+      ]
+    }
+  }
+};
+```
+
+### Multi-Step Flows
+
+Test complex user flows:
+
+```typescript
+export const MultiStepFlow: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        // Step 1: Open settings
+        { type: 'click', selector: 'button.settings' },
+        { type: 'waitForSelector', selector: '.settings-modal' },
+        
+        // Step 2: Change theme
+        { type: 'click', selector: 'select.theme' },
+        { type: 'click', selector: 'option[value="dark"]' },
+        
+        // Step 3: Save changes
+        { type: 'click', selector: 'button.save' },
+        { type: 'waitForSelector', selector: '.success-message' }
+      ]
+    }
+  }
+};
+```
+
+## URL Adapter Interactions
+
+You can also use interactions with the URL adapter:
+
+```typescript
+// In your vividiff.config.ts
+testCase: [{
+  name: "@vividiff/url-adapter",
+  options: {
+    urls: [{
+      id: "interactive-form",
+      url: "http://localhost:3000/form",
+      interactions: [
+        { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+        { type: 'click', selector: 'button[type="submit"]' },
+        { type: 'waitForTimeout', duration: 1000 }
+      ]
+    }]
+  }
+}]
+```
+
+## Best Practices
+
+### Wait for State Changes
+
+Always wait for the UI to update after interactions:
+
+```typescript
+// Good: Wait for the result
+{ type: 'click', selector: 'button.submit' },
+{ type: 'waitForSelector', selector: '.result' }
+
+// Bad: No wait
+{ type: 'click', selector: 'button.submit' }
+```
+
+### Use Specific Selectors
+
+Prefer specific selectors over generic ones:
+
+```typescript
+// Good: Specific selector
+{ type: 'click', selector: 'button[type="submit"]' }
+
+// Bad: Generic selector
+{ type: 'click', selector: 'button' }
+```
+
+### Add Reasonable Delays
+
+Use timeouts for animations and transitions:
+
+```typescript
+{ type: 'click', selector: 'button.animate' },
+{ type: 'waitForTimeout', duration: 500 } // Wait for animation
+```
+
+### Test Edge Cases
+
+Test different interaction scenarios:
+
+```typescript
+// Test empty form submission
+{ type: 'click', selector: 'button[type="submit"]' }
+
+// Test form with invalid data
+{ type: 'fill', selector: 'input[name="email"]', text: 'invalid-email' },
+{ type: 'click', selector: 'button[type="submit"]' }
+```
+
+## Troubleshooting
+
+### Interactions Not Working
+
+Check that selectors exist on the page:
+
+```typescript
+// Make sure the selector is correct
+{ type: 'click', selector: 'button.primary' } // not 'button.primery'
+```
+
+### Timing Issues
+
+Add appropriate waits:
+
+```typescript
+{ type: 'click', selector: 'button' },
+{ type: 'waitForTimeout', duration: 1000 } // Wait for state change
+```
+
+### Element Not Found
+
+Use more specific selectors or wait for elements to appear:
+
+```typescript
+{ type: 'waitForSelector', selector: '.dynamic-content' },
+{ type: 'click', selector: '.dynamic-content button' }
+```
