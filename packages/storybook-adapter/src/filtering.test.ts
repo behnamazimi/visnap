@@ -181,7 +181,7 @@ describe("filtering", () => {
     };
 
     const defaultOptions = {
-      baseUrl: "http://localhost:6006",
+      baseUrl: "http://localhost:4477",
       viewportKeys: ["default", "mobile"],
       globalViewport: {
         default: { width: 1024, height: 768 },
@@ -200,7 +200,7 @@ describe("filtering", () => {
       expect(buttonPrimary?.title).toBe("Primary Button");
       expect(buttonPrimary?.variantId).toBe("default");
       expect(buttonPrimary?.url).toBe(
-        "http://localhost:6006/iframe.html?id=button-primary"
+        "http://localhost:4477/iframe.html?id=button-primary"
       );
       expect(buttonPrimary?.screenshotTarget).toBe("#button");
       expect(buttonPrimary?.threshold).toBe(0.1);
@@ -281,12 +281,12 @@ describe("filtering", () => {
     it("should handle baseUrl with trailing slash", () => {
       const result = normalizeStories(mockStories, {
         ...defaultOptions,
-        baseUrl: "http://localhost:6006/",
+        baseUrl: "http://localhost:4477/",
       });
 
       const instance = result[0];
       expect(instance.url).toBe(
-        "http://localhost:6006/iframe.html?id=button-primary"
+        "http://localhost:4477/iframe.html?id=button-primary"
       );
     });
 

@@ -12,7 +12,7 @@ import { createServerManager } from "./server.js";
 /**
  * Options to create a Storybook adapter.
  * - `source`: Either a URL to a running Storybook or a path to a `storybook-static` directory.
- * - `port`: If serving from disk, which port to bind to (defaults to 6006).
+ * - `port`: If serving from disk, which port to bind to (defaults to 4477).
  * - `include`/`exclude`: Optional minimatch pattern (supports `*`) matched against story IDs.
  */
 export interface CreateStorybookAdapterOptions {
