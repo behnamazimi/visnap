@@ -19,6 +19,14 @@ A visual regression testing tool for Storybook 8+ that captures and compares scr
 - **Configuration Management** - TypeScript/JavaScript config files with validation
 - **Comprehensive Reporting** - Generate both JSON and interactive HTML reports
 
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="./html-report.png" alt="ViviDiff HTML Report Screenshot" width="600" />
+    </td>
+  </tr>
+</table>
+
 ## Quick Start
 
 Install and run:
