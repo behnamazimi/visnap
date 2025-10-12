@@ -8,7 +8,8 @@
       "@vividiff/playwright-adapter", 
       "@vividiff/storybook-adapter",
       "@vividiff/core",
-      "@vividiff/cli"
+      "@vividiff/cli",
+      "@vividiff/reporter"
     ]
   ],
   "linked": [],

@@ -92,6 +92,8 @@ export async function runTestCasesOnBrowser(
     id: string;
     result?: ScreenshotResult;
     error?: string;
+    captureDurationMs?: number;
+    captureFilename?: string;
   }[] = [];
   const tempFiles: string[] = [];
   const browserAdapterPool = new BrowserAdapterPool();
@@ -145,8 +147,11 @@ export async function runTestCasesOnBrowser(
       _index: number
     ) => {
       const id = `${variant.caseId}-${variant.variantId}`;
+      const captureFilename = `${id}.png`;
       const browserInfo = variant.browser ? ` (${variant.browser})` : "";
       log.dim(`Taking screenshot for: ${id}${browserInfo}`);
+
+      const captureStartTime = performance.now();
 
       try {
         // Get the appropriate browser adapter for this variant
@@ -204,14 +209,26 @@ export async function runTestCasesOnBrowser(
         const tempIndex = tempFiles.indexOf(finalPath);
         if (tempIndex > -1) tempFiles.splice(tempIndex, 1);
 
+        const captureDurationMs =
+          Math.round((performance.now() - captureStartTime) * 100) / 100;
+
         return {
           id,
           result: { ...result, buffer: new Uint8Array(0) },
+          captureDurationMs,
+          captureFilename,
         }; // Empty buffer
       } catch (e) {
         const message = (e as Error)?.message ?? String(e);
         log.error(`Capture failed for ${id}: ${message}`);
-        return { id, error: message };
+        const captureDurationMs =
+          Math.round((performance.now() - captureStartTime) * 100) / 100;
+        return {
+          id,
+          error: message,
+          captureDurationMs,
+          captureFilename,
+        };
       }
     };
 
@@ -260,7 +277,10 @@ export async function runTestCasesOnBrowser(
     );
     return { outcome, failures, captureFailures };
   } else {
-    const { outcome, captureFailures } = summarizeUpdateMode(captureResults);
+    const { outcome, captureFailures } = summarizeUpdateMode(
+      captureResults,
+      cases
+    );
     return { outcome, captureFailures };
   }
 }

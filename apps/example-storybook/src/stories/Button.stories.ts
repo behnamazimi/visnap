@@ -29,6 +29,7 @@ export const Primary: Story = {
   args: {
     primary: true,
     label: "Button",
+    backgroundColor: "#ff0000", // Red background to create visual difference
   },
 };
 

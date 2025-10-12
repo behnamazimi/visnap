@@ -2,6 +2,7 @@
 
 // Test API
 export { runVisualTests, runVisualTestsCli } from "./test";
+export type { TestResult } from "./test";
 
 // Update API
 export { updateBaseline, updateBaselineCli } from "./update";

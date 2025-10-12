@@ -128,6 +128,10 @@ interface VisualTestingToolConfig {
     maxConcurrency?: number;
   };
   viewport?: Record<string, { width: number; height: number }>;
+  reporter: {
+    html: true,
+    json: true
+  }
 }
 ```
 

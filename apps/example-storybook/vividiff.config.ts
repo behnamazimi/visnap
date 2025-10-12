@@ -56,6 +56,10 @@ const config: VisualTestingToolConfig = {
     maxConcurrency: 4,
     quiet: false,
   },
+  reporter: {
+    html: true,
+    json: true,
+  },
 };
 
 export default config;

@@ -36,6 +36,10 @@ export function generateConfigContent(options: InitOptions): string {
     tablet: { width: 768, height: 1024 },
     mobile: { width: 375, height: 667 },
   },
+  reporter: {
+    html: true,
+    json: true
+  }
 }`;
 
   if (configType === "ts") {

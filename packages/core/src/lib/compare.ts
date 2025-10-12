@@ -29,6 +29,7 @@ export interface CompareResult {
   match: boolean;
   reason: string;
   diffPercentage?: number;
+  comparisonDurationMs?: number;
 }
 
 interface ComparisonEngine {
@@ -300,16 +301,20 @@ export const compareBaseAndCurrentWithTestCases = async (
 
     const threshold = idToThreshold.get(file) ?? comparisonConfig.threshold;
 
+    const comparisonStartTime = performance.now();
     const diffResult = await engine.compare(currentFile, baseFile, diffFile, {
       threshold,
       diffColor: comparisonConfig.diffColor,
     });
+    const comparisonDurationMs =
+      Math.round((performance.now() - comparisonStartTime) * 100) / 100;
 
     results.push({
       id: file,
       match: diffResult.match,
       reason: diffResult.reason,
       diffPercentage: diffResult.diffPercentage,
+      comparisonDurationMs,
     });
   }
 

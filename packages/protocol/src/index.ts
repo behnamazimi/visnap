@@ -198,6 +198,27 @@ export type CompareReason =
   | "missing-base"
   | "error";
 
+export interface TestCaseDetail {
+  id: string;
+  captureFilename: string;
+  captureDurationMs: number;
+  comparisonDurationMs?: number;
+  totalDurationMs: number;
+  status: "passed" | "failed" | "capture-failed";
+  reason?: string;
+  diffPercentage?: number;
+  title?: string;
+  kind?: string;
+  browser?: string;
+  viewport?: string;
+}
+
+export interface TestDurations {
+  totalCaptureDurationMs: number;
+  totalComparisonDurationMs: number;
+  totalDurationMs: number;
+}
+
 // Aggregate outcome for a run to aid CI reporting
 export interface RunOutcome {
   total: number;
@@ -207,6 +228,8 @@ export interface RunOutcome {
   failedMissingBase: number;
   failedErrors: number; // non-standard errors
   captureFailures: number; // number of captures that failed prior to compare
+  testCases?: TestCaseDetail[];
+  durations?: TestDurations;
 }
 
 export interface TestCaseVisualConfig {
@@ -321,6 +344,11 @@ export interface VisualTestingToolConfig {
   };
   /** Global viewport configuration that applies to all test cases unless overridden */
   viewport?: ViewportMap;
+  /** Reporter configuration for HTML and JSON reports */
+  reporter?: {
+    html?: boolean | string; // true/false or custom path
+    json?: boolean | string; // true/false or custom path
+  };
 }
 
 export type PageWithEvaluate = {

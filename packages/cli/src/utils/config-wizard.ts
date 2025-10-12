@@ -338,6 +338,10 @@ export function generateConfigFromSelection(
     maxConcurrency: 4,
     quiet: false,
   },
+  reporter: {
+    html: true,
+    json: true,
+  },
 }`;
 
   if (configType === "ts") {

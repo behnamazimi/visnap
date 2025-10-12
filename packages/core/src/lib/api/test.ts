@@ -16,6 +16,30 @@ export interface TestResult {
     id: string;
     error: string;
   }>;
+  config?: {
+    screenshotDir?: string;
+    adapters?: {
+      browser?: { name: string; options?: Record<string, unknown> };
+      testCase?: Array<{ name: string; options?: Record<string, unknown> }>;
+    };
+    comparison?: {
+      core?: string;
+      threshold?: number;
+      diffColor?: string;
+    };
+    runtime?: {
+      maxConcurrency?: number;
+      quiet?: boolean;
+    };
+    viewport?: Record<
+      string,
+      { width: number; height: number; deviceScaleFactor?: number }
+    >;
+    reporter?: {
+      html?: boolean | string;
+      json?: boolean | string;
+    };
+  };
 }
 
 // Internal function that handles the core logic
@@ -35,7 +59,25 @@ async function runVisualTestsInternal(
   const success =
     outcome.passed === outcome.total && outcome.captureFailures === 0;
   const exitCode = success ? 0 : 1;
-  return { success, outcome, exitCode, failures, captureFailures };
+
+  // Include configuration metadata in the result
+  const config = {
+    screenshotDir: effectiveConfig.screenshotDir,
+    adapters: effectiveConfig.adapters,
+    comparison: effectiveConfig.comparison,
+    runtime: effectiveConfig.runtime,
+    viewport: effectiveConfig.viewport,
+    reporter: effectiveConfig.reporter,
+  };
+
+  return {
+    success,
+    outcome,
+    exitCode,
+    failures,
+    captureFailures,
+    config,
+  };
 }
 
 // New function after tool agnostic design

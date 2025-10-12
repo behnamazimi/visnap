@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>{{STYLES}}</style>
+</head>
+<body x-data="vividiffReport()" x-init="init()">
+  <!-- Dashboard -->
+  <header class="dashboard">
+    <h1>{{TITLE}}</h1>
+    <div class="stats-grid">
+      <div class="stat-card" :class="{ 'success': data.outcome.total === data.outcome.passed }">
+        <span class="stat-value" x-text="data.outcome.total"></span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-card success">
+        <span class="stat-value" x-text="data.outcome.passed"></span>
+        <span class="stat-label">Passed</span>
+      </div>
+      <div class="stat-card" :class="{ 'error': failedCount > 0 }">
+        <span class="stat-value" x-text="failedCount"></span>
+        <span class="stat-label">Failed</span>
+      </div>
+      <div class="stat-card" :class="{ 'warning': data.outcome.captureFailures > 0 }">
+        <span class="stat-value" x-text="data.outcome.captureFailures"></span>
+        <span class="stat-label">Capture Failures</span>
+      </div>
+    </div>
+    <div class="meta-info">
+      <span x-text="formattedTimestamp"></span>
+      <span x-show="duration" x-text="`Duration: ${duration}ms`"></span>
+    </div>
+  </header>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <input 
+      type="text" 
+      placeholder="Search tests..." 
+      x-model="filters.search"
+      @input.debounce.300ms="applyFilters()"
+      class="search-input"
+    >
+    
+    <div class="filter-group">
+      <button 
+        @click="setStatusFilter('all')"
+        :class="{ 'active': filters.status === 'all' }"
+        class="filter-btn"
+      >All</button>
+      <button 
+        @click="setStatusFilter('failed')"
+        :class="{ 'active': filters.status === 'failed' }"
+        class="filter-btn"
+      >Failed</button>
+      <button 
+        @click="setStatusFilter('passed')"
+        :class="{ 'active': filters.status === 'passed' }"
+        class="filter-btn"
+      >Passed</button>
+    </div>
+
+    <select x-model="filters.browser" @change="applyFilters()" class="filter-select">
+      <option value="">All Browsers</option>
+      <template x-for="browser in browsers" :key="browser">
+        <option :value="browser" x-text="browser"></option>
+      </template>
+    </select>
+
+    <button @click="clearFilters()" class="clear-btn">Clear Filters</button>
+  </div>
+
+  <!-- Test List -->
+  <main class="test-list">
+    <template x-for="testCase in filteredTests" :key="testCase.id">
+      <div class="test-card" :class="testCase.status">
+        <div class="test-header" @click="toggleTest(testCase.id)">
+          <div class="test-info">
+            <span class="status-icon" :data-status="testCase.status">●</span>
+            <div class="test-content">
+              <div class="test-id">
+                <span class="test-id-prefix" x-text="testCase.id.split('--')[0] + '--'"></span>
+                <span class="test-id-suffix" x-text="testCase.id.split('--').slice(1).join('--')"></span>
+              </div>
+              <div class="test-meta">
+                <div class="test-meta-item">
+                  <span class="test-title" x-text="testCase.title"></span>
+                </div>
+                <div class="test-meta-item">
+                  <span class="browser-tag" x-text="testCase.browser"></span>
+                </div>
+                <div class="test-meta-item" x-show="testCase.viewport">
+                  <span class="viewport-tag" x-text="testCase.viewport"></span>
+                </div>
+                <div class="test-meta-item" x-show="testCase.diffPercentage">
+                  <span class="diff-badge" x-text="`${testCase.diffPercentage?.toFixed(2)}% diff`"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="expand-btn" :class="{ 'expanded': expandedTests.includes(testCase.id) }">▼</button>
+        </div>
+
+        <div x-show="expandedTests.includes(testCase.id)" class="test-details">
+          <!-- Image Comparison Controls -->
+          <div class="comparison-controls" x-show="testCase.status === 'failed'">
+            <div class="view-mode-switcher">
+              <button 
+                @click="setTestViewMode(testCase.id, 'side-by-side')" 
+                :class="{ 'active': getTestViewMode(testCase.id) === 'side-by-side' }"
+                class="mode-btn"
+              >Side by Side</button>
+              <button 
+                @click="setTestViewMode(testCase.id, 'slider')" 
+                :class="{ 'active': getTestViewMode(testCase.id) === 'slider' }"
+                class="mode-btn"
+              >Slider</button>
+              <button 
+                @click="setTestViewMode(testCase.id, 'overlay')" 
+                :class="{ 'active': getTestViewMode(testCase.id) === 'overlay' }"
+                class="mode-btn"
+              >Overlay</button>
+            </div>
+          </div>
+
+          <!-- Image Comparison Views -->
+          <div class="image-comparison" :data-mode="getTestViewMode(testCase.id)">
+            <template x-if="testCase.status === 'passed'">
+              <div class="image-viewer single">
+                <div class="image-panel">
+                  <h4>Base</h4>
+                  <template x-if="testCase.reason === 'missing-base'">
+                    <div class="missing-image-placeholder">
+                      <div class="placeholder-icon">📷</div>
+                      <div class="placeholder-text">Missing Base</div>
+                    </div>
+                  </template>
+                  <template x-if="testCase.reason !== 'missing-base'">
+                    <img 
+                      :src="testCase.baseImage" 
+                      alt="Base screenshot"
+                      loading="lazy"
+                    >
+                  </template>
+                </div>
+              </div>
+            </template>
+            
+            <template x-if="testCase.status === 'failed'">
+              <div class="image-viewer">
+                <!-- Side by Side View -->
+                <template x-if="getTestViewMode(testCase.id) === 'side-by-side'">
+                  <div class="side-by-side">
+                    <div class="image-panel">
+                      <h4>Base</h4>
+                      <template x-if="testCase.reason === 'missing-base'">
+                        <div class="missing-image-placeholder">
+                          <div class="placeholder-icon">📷</div>
+                          <div class="placeholder-text">Missing Base</div>
+                        </div>
+                      </template>
+                      <template x-if="testCase.reason !== 'missing-base'">
+                        <img 
+                          :src="testCase.baseImage" 
+                          alt="Base screenshot"
+                          loading="lazy"
+                        >
+                      </template>
+                    </div>
+                    <div class="image-panel">
+                      <h4>Current</h4>
+                      <img 
+                        :src="testCase.currentImage" 
+                        alt="Current screenshot"
+                        loading="lazy"
+                      >
+                    </div>
+                    <template x-if="testCase.diffImage">
+                      <div class="image-panel">
+                        <h4>Diff</h4>
+                        <template x-if="testCase.reason === 'missing-diff' || testCase.reason === 'missing-base'">
+                          <div class="missing-image-placeholder">
+                            <div class="placeholder-icon">📷</div>
+                            <div class="placeholder-text">Missing Diff</div>
+                          </div>
+                        </template>
+                        <template x-if="testCase.reason !== 'missing-diff' && testCase.reason !== 'missing-base'">
+                          <img 
+                            :src="testCase.diffImage" 
+                            alt="Diff screenshot"
+                            loading="lazy"
+                          >
+                        </template>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+
+                <!-- Slider View -->
+                <template x-if="getTestViewMode(testCase.id) === 'slider'">
+                  <div class="slider-view" x-init="initTestSlider(testCase.id)">
+                    <template x-if="testCase.reason === 'missing-base'">
+                      <div class="missing-image-placeholder slider-placeholder">
+                        <div class="placeholder-icon">📷</div>
+                        <div class="placeholder-text">Missing Base</div>
+                      </div>
+                    </template>
+                    <template x-if="testCase.reason !== 'missing-base'">
+                      <img :src="testCase.baseImage" alt="Base" class="base-img">
+                    </template>
+                    <img 
+                      :src="testCase.currentImage" 
+                      alt="Current" 
+                      class="current-img" 
+                      :style="`clip-path: inset(0 ${100 - getTestSliderPosition(testCase.id)}% 0 0)`"
+                    >
+                    <div 
+                      class="slider-divider" 
+                      :style="`left: ${getTestSliderPosition(testCase.id)}%`" 
+                      @mousedown="startTestSliderDrag($event, testCase.id)"
+                    ></div>
+                  </div>
+                </template>
+
+                <!-- Overlay View -->
+                <template x-if="getTestViewMode(testCase.id) === 'overlay'">
+                  <div class="overlay-view">
+                    <template x-if="testCase.reason === 'missing-base'">
+                      <div class="missing-image-placeholder overlay-placeholder">
+                        <div class="placeholder-icon">📷</div>
+                        <div class="placeholder-text">Missing Base</div>
+                      </div>
+                    </template>
+                    <template x-if="testCase.reason !== 'missing-base'">
+                      <img :src="testCase.baseImage" alt="Base">
+                    </template>
+                    <img 
+                      :src="testCase.currentImage" 
+                      alt="Current" 
+                      class="overlay-img"
+                      :style="`opacity: ${getTestOverlayOpacity(testCase.id)}`"
+                    >
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1" 
+                      step="0.01" 
+                      :value="getTestOverlayOpacity(testCase.id)"
+                      @input="setTestOverlayOpacity(testCase.id, $event.target.value)"
+                      class="opacity-slider"
+                    >
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+
+          <div class="test-metadata">
+            <span>Duration: <span x-text="testCase.totalDurationMs"></span>ms</span>
+            <span x-show="testCase.reason">Reason: <span x-text="testCase.reason"></span></span>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <div x-show="filteredTests.length === 0" class="no-results">
+      No tests match the current filters.
+    </div>
+  </main>
+
+
+  <script>
+    window.__VIVIDIFF_DATA__ = {{DATA}};
+  </script>
+  <script>{{SCRIPT}}</script>
+</body>
+</html>

@@ -33,10 +33,14 @@ export {
 } from "./api";
 
 // High-level API types
-export type { InitOptions, InitResult, ListResult } from "./api";
+export type { InitOptions, InitResult, ListResult, TestResult } from "./api";
 
 // Low-level utilities
-export { loadConfigFile, resolveScreenshotDir } from "./config";
+export {
+  loadConfigFile,
+  resolveScreenshotDir,
+  resolveEffectiveConfig,
+} from "./config";
 export type { BrowserName, ViewportConfig, ViewportSize } from "./config";
 export { compareBaseAndCurrentWithTestCases } from "./compare";
 export type { CompareOptions, CompareResult } from "./compare";
