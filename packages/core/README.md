@@ -66,12 +66,7 @@ interface VisualTestingToolConfig {
     };
     testCase: Array<{
       name: string;
-      options?: {
-        source: string;
-        port?: number;
-        include?: string | string[];
-        exclude?: string | string[];
-      };
+      options?: Record<string, unknown>;
     }>;
   };
   threshold: number;
@@ -86,6 +81,11 @@ interface VisualTestingToolConfig {
   }
 }
 ```
+
+**Adapter-specific options:**
+- **Storybook Adapter**: `source`, `port`, `include`, `exclude`
+- **URL Adapter**: `urls`, `include`, `exclude`
+- **Custom Adapters**: Any options defined by the adapter
 
 ## Environment Variables
 

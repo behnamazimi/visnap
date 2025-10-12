@@ -121,7 +121,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
     testCaseAdapter: answers.testCaseAdapter as "storybook" | "url" | "skip",
     browsers: [],
     storybookSource: "",
-    storybookPort: 6006,
+    storybookPort: 4477,
     comparisonEngine: "odiff",
     threshold: 0.1,
     viewportPreset: "desktop",
@@ -166,7 +166,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
         type: "number",
         name: "port",
         message: "Port for local server:",
-        default: 6006,
+        default: 4477,
         when: (answers: { source: string }) =>
           !answers.source.startsWith("http"),
         validate: (input: string) => {
@@ -178,7 +178,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
       },
     ] as any);
     selection.storybookSource = storybookAnswers.source as string;
-    selection.storybookPort = Number(storybookAnswers.port) || 6006;
+    selection.storybookPort = Number(storybookAnswers.port) || 4477;
   }
 
   // Configure comparison settings

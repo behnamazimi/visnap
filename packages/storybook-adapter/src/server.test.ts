@@ -112,10 +112,10 @@ describe("server", () => {
         await manager.ensureStarted();
 
         expect(mockServer.listen).toHaveBeenCalledWith(
-          6006,
+          4477,
           expect.any(Function)
         );
-        expect(manager.getBaseUrl()).toBe("http://localhost:6006");
+        expect(manager.getBaseUrl()).toBe("http://localhost:4477");
       });
 
       it("should throw error for non-existent directory", async () => {
@@ -200,7 +200,7 @@ describe("server", () => {
         const manager = createServerManager("/path/to/storybook");
 
         await manager.ensureStarted();
-        expect(manager.getBaseUrl()).toBe("http://localhost:6006");
+        expect(manager.getBaseUrl()).toBe("http://localhost:4477");
 
         await manager.stop();
         expect(mockServer.close).toHaveBeenCalled();

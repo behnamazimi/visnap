@@ -15,7 +15,7 @@ import { createAdapter } from '@vividiff/storybook-adapter';
 
 const adapter = createAdapter({
   source: './storybook-static',
-  port: 6006,
+  port: 4477,
   include: '*',
   exclude: '*page*'
 });
@@ -37,7 +37,7 @@ await adapter.stop();
 - **Directory**: `./storybook-static` - Local static build directory
 
 ### `port`
-Port number for local static file server (default: `6006`)
+Port number for local static file server (default: `4477`)
 
 ### `include` / `exclude`
 Minimatch patterns for filtering stories:

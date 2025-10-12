@@ -112,7 +112,7 @@ describe("createAdapter", () => {
 
   describe("start method", () => {
     it("should start server and return baseUrl", async () => {
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
+      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
 
       const adapter = createAdapter({
         source: "/path/to/storybook",
@@ -123,8 +123,8 @@ describe("createAdapter", () => {
       expect(mockServerManager.ensureStarted).toHaveBeenCalled();
       expect(mockServerManager.getBaseUrl).toHaveBeenCalled();
       expect(result).toEqual({
-        baseUrl: "http://localhost:6006",
-        initialPageUrl: "http://localhost:6006/iframe.html",
+        baseUrl: "http://localhost:4477",
+        initialPageUrl: "http://localhost:4477/iframe.html",
       });
     });
   });
@@ -151,13 +151,13 @@ describe("createAdapter", () => {
           title: "Primary Button",
           caseId: "button-primary",
           variantId: "default",
-          url: "http://localhost:6006/iframe.html?id=button-primary",
+          url: "http://localhost:4477/iframe.html?id=button-primary",
           screenshotTarget: "#storybook-root",
           viewport: { width: 1024, height: 768 },
         },
       ];
 
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
+      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
@@ -174,7 +174,7 @@ describe("createAdapter", () => {
       expect(mockNormalizeStories).toHaveBeenCalledWith(mockStories, {
         include: ["button*"],
         exclude: ["*test*"],
-        baseUrl: "http://localhost:6006",
+        baseUrl: "http://localhost:4477",
         viewportKeys: ["default"],
         globalViewport: undefined,
       });
@@ -197,7 +197,7 @@ describe("createAdapter", () => {
       const mockStories = {};
       const mockInstances: any[] = [];
 
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
+      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
@@ -215,7 +215,7 @@ describe("createAdapter", () => {
       expect(mockNormalizeStories).toHaveBeenCalledWith(mockStories, {
         include: undefined,
         exclude: undefined,
-        baseUrl: "http://localhost:6006",
+        baseUrl: "http://localhost:4477",
         viewportKeys: ["desktop", "mobile"], // Should be sorted
         globalViewport: viewportConfig,
       });
@@ -225,7 +225,7 @@ describe("createAdapter", () => {
       const mockStories = {};
       const mockInstances: any[] = [];
 
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
+      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
@@ -238,14 +238,14 @@ describe("createAdapter", () => {
       expect(mockNormalizeStories).toHaveBeenCalledWith(mockStories, {
         include: undefined,
         exclude: undefined,
-        baseUrl: "http://localhost:6006",
+        baseUrl: "http://localhost:4477",
         viewportKeys: ["default"],
         globalViewport: {},
       });
     });
 
     it("should close page context even if discovery fails", async () => {
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
+      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockRejectedValue(
         new Error("Discovery failed")
       );
@@ -268,7 +268,7 @@ describe("createAdapter", () => {
       const mockStories = {};
       const mockInstances: any[] = [];
 
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:6006");
+      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 

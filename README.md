@@ -54,7 +54,51 @@ Screenshots are saved to the `vividiff/` directory.
 
 ## Configuration
 
-ViviDiff uses a `vividiff.config.ts` file for configuration. See the [Core Documentation](./packages/core/README.md) for all available options.
+ViviDiff uses a `vividiff.config.ts` file for configuration. This example uses all built-in adapters (Storybook, Playwright, and URL) and works perfectly with Storybook v8+ projects:
+
+```typescript
+// vividiff.config.ts
+import { type VisualTestingToolConfig } from '@vividiff/protocol';
+
+const config: VisualTestingToolConfig = {
+  adapters: {
+    browser: {
+      name: "@vividiff/playwright-adapter",
+      options: { 
+        browser: 'chromium',
+        launch: { headless: true },
+        injectCSS: `
+          * { animation: none !important; transition: none !important; }
+        `
+      }
+    },
+    testCase: [{
+      name: "@vividiff/storybook-adapter",
+      options: {
+        source: "./storybook-static",
+        port: 6006,
+        include: "*",
+        exclude: "*-to-skip*"
+      }
+    }]
+  },
+  threshold: 0.1,
+  screenshotDir: "vividiff",
+  runtime: { maxConcurrency: 4 },
+  viewport: {
+    desktop: { width: 1920, height: 1080 },
+    mobile: { width: 375, height: 667 }
+  },
+  report: {
+    html: true,
+    json: true
+  }
+};
+
+export default config;
+```
+
+See the [Core Documentation](./packages/core/README.md) for all available options.
 
 ## Adapters
 

@@ -28,7 +28,7 @@ const adapter = createAdapter({
     reducedMotion: 'reduce'
   },
   navigation: {
-    baseUrl: 'http://localhost:6006',
+    baseUrl: 'http://localhost:4477',
     waitUntil: 'load',
     timeoutMs: 30000
   }

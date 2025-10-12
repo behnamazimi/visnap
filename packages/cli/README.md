@@ -14,6 +14,28 @@ Or use directly with npx:
 npx @vividiff/cli [command]
 ```
 
+## CLI Help
+
+```bash
+$ npx vividiff --help
+
+Options:
+  -v, --version       Show version information
+  --config <path>     Path to configuration file
+  --quiet             Suppress output except errors
+  -h, --help          display help for command
+
+Commands:
+  init                Initialize a new VTT project with sample config
+  test [options]      Capture current screenshots and compare with baseline
+  update [options]    Capture baseline screenshots into vividiff/base
+  validate [options]  Validate configuration file and dependencies
+  list [options]      List all discovered test cases without running tests
+  open [options]      Open HTML report in browser or screenshot directory in
+                      Finder
+  help [command]      display help for command
+```
+
 ## Commands
 
 ### `init`
