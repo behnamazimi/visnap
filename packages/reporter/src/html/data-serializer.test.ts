@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { serializeTestData } from "./data-serializer";
-import type { TestResult } from "@vividiff/core";
+import type { TestResult } from "@vividiff/protocol";
 import type { RunOutcome, TestCaseDetail } from "@vividiff/protocol";
 
 describe("DataSerializer", () => {

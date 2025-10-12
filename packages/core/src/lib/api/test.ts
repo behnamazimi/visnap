@@ -1,44 +1,7 @@
-import type {
-  VisualTestingToolConfig,
-  RunOutcome,
-  ViewportMap,
-  ComparisonConfig,
-} from "@vividiff/protocol";
+import type { VisualTestingToolConfig, TestResult } from "@vividiff/protocol";
 
 import { resolveEffectiveConfig } from "@/lib/config";
-import { runTestCasesOnBrowser } from "@/utils/testcase-runner";
-
-export interface TestResult {
-  success: boolean;
-  outcome: RunOutcome;
-  exitCode: number;
-  failures?: Array<{
-    id: string;
-    reason: string;
-    diffPercentage?: number;
-  }>;
-  captureFailures?: Array<{
-    id: string;
-    error: string;
-  }>;
-  config?: {
-    screenshotDir?: string;
-    adapters?: {
-      browser?: { name: string; options?: Record<string, unknown> };
-      testCase?: Array<{ name: string; options?: Record<string, unknown> }>;
-    };
-    comparison?: ComparisonConfig;
-    runtime?: {
-      maxConcurrency?: number;
-      quiet?: boolean;
-    };
-    viewport?: ViewportMap;
-    reporter?: {
-      html?: boolean | string;
-      json?: boolean | string;
-    };
-  };
-}
+import { executeTestRun } from "@/utils/testcase-runner";
 
 // Internal function that handles the core logic
 async function runVisualTestsInternal(
@@ -47,7 +10,7 @@ async function runVisualTestsInternal(
 ): Promise<TestResult> {
   const effectiveConfig = await resolveEffectiveConfig(options, cliOptions);
 
-  const { outcome, failures, captureFailures } = await runTestCasesOnBrowser(
+  const { outcome, failures, captureFailures } = await executeTestRun(
     effectiveConfig,
     "test"
   );

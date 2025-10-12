@@ -18,3 +18,26 @@ export {
 } from "./test-discovery";
 export { writeScreenshotToFile, cleanupTempFiles } from "./screenshot-writer";
 export { summarizeTestMode, summarizeUpdateMode } from "./test-summary";
+export {
+  createSafeViewport,
+  validateViewport,
+  DEFAULT_VIEWPORT,
+} from "./viewport-validation";
+export {
+  createDirectoryConfig,
+  validateDirectoryConfig,
+  DEFAULT_DIRECTORY_CONFIG,
+  type DirectoryConfig,
+} from "./directory-config";
+export {
+  roundToDecimals,
+  roundToTwoDecimals,
+  PRECISION_MULTIPLIER,
+  MIN_CONCURRENCY,
+  FALLBACK_TIMEOUT,
+} from "./math";
+export { formatViewport } from "./viewport-formatting";
+export {
+  comparisonEngineRegistry,
+  registerBuiltInEngines,
+} from "./comparison-engine-registry";

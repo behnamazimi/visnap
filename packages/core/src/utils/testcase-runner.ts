@@ -22,6 +22,7 @@ import { DEFAULT_CONCURRENCY, DEFAULT_CAPTURE_TIMEOUT_MS } from "@/constants";
 import { logEffectiveConfig } from "@/lib/config";
 import { createConcurrencyPool } from "@/lib/pool";
 import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
+import { roundToTwoDecimals } from "@/utils/math";
 
 export async function discoverTestCases(
   options: VisualTestingToolConfig
@@ -68,7 +69,21 @@ export async function discoverTestCases(
   }
 }
 
-export async function runTestCasesOnBrowser(
+/**
+ * Execute a visual test run with proper resource cleanup
+ *
+ * This function manages the complete lifecycle of a test run including:
+ * - Browser adapter initialization and disposal
+ * - Test case adapter lifecycle management
+ * - Screenshot capture with timeout protection
+ * - Temporary file cleanup on errors
+ * - Proper resource disposal in finally blocks
+ *
+ * @param options - Visual testing configuration
+ * @param mode - Either "test" for comparison mode or "update" for baseline update
+ * @returns Promise resolving to test results with outcome and failure details
+ */
+export async function executeTestRun(
   options: VisualTestingToolConfig,
   mode: "test" | "update"
 ): Promise<{
@@ -95,7 +110,7 @@ export async function runTestCasesOnBrowser(
     captureDurationMs?: number;
     captureFilename?: string;
   }[] = [];
-  const tempFiles: string[] = [];
+  const tempFiles = new Set<string>();
   const browserAdapterPool = new BrowserAdapterPool();
 
   // Function to get or create a browser adapter for a specific browser
@@ -174,6 +189,7 @@ export async function runTestCasesOnBrowser(
         }
 
         // Add timeout protection to prevent hanging
+        const abortController = new AbortController();
         const capturePromise = adapterToUse.capture({
           id,
           url: variant.url,
@@ -184,46 +200,53 @@ export async function runTestCasesOnBrowser(
         });
 
         const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(
-            () =>
-              reject(
-                new Error(
-                  `Capture timeout after ${DEFAULT_CAPTURE_TIMEOUT_MS}ms`
-                )
-              ),
-            DEFAULT_CAPTURE_TIMEOUT_MS
-          );
+          const timeoutId = setTimeout(() => {
+            abortController.abort();
+            reject(
+              new Error(`Capture timeout after ${DEFAULT_CAPTURE_TIMEOUT_MS}ms`)
+            );
+          }, DEFAULT_CAPTURE_TIMEOUT_MS);
+
+          // Clean up timeout if capture completes first
+          abortController.signal.addEventListener("abort", () => {
+            clearTimeout(timeoutId);
+          });
         });
 
         const result = await Promise.race([capturePromise, timeoutPromise]);
 
-        // Write screenshot immediately to disk instead of keeping in memory
-        // This prevents memory accumulation during concurrent captures
+        // Write screenshot to disk immediately to prevent memory accumulation
+        // during concurrent captures. The buffer is written to disk and then
+        // cleared from memory to reduce memory pressure.
         const finalPath = await writeScreenshotToFile(
           result.buffer,
           outDir,
           result.meta.id
         );
-        tempFiles.push(finalPath);
+        tempFiles.add(finalPath);
 
         // Remove from temp files on success
-        const tempIndex = tempFiles.indexOf(finalPath);
-        if (tempIndex > -1) tempFiles.splice(tempIndex, 1);
+        tempFiles.delete(finalPath);
 
-        const captureDurationMs =
-          Math.round((performance.now() - captureStartTime) * 100) / 100;
+        const captureDurationMs = roundToTwoDecimals(
+          performance.now() - captureStartTime
+        );
 
         return {
           id,
-          result: { ...result, buffer: new Uint8Array(0) }, // Empty buffer - memory optimization
+          result: {
+            buffer: new Uint8Array(0), // Buffer already written to disk
+            meta: result.meta,
+          },
           captureDurationMs,
           captureFilename,
         };
       } catch (e) {
         const message = (e as Error)?.message ?? String(e);
         log.error(`Capture failed for ${id}: ${message}`);
-        const captureDurationMs =
-          Math.round((performance.now() - captureStartTime) * 100) / 100;
+        const captureDurationMs = roundToTwoDecimals(
+          performance.now() - captureStartTime
+        );
         return {
           id,
           error: message,
@@ -238,11 +261,9 @@ export async function runTestCasesOnBrowser(
     captureResults = results;
   } catch (error) {
     // Cleanup temporary files on failure
-    if (tempFiles.length > 0) {
-      log.info(
-        `Cleaning up ${tempFiles.length} temporary files due to failure`
-      );
-      await cleanupTempFiles(tempFiles);
+    if (tempFiles.size > 0) {
+      log.info(`Cleaning up ${tempFiles.size} temporary files due to failure`);
+      await cleanupTempFiles(Array.from(tempFiles));
     }
     throw error;
   } finally {

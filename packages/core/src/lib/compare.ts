@@ -1,11 +1,15 @@
-import { readdirSync, readFileSync, writeFileSync } from "fs";
+import { readdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
+
+// Module-level regex for hex color validation
+const HEX_COLOR_REGEX = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
 
 import {
   type TestCaseInstance,
   type VisualTestingToolConfig,
   type ComparisonCore,
   type ComparisonConfig,
+  type ComparisonEngine,
 } from "@vividiff/protocol";
 import odiff from "odiff-bin";
 import pixelmatch from "pixelmatch";
@@ -17,6 +21,7 @@ import {
   DEFAULT_DIFF_COLOR,
 } from "@/constants";
 import { getErrorMessage } from "@/utils/error-handler";
+import { roundToTwoDecimals } from "@/utils/math";
 
 export interface CompareOptions {
   comparisonCore: ComparisonCore;
@@ -32,16 +37,8 @@ export interface CompareResult {
   comparisonDurationMs?: number;
 }
 
-interface ComparisonEngine {
-  compare(
-    currentFile: string,
-    baseFile: string,
-    diffFile: string,
-    options: { threshold: number; diffColor?: string }
-  ): Promise<{ match: boolean; reason: string; diffPercentage?: number }>;
-}
-
-class OdiffEngine implements ComparisonEngine {
+export class OdiffEngine implements ComparisonEngine {
+  name = "odiff";
   async compare(
     currentFile: string,
     baseFile: string,
@@ -90,7 +87,8 @@ class OdiffEngine implements ComparisonEngine {
   }
 }
 
-class PixelmatchEngine implements ComparisonEngine {
+export class PixelmatchEngine implements ComparisonEngine {
+  name = "pixelmatch";
   async compare(
     currentFile: string,
     baseFile: string,
@@ -99,8 +97,12 @@ class PixelmatchEngine implements ComparisonEngine {
   ): Promise<{ match: boolean; reason: string; diffPercentage?: number }> {
     try {
       // Read and decode PNG files
-      const currentPng = PNG.sync.read(readFileSync(currentFile));
-      const basePng = PNG.sync.read(readFileSync(baseFile));
+      const [currentBuffer, baseBuffer] = await Promise.all([
+        readFile(currentFile),
+        readFile(baseFile),
+      ]);
+      const currentPng = PNG.sync.read(currentBuffer);
+      const basePng = PNG.sync.read(baseBuffer);
 
       // Ensure images have same dimensions
       if (
@@ -136,7 +138,7 @@ class PixelmatchEngine implements ComparisonEngine {
       );
 
       // Write diff image
-      writeFileSync(diffFile, PNG.sync.write(diffPng));
+      await writeFile(diffFile, PNG.sync.write(diffPng));
 
       const diffPercentage = (mismatchedPixels / totalPixels) * 100;
 
@@ -164,7 +166,7 @@ class PixelmatchEngine implements ComparisonEngine {
 }
 
 function hexToRgb(hex: string): [number, number, number] {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  const result = HEX_COLOR_REGEX.exec(hex);
   if (!result) {
     throw new Error(`Invalid hex color: ${hex}`);
   }
@@ -176,6 +178,17 @@ function hexToRgb(hex: string): [number, number, number] {
 }
 
 function createComparisonEngine(core: ComparisonCore): ComparisonEngine {
+  // Import registry and register built-in engines if not already done
+  import("../utils/comparison-engine-registry").then(
+    ({ comparisonEngineRegistry, registerBuiltInEngines }) => {
+      if (!comparisonEngineRegistry.has(core)) {
+        registerBuiltInEngines();
+      }
+    }
+  );
+
+  // For now, fall back to the old switch statement
+  // TODO: Replace with registry lookup once async initialization is handled
   switch (core) {
     case "odiff":
       return new OdiffEngine();
@@ -193,8 +206,12 @@ export const compareDirectories = async (
   options: CompareOptions
 ): Promise<CompareResult[]> => {
   // Build deterministic, sorted union of filenames from current and base
-  const currentFiles = new Set(readdirSync(currentDir));
-  const baseFiles = new Set(readdirSync(baseDir));
+  const [currentFilesList, baseFilesList] = await Promise.all([
+    readdir(currentDir),
+    readdir(baseDir),
+  ]);
+  const currentFiles = new Set(currentFilesList);
+  const baseFiles = new Set(baseFilesList);
   const allFiles = new Set<string>([...currentFiles, ...baseFiles] as string[]);
   const files = Array.from(allFiles).sort((a, b) => a.localeCompare(b));
 
@@ -240,7 +257,7 @@ export const compareDirectories = async (
  * Compare base and current screenshots with story-level configuration support.
  * This function can handle different thresholds per story.
  */
-export const compareBaseAndCurrentWithTestCases = async (
+export const compareTestCases = async (
   config: VisualTestingToolConfig,
   testCases: TestCaseInstance[]
 ): Promise<CompareResult[]> => {
@@ -274,8 +291,12 @@ export const compareBaseAndCurrentWithTestCases = async (
   }
 
   // Get files that exist in current and base directories
-  const currentFiles = new Set(readdirSync(currentDir));
-  const baseFiles = new Set(readdirSync(baseDir));
+  const [currentFilesList, baseFilesList] = await Promise.all([
+    readdir(currentDir),
+    readdir(baseDir),
+  ]);
+  const currentFiles = new Set(currentFilesList);
+  const baseFiles = new Set(baseFilesList);
 
   // Only include files that are expected from the test cases
   const files = Array.from(expectedFiles).sort((a, b) => a.localeCompare(b));
@@ -306,8 +327,9 @@ export const compareBaseAndCurrentWithTestCases = async (
       threshold,
       diffColor: comparisonConfig.diffColor,
     });
-    const comparisonDurationMs =
-      Math.round((performance.now() - comparisonStartTime) * 100) / 100;
+    const comparisonDurationMs = roundToTwoDecimals(
+      performance.now() - comparisonStartTime
+    );
 
     results.push({
       id: file,

@@ -1,6 +1,8 @@
 import { getErrorMessage, log } from "@vividiff/core";
 import chalk from "chalk";
 
+import { exit } from "./exit";
+
 export interface ErrorContext {
   command?: string;
   operation?: string;
@@ -143,7 +145,7 @@ export class ErrorHandler {
       }
 
       log.plain("Goodbye! 👋");
-      process.exit(0);
+      exit(0);
     });
   }
 
@@ -153,7 +155,7 @@ export class ErrorHandler {
   static handleUnhandledRejection(): void {
     process.on("unhandledRejection", reason => {
       log.error(`Unhandled promise rejection: ${getErrorMessage(reason)}`);
-      process.exit(1);
+      exit(1);
     });
   }
 }

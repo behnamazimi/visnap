@@ -556,7 +556,7 @@ describe("executeInteractions", () => {
     });
 
     it("should handle unknown action type", async () => {
-      const action = { type: "unknown" } as any;
+      const action = { type: "unknown" } as unknown as InteractionAction;
 
       await expect(
         executeInteractions(mockPage, [action], "test-case")

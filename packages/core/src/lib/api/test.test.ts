@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { runTestCasesOnBrowser } from "../../utils/testcase-runner";
+import { executeTestRun } from "../../utils/testcase-runner";
 import { resolveEffectiveConfig } from "../config";
 
 import { runVisualTests, runVisualTestsCli } from "./test";
@@ -15,7 +15,7 @@ vi.mock("../config", async importOriginal => {
 });
 
 vi.mock("../../utils/testcase-runner", () => ({
-  runTestCasesOnBrowser: vi.fn().mockImplementation(async () => ({
+  executeTestRun: vi.fn().mockImplementation(async () => ({
     outcome: { passed: 5, total: 5, captureFailures: 0 },
     failures: [],
     captureFailures: [],
@@ -24,7 +24,7 @@ vi.mock("../../utils/testcase-runner", () => ({
 
 describe("test API", () => {
   const mockResolveEffectiveConfig = vi.mocked(resolveEffectiveConfig);
-  const mockRunTestCasesOnBrowser = vi.mocked(runTestCasesOnBrowser);
+  const mockExecuteTestRun = vi.mocked(executeTestRun);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -52,7 +52,7 @@ describe("test API", () => {
       };
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
-      mockRunTestCasesOnBrowser.mockResolvedValue({
+      mockExecuteTestRun.mockResolvedValue({
         outcome: mockOutcome,
         failures: [],
         captureFailures: [],
@@ -77,10 +77,7 @@ describe("test API", () => {
       });
 
       expect(mockResolveEffectiveConfig).toHaveBeenCalledWith({}, undefined);
-      expect(mockRunTestCasesOnBrowser).toHaveBeenCalledWith(
-        mockConfig,
-        "test"
-      );
+      expect(mockExecuteTestRun).toHaveBeenCalledWith(mockConfig, "test");
     });
 
     it("should handle test failures", async () => {
@@ -113,7 +110,7 @@ describe("test API", () => {
       ];
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
-      mockRunTestCasesOnBrowser.mockResolvedValue({
+      mockExecuteTestRun.mockResolvedValue({
         outcome: mockOutcome,
         failures: mockFailures,
         captureFailures: mockCaptureFailures,
@@ -149,7 +146,7 @@ describe("test API", () => {
       };
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
-      mockRunTestCasesOnBrowser.mockResolvedValue({
+      mockExecuteTestRun.mockResolvedValue({
         outcome: undefined,
         failures: [],
         captureFailures: [],
@@ -188,7 +185,7 @@ describe("test API", () => {
       };
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
-      mockRunTestCasesOnBrowser.mockResolvedValue({
+      mockExecuteTestRun.mockResolvedValue({
         outcome: mockOutcome,
         failures: [],
         captureFailures: [],
@@ -230,7 +227,7 @@ describe("test API", () => {
       };
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
-      mockRunTestCasesOnBrowser.mockResolvedValue({
+      mockExecuteTestRun.mockResolvedValue({
         outcome: mockOutcome,
         failures: [],
         captureFailures: [],
@@ -301,7 +298,7 @@ describe("test API", () => {
       };
 
       mockResolveEffectiveConfig.mockResolvedValue(mockConfig as any);
-      mockRunTestCasesOnBrowser.mockResolvedValue({
+      mockExecuteTestRun.mockResolvedValue({
         outcome: mockOutcome,
         failures: [
           { id: "button-hover", reason: "pixel-diff", diffPercentage: 2.5 },

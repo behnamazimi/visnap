@@ -1,7 +1,7 @@
 import type { VisualTestingToolConfig } from "@vividiff/protocol";
 
 import { resolveEffectiveConfig } from "@/lib/config";
-import { runTestCasesOnBrowser } from "@/utils/testcase-runner";
+import { executeTestRun } from "@/utils/testcase-runner";
 
 // Internal function that handles the core logic
 async function updateBaselineInternal(
@@ -10,7 +10,7 @@ async function updateBaselineInternal(
 ): Promise<void> {
   const effectiveConfig = await resolveEffectiveConfig(options, cliOptions);
 
-  await runTestCasesOnBrowser(effectiveConfig, "update");
+  await executeTestRun(effectiveConfig, "update");
 }
 
 // New function after tool agnostic design

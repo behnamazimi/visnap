@@ -1,6 +1,6 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { dirname } from "path";
-import type { TestResult } from "@vividiff/core";
+import type { TestResult } from "@vividiff/protocol";
 import type { JsonReporterOptions, ReportData } from "../types";
 
 export class JsonReporter {

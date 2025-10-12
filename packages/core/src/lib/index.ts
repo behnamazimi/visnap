@@ -54,7 +54,7 @@ export {
   resolveScreenshotDir,
   resolveEffectiveConfig,
 } from "./config";
-export { compareBaseAndCurrentWithTestCases } from "./compare";
+export { compareTestCases } from "./compare";
 export type { CompareOptions, CompareResult } from "./compare";
 export { createConcurrencyPool } from "./pool";
 
@@ -65,7 +65,20 @@ export {
   generateConfigContent,
   setQuietMode,
   isQuiet,
+  createSafeViewport,
+  validateViewport,
+  DEFAULT_VIEWPORT,
+  createDirectoryConfig,
+  validateDirectoryConfig,
+  DEFAULT_DIRECTORY_CONFIG,
+  roundToDecimals,
+  roundToTwoDecimals,
+  PRECISION_MULTIPLIER,
+  MIN_CONCURRENCY,
+  FALLBACK_TIMEOUT,
+  formatViewport,
 } from "@/utils";
+export type { DirectoryConfig } from "@/utils";
 export { runInDocker, runInDockerWithConfig } from "../utils/docker";
 export type { DockerRunOptions, DockerConfigOptions } from "../utils/docker";
 

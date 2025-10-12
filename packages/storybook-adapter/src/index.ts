@@ -14,12 +14,18 @@ import { createServerManager } from "./server.js";
  * - `source`: Either a URL to a running Storybook or a path to a `storybook-static` directory.
  * - `port`: If serving from disk, which port to bind to (defaults to 4477).
  * - `include`/`exclude`: Optional minimatch pattern (supports `*`) matched against story IDs.
+ * - `discovery`: Configuration for story discovery timeouts and retries.
  */
 export interface CreateStorybookAdapterOptions {
   source: string;
   port?: number;
   include?: string | string[];
   exclude?: string | string[];
+  discovery?: {
+    evalTimeoutMs?: number;
+    maxRetries?: number;
+    retryDelayMs?: number;
+  };
 }
 
 /**
@@ -69,7 +75,7 @@ export function createAdapter(
 
       let cases: Record<string, unknown>;
       try {
-        cases = await discoverCasesFromBrowser(pageCtx);
+        cases = await discoverCasesFromBrowser(pageCtx, opts.discovery);
       } finally {
         await pageCtx?.close?.();
       }

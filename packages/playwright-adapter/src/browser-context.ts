@@ -1,5 +1,11 @@
 import type { Browser, Page, BrowserContext } from "playwright-core";
 
+import {
+  DEFAULT_PAGE_TIMEOUT,
+  NETWORK_IDLE_FALLBACK_DELAY,
+  NETWORK_IDLE_TIMEOUT_DIVISOR,
+} from "./constants";
+
 import type { PlaywrightAdapterOptions } from "./index";
 
 /**
@@ -30,7 +36,12 @@ export async function waitForNetworkIdle(
     await page.waitForLoadState("networkidle", { timeout });
   } catch {
     // Fall back to a small delay; not all drivers support networkidle well
-    await page.waitForTimeout(Math.min(1000, Math.floor(timeout / 10)));
+    await page.waitForTimeout(
+      Math.min(
+        NETWORK_IDLE_FALLBACK_DELAY,
+        Math.floor(timeout / NETWORK_IDLE_TIMEOUT_DIVISOR)
+      )
+    );
   }
 }
 
@@ -60,7 +71,7 @@ export async function navigateToUrl(
 export async function setupPage(
   page: Page,
   viewport?: { width: number; height: number },
-  timeout: number = 30000
+  timeout: number = DEFAULT_PAGE_TIMEOUT
 ): Promise<void> {
   page.setDefaultTimeout(timeout);
 
@@ -78,7 +89,7 @@ export async function setupPage(
 export async function handleWaitFor(
   page: Page,
   waitFor?: string | number,
-  timeout: number = 30000
+  timeout: number = DEFAULT_PAGE_TIMEOUT
 ): Promise<void> {
   if (typeof waitFor === "number") {
     await page.waitForTimeout(waitFor);

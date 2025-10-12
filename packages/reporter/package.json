@@ -1,6 +1,7 @@
 {
   "name": "@vividiff/reporter",
   "version": "0.1.2",
+  "description": "Visual Testing Tool - HTML and JSON reporters for test results",
   "type": "module",
   "exports": {
     ".": {
@@ -15,13 +16,12 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@vividiff/core": "^0.1.2",
     "@vividiff/protocol": "^0.1.2"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "tsup": "^8.0.0",
-    "vitest": "^1.0.0"
+    "@types/node": "^22.0.0",
+    "typescript": "5.9.2",
+    "tsup": "^8.3.5",
+    "vitest": "^2.1.8"
   }
 }
