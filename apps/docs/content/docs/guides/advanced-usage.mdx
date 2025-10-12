@@ -1,0 +1,401 @@
+---
+title: Advanced Usage
+description: Advanced features including filtering, viewports, comparison engines, and performance optimization
+---
+
+Learn about advanced ViviDiff features for complex testing scenarios.
+
+## Filtering Stories and URLs
+
+Use minimatch patterns to control which test cases run.
+
+### Storybook Filtering
+
+```typescript
+// In your vividiff.config.ts
+testCase: [{
+  name: "@vividiff/storybook-adapter",
+  options: {
+    source: "./storybook-static",
+    include: "button-*",        // Only test button stories
+    exclude: "*-skip*"          // Skip stories with "skip" in name
+  }
+}]
+```
+
+### URL Filtering
+
+```typescript
+testCase: [{
+  name: "@vividiff/url-adapter",
+  options: {
+    urls: [
+      { id: "homepage", url: "http://localhost:3000/" },
+      { id: "about-page", url: "http://localhost:3000/about" },
+      { id: "admin-dashboard", url: "http://localhost:3000/admin" }
+    ],
+    include: "*page*",          // Only test pages with "page" in ID
+    exclude: "*admin*"          // Exclude admin pages
+  }
+}]
+```
+
+### Pattern Examples
+
+```typescript
+// Test all stories
+include: "*"
+
+// Test stories starting with "button"
+include: "button-*"
+
+// Test multiple patterns
+include: ["button-*", "input-*", "card-*"]
+
+// Skip stories ending with "skip"
+exclude: "*-skip*"
+
+// Skip multiple patterns
+exclude: ["*-skip*", "*admin*", "*test*"]
+
+// Complex patterns
+include: "components/*-primary"
+exclude: "components/*-skip-*"
+```
+
+## Multi-Viewport Testing
+
+Test across different screen sizes to catch responsive design issues.
+
+### Basic Viewport Configuration
+
+```typescript
+viewport: {
+  desktop: { width: 1920, height: 1080 },
+  tablet: { width: 768, height: 1024 },
+  mobile: { width: 375, height: 667 }
+}
+```
+
+### Custom Viewports
+
+```typescript
+viewport: {
+  large: { width: 2560, height: 1440 },
+  desktop: { width: 1920, height: 1080 },
+  laptop: { width: 1366, height: 768 },
+  tablet: { width: 768, height: 1024 },
+  mobile: { width: 375, height: 667 },
+  small: { width: 320, height: 568 }
+}
+```
+
+### Story-Specific Viewports
+
+Override viewport for specific stories:
+
+```typescript
+// In your story
+export const MobileOnly: Story = {
+  parameters: {
+    visualTesting: {
+      viewport: { width: 375, height: 667 }
+    }
+  }
+};
+```
+
+### URL-Specific Viewports
+
+```typescript
+urls: [
+  {
+    id: "mobile-homepage",
+    url: "http://localhost:3000/",
+    viewport: { width: 375, height: 667 }
+  }
+]
+```
+
+## Comparison Engines
+
+Choose between different image comparison algorithms.
+
+### odiff (Default)
+
+Faster and more accurate for most use cases:
+
+```typescript
+comparison: {
+  core: "odiff",
+  threshold: 0.1,
+  diffColor: "#00ff00"
+}
+```
+
+### pixelmatch
+
+More traditional pixel-by-pixel comparison:
+
+```typescript
+comparison: {
+  core: "pixelmatch",
+  threshold: 0.1,
+  diffColor: "#ff0000"
+}
+```
+
+### Threshold Guidelines
+
+- `0.01` - Very strict (1% difference)
+- `0.05` - Strict (5% difference)
+- `0.1` - Default (10% difference)
+- `0.2` - Loose (20% difference)
+
+## Performance Optimization
+
+### Concurrency Control
+
+Adjust parallel test execution:
+
+```typescript
+runtime: {
+  maxConcurrency: 4  // Run 4 tests in parallel
+}
+```
+
+**Guidelines:**
+- CPU cores × 2 (e.g., 8 cores = 16 concurrency)
+- Reduce if you get memory issues
+- Increase for faster execution
+
+### Memory Management
+
+For large test suites:
+
+```typescript
+runtime: {
+  maxConcurrency: 2,  // Reduce concurrency
+  quiet: true         // Reduce output
+}
+```
+
+### CSS Injection
+
+Disable animations for faster, more stable tests:
+
+```typescript
+adapters: {
+  browser: {
+    name: "@vividiff/playwright-adapter",
+    options: {
+      injectCSS: `
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+        .loader { display: none !important; }
+      `
+    }
+  }
+}
+```
+
+## Browser-Specific Configuration
+
+### Different Settings Per Browser
+
+```typescript
+adapters: {
+  browser: {
+    name: "@vividiff/playwright-adapter",
+    options: {
+      browser: [
+        {
+          name: "chromium",
+          options: {
+            headless: true,
+            args: ["--no-sandbox"]
+          }
+        },
+        {
+          name: "firefox",
+          options: {
+            headless: true,
+            args: ["--no-sandbox"]
+          }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Browser-Specific Stories
+
+Test different stories in different browsers:
+
+```typescript
+// In your story
+export const ChromeOnly: Story = {
+  parameters: {
+    visualTesting: {
+      browser: ['chromium']
+    }
+  }
+};
+
+export const FirefoxOnly: Story = {
+  parameters: {
+    visualTesting: {
+      browser: ['firefox']
+    }
+  }
+};
+```
+
+## Advanced Filtering
+
+### Complex Patterns
+
+```typescript
+// Test all button stories except primary ones
+include: "button-*"
+exclude: "*-primary"
+
+// Test stories in specific folders
+include: "components/button/*"
+exclude: "components/button/*-skip*"
+
+// Test stories with specific naming
+include: "*-interactive"
+exclude: "*-skip-*"
+```
+
+### Dynamic Filtering
+
+Use environment variables for filtering:
+
+```bash
+# Only test button stories
+VIVIDIFF_INCLUDE="button-*" vividiff test
+
+# Skip admin stories
+VIVIDIFF_EXCLUDE="*admin*" vividiff test
+```
+
+## Custom Screenshot Targets
+
+### Element-Specific Screenshots
+
+```typescript
+// In your story
+export const ComponentOnly: Story = {
+  parameters: {
+    visualTesting: {
+      screenshotTarget: '.my-component'
+    }
+  }
+};
+```
+
+### Multiple Screenshot Targets
+
+```typescript
+// Test different parts of the same story
+export const FullPage: Story = {
+  parameters: {
+    visualTesting: {
+      screenshotTarget: 'body'
+    }
+  }
+};
+
+export const HeaderOnly: Story = {
+  parameters: {
+    visualTesting: {
+      screenshotTarget: 'header'
+    }
+  }
+};
+```
+
+## Environment-Specific Configuration
+
+### Development vs Production
+
+```typescript
+const isProduction = process.env.NODE_ENV === 'production';
+
+const config: VisualTestingToolConfig = {
+  // ... other config
+  threshold: isProduction ? 0.05 : 0.1,
+  runtime: {
+    maxConcurrency: isProduction ? 8 : 4
+  }
+};
+```
+
+### CI vs Local
+
+```typescript
+const isCI = process.env.CI === 'true';
+
+const config: VisualTestingToolConfig = {
+  // ... other config
+  adapters: {
+    browser: {
+      name: "@vividiff/playwright-adapter",
+      options: {
+        launch: {
+          headless: isCI ? true : false
+        }
+      }
+    }
+  }
+};
+```
+
+## Troubleshooting Advanced Issues
+
+### Memory Issues
+
+```typescript
+runtime: {
+  maxConcurrency: 1  // Run tests sequentially
+}
+```
+
+### Timeout Issues
+
+```typescript
+adapters: {
+  browser: {
+    name: "@vividiff/playwright-adapter",
+    options: {
+      navigation: {
+        timeoutMs: 60000  // 60 seconds
+      }
+    }
+  }
+}
+```
+
+### Flaky Tests
+
+```typescript
+// Add waits for dynamic content
+interactions: [
+  { type: 'waitForSelector', selector: '.loaded' },
+  { type: 'waitForTimeout', duration: 1000 }
+]
+```
+
+### Large Test Suites
+
+```typescript
+// Split into multiple configs
+// vividiff.config.components.ts
+// vividiff.config.pages.ts
+// vividiff.config.forms.ts
+```

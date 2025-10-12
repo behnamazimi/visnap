@@ -1,0 +1,357 @@
+---
+title: Docker & CI/CD
+description: Run ViviDiff in Docker and integrate with CI/CD pipelines
+---
+
+ViviDiff supports Docker for consistent testing environments and integrates with popular CI/CD platforms.
+
+## Docker Support
+
+Run ViviDiff tests in Docker for consistent results across different environments.
+
+### Basic Docker Usage
+
+```bash
+# Run tests in Docker
+vividiff test --docker
+
+# Update baseline in Docker
+vividiff update --docker
+```
+
+### Docker Configuration
+
+ViviDiff automatically handles Docker setup, but you can customize it in your config:
+
+```typescript
+// vividiff.config.ts
+const config: VisualTestingToolConfig = {
+  // ... other config
+  docker: {
+    image: 'node:18-alpine', // Custom base image
+    volumes: ['./src:/app/src'], // Mount additional volumes
+    environment: {
+      NODE_ENV: 'test'
+    }
+  }
+};
+```
+
+## CI/CD Integration
+
+### GitHub Actions
+
+Create `.github/workflows/visual-tests.yml`:
+
+```yaml
+name: Visual Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build Storybook
+        run: npm run build-storybook
+        
+      - name: Install ViviDiff
+        run: npm install -g vividiff
+        
+      - name: Run visual tests
+        run: vividiff test --docker
+        
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-test-results
+          path: vividiff/
+```
+
+### GitLab CI
+
+Create `.gitlab-ci.yml`:
+
+```yaml
+stages:
+  - visual-tests
+
+visual-tests:
+  stage: visual-tests
+  image: node:18-alpine
+  before_script:
+    - npm ci
+    - npm run build-storybook
+    - npm install -g vividiff
+  script:
+    - vividiff test --docker
+  artifacts:
+    when: on_failure
+    paths:
+      - vividiff/
+    expire_in: 1 week
+```
+
+### CircleCI
+
+Create `.circleci/config.yml`:
+
+```yaml
+version: 2.1
+
+jobs:
+  visual-tests:
+    docker:
+      - image: cimg/node:18.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+      - run: npm ci
+      - run: npm run build-storybook
+      - run: npm install -g vividiff
+      - run: vividiff test --docker
+      - store_artifacts:
+          path: vividiff/
+          when: always
+```
+
+### Jenkins
+
+Create `Jenkinsfile`:
+
+```groovy
+pipeline {
+    agent any
+    
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'npm ci'
+                sh 'npm run build-storybook'
+                sh 'npm install -g vividiff'
+            }
+        }
+        
+        stage('Visual Tests') {
+            steps {
+                sh 'vividiff test --docker'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'vividiff/**', fingerprint: true
+                }
+            }
+        }
+    }
+}
+```
+
+## Advanced CI/CD Patterns
+
+### Conditional Testing
+
+Only run visual tests when UI files change:
+
+```yaml
+# GitHub Actions
+- name: Check for UI changes
+  id: changes
+  uses: dorny/paths-filter@v2
+  with:
+    filters: |
+      ui:
+        - 'src/**/*.tsx'
+        - 'src/**/*.ts'
+        - 'stories/**/*.ts'
+        - 'stories/**/*.tsx'
+        
+- name: Run visual tests
+  if: steps.changes.outputs.ui == 'true'
+  run: vividiff test --docker
+```
+
+### Baseline Updates
+
+Update baseline screenshots on main branch:
+
+```yaml
+# GitHub Actions
+- name: Update baseline
+  if: github.ref == 'refs/heads/main'
+  run: vividiff update --docker
+  
+- name: Run tests
+  if: github.ref != 'refs/heads/main'
+  run: vividiff test --docker
+```
+
+### Parallel Testing
+
+Run tests in parallel across different browsers:
+
+```yaml
+strategy:
+  matrix:
+    browser: [chromium, firefox, webkit]
+    
+steps:
+  - name: Run tests for ${{ matrix.browser }}
+    run: |
+      vividiff test --docker --browser ${{ matrix.browser }}
+```
+
+### Artifact Management
+
+Store and retrieve baseline screenshots:
+
+```yaml
+- name: Download baseline
+  uses: actions/download-artifact@v4
+  with:
+    name: baseline-screenshots
+    path: vividiff/base/
+    
+- name: Run tests
+  run: vividiff test --docker
+  
+- name: Upload new baseline
+  if: github.ref == 'refs/heads/main'
+  uses: actions/upload-artifact@v4
+  with:
+    name: baseline-screenshots
+    path: vividiff/base/
+```
+
+## Environment Variables
+
+Configure ViviDiff with environment variables in CI:
+
+```yaml
+env:
+  VIVIDIFF_SCREENSHOT_DIR: ./screenshots
+  VIVIDIFF_THRESHOLD: 0.05
+  VIVIDIFF_MAX_CONCURRENCY: 2
+  VIVIDIFF_QUIET: true
+```
+
+## Docker Troubleshooting
+
+### Permission Issues
+
+On Linux, you might need to fix permissions:
+
+```bash
+# Fix npm permissions in Docker
+docker run --rm -v $(pwd):/app -w /app node:18-alpine sh -c "npm install -g vividiff && vividiff test"
+```
+
+### Memory Issues
+
+Increase Docker memory limits:
+
+```yaml
+# GitHub Actions
+- name: Run visual tests
+  run: |
+    docker run --memory=4g --rm -v $(pwd):/app -w /app node:18-alpine sh -c "npm install -g vividiff && vividiff test"
+```
+
+### Network Issues
+
+Handle network timeouts in CI:
+
+```typescript
+// vividiff.config.ts
+const config: VisualTestingToolConfig = {
+  // ... other config
+  adapters: {
+    browser: {
+      name: "@vividiff/playwright-adapter",
+      options: {
+        navigation: {
+          timeoutMs: 60000 // 60 seconds
+        }
+      }
+    }
+  }
+};
+```
+
+## Best Practices
+
+### Use Docker in CI
+
+Always use Docker in CI for consistent results:
+
+```yaml
+- name: Run visual tests
+  run: vividiff test --docker
+```
+
+### Store Artifacts
+
+Save test results and screenshots:
+
+```yaml
+- name: Upload test results
+  uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: visual-test-results
+    path: vividiff/
+```
+
+### Fail Fast
+
+Stop on first failure in CI:
+
+```yaml
+- name: Run visual tests
+  run: vividiff test --docker
+  continue-on-error: false
+```
+
+### Cache Dependencies
+
+Speed up CI runs with caching:
+
+```yaml
+- name: Cache node modules
+  uses: actions/cache@v3
+  with:
+    path: ~/.npm
+    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+```
+
+### Notify on Failure
+
+Send notifications when tests fail:
+
+```yaml
+- name: Notify on failure
+  if: failure()
+  uses: 8398a7/action-slack@v3
+  with:
+    status: failure
+    text: 'Visual tests failed in ${{ github.workflow }}'
+```

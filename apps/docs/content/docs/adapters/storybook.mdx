@@ -1,0 +1,240 @@
+---
+title: Storybook Adapter
+description: Test your Storybook stories with ViviDiff
+---
+
+The Storybook adapter lets you test individual stories from your Storybook build. It's the most common way to use ViviDiff.
+
+## Setup
+
+Add the Storybook adapter to your configuration:
+
+```typescript
+testCase: [{
+  name: "@vividiff/storybook-adapter",
+  options: {
+    source: "./storybook-static", // path to Storybook build
+    port: 6006,                   // port for local server
+    include: "*",                 // which stories to test
+    exclude: "*-skip*"            // which stories to skip
+  }
+}]
+```
+
+## Source Options
+
+### Local Build Directory
+
+Point to your built Storybook:
+
+```typescript
+source: "./storybook-static"
+```
+
+### Remote Storybook
+
+Test a live Storybook instance:
+
+```typescript
+source: "https://storybook.example.com"
+```
+
+## Filtering Stories
+
+Use minimatch patterns to control which stories are tested:
+
+```typescript
+// Test all stories
+include: "*"
+
+// Test only button stories
+include: "button-*"
+
+// Test multiple patterns
+include: ["button-*", "input-*"]
+
+// Skip specific stories
+exclude: "*-skip*"
+
+// Skip multiple patterns
+exclude: ["*-skip*", "*admin*"]
+```
+
+## Story Configuration
+
+Configure visual testing options directly in your stories:
+
+```typescript
+export default {
+  title: 'Button',
+  component: Button,
+  parameters: {
+    visualTesting: {
+      skip: false,                    // Skip this story
+      screenshotTarget: '#root',     // Custom screenshot target
+      threshold: 0.05,               // Custom threshold for this story
+      browser: ['chromium', 'firefox'], // Specific browsers
+      viewport: { width: 1200, height: 800 }, // Custom viewport
+      disableCSSInjection: true,     // Disable global CSS injection
+      interactions: [                // Execute interactions before screenshot
+        { type: 'click', selector: 'button' },
+        { type: 'fill', selector: 'input', text: 'test' }
+      ]
+    }
+  }
+};
+```
+
+## Story Parameters
+
+### `skip`
+
+Skip this story entirely:
+
+```typescript
+visualTesting: {
+  skip: true
+}
+```
+
+### `screenshotTarget`
+
+Specify which element to screenshot:
+
+```typescript
+visualTesting: {
+  screenshotTarget: '#storybook-root' // default
+  // or
+  screenshotTarget: '.my-component'
+}
+```
+
+### `threshold`
+
+Override the global threshold for this story:
+
+```typescript
+visualTesting: {
+  threshold: 0.05 // 5% difference threshold
+}
+```
+
+### `browser`
+
+Test only specific browsers:
+
+```typescript
+visualTesting: {
+  browser: ['chromium'] // only test in Chromium
+  // or
+  browser: ['chromium', 'firefox'] // test in both
+}
+```
+
+### `viewport`
+
+Use a custom viewport for this story:
+
+```typescript
+visualTesting: {
+  viewport: { width: 1200, height: 800 }
+}
+```
+
+### `disableCSSInjection`
+
+Disable global CSS injection for this story:
+
+```typescript
+visualTesting: {
+  disableCSSInjection: true
+}
+```
+
+### `interactions`
+
+Execute user interactions before taking the screenshot:
+
+```typescript
+visualTesting: {
+  interactions: [
+    { type: 'click', selector: 'button.primary' },
+    { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+    { type: 'waitForTimeout', duration: 500 },
+    { type: 'hover', selector: '.tooltip-trigger' }
+  ]
+}
+```
+
+## Common Use Cases
+
+### Testing Form Interactions
+
+```typescript
+export const FilledForm: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+        { type: 'fill', selector: 'input[name="password"]', text: 'password123' },
+        { type: 'click', selector: 'button[type="submit"]' },
+        { type: 'waitForTimeout', duration: 1000 }
+      ]
+    }
+  }
+};
+```
+
+### Testing Hover States
+
+```typescript
+export const HoverState: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'hover', selector: '.button' }
+      ]
+    }
+  }
+};
+```
+
+### Testing Loading States
+
+```typescript
+export const LoadingState: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'click', selector: 'button.load-data' },
+        { type: 'waitForSelector', selector: '.loading-spinner' },
+        { type: 'waitForTimeout', duration: 2000 }
+      ]
+    }
+  }
+};
+```
+
+## Troubleshooting
+
+### Story Not Found
+
+Make sure your Storybook build is up to date:
+
+```bash
+npm run build-storybook
+```
+
+### Port Conflicts
+
+If port 6006 is in use, change it in your config:
+
+```typescript
+options: {
+  port: 6007 // use different port
+}
+```
+
+### Stories Not Loading
+
+Check that your `source` path is correct and contains the Storybook build files.
