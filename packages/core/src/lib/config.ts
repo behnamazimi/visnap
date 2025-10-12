@@ -30,8 +30,6 @@ export const resolveScreenshotDir = (screenshotDir?: string): string => {
   return screenshotDir ?? DEFAULT_SCREENSHOT_DIR;
 };
 
-// use lodash.merge for deep merging configs
-
 function applyEnvOverrides(
   cfg: VisualTestingToolConfig
 ): VisualTestingToolConfig {
@@ -122,28 +120,55 @@ export const resolveEffectiveConfig = async (
 };
 
 export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { log } = require("@/utils/logger");
-  log.info("Effective configuration:");
-  log.dim(`  Screenshot directory: ${config.screenshotDir}`);
-  log.dim(
-    `  Comparison core: ${config.comparison?.core ?? DEFAULT_COMPARISON_CORE}`
-  );
-  log.dim(
-    `  Comparison threshold: ${config.comparison?.threshold ?? DEFAULT_THRESHOLD}`
-  );
-  log.dim(
-    `  Comparison diff color: ${config.comparison?.diffColor ?? DEFAULT_DIFF_COLOR}`
-  );
-  log.dim(
-    `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
-  );
-  log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
-  log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
-  if (config.viewport) {
-    const viewportKeys = Object.keys(config.viewport);
-    log.dim(
-      `  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`
-    );
-  }
+  // Use dynamic import to avoid circular dependency
+  import("@/utils/logger")
+    .then(({ log }) => {
+      log.info("Effective configuration:");
+      log.dim(`  Screenshot directory: ${config.screenshotDir}`);
+      log.dim(
+        `  Comparison core: ${config.comparison?.core ?? DEFAULT_COMPARISON_CORE}`
+      );
+      log.dim(
+        `  Comparison threshold: ${config.comparison?.threshold ?? DEFAULT_THRESHOLD}`
+      );
+      log.dim(
+        `  Comparison diff color: ${config.comparison?.diffColor ?? DEFAULT_DIFF_COLOR}`
+      );
+      log.dim(
+        `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
+      );
+      log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
+      log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
+      if (config.viewport) {
+        const viewportKeys = Object.keys(config.viewport);
+        log.dim(
+          `  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`
+        );
+      }
+    })
+    .catch(() => {
+      // Fallback to console if logger is not available
+      console.log("Effective configuration:");
+      console.log(`  Screenshot directory: ${config.screenshotDir}`);
+      console.log(
+        `  Comparison core: ${config.comparison?.core ?? DEFAULT_COMPARISON_CORE}`
+      );
+      console.log(
+        `  Comparison threshold: ${config.comparison?.threshold ?? DEFAULT_THRESHOLD}`
+      );
+      console.log(
+        `  Comparison diff color: ${config.comparison?.diffColor ?? DEFAULT_DIFF_COLOR}`
+      );
+      console.log(
+        `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
+      );
+      console.log(`  Browser adapter: ${config.adapters.browser.name}`);
+      console.log(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
+      if (config.viewport) {
+        const viewportKeys = Object.keys(config.viewport);
+        console.log(
+          `  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`
+        );
+      }
+    });
 };

@@ -9,8 +9,10 @@ import type {
 } from "@vividiff/protocol";
 
 import log from "./logger";
+import { roundToTwoDecimals } from "./math";
+import { formatViewport } from "./viewport-formatting";
 
-import { compareBaseAndCurrentWithTestCases } from "@/lib/compare";
+import { compareTestCases } from "@/lib/compare";
 
 /**
  * Summarize test mode results with comparison and logging
@@ -30,7 +32,7 @@ export async function summarizeTestMode(
   failures: Array<{ id: string; reason: string; diffPercentage?: number }>;
   captureFailures: Array<{ id: string; error: string }>;
 }> {
-  const results = await compareBaseAndCurrentWithTestCases(options, cases);
+  const results = await compareTestCases(options, cases);
 
   const passed = results.filter(r => r.match).length;
   const failedCaptures = captureResults.filter(r => r.error).length;
@@ -68,8 +70,9 @@ export async function summarizeTestMode(
     const testCase = testCasesMap.get(captureResult.id);
     const captureDurationMs = captureResult.captureDurationMs || 0;
     const comparisonDurationMs = comparisonResult?.comparisonDurationMs || 0;
-    const totalDurationMs =
-      Math.round((captureDurationMs + comparisonDurationMs) * 100) / 100;
+    const totalDurationMs = roundToTwoDecimals(
+      captureDurationMs + comparisonDurationMs
+    );
 
     totalCaptureDurationMs += captureDurationMs;
     totalComparisonDurationMs += comparisonDurationMs;
@@ -95,9 +98,7 @@ export async function summarizeTestMode(
     }
 
     // Format viewport information
-    const viewport = testCase?.viewport
-      ? `${testCase.viewport.width}x${testCase.viewport.height}${testCase.viewport.deviceScaleFactor ? `@${testCase.viewport.deviceScaleFactor}x` : ""}`
-      : undefined;
+    const viewport = formatViewport(testCase?.viewport);
 
     testCases.push({
       id: captureResult.id,
@@ -132,12 +133,11 @@ export async function summarizeTestMode(
   }
 
   const durations: TestDurations = {
-    totalCaptureDurationMs: Math.round(totalCaptureDurationMs * 100) / 100,
-    totalComparisonDurationMs:
-      Math.round(totalComparisonDurationMs * 100) / 100,
-    totalDurationMs:
-      Math.round((totalCaptureDurationMs + totalComparisonDurationMs) * 100) /
-      100,
+    totalCaptureDurationMs: roundToTwoDecimals(totalCaptureDurationMs),
+    totalComparisonDurationMs: roundToTwoDecimals(totalComparisonDurationMs),
+    totalDurationMs: roundToTwoDecimals(
+      totalCaptureDurationMs + totalComparisonDurationMs
+    ),
   };
 
   const outcome: RunOutcome = {
@@ -206,16 +206,14 @@ export function summarizeUpdateMode(
       : "passed";
 
     // Format viewport information
-    const viewport = testCase?.viewport
-      ? `${testCase.viewport.width}x${testCase.viewport.height}${testCase.viewport.deviceScaleFactor ? `@${testCase.viewport.deviceScaleFactor}x` : ""}`
-      : undefined;
+    const viewport = formatViewport(testCase?.viewport);
 
     testCases.push({
       id: captureResult.id,
       captureFilename:
         captureResult.captureFilename || `${captureResult.id}.png`,
-      captureDurationMs: Math.round(captureDurationMs * 100) / 100,
-      totalDurationMs: Math.round(captureDurationMs * 100) / 100, // No comparison in update mode
+      captureDurationMs: roundToTwoDecimals(captureDurationMs),
+      totalDurationMs: roundToTwoDecimals(captureDurationMs), // No comparison in update mode
       status,
       reason: captureResult.error,
       title: testCase?.title,
@@ -226,9 +224,9 @@ export function summarizeUpdateMode(
   }
 
   const durations: TestDurations = {
-    totalCaptureDurationMs: Math.round(totalCaptureDurationMs * 100) / 100,
+    totalCaptureDurationMs: roundToTwoDecimals(totalCaptureDurationMs),
     totalComparisonDurationMs: 0, // No comparison in update mode
-    totalDurationMs: Math.round(totalCaptureDurationMs * 100) / 100,
+    totalDurationMs: roundToTwoDecimals(totalCaptureDurationMs),
   };
 
   const outcome: RunOutcome = {

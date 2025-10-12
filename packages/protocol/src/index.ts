@@ -1,12 +1,6 @@
+// ============= Core Types =============
+
 export type BrowserName = "chromium" | "firefox" | "webkit" | (string & {});
-
-export type ComparisonCore = "odiff" | "pixelmatch";
-
-export interface ComparisonConfig {
-  core: ComparisonCore;
-  threshold: number;
-  diffColor?: string;
-}
 
 export interface Viewport {
   width: number;
@@ -14,7 +8,27 @@ export interface Viewport {
   deviceScaleFactor?: number;
 }
 
-// ============= Interaction Option Types =============
+// ============= Comparison Types =============
+
+export type ComparisonCore = "odiff" | "pixelmatch" | (string & {});
+
+export interface ComparisonEngine {
+  name: string;
+  compare(
+    currentFile: string,
+    baseFile: string,
+    diffFile: string,
+    options: { threshold: number; diffColor?: string }
+  ): Promise<{ match: boolean; reason: string; diffPercentage?: number }>;
+}
+
+export interface ComparisonConfig {
+  core: ComparisonCore;
+  threshold: number;
+  diffColor?: string;
+}
+
+// ============= Interaction Types =============
 
 export interface ClickOptions {
   button?: "left" | "right" | "middle";
@@ -167,6 +181,8 @@ export type InteractionAction =
       options?: WaitForLoadStateOptions;
     };
 
+// ============= Browser Types =============
+
 export interface BrowserConfig {
   name: BrowserName;
   options?: Record<string, unknown>;
@@ -175,6 +191,8 @@ export interface BrowserConfig {
 export type BrowserConfiguration = BrowserName | BrowserConfig;
 
 export type ViewportMap = Record<string, Viewport>;
+
+// ============= Screenshot Types =============
 
 export interface ScreenshotOptions {
   id: string;
@@ -191,12 +209,46 @@ export interface ScreenshotResult {
   meta: { elapsedMs: number; viewportKey?: string; id: string };
 }
 
+// ============= Test Result Types =============
+
 // Standardized comparison reasons for non-matching results
 export type CompareReason =
   | "pixel-diff"
   | "missing-current"
   | "missing-base"
   | "error";
+
+export interface TestResult {
+  success: boolean;
+  outcome: RunOutcome;
+  exitCode: number;
+  failures?: Array<{
+    id: string;
+    reason: string;
+    diffPercentage?: number;
+  }>;
+  captureFailures?: Array<{
+    id: string;
+    error: string;
+  }>;
+  config?: {
+    screenshotDir?: string;
+    adapters?: {
+      browser?: { name: string; options?: Record<string, unknown> };
+      testCase?: Array<{ name: string; options?: Record<string, unknown> }>;
+    };
+    comparison?: ComparisonConfig;
+    runtime?: {
+      maxConcurrency?: number;
+      quiet?: boolean;
+    };
+    viewport?: ViewportMap;
+    reporter?: {
+      html?: boolean | string;
+      json?: boolean | string;
+    };
+  };
+}
 
 export interface TestCaseDetail {
   id: string;
@@ -280,6 +332,8 @@ export interface TestCaseInstanceMeta
   visualTesting?: TestCaseVisualConfig;
 }
 
+// ============= Adapter Types =============
+
 export interface BrowserAdapterInitOptions {
   browser: BrowserName;
   viewport?: ViewportMap;
@@ -329,6 +383,8 @@ interface TestCaseAdapterOptions<T = Record<string, unknown>> {
   options?: T;
 }
 
+// ============= Configuration Types =============
+
 export interface VisualTestingToolConfig {
   adapters: {
     browser: BrowserAdapterOptions;
@@ -351,6 +407,8 @@ export interface VisualTestingToolConfig {
   };
 }
 
+// ============= Utility Types =============
+
 export type PageWithEvaluate = {
   evaluate?: (fn: () => Promise<unknown>) => Promise<unknown>;
   close?: () => Promise<void>;
@@ -360,3 +418,7 @@ export interface FilterOptions {
   include?: string | string[];
   exclude?: string | string[];
 }
+
+// ============= Viewport Utilities =============
+
+export const DEFAULT_VIEWPORT = { width: 1920, height: 1080 };

@@ -1,23 +1,19 @@
-import { readdirSync } from "fs";
 import { join } from "path";
 
 import odiff from "odiff-bin";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 
-import {
-  compareDirectories,
-  compareBaseAndCurrentWithTestCases,
-} from "./compare";
+import { compareDirectories, compareTestCases } from "./compare";
 
 import { getErrorMessage } from "@/utils/error-handler";
 
 // Mock dependencies
-vi.mock("fs", () => ({
-  readdirSync: vi.fn(),
-  readFileSync: vi.fn(),
-  writeFileSync: vi.fn(),
+vi.mock("fs/promises", () => ({
+  readdir: vi.fn(),
+  readFile: vi.fn(),
+  writeFile: vi.fn(),
 }));
 
 vi.mock("odiff-bin", () => ({
@@ -61,11 +57,16 @@ vi.mock("../../utils/fs", () => ({
 }));
 
 describe("compare", () => {
-  const mockReaddirSync = vi.mocked(readdirSync);
+  let mockReaddir: any;
   const mockOdiffCompare = vi.mocked(odiff.compare);
   const mockPixelmatch = vi.mocked(pixelmatch);
   const mockPNG = vi.mocked(PNG);
   const mockGetErrorMessage = vi.mocked(getErrorMessage);
+
+  beforeAll(async () => {
+    const fsPromises = await import("fs/promises");
+    mockReaddir = vi.mocked(fsPromises.readdir);
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -73,9 +74,9 @@ describe("compare", () => {
 
   describe("compareDirectories with odiff", () => {
     it("should compare files and return match results", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png", "file2.png"] as any)
-        .mockReturnValueOnce(["file1.png", "file2.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png", "file2.png"] as any)
+        .mockResolvedValueOnce(["file1.png", "file2.png"] as any);
 
       mockOdiffCompare
         .mockResolvedValueOnce({ match: true })
@@ -106,9 +107,9 @@ describe("compare", () => {
     });
 
     it("should handle missing files in current directory", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png"] as any)
-        .mockReturnValueOnce(["file1.png", "file2.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png"] as any)
+        .mockResolvedValueOnce(["file1.png", "file2.png"] as any);
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
@@ -133,9 +134,9 @@ describe("compare", () => {
     });
 
     it("should handle missing files in base directory", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png", "file2.png"] as any)
-        .mockReturnValueOnce(["file1.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png", "file2.png"] as any)
+        .mockResolvedValueOnce(["file1.png"] as any);
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
@@ -160,9 +161,9 @@ describe("compare", () => {
     });
 
     it("should use custom threshold and diff color", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png"] as any)
-        .mockReturnValueOnce(["file1.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png"] as any)
+        .mockResolvedValueOnce(["file1.png"] as any);
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
@@ -186,9 +187,9 @@ describe("compare", () => {
     });
 
     it("should handle odiff errors", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png"] as any)
-        .mockReturnValueOnce(["file1.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png"] as any)
+        .mockResolvedValueOnce(["file1.png"] as any);
 
       const error = new Error(
         "Could not load comparison image: /base/file1.png"
@@ -212,9 +213,9 @@ describe("compare", () => {
     });
 
     it("should handle generic odiff errors", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png"] as any)
-        .mockReturnValueOnce(["file1.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png"] as any)
+        .mockResolvedValueOnce(["file1.png"] as any);
 
       const error = new Error("Generic error");
       mockOdiffCompare.mockRejectedValueOnce(error);
@@ -236,9 +237,9 @@ describe("compare", () => {
 
   describe("compareDirectories with pixelmatch", () => {
     it("should compare files using pixelmatch", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png"] as any)
-        .mockReturnValueOnce(["file1.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png"] as any)
+        .mockResolvedValueOnce(["file1.png"] as any);
 
       // Mock PNG data is handled by global mock
       mockPixelmatch.mockReturnValue(50); // 50 mismatched pixels
@@ -258,9 +259,9 @@ describe("compare", () => {
     });
 
     it("should handle pixelmatch with matching images", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png"] as any)
-        .mockReturnValueOnce(["file1.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png"] as any)
+        .mockResolvedValueOnce(["file1.png"] as any);
 
       // Mock PNG data is handled by global mock
       mockPixelmatch.mockReturnValue(0); // No mismatched pixels
@@ -279,9 +280,9 @@ describe("compare", () => {
     });
 
     it("should handle pixelmatch errors", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce(["file1.png"] as any)
-        .mockReturnValueOnce(["file1.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["file1.png"] as any)
+        .mockResolvedValueOnce(["file1.png"] as any);
 
       const error = new Error("ENOENT: no such file or directory");
       (mockPNG.sync.read as any).mockImplementation(() => {
@@ -303,7 +304,7 @@ describe("compare", () => {
     });
   });
 
-  describe("compareBaseAndCurrentWithTestCases", () => {
+  describe("compareTestCases", () => {
     const mockConfig = {
       screenshotDir: "test-dir",
       comparison: {
@@ -323,12 +324,12 @@ describe("compare", () => {
     ];
 
     it("should compare files with test case specific thresholds", async () => {
-      mockReaddirSync
-        .mockReturnValueOnce([
+      mockReaddir
+        .mockResolvedValueOnce([
           "story1-default.png",
           "story2-default.png",
         ] as any)
-        .mockReturnValueOnce([
+        .mockResolvedValueOnce([
           "story1-default.png",
           "story2-default.png",
         ] as any);
@@ -342,7 +343,7 @@ describe("compare", () => {
           diffPercentage: 3.1,
         });
 
-      const result = await compareBaseAndCurrentWithTestCases(
+      const result = await compareTestCases(
         mockConfig as any,
         mockTestCases as any
       );
@@ -374,15 +375,15 @@ describe("compare", () => {
       const configWithoutComparison = { ...mockConfig };
       delete (configWithoutComparison as any).comparison;
 
-      mockReaddirSync
-        .mockReturnValueOnce(["story1-default.png"] as any)
-        .mockReturnValueOnce(["story1-default.png"] as any);
+      mockReaddir
+        .mockResolvedValueOnce(["story1-default.png"] as any)
+        .mockResolvedValueOnce(["story1-default.png"] as any);
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
       });
 
-      await compareBaseAndCurrentWithTestCases(
+      await compareTestCases(
         configWithoutComparison as any,
         [mockTestCases[0]] as any
       );

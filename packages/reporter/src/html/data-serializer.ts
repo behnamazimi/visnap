@@ -1,4 +1,4 @@
-import type { TestResult } from "@vividiff/core";
+import type { TestResult } from "@vividiff/protocol";
 import type { SerializedReportData } from "../types";
 
 export function serializeTestData(result: TestResult): SerializedReportData {

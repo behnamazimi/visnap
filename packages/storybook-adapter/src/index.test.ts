@@ -169,7 +169,10 @@ describe("createAdapter", () => {
 
       const result = await adapter.listCases(mockPageCtx);
 
-      expect(mockDiscoverCasesFromBrowser).toHaveBeenCalledWith(mockPageCtx);
+      expect(mockDiscoverCasesFromBrowser).toHaveBeenCalledWith(
+        mockPageCtx,
+        undefined
+      );
       expect(mockPageCtx.close).toHaveBeenCalled();
       expect(mockNormalizeStories).toHaveBeenCalledWith(mockStories, {
         include: ["button*"],
@@ -280,7 +283,8 @@ describe("createAdapter", () => {
 
       // Should not throw error when close is not available
       expect(mockDiscoverCasesFromBrowser).toHaveBeenCalledWith(
-        pageCtxWithoutClose
+        pageCtxWithoutClose,
+        undefined
       );
     });
   });

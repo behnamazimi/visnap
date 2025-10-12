@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { writeFileSync, readFileSync, mkdirSync } from "fs";
 import { HtmlReporter } from "./html-reporter";
-import type { TestResult } from "@vividiff/core";
+import type { TestResult } from "@vividiff/protocol";
 import type { RunOutcome, TestCaseDetail } from "@vividiff/protocol";
 
 // Mock fs functions
