@@ -1,4 +1,4 @@
-import type { TestCaseDetail, RunOutcome } from "@vividiff/protocol";
+import type { TestCaseDetail, RunOutcome, ComparisonConfig, ViewportMap } from "@vividiff/protocol";
 
 export interface ReporterOptions {
   outputPath?: string;
@@ -28,14 +28,10 @@ export interface ReportData {
   timestamp: string;
   config?: {
     screenshotDir?: string;
-    comparison?: {
-      core?: string;
-      threshold?: number;
-      diffColor?: string;
-    };
+    comparison?: ComparisonConfig;
     adapters?: Record<string, unknown>;
     runtime?: Record<string, unknown>;
-    viewport?: Record<string, unknown>;
+    viewport?: ViewportMap;
   };
 }
 
@@ -43,4 +39,13 @@ export interface ProcessedTestCase extends TestCaseDetail {
   baseImage?: string;      // Relative path to base image
   currentImage?: string;   // Relative path to current image
   diffImage?: string;      // Relative path to diff image
+}
+
+export interface SerializedReportData extends ReportData {
+  duration?: number;
+  testCases: ProcessedTestCase[];
+  browsers: string[];
+  viewports: string[];
+  statusCounts: Record<string, number>;
+  groupedByStatus: Record<string, ProcessedTestCase[]>;
 }

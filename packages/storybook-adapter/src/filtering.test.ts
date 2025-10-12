@@ -1,27 +1,9 @@
 import type { TestCaseMeta, ViewportMap } from "@vividiff/protocol";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 
 import { createTestCaseFilter, normalizeStories } from "./filtering.js";
 
-// Mock the utils module
-vi.mock("./utils.js", () => ({
-  toSafeRegex: vi.fn(),
-}));
-
-import { toSafeRegex } from "./utils.js";
-
-const mockToSafeRegex = vi.mocked(toSafeRegex);
-
 describe("filtering", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    // Default mock behavior
-    mockToSafeRegex.mockImplementation(pattern => {
-      const escaped = pattern.replace(/\*/g, ".*");
-      return new RegExp(`^${escaped}$`);
-    });
-  });
-
   describe("createTestCaseFilter", () => {
     const createMockStory = (id: string): TestCaseMeta => ({
       id,
@@ -89,25 +71,19 @@ describe("filtering", () => {
       expect(filter(createMockStory("input-spec"))).toBe(false);
     });
 
-    it("should warn about invalid patterns", () => {
-      const consoleWarnSpy = vi
-        .spyOn(console, "warn")
-        .mockImplementation(() => {});
-
-      mockToSafeRegex.mockReturnValueOnce(null);
-
+    it("should handle complex minimatch patterns", () => {
       const filter = createTestCaseFilter({
-        include: ["invalid[pattern"],
+        include: ["button-{primary,secondary}", "input-*"],
+        exclude: ["*-test", "*-spec"],
       });
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        "[storybook-adapter] Ignoring invalid include pattern: invalid[pattern"
-      );
-
-      // Should still work - with no valid include patterns, all stories should be included
       expect(filter(createMockStory("button-primary"))).toBe(true);
-
-      consoleWarnSpy.mockRestore();
+      expect(filter(createMockStory("button-secondary"))).toBe(true);
+      expect(filter(createMockStory("input-text"))).toBe(true);
+      expect(filter(createMockStory("input-email"))).toBe(true);
+      expect(filter(createMockStory("button-test"))).toBe(false);
+      expect(filter(createMockStory("input-spec"))).toBe(false);
+      expect(filter(createMockStory("modal-dialog"))).toBe(false);
     });
 
     it("should handle empty include patterns", () => {

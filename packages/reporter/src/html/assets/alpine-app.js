@@ -9,6 +9,7 @@ function vividiffReport() {
     expandedTests: [],
     filteredTests: [],
     browsers: [],
+    showConfig: false,
     // Per-test comparison state
     testViewModes: {}, // testId -> viewMode
     testSliderPositions: {}, // testId -> sliderPosition
@@ -101,6 +102,10 @@ function vividiffReport() {
     clearFilters() {
       this.filters = { search: '', status: 'all', browser: '' };
       this.applyFilters();
+    },
+
+    toggleConfig() {
+      this.showConfig = !this.showConfig;
     },
 
     toggleTest(id) {

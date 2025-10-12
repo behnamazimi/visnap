@@ -69,43 +69,22 @@ describe("pool", () => {
       expect(worker).toHaveBeenCalledTimes(3);
     });
 
-    it("should enforce minimum concurrency of 1", async () => {
-      const runWithPool = createConcurrencyPool({ concurrency: 0 });
-      const items = [1, 2, 3];
-      const worker = vi
-        .fn()
-        .mockImplementation(async (item: number) => item * 2);
-
-      const results = await runWithPool(items, worker);
-
-      expect(results).toEqual([2, 4, 6]);
-      expect(worker).toHaveBeenCalledTimes(3);
+    it("should enforce minimum concurrency of 1", () => {
+      expect(() => createConcurrencyPool({ concurrency: 0 })).toThrow(
+        "Concurrency must be at least 1"
+      );
     });
 
-    it("should handle negative concurrency", async () => {
-      const runWithPool = createConcurrencyPool({ concurrency: -5 });
-      const items = [1, 2, 3];
-      const worker = vi
-        .fn()
-        .mockImplementation(async (item: number) => item * 2);
-
-      const results = await runWithPool(items, worker);
-
-      expect(results).toEqual([2, 4, 6]);
-      expect(worker).toHaveBeenCalledTimes(3);
+    it("should handle negative concurrency", () => {
+      expect(() => createConcurrencyPool({ concurrency: -5 })).toThrow(
+        "Concurrency must be at least 1"
+      );
     });
 
-    it("should handle fractional concurrency", async () => {
-      const runWithPool = createConcurrencyPool({ concurrency: 2.7 });
-      const items = [1, 2, 3, 4, 5];
-      const worker = vi
-        .fn()
-        .mockImplementation(async (item: number) => item * 2);
-
-      const results = await runWithPool(items, worker);
-
-      expect(results).toEqual([2, 4, 6, 8, 10]);
-      expect(worker).toHaveBeenCalledTimes(5);
+    it("should handle fractional concurrency", () => {
+      expect(() => createConcurrencyPool({ concurrency: 2.7 })).toThrow(
+        "Concurrency must be an integer"
+      );
     });
 
     it("should handle worker errors", async () => {

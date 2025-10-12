@@ -56,7 +56,7 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
   const filteredUrls = opts.urls.filter(filter);
 
   if (filteredUrls.length === 0) {
-    console.warn("[url-adapter] No URLs match the include/exclude patterns");
+    console.warn("No URLs match the include/exclude patterns");
   }
 
   return {

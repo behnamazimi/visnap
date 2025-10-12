@@ -26,6 +26,7 @@ export async function displayBanner(): Promise<void> {
     log.plain(`${pkg.description}\n`);
   } catch {
     // Fallback to simple text if figlet fails
-    log.plain("\n🚀 vividiff - ${pkg.description}\n");
+    const pkg = await getPackageInfo();
+    log.plain(`\n🚀 vividiff - ${pkg.description}\n`);
   }
 }

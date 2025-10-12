@@ -7,6 +7,7 @@ import {
   handleWaitFor,
   injectGlobalCSS,
 } from "./browser-context";
+import { SCREENSHOT_ELEMENT_TIMEOUT } from "./constants";
 import { executeInteractions } from "./interaction-executor";
 import { resolveScreenshotTarget } from "./utils";
 
@@ -23,7 +24,7 @@ export async function captureElementScreenshot(
   const selector = resolveScreenshotTarget(screenshotTarget);
 
   const storyElement = await page.waitForSelector(selector, {
-    timeout: 2000,
+    timeout: SCREENSHOT_ELEMENT_TIMEOUT,
     state: "attached",
   });
 
@@ -97,8 +98,9 @@ export async function performScreenshotCapture(
     // Clean up the page
     try {
       await page?.close();
-    } catch {
-      // Ignore cleanup errors
+    } catch (error) {
+      // Log cleanup errors but don't fail the capture
+      console.warn(`Failed to close page during cleanup: ${error}`);
     }
   }
 }

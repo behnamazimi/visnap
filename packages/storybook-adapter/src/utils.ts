@@ -24,27 +24,3 @@ export function withTimeout<T>(
     );
   });
 }
-
-/**
- * Escapes a string for safe use inside a RegExp literal.
- */
-export function escapeRegExp(input: string): string {
-  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/**
- * Converts a user pattern supporting only `*` wildcards into a safe anchored RegExp.
- * Returns null if the pattern cannot produce a valid RegExp.
- */
-export function toSafeRegex(pattern: string): RegExp | null {
-  // Support '*' wildcards only; escape everything else
-  const escaped = pattern
-    .split("*")
-    .map(segment => escapeRegExp(segment))
-    .join(".*");
-  try {
-    return new RegExp(`^${escaped}$`);
-  } catch {
-    return null;
-  }
-}

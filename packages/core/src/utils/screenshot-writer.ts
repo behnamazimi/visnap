@@ -1,4 +1,4 @@
-import { writeFile, unlink } from "fs/promises";
+import { writeFile, unlink, rename } from "fs/promises";
 import { join } from "path";
 
 import log from "./logger";
@@ -15,11 +15,13 @@ export async function writeScreenshotToFile(
   const tmpPath = `${finalPath}.tmp`;
 
   await writeFile(tmpPath, buffer);
-  await import("fs/promises")
-    .then(m => m.rename(tmpPath, finalPath))
-    .catch(async () => {
-      await writeFile(finalPath, buffer);
-    });
+  try {
+    await rename(tmpPath, finalPath);
+  } catch (error) {
+    // If rename fails, fallback to direct write
+    log.warn(`Failed to rename temp file, writing directly: ${error}`);
+    await writeFile(finalPath, buffer);
+  }
 
   return finalPath;
 }

@@ -144,7 +144,7 @@ describe("createAdapter", () => {
 
     await adapter.listCases();
     expect(consoleSpy).toHaveBeenCalledWith(
-      "[url-adapter] No URLs match the include/exclude patterns"
+      "No URLs match the include/exclude patterns"
     );
 
     consoleSpy.mockRestore();

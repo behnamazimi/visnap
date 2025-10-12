@@ -1,3 +1,5 @@
+import { generateConfigContent as generateConfigContentTemplate } from "./config-template";
+
 import { type InitOptions } from "@/lib/api/init";
 
 /**
@@ -6,55 +8,10 @@ import { type InitOptions } from "@/lib/api/init";
 export function generateConfigContent(options: InitOptions): string {
   const { configType = "ts", threshold = 0.1 } = options;
 
-  const configObject = `{
-  adapters: {
-    browser: {
-      name: "@vividiff/playwright-adapter",
-      options: {
-        // injectCSS: "* { animation: none !important; transition: none !important; }"
-      },
-    },
-    testCase: [
-      {
-        name: "@vividiff/storybook-adapter",
-        options: {
-          source: "./storybook-static",
-          include: "*",
-          // exclude: "*page*",
-        },
-      },
-    ],
-  },
-  comparison: {
-    core: "odiff", // or "pixelmatch"
-    threshold: ${threshold},
-    diffColor: "#00ff00",
-  },
-  // Global viewport configuration that applies to all test cases unless overridden
-  viewport: {
-    desktop: { width: 1920, height: 1080 },
-    tablet: { width: 768, height: 1024 },
-    mobile: { width: 375, height: 667 },
-  },
-  reporter: {
-    html: true,
-    json: true
-  }
-}`;
-
-  if (configType === "ts") {
-    return `import { type VisualTestingToolConfig } from "@vividiff/protocol";
-
-const config: VisualTestingToolConfig = ${configObject};
-
-export default config;
-`;
-  } else {
-    return `const config = ${configObject};
-
-export default config;
-`;
-  }
+  return generateConfigContentTemplate({
+    configType,
+    threshold,
+  });
 }
 
 /**

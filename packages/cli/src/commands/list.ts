@@ -44,7 +44,7 @@ const listHandler = async (options: ListOptions): Promise<void> => {
     const formattedTestCases = result.testCases.map(testCase => ({
       id: testCase.caseId || "unknown",
       title: testCase.title || "Untitled",
-      kind: (testCase as any).kind || "Unknown", // kind might be specific to certain adapters
+      kind: testCase.kind || "Unknown", // kind might be specific to certain adapters
       browser: testCase.browser,
     }));
 

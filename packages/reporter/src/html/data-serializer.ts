@@ -7,9 +7,11 @@ export function serializeTestData(result: TestResult): SerializedReportData {
   const browsers = Array.from(new Set(testCases.map((tc) => tc.browser || "N/A")));
   const viewports = Array.from(
     new Set(
-      testCases.map((tc) =>
-        tc.viewport ? `${tc.viewport.width}x${tc.viewport.height}` : "N/A"
-      )
+      testCases.map((tc) => {
+        if (!tc.viewport) return "N/A";
+        if (typeof tc.viewport === "string") return tc.viewport;
+        return `${tc.viewport.width}x${tc.viewport.height}`;
+      })
     )
   );
 
@@ -37,8 +39,9 @@ export function serializeTestData(result: TestResult): SerializedReportData {
     outcome: result.outcome,
     failures: result.failures || [],
     captureFailures: result.captureFailures || [],
-    timestamp: result.outcome.endTime || new Date().toISOString(),
-    duration: result.outcome.duration,
+    timestamp: new Date().toISOString(),
+    config: result.config,
+    duration: result.outcome.durations?.totalDurationMs,
     testCases,
     browsers,
     viewports,

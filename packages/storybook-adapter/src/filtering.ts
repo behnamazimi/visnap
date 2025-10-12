@@ -4,9 +4,9 @@ import type {
   ViewportMap,
   BrowserName,
   Viewport,
+  FilterOptions,
 } from "@vividiff/protocol";
-
-import { toSafeRegex } from "./utils.js";
+import { minimatch } from "minimatch";
 
 /**
  * Story filtering and normalization for Storybook adapter
@@ -14,12 +14,9 @@ import { toSafeRegex } from "./utils.js";
 
 /**
  * Creates a predicate function that filters stories by `include` and `exclude` patterns.
- * Patterns support `*` wildcard. Invalid patterns are ignored.
+ * Patterns support minimatch wildcards. Invalid patterns are ignored.
  */
-export function createTestCaseFilter(opts: {
-  include?: string | string[];
-  exclude?: string | string[];
-}) {
+export function createTestCaseFilter(opts: FilterOptions) {
   const includePatterns = Array.isArray(opts.include)
     ? opts.include
     : opts.include
@@ -31,39 +28,22 @@ export function createTestCaseFilter(opts: {
       ? [opts.exclude]
       : [];
 
-  const includeRegexes = includePatterns
-    .map(p => {
-      const r = toSafeRegex(p);
-      if (!r)
-        console.warn(
-          `[storybook-adapter] Ignoring invalid include pattern: ${p}`
-        );
-      return r;
-    })
-    .filter((r): r is RegExp => !!r);
-  const excludeRegexes = excludePatterns
-    .map(p => {
-      const r = toSafeRegex(p);
-      if (!r)
-        console.warn(
-          `[storybook-adapter] Ignoring invalid exclude pattern: ${p}`
-        );
-      return r;
-    })
-    .filter((r): r is RegExp => !!r);
-
   return (story: TestCaseMeta) => {
     const storyId = story.id;
 
     // Check include patterns
-    if (includeRegexes.length > 0) {
-      const matchesInclude = includeRegexes.some(regex => regex.test(storyId));
+    if (includePatterns.length > 0) {
+      const matchesInclude = includePatterns.some((pattern: string) =>
+        minimatch(storyId, pattern)
+      );
       if (!matchesInclude) return false;
     }
 
     // Check exclude patterns
-    if (excludeRegexes.length > 0) {
-      const matchesExclude = excludeRegexes.some(regex => regex.test(storyId));
+    if (excludePatterns.length > 0) {
+      const matchesExclude = excludePatterns.some((pattern: string) =>
+        minimatch(storyId, pattern)
+      );
       if (matchesExclude) return false;
     }
 
@@ -77,9 +57,7 @@ export function createTestCaseFilter(opts: {
  */
 export function normalizeStories(
   stories: Record<string, unknown>,
-  options: {
-    include?: string | string[];
-    exclude?: string | string[];
+  options: FilterOptions & {
     baseUrl: string;
     viewportKeys: string[];
     globalViewport?: ViewportMap;
@@ -98,10 +76,12 @@ export function normalizeStories(
     if (!id) continue;
 
     // Get visualTesting under parameters.visualTesting, fallback to empty object
+    const parameters = storyObj as { parameters?: { visualTesting?: unknown } };
     const vt =
-      (storyObj as any).parameters &&
-      typeof (storyObj as any).parameters.visualTesting === "object"
-        ? (storyObj as any).parameters.visualTesting
+      parameters.parameters &&
+      typeof parameters.parameters.visualTesting === "object" &&
+      parameters.parameters.visualTesting !== null
+        ? (parameters.parameters.visualTesting as Record<string, unknown>)
         : {};
 
     const skip = typeof vt.skip === "boolean" ? vt.skip : false;

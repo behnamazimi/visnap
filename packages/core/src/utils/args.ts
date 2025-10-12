@@ -1,4 +1,6 @@
-export interface ParsedArgs {
+import type { FilterOptions } from "@vividiff/protocol";
+
+export interface ParsedArgs extends Pick<FilterOptions, "include" | "exclude"> {
   include?: string[];
   exclude?: string[];
   json?: string | boolean;

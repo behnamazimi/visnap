@@ -25,6 +25,17 @@ export interface PoolOptions {
  * @returns A function that accepts a list of items and an async worker, returning results in input order
  */
 export function createConcurrencyPool(options: PoolOptions) {
+  // Validate input parameters
+  if (typeof options.concurrency !== "number" || isNaN(options.concurrency)) {
+    throw new Error("Concurrency must be a valid number");
+  }
+  if (options.concurrency < 1) {
+    throw new Error("Concurrency must be at least 1");
+  }
+  if (!Number.isInteger(options.concurrency)) {
+    throw new Error("Concurrency must be an integer");
+  }
+
   const limit = Math.max(1, Math.floor(options.concurrency));
   return async function runWithPool<T, R>(
     items: T[],

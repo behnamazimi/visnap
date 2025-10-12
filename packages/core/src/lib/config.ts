@@ -14,21 +14,6 @@ import {
 } from "@/constants";
 import { ConfigError } from "@/utils/error-handler";
 
-export type BrowserName = "chromium" | "firefox" | "webkit";
-
-export interface ViewportSize {
-  width: number;
-  height: number;
-}
-
-export interface ViewportConfig {
-  [key: string]: ViewportSize;
-}
-
-export interface ViewportMap {
-  [key: string]: ViewportSize;
-}
-
 export const getConfigTsPath = (): string =>
   join(process.cwd(), "vividiff.config.ts");
 
@@ -72,7 +57,10 @@ function applyEnvOverrides(
   ) {
     out.comparison = {
       core:
-        (process.env.VIVIDIFF_COMPARISON_CORE as any) ??
+        (process.env.VIVIDIFF_COMPARISON_CORE as
+          | "odiff"
+          | "pixelmatch"
+          | undefined) ??
         out.comparison?.core ??
         DEFAULT_COMPARISON_CORE,
       threshold: out.comparison?.threshold ?? DEFAULT_THRESHOLD,
@@ -113,7 +101,7 @@ export const resolveEffectiveConfig = async (
         ...adapter.options,
         include: cliOptions.include,
         exclude: cliOptions.exclude,
-      } as any;
+      } as Record<string, unknown>;
     }
   }
 
