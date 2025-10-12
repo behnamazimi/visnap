@@ -30,8 +30,94 @@
       </div>
     </div>
     <div class="meta-info">
-      <span x-text="formattedTimestamp"></span>
-      <span x-show="duration" x-text="`Duration: ${duration}ms`"></span>
+      <div class="meta-left">
+        <span x-text="formattedTimestamp"></span>
+        <span x-show="duration" x-text="`Duration: ${duration}ms`"></span>
+      </div>
+      <div class="meta-right" x-show="data.config">
+        <button @click="toggleConfig()" class="config-toggle-btn">
+          <span x-text="showConfig ? 'Hide Config' : 'Show Config'"></span>
+          <span class="config-toggle-icon" :class="{ 'expanded': showConfig }">▼</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Config Section -->
+    <div x-show="showConfig && data.config" class="config-section">
+      <div class="config-content">
+        <h3>Test Configuration</h3>
+        <div class="config-grid">
+          <template x-if="data.config.comparison">
+            <div class="config-item">
+              <span class="config-label">Comparison Engine</span>
+              <span class="config-value" x-text="data.config.comparison.core || 'Default'"></span>
+            </div>
+          </template>
+          
+          <template x-if="data.config.comparison?.threshold">
+            <div class="config-item">
+              <span class="config-label">Threshold</span>
+              <span class="config-value" x-text="data.config.comparison.threshold"></span>
+            </div>
+          </template>
+          
+          <template x-if="data.config.runtime">
+            <div class="config-item">
+              <span class="config-label">Max Concurrency</span>
+              <span class="config-value" x-text="data.config.runtime.maxConcurrency || 'Default'"></span>
+            </div>
+          </template>
+          
+          <template x-if="data.config.runtime?.quiet">
+            <div class="config-item">
+              <span class="config-label">Quiet Mode</span>
+              <span class="config-value" x-text="data.config.runtime.quiet ? 'Enabled' : 'Disabled'"></span>
+            </div>
+          </template>
+          
+          <template x-if="data.config.adapters">
+            <div class="config-item config-item-wide">
+              <span class="config-label">Adapters</span>
+              <div class="config-value">
+                <template x-for="(adapter, key) in data.config.adapters" :key="key">
+                  <div class="config-adapter">
+                    <strong x-text="key"></strong>: <span x-text="JSON.stringify(adapter)"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+          
+          <template x-if="data.config.viewport">
+            <div class="config-item config-item-wide">
+              <span class="config-label">Viewports</span>
+              <div class="config-value">
+                <template x-for="(viewport, key) in data.config.viewport" :key="key">
+                  <div class="config-viewport">
+                    <strong x-text="key"></strong>: <span x-text="viewport.width + 'x' + viewport.height"></span>
+                    <template x-if="viewport.deviceScaleFactor">
+                      <span class="config-detail"> (scale: <span x-text="viewport.deviceScaleFactor"></span>)</span>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+          
+          <template x-if="data.config.reporter">
+            <div class="config-item config-item-wide">
+              <span class="config-label">Reporters</span>
+              <div class="config-value">
+                <template x-for="(reporter, key) in data.config.reporter" :key="key">
+                  <div class="config-reporter">
+                    <strong x-text="key"></strong>: <span x-text="reporter === true ? 'Enabled' : reporter"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
     </div>
   </header>
 

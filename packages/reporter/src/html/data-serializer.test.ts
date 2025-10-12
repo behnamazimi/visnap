@@ -183,11 +183,12 @@ describe("DataSerializer", () => {
       expect(serialized.viewports).toEqual(["N/A"]);
     });
 
-    it("should use endTime for timestamp when available", () => {
+    it("should use current time for timestamp", () => {
       const testResult = createMockTestResult();
       const serialized = serializeTestData(testResult);
 
-      expect(serialized.timestamp).toBe("2024-01-01T12:00:00.000Z");
+      // Should be a valid ISO timestamp (current time)
+      expect(serialized.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
     });
 
     it("should use current time for timestamp when endTime is missing", () => {

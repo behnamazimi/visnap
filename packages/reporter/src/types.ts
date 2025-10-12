@@ -44,3 +44,12 @@ export interface ProcessedTestCase extends TestCaseDetail {
   currentImage?: string;   // Relative path to current image
   diffImage?: string;      // Relative path to diff image
 }
+
+export interface SerializedReportData extends ReportData {
+  duration?: number;
+  testCases: ProcessedTestCase[];
+  browsers: string[];
+  viewports: string[];
+  statusCounts: Record<string, number>;
+  groupedByStatus: Record<string, ProcessedTestCase[]>;
+}
