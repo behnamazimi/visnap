@@ -1,6 +1,6 @@
 # @vividiff/cli
 
-Command-line interface for visual regression testing with Storybook.
+Command-line interface for ViviDiff visual regression testing.
 
 ## Installation
 
@@ -18,16 +18,13 @@ npx @vividiff/cli [command]
 
 ### `init`
 
-Initialize a new visual testing project with a sample configuration file.
+Initialize a new visual testing project with a configuration file.
 
 ```bash
 vividiff init
 ```
 
-**Options:**
-- Interactive prompts for configuration type (TypeScript/JavaScript)
-- Creates `vividiff.config.ts` or `vividiff.config.js` in the current directory
-- Generates `.gitignore` for screenshot directories
+Creates `vividiff.config.ts` or `vividiff.config.js` in the current directory with interactive prompts for configuration type.
 
 ### `test`
 
@@ -41,7 +38,7 @@ vividiff test
 - `--jsonReport [path]` - Output JSON report (provide path to write to file, omit to print to stdout)
 - `--docker` - Run inside Docker container
 
-**Example:**
+**Examples:**
 ```bash
 # Run tests and output JSON to file
 vividiff test --jsonReport ./test-results.json
@@ -63,14 +60,14 @@ vividiff update
 
 ## Configuration
 
-The CLI reads configuration from `vividiff.config.ts` in your project root. See the [core package documentation](../core/README.md) for configuration details.
+The CLI reads configuration from `vividiff.config.ts` in your project root. See the [core package documentation](../core/README.md) for all configuration options.
 
 ## Related Packages
 
-- [`@vividiff/core`](../core/README.md) - Core API and utilities
-- [`@vividiff/playwright-adapter`](../playwright-adapter/README.md) - Browser automation
-- [`@vividiff/storybook-adapter`](../storybook-adapter/README.md) - Storybook integration
-- [`@vividiff/protocol`](../protocol/README.md) - Shared types
+- [Core](../core/README.md) - Core API and utilities
+- [Playwright Adapter](../playwright-adapter/README.md) - Browser automation
+- [Storybook Adapter](../storybook-adapter/README.md) - Storybook integration
+- [Protocol](../protocol/README.md) - Shared types
 
 ## License
 

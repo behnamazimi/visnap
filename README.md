@@ -1,21 +1,25 @@
-# vividiff
+# ViviDiff
 
-A fast, Dockerized visual regression testing tool designed for **Storybook 8 and above8** with story-level testing capabilities.
+A visual regression testing tool for Storybook 8+ that captures and compares screenshots of your components.
 
-## ✨ Features
+## Key Features
 
-- 🐳 **Dockerized** - Run tests in isolated containers for consistent results
-- 📚 **Great Storybook Integration** - Optimized for modern Storybook versions
-- 🎯 **Story-Level Visual Testing** - Test individual stories with precision
-- 🎛️ **Flexible Filtering** - Run specific stories or exclude unwanted ones
-- 🚀 **Easy CLI Interface** - Simple commands for all operations
-- ⚡ **Quick Setup** - Get started in minutes with `npx vividiff init`
-- 🌐 **Multi-Browser Support** - Test across Chromium, Firefox, and WebKit
-- ⚡ **Fast** - Optimized for speed with concurrent processing
-- 🎨 **CSS Injection** - Inject global CSS for stable screenshots (disable animations, hide elements)
-- 🖱️ **Interactive Testing** - Execute user interactions before capturing screenshots
+- **CLI Interface** - Simple commands for init, test, and update operations
+- **Storybook Integration** - Test individual stories with precision
+- **URL Testing** - Test any web page or application without Storybook
+- **Multi-Browser Support** - Test across Chromium, Firefox, and WebKit
+- **Multiple Viewports** - Test across desktop, tablet, and mobile screen sizes
+- **Interactive Testing** - Execute 20+ user interactions before capturing screenshots
+- **Docker Support** - Run tests in isolated containers for consistent results
+- **CSS Injection** - Disable animations and hide elements for stable screenshots
+- **Dual Comparison Engines** - Choose between `odiff` and `pixelmatch` for image comparison
+- **Flexible Filtering** - Run specific stories or exclude unwanted ones with minimatch patterns
+- **Concurrent Processing** - Parallel test execution with configurable concurrency
+- **TypeScript Support** - Full type safety with shared protocol types
+- **Configuration Management** - TypeScript/JavaScript config files with validation
+- **Comprehensive Reporting** - Generate both JSON and interactive HTML reports
 
-## 🚀 Quick Start
+## Quick Start
 
 Install and run:
 
@@ -29,11 +33,7 @@ npx vividiff update
 npx vividiff test
 ```
 
-## 📖 Documentation
-
-For detailed usage, configuration options, and advanced features, see the [Core Documentation](./packages/core/README.md).
-
-## 🏃‍♂️ Typical Workflow
+## Basic Usage
 
 1. **Initialize** in your Storybook project:
    ```bash
@@ -50,94 +50,56 @@ For detailed usage, configuration options, and advanced features, see the [Core 
    npx vividiff test
    ```
 
-Screenshots are automatically saved to `vividiff/` directory.
+Screenshots are saved to the `vividiff/` directory.
 
-## 🖱️ Interactive Testing
+## Configuration
 
-Test user interactions by defining them in your Storybook stories:
+ViviDiff uses a `vividiff.config.ts` file for configuration. See the [Core Documentation](./packages/core/README.md) for all available options.
+
+## Adapters
+
+ViviDiff supports different test sources through adapters:
+
+- **Storybook Adapter** - Test Storybook stories (default)
+- **URL Adapter** - Test any web page or application
+- **Playwright Adapter** - Browser automation engine
+
+## Common Use Cases
+
+### Interactive Testing
+
+Define user interactions in your Storybook stories:
 
 ```typescript
-// In your story file
 export const FilledForm: Story = {
   parameters: {
     visualTesting: {
       interactions: [
         { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
-        { type: 'select', selector: 'select[name="country"]', value: 'us' },
-        { type: 'check', selector: 'input[type="checkbox"]' }
+        { type: 'click', selector: 'button[type="submit"]' }
       ]
     }
   }
 };
 ```
 
-Supports 20+ interaction types: clicks, form filling, scrolling, waiting, and more.
+### Docker Testing
 
-## 🐳 Docker Support
-
-Run tests in Docker for consistent, isolated environments:
+Run tests in Docker for consistent environments:
 
 ```bash
 npx vividiff test --docker
 ```
 
-## ⚙️ Environment Variables
+## Package Documentation
 
-You can control defaults via environment variables (useful in CI):
+- [Core Library](./packages/core/README.md) - Configuration and programmatic API
+- [CLI](./packages/cli/README.md) - Command-line interface
+- [Playwright Adapter](./packages/playwright-adapter/README.md) - Browser automation
+- [Storybook Adapter](./packages/storybook-adapter/README.md) - Storybook integration
+- [URL Adapter](./packages/url-adapter/README.md) - Test any URL
+- [Reporter](./packages/reporter/README.md) - Test reports
 
-- `VIVIDIFF_SCREENSHOT_DIR`: override the screenshots root directory (e.g., `vividiff`).
-- `VIVIDIFF_THRESHOLD`: numeric pixel diff threshold used when comparing images.
-- `VIVIDIFF_MAX_CONCURRENCY`: maximum number of concurrent captures (default 4).
+## Contributing
 
-Example (bash):
-
-```bash
-VIVIDIFF_SCREENSHOT_DIR=vividiff \
-VIVIDIFF_THRESHOLD=0.02 \
-VIVIDIFF_MAX_CONCURRENCY=6 \
-npx vividiff test
-```
-
-## 📦 Installation
-
-```bash
-npm install vividiff
-```
-
-## 🚀 Release Process
-
-This project uses [Changesets](https://github.com/changesets/changesets) for automated versioning and publishing.
-
-### For Contributors
-
-When making changes that should be released:
-
-1. **Create a changeset** describing your changes:
-   ```bash
-   npx changeset
-   ```
-   This creates a markdown file in `.changeset/` describing your changes.
-
-2. **Submit your PR** with the changeset file included.
-
-3. **Merge to main** - The changeset will be included in the next release.
-
-### For Maintainers
-
-1. **Review and merge** the "Version Packages" PR created by the changesets bot
-2. **Automatic publishing** - The packages will be automatically published to npm
-
-### Manual Release (if needed)
-
-```bash
-# Version packages (updates package.json versions and changelog)
-npm run version
-
-# Publish to npm
-npm run release
-```
-
-## TODOs
-- [ ] Add viewport size to configs
-- [ ] Proper documentation
-- [ ] Add cli progress indicator
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
