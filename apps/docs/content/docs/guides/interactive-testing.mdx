@@ -3,30 +3,96 @@ title: Interactive Testing
 description: Execute user interactions before capturing screenshots
 ---
 
-Interactive testing lets you execute user actions before taking screenshots. This is essential for testing components that change state based on user interaction.
+Use interactions to make components or pages reach a desired state before screenshots.
 
-## How It Works
+## Configuration
 
-1. Load the page/story
-2. Execute defined interactions
-3. Wait for any animations to complete
-4. Take the screenshot
+Interactions are defined at the test-case level, not as a single global list.
 
-## Basic Usage
-
-Define interactions in your story parameters:
+- When using the [Storybook adapter](/docs/adapters/storybook), you can define interactions at the story level via `parameters.visualTesting.interactions`.
 
 ```typescript
+// Per-story example (with Storybook adapter)
 export const FilledForm: Story = {
   parameters: {
     visualTesting: {
       interactions: [
         { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
-        { type: 'click', selector: 'button[type="submit"]' }
+        { type: 'press', selector: 'input[name="email"]', key: 'Enter' },
+        { type: 'wait', selector: '.loaded' },
+        { type: 'waitForTimeout', duration: 500 },
       ]
     }
   }
 };
+```
+
+- For interactive testing for the URL adapter you have to define them in the adapter options in the `vividiff.config`.
+
+```typescript
+// URL test example (with URL adapter)
+// ...
+{
+  name: "@vividiff/url-adapter",
+  options: {
+    urls: [
+      {
+        id: "homepage",
+        url: "https://www.example.com/",
+        interactions: [
+          { type: "fill", selector: 'input[name="email"]', text: "test@example.com" },
+          { type: "press", selector: 'input[name="email"]', key: "Enter" },
+        ],
+      },
+    ],
+  },
+},
+// ...
+```
+
+## Supported Actions (subset)
+
+- click / dblclick
+- type / fill / press
+- hover / focus / blur
+- select / check / uncheck / setChecked
+- setInputFiles
+- wait / waitForTimeout / waitForLoadState
+- dragAndDrop / scrollIntoView
+
+See the API Reference for the full protocol and options.
+
+```typescript
+// Config override example
+export default {
+  adapters: { /* ... */ },
+  comparison: { core: 'odiff', threshold: 0.1 },
+  viewport: { desktop: { width: 1920, height: 1080 } },
+};
+```
+
+## Tips
+
+- Prefer `wait` for DOM readiness over arbitrary `waitForTimeout` when possible.
+- Disable animations using injected CSS for stable captures.
+
+## How It Works
+
+1. Load the target page/test case
+2. Execute configured interactions
+3. Wait for UI to stabilize
+4. Capture the screenshot
+
+## Basic Usage
+
+Define interactions for a test case using the interaction protocol (tool‑agnostic):
+
+```typescript
+interactions: [
+  { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+  { type: 'click', selector: 'button[type="submit"]' },
+  { type: 'wait', selector: '.success-message' },
+]
 ```
 
 ## Available Interactions
@@ -45,7 +111,7 @@ export const FilledForm: Story = {
 
 **Double-click:**
 ```typescript
-{ type: 'doubleClick', selector: 'button' }
+{ type: 'dblclick', selector: 'button' }
 ```
 
 ### Input Actions
@@ -74,24 +140,24 @@ export const FilledForm: Story = {
 
 **Drag and drop:**
 ```typescript
-{ type: 'drag', selector: '.draggable', target: '.drop-zone' }
+{ type: 'dragAndDrop', sourceSelector: '.draggable', targetSelector: '.drop-zone' }
 ```
 
 ### Keyboard Actions
 
 **Press Enter:**
 ```typescript
-{ type: 'keyPress', key: 'Enter' }
+{ type: 'press', selector: 'body', key: 'Enter' }
 ```
 
 **Press Tab:**
 ```typescript
-{ type: 'keyPress', key: 'Tab' }
+{ type: 'press', selector: 'body', key: 'Tab' }
 ```
 
 **Press Escape:**
 ```typescript
-{ type: 'keyPress', key: 'Escape' }
+{ type: 'press', selector: 'body', key: 'Escape' }
 ```
 
 ### Wait Actions
@@ -103,150 +169,72 @@ export const FilledForm: Story = {
 
 **Wait for element to appear:**
 ```typescript
-{ type: 'waitForSelector', selector: '.loaded' }
+{ type: 'wait', selector: '.loaded' }
 ```
 
-**Wait for text to appear:**
-```typescript
-{ type: 'waitForText', text: 'Success!' }
-```
+// Waiting for specific text can be implemented via adapter-specific helpers.
 
 ### Scroll Actions
 
 **Scroll to specific position:**
 ```typescript
-{ type: 'scroll', selector: '.scrollable', x: 0, y: 100 }
-```
-
-**Scroll to bottom:**
-```typescript
-{ type: 'scrollToBottom', selector: '.scrollable' }
-```
-
-**Scroll to top:**
-```typescript
-{ type: 'scrollToTop', selector: '.scrollable' }
+{ type: 'scrollIntoView', selector: '.scrollable' }
 ```
 
 ## Common Patterns
 
 ### Form Submission
 
-Test form submission flow:
+Tool‑agnostic example:
 
 ```typescript
-export const FormSubmission: Story = {
-  parameters: {
-    visualTesting: {
-      interactions: [
-        { type: 'fill', selector: 'input[name="name"]', text: 'John Doe' },
-        { type: 'fill', selector: 'input[name="email"]', text: 'john@example.com' },
-        { type: 'click', selector: 'button[type="submit"]' },
-        { type: 'waitForSelector', selector: '.success-message' }
-      ]
-    }
-  }
-};
+interactions: [
+  { type: 'fill', selector: 'input[name="name"]', text: 'John Doe' },
+  { type: 'fill', selector: 'input[name="email"]', text: 'john@example.com' },
+  { type: 'click', selector: 'button[type="submit"]' },
+  { type: 'wait', selector: '.success-message' },
+]
 ```
 
 ### Modal/Dropdown Opening
 
-Test modal or dropdown opening:
-
 ```typescript
-export const ModalOpen: Story = {
-  parameters: {
-    visualTesting: {
-      interactions: [
-        { type: 'click', selector: 'button.open-modal' },
-        { type: 'waitForSelector', selector: '.modal' }
-      ]
-    }
-  }
-};
+interactions: [
+  { type: 'click', selector: 'button.open-modal' },
+  { type: 'wait', selector: '.modal' },
+]
 ```
 
 ### Hover States
 
-Test hover effects:
-
 ```typescript
-export const HoverState: Story = {
-  parameters: {
-    visualTesting: {
-      interactions: [
-        { type: 'hover', selector: '.button' }
-      ]
-    }
-  }
-};
+interactions: [ { type: 'hover', selector: '.button' } ]
 ```
 
 ### Loading States
 
-Test loading states:
-
 ```typescript
-export const LoadingState: Story = {
-  parameters: {
-    visualTesting: {
-      interactions: [
-        { type: 'click', selector: 'button.load-data' },
-        { type: 'waitForSelector', selector: '.loading-spinner' },
-        { type: 'waitForTimeout', duration: 2000 }
-      ]
-    }
-  }
-};
+interactions: [
+  { type: 'click', selector: 'button.load-data' },
+  { type: 'wait', selector: '.loading-spinner' },
+  { type: 'waitForTimeout', duration: 2000 },
+]
 ```
 
 ### Multi-Step Flows
 
-Test complex user flows:
-
 ```typescript
-export const MultiStepFlow: Story = {
-  parameters: {
-    visualTesting: {
-      interactions: [
-        // Step 1: Open settings
-        { type: 'click', selector: 'button.settings' },
-        { type: 'waitForSelector', selector: '.settings-modal' },
-        
-        // Step 2: Change theme
-        { type: 'click', selector: 'select.theme' },
-        { type: 'click', selector: 'option[value="dark"]' },
-        
-        // Step 3: Save changes
-        { type: 'click', selector: 'button.save' },
-        { type: 'waitForSelector', selector: '.success-message' }
-      ]
-    }
-  }
-};
+interactions: [
+  { type: 'click', selector: 'button.settings' },
+  { type: 'wait', selector: '.settings-modal' },
+  { type: 'click', selector: 'select.theme' },
+  { type: 'click', selector: 'option[value="dark"]' },
+  { type: 'click', selector: 'button.save' },
+  { type: 'wait', selector: '.success-message' },
+]
 ```
 
-## URL Adapter Interactions
-
-You can also use interactions with the URL adapter:
-
-```typescript
-// In your vividiff.config.ts
-testCase: [{
-  name: "@vividiff/url-adapter",
-  options: {
-    urls: [{
-      id: "interactive-form",
-      url: "http://localhost:3000/form",
-      interactions: [
-        { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
-        { type: 'click', selector: 'button[type="submit"]' },
-        { type: 'waitForTimeout', duration: 1000 }
-      ]
-    }]
-  }
-}]
-```
+// URL adapter interactions are not yet supported (coming soon).
 
 ## Best Practices
 
@@ -257,7 +245,7 @@ Always wait for the UI to update after interactions:
 ```typescript
 // Good: Wait for the result
 { type: 'click', selector: 'button.submit' },
-{ type: 'waitForSelector', selector: '.result' }
+{ type: 'wait', selector: '.result' }
 
 // Bad: No wait
 { type: 'click', selector: 'button.submit' }
@@ -322,6 +310,9 @@ Add appropriate waits:
 Use more specific selectors or wait for elements to appear:
 
 ```typescript
-{ type: 'waitForSelector', selector: '.dynamic-content' },
+{ type: 'wait', selector: '.dynamic-content' },
 { type: 'click', selector: '.dynamic-content button' }
 ```
+
+
+## Next Steps

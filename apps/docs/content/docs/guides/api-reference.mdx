@@ -1,0 +1,42 @@
+---
+title: API Reference
+description: Programmatic usage of ViviDiff Core, Protocol types, and Reporter
+---
+
+Use ViviDiff programmatically or build custom tooling on top of its packages.
+
+## Packages
+
+- `@vividiff/core`: high-level APIs (`runVisualTests`, `updateBaseline`, `initializeProject`) and utilities
+- `@vividiff/protocol`: shared TypeScript types and interfaces
+- `@vividiff/reporter`: JSON and HTML reporters
+
+## Core API (summary)
+
+```ts
+import { runVisualTests, updateBaseline, initializeProject } from '@vividiff/core';
+```
+
+- `runVisualTests(options): Promise<TestResult>`
+- `updateBaseline(options): Promise<void>`
+- `initializeProject(options): Promise<InitResult>`
+
+See detailed examples in the Configuration page and package READMEs. Full, in-depth API docs will be expanded here.
+
+## Protocol Types (summary)
+
+```ts
+import type { VisualTestingToolConfig, InteractionAction } from '@vividiff/protocol';
+```
+
+- Configuration model: adapters, comparison, viewport, runtime, reporter
+- Interaction actions: `click`, `dblclick`, `type`, `fill`, `press`, `wait`, etc.
+
+## Reporters (summary)
+
+```ts
+import { JsonReporter, HtmlReporter } from '@vividiff/reporter';
+```
+
+- JSON: machine-readable results
+- HTML: interactive report

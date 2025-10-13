@@ -84,13 +84,12 @@ const config: VisualTestingToolConfig = {
       name: "@vividiff/storybook-adapter",
       options: {
         source: "./storybook-static",
-        port: 6006,
+        port: 4477,
         include: "*",
         exclude: "*-to-skip*"
       }
     }]
   },
-  threshold: 0.1,
   screenshotDir: "vividiff",
   runtime: { maxConcurrency: 4 },
   viewport: {
@@ -100,6 +99,11 @@ const config: VisualTestingToolConfig = {
   report: {
     html: true,
     json: true
+  },
+  comprison: {
+    core: "odiff", // or "pixelmatch"
+    threshold: 0.1,
+    diffColor: "#00ff00"
   }
 };
 

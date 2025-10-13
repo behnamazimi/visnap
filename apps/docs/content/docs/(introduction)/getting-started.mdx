@@ -1,0 +1,57 @@
+---
+title: Getting Started
+description: Install, initialize, configure adapters, and run visual tests
+---
+
+## Initialize
+
+Run the initializer to create a starter `vividiff.config.ts` and guide you through choosing adapters.
+
+```npm
+npx vividiff init
+```
+
+## Configure
+
+Edit `vividiff.config.ts` to set the adapter (Storybook or URL), the browser (Playwright), and core options like thresholds and viewports. See [Configuration](/docs/configs).
+
+## Create Baselines
+
+Capture baseline screenshots so future test runs have something to compare against.
+
+
+```npm
+npx vividiff update
+```
+
+## Run Tests
+
+Take fresh screenshots and compare them to baselines; differences above the threshold will fail the run.
+
+```npm
+npx vividiff test
+```
+
+## Open Report or Screenshots
+
+Open the HTML report to review results and diffs, or browse the screenshots directly if you prefer.
+
+```npm
+npx vividiff open
+```
+
+## Optional: Validate and List
+
+Use validate to check your configuration for errors, and list to see discovered test cases without running them.
+
+```npm
+# Validate configuration
+npx vividiff validate
+
+# List test cases without running
+npx vividiff list
+```
+
+## Next Steps
+
+

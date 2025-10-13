@@ -26,7 +26,7 @@ const config: VisualTestingToolConfig = {
         name: "@vividiff/storybook-adapter",
         options: {
           source: "./storybook-static",
-          port: 6006,
+          port: 4477,
           include: "*",
           // exclude: "*page*",
         },

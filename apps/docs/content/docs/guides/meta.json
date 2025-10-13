@@ -1,0 +1,12 @@
+{
+  "defaultOpen": true,
+  "pages": [
+    "cli",
+    "interactive-testing",
+    "api-reference",
+    "comparison-engines",
+    "docker-and-ci"
+  ]
+}
+
+
