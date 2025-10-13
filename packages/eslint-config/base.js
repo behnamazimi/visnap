@@ -82,6 +82,9 @@ export const baseConfig = [
       "**/coverage/**",
       "**/.next/**",
       "**/build/**",
+      "**/.open-next/**",
+      "**/.wrangler/**",
+      "**/cloudflare-env.d.ts/**",
     ],
   },
 ];
