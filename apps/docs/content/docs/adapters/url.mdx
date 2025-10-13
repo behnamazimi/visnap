@@ -1,5 +1,43 @@
 ---
 title: URL Adapter
+description: Test any web page or route by specifying URLs
+---
+
+Use the URL adapter to test arbitrary pages without Storybook.
+
+## Setup
+
+```typescript
+adapters: {
+  testCase: [{
+    name: '@vividiff/url-adapter',
+    options: {
+      urls: [
+        { id: 'homepage', url: 'http://localhost:3000/' },
+        { id: 'about', url: 'http://localhost:3000/about' }
+      ],
+      include: '*',
+      exclude: '*admin*'
+    }
+  }]
+}
+```
+
+## Per-URL Viewports
+
+```typescript
+urls: [{ id: 'mobile-home', url: 'http://localhost:3000/', viewport: { width: 375, height: 667 } }]
+```
+
+## Next Steps
+
+<Cards>
+  <Card title="Playwright Adapter" href="/docs/adapters/playwright" description="Launch browsers and capture" />
+  <Card title="Advanced Usage" href="/docs/guides/advanced-usage" description="Filtering patterns and performance" />
+</Cards>
+
+---
+title: URL Adapter
 description: Test any URL with ViviDiff without requiring Storybook
 ---
 

@@ -1,9 +1,9 @@
 ---
-title: Configuration
-description: Complete guide to configuring ViviDiff for your project
+title: Configs
+description: Overview of ViviDiff configuration and where to learn more
 ---
 
-ViviDiff uses a `vividiff.config.ts` file in your project root. This file defines how tests run, which browsers to use, and where to save screenshots.
+ViviDiff uses a `vividiff.config.ts` file in your project root. This file defines how tests run, which browsers to use, where to save screenshots, etc.
 
 ## Basic Structure
 
@@ -15,7 +15,6 @@ const config: VisualTestingToolConfig = {
     browser: { /* browser configuration */ },
     testCase: [ /* test case adapters */ ]
   },
-  threshold: 0.1,
   screenshotDir: "vividiff",
   // ... other options
 };
@@ -27,24 +26,29 @@ export default config;
 
 ### Browser Adapter
 
-Controls which browser engine to use for taking screenshots.
+This type of adapter controls which browser engine to use for taking screenshots.
+
+For now, ViviDiff provides a Playwright-based browser adapter. More browser adapters will be added to support different tools.
 
 ```typescript
 adapters: {
   browser: {
     name: "@vividiff/playwright-adapter",
     options: {
-      browser: 'chromium', // or 'firefox', 'webkit', or array of browsers
-      launch: { headless: true },
-      injectCSS: `* { animation: none !important; }`
+      launch: { browser: 'chromium', headless: true },
+      context: { colorScheme: 'light', reducedMotion: 'reduce' },
+      navigation: { baseUrl: 'http://localhost:3000', waitUntil: 'load', timeoutMs: 30000 },
+      injectCSS: `* { animation: none !important; transition: none !important; }`
     }
   }
 }
 ```
 
+See the [Playwright Adapter](/docs/adapters/playwright) for detailed configuration.
+
 ### Test Case Adapters
 
-Define where your test cases come from.
+Define where your test cases come from. Currently, ViviDiff includes a [Storybook adapter](/docs/adapters/storybook) and a [URL adapter](/docs/adapters/url).
 
 **Storybook Adapter:**
 ```typescript
@@ -52,12 +56,13 @@ testCase: [{
   name: "@vividiff/storybook-adapter",
   options: {
     source: "./storybook-static", // or URL to remote Storybook
-    port: 6006,
+    port: 4477,
     include: "*", // minimatch pattern
     exclude: "*-skip*"
   }
 }]
 ```
+See the [Storybook Adapter](/docs/adapters/storybook) for detailed configuration.
 
 **URL Adapter:**
 ```typescript
@@ -73,6 +78,8 @@ testCase: [{
   }
 }]
 ```
+
+See the [URL Adapter](/docs/adapters/url) for detailed configuration.
 
 ## Core Settings
 
@@ -132,7 +139,7 @@ comparison: {
 Generate test reports.
 
 ```typescript
-report: {
+reporter: {
   html: true,  // interactive HTML report
   json: true   // machine-readable JSON report
 }
@@ -160,27 +167,21 @@ const config: VisualTestingToolConfig = {
     browser: {
       name: "@vividiff/playwright-adapter",
       options: {
-        browser: ["chromium", "firefox"],
-        launch: { headless: true },
-        injectCSS: `
-          * { 
-            animation: none !important; 
-            transition: none !important; 
-          }
-        `
+        launch: { browser: 'chromium', headless: true },
+        context: { colorScheme: 'light', reducedMotion: 'reduce' },
+        injectCSS: `* { animation: none !important; transition: none !important; }`
       }
     },
     testCase: [{
       name: "@vividiff/storybook-adapter",
       options: {
         source: "./storybook-static",
-        port: 6006,
+        port: 4477,
         include: "*",
         exclude: "*-skip*"
       }
     }]
   },
-  threshold: 0.1,
   screenshotDir: "vividiff",
   viewport: {
     desktop: { width: 1920, height: 1080 },
@@ -193,7 +194,7 @@ const config: VisualTestingToolConfig = {
     core: "odiff",
     threshold: 0.1
   },
-  report: {
+  reporter: {
     html: true,
     json: true
   }
@@ -201,13 +202,3 @@ const config: VisualTestingToolConfig = {
 
 export default config;
 ```
-
-## Configuration Validation
-
-Check your config is valid:
-
-```bash
-npx vividiff validate
-```
-
-This will catch common configuration errors before running tests.

@@ -14,7 +14,7 @@ testCase: [{
   name: "@vividiff/storybook-adapter",
   options: {
     source: "./storybook-static", // path to Storybook build
-    port: 6006,                   // port for local server
+    port: 4477,                   // port for local static server
     include: "*",                 // which stories to test
     exclude: "*-skip*"            // which stories to skip
   }
@@ -60,6 +60,20 @@ exclude: "*-skip*"
 exclude: ["*-skip*", "*admin*"]
 ```
 
+## Custom Screenshot Targets
+
+Target a specific element in the story for the screenshot:
+
+```typescript
+export const ComponentOnly: Story = {
+  parameters: {
+    visualTesting: {
+      screenshotTarget: '.my-component'
+    }
+  }
+};
+```
+
 ## Story Configuration
 
 Configure visual testing options directly in your stories:
@@ -71,7 +85,7 @@ export default {
   parameters: {
     visualTesting: {
       skip: false,                    // Skip this story
-      screenshotTarget: '#root',     // Custom screenshot target
+      screenshotTarget: '#storybook-root',     // Custom screenshot target
       threshold: 0.05,               // Custom threshold for this story
       browser: ['chromium', 'firefox'], // Specific browsers
       viewport: { width: 1200, height: 800 }, // Custom viewport
@@ -207,7 +221,7 @@ export const LoadingState: Story = {
     visualTesting: {
       interactions: [
         { type: 'click', selector: 'button.load-data' },
-        { type: 'waitForSelector', selector: '.loading-spinner' },
+        { type: 'wait', selector: '.loading-spinner' },
         { type: 'waitForTimeout', duration: 2000 }
       ]
     }
@@ -221,17 +235,17 @@ export const LoadingState: Story = {
 
 Make sure your Storybook build is up to date:
 
-```bash
+```npm
 npm run build-storybook
 ```
 
 ### Port Conflicts
 
-If port 6006 is in use, change it in your config:
+If port 4477 is in use, change it in your config:
 
 ```typescript
 options: {
-  port: 6007 // use different port
+  port: 4478 // use different port
 }
 ```
 

@@ -1,0 +1,30 @@
+---
+title: Comparison Engines
+description: Choose and tune odiff or pixelmatch for your needs
+---
+
+ViviDiff supports comparison with [odiff](https://github.com/dmtrKovalenko/odiff) and [pixelmatch](https://github.com/mapbox/pixelmatch) in its core.
+
+## Choosing a Core
+
+- `odiff`: fast, robust defaults; recommended for most projects
+- `pixelmatch`: traditional per-pixel comparison; use if you need its behavior
+
+## Configuration
+
+```typescript
+comparison: {
+  core: 'odiff',        // or 'pixelmatch'
+  threshold: 0.1,       // 0.0–1.0, higher = less strict
+  diffColor: '#00ff00', // optional
+}
+```
+
+## Tips
+
+- Start with `odiff` + 0.1, adjust threshold gradually if flakiness occurs.
+- Combine with CSS injection to reduce animation noise or mask an element.
+
+## Next Steps
+
+

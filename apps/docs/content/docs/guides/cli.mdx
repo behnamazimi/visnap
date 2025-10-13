@@ -9,13 +9,13 @@ ViviDiff provides a simple command-line interface for running visual tests. All 
 
 Install globally:
 
-```bash
+```npm
 npm install -g vividiff
 ```
 
 Or use with npx (no installation needed):
 
-```bash
+```npm
 npx vividiff [command]
 ```
 
@@ -34,8 +34,8 @@ All commands support these options:
 
 Initialize a new ViviDiff project with a configuration file.
 
-```bash
-vividiff init
+```npm
+npx vividiff init
 ```
 
 This command:
@@ -43,155 +43,53 @@ This command:
 - Prompts for configuration type (TypeScript or JavaScript)
 - Sets up basic configuration for Storybook testing
 
-**Example:**
-```bash
-$ vividiff init
-? Configuration type: TypeScript
-✓ Created vividiff.config.ts
-✓ Project initialized successfully
-```
 
 ### `test`
 
 Capture current screenshots and compare them with baseline images.
 
-```bash
-vividiff test [options]
+```npm
+npx vividiff test [options]
 ```
 
 **Options:**
 - `--jsonReport [path]` - Output JSON report (provide path to write to file, omit to print to stdout)
 - `--docker` - Run inside Docker container
 
-**Examples:**
-```bash
-# Run tests
-vividiff test
-
-# Run tests and output JSON to file
-vividiff test --jsonReport ./test-results.json
-
-# Run tests in Docker
-vividiff test --docker
-
-# Run tests with custom config
-vividiff test --config ./my-config.ts
-```
-
 ### `update`
 
 Capture baseline screenshots for all test cases and save them to `vividiff/base/`.
 
-```bash
-vividiff update [options]
+```npm 
+npx vividiff update [options]
 ```
 
 **Options:**
 - `--docker` - Run inside Docker container
 
-**Examples:**
-```bash
-# Update baseline screenshots
-vividiff update
-
-# Update with Docker
-vividiff update --docker
-```
 
 ### `validate`
 
 Validate your configuration file and check dependencies.
 
-```bash
-vividiff validate [options]
-```
-
-**Examples:**
-```bash
-# Validate config
-vividiff validate
-
-# Validate custom config
-vividiff validate --config ./my-config.ts
+```npm
+npx vividiff validate [options]
 ```
 
 ### `list`
 
 List all discovered test cases without running tests.
 
-```bash
-vividiff list [options]
-```
-
-**Examples:**
-```bash
-# List all test cases
-vividiff list
-
-# List with custom config
-vividiff list --config ./my-config.ts
+```npm
+npx vividiff list [options]
 ```
 
 ### `open`
 
-Open HTML report in browser or screenshot directory in Finder.
+Open HTML report in browser or screenshot directory in Finder if the HTML report is not generated.
 
-```bash
-vividiff open [options]
-```
-
-**Examples:**
-```bash
-# Open HTML report
-vividiff open
-
-# Open screenshot directory
-vividiff open --dir
-```
-
-## Common Workflows
-
-### First Time Setup
-
-```bash
-# 1. Initialize project
-vividiff init
-
-# 2. Create baseline screenshots
-vividiff update
-
-# 3. Run tests
-vividiff test
-```
-
-### Daily Development
-
-```bash
-# Run tests on changes
-vividiff test
-
-# If tests fail, check the HTML report
-vividiff open
-```
-
-### CI/CD Pipeline
-
-```bash
-# Validate configuration
-vividiff validate
-
-# Run tests
-vividiff test --jsonReport ./test-results.json
-```
-
-### Docker Testing
-
-```bash
-# Run tests in Docker for consistency
-vividiff test --docker
-
-# Update baseline in Docker
-vividiff update --docker
+```npm
+npx vividiff open [options]
 ```
 
 ## Configuration File
@@ -201,7 +99,6 @@ ViviDiff looks for configuration in this order:
 1. `--config` option
 2. `vividiff.config.ts`
 3. `vividiff.config.js`
-4. `vividiff.config.mjs`
 
 ## Environment Variables
 
@@ -220,23 +117,15 @@ vividiff test
 
 Make sure ViviDiff is installed:
 
-```bash
+```npm
 npm install -g vividiff
-```
-
-### Configuration Not Found
-
-Check that `vividiff.config.ts` exists in your project root:
-
-```bash
-ls vividiff.config.ts
 ```
 
 ### Permission Errors
 
 On Linux/macOS, you might need to install Playwright browsers:
 
-```bash
+```npm
 npx playwright install
 ```
 
