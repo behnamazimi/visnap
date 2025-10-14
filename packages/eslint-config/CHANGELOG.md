@@ -1,5 +1,12 @@
 # @visnap/eslint-config
 
+## 0.2.0
+
+### Minor Changes
+
+- 37bda91: semi-stable version
+- 1d4139c: Fix and test the release flow
+
 ## 0.0.3
 
 ### Patch Changes
