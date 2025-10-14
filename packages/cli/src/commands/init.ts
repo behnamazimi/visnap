@@ -56,24 +56,14 @@ const initHandler = async (_options: void): Promise<void> => {
     const currentDir = process.cwd();
     const userOptions = await promptUser();
 
-    const configFileName = `visnap.config.${userOptions.configType}`;
-    const newConfigPath = join(currentDir, configFileName);
-
-    if (existsSync(newConfigPath)) {
-      log.error(`${configFileName} already exists in the current directory.`);
-      log.warn("Remove the existing file or choose a different directory.");
-      return;
-    }
-
     let configContent: string;
+    let configType: string;
 
     if (userOptions.wizard) {
       // Use interactive wizard
       const selection = await runConfigWizard();
-      configContent = generateConfigFromSelection(
-        selection,
-        userOptions.configType!
-      );
+      configContent = generateConfigFromSelection(selection);
+      configType = selection.configType;
     } else {
       // Use the API to generate the config content
       const result = await initializeProject({
@@ -89,6 +79,16 @@ const initHandler = async (_options: void): Promise<void> => {
       configContent = generateConfigContent({
         configType: userOptions.configType!,
       });
+      configType = userOptions.configType!;
+    }
+
+    const configFileName = `visnap.config.${configType}`;
+    const newConfigPath = join(currentDir, configFileName);
+
+    if (existsSync(newConfigPath)) {
+      log.error(`${configFileName} already exists in the current directory.`);
+      log.warn("Remove the existing file or choose a different directory.");
+      return;
     }
 
     writeFileSync(newConfigPath, configContent);
@@ -97,7 +97,7 @@ const initHandler = async (_options: void): Promise<void> => {
     log.plain(`📄 File: ${configFileName}`);
     log.plain("\n📋 Configuration summary:");
     log.plain(
-      `   • Config type: ${userOptions.configType === "ts" ? "TypeScript" : "JavaScript"}`
+      `   • Config type: ${configType === "ts" ? "TypeScript" : "JavaScript"}`
     );
     if (userOptions.wizard) {
       log.plain("   • Interactive wizard configuration applied");

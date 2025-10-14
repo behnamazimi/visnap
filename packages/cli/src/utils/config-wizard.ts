@@ -9,6 +9,7 @@ import inquirer from "inquirer";
 import { createSpinner } from "./spinner";
 
 export interface AdapterSelection {
+  configType: "ts" | "js";
   browserAdapter: "playwright" | "skip";
   testCaseAdapter: "storybook" | "url" | "skip";
   browsers: string[];
@@ -89,6 +90,16 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
   const answers = await inquirer.prompt([
     {
       type: "list",
+      name: "configType",
+      message: "Choose configuration file type:",
+      choices: [
+        { name: "TypeScript (.ts)", value: "ts" },
+        { name: "JavaScript (.js)", value: "js" },
+      ],
+      default: "ts",
+    },
+    {
+      type: "list",
       name: "browserAdapter",
       message: "Choose browser adapter:",
       choices: [
@@ -120,6 +131,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
   ]);
 
   const selection: AdapterSelection = {
+    configType: answers.configType as "ts" | "js",
     browserAdapter: answers.browserAdapter as "playwright" | "skip",
     testCaseAdapter: answers.testCaseAdapter as "storybook" | "url" | "skip",
     browsers: [],
@@ -199,7 +211,8 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
     {
       type: "input",
       name: "threshold",
-      message: "Pixel difference threshold (0.0-1.0):",
+      message:
+        "Pixel difference threshold (0.0 = strict, 0.1 = recommended, 1.0 = very lenient):",
       default: "0.1",
       validate: (input: string) => {
         const num = parseFloat(input);
@@ -267,12 +280,11 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
  * Generate configuration content from selection
  */
 export function generateConfigFromSelection(
-  selection: AdapterSelection,
-  configType: "ts" | "js"
+  selection: AdapterSelection
 ): string {
   // Use the shared template for basic config, then customize for wizard-specific options
   const baseConfig = generateConfigContentTemplate({
-    configType,
+    configType: selection.configType,
     threshold: selection.threshold,
   });
 
