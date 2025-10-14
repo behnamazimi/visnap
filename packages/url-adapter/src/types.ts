@@ -20,6 +20,8 @@ export interface UrlConfig {
   viewport?: Viewport;
   /** Per-URL threshold override */
   threshold?: number;
+  /** Optional flag to disable CSS injection for this specific URL */
+  disableCSSInjection?: boolean;
   /** Per-URL interactions to execute before screenshot */
   interactions?: InteractionAction[];
 }

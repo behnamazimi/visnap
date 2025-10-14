@@ -79,7 +79,7 @@ export function normalizeUrls(
         screenshotTarget: urlConfig.screenshotTarget,
         viewport,
         threshold: urlConfig.threshold,
-        disableCSSInjection: false,
+        disableCSSInjection: urlConfig.disableCSSInjection ?? false,
         interactions: urlConfig.interactions,
 
         // Visual testing config
@@ -88,7 +88,7 @@ export function normalizeUrls(
           screenshotTarget: urlConfig.screenshotTarget,
           threshold: urlConfig.threshold,
           viewport,
-          disableCSSInjection: false,
+          disableCSSInjection: urlConfig.disableCSSInjection ?? false,
           interactions: urlConfig.interactions,
         },
       };
