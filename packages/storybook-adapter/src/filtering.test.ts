@@ -136,6 +136,7 @@ describe("filtering", () => {
           visualTesting: {
             skip: false,
             disableCSSInjection: true,
+            elementsToMask: [".sticky"],
           },
         },
       },
@@ -181,6 +182,12 @@ describe("filtering", () => {
       expect(buttonPrimary?.screenshotTarget).toBe("#button");
       expect(buttonPrimary?.threshold).toBe(0.1);
       expect(buttonPrimary?.viewport).toEqual({ width: 1024, height: 768 });
+
+      // ensure elementsToMask propagates when provided
+      const cssDisabled = result.find(
+        r => r.caseId === "button-with-css-disable" && r.variantId === "default"
+      );
+      expect(cssDisabled?.elementsToMask).toEqual([".sticky"]);
     });
 
     it("should skip stories marked with skip: true", () => {

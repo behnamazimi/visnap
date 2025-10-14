@@ -180,6 +180,22 @@ visualTesting: {
 }
 ```
 
+### Mask elements
+
+Overlay specific elements (without hiding them) to stabilize screenshots:
+
+```typescript
+export const WithStickyHeader: Story = {
+  parameters: {
+    visualTesting: {
+      elementsToMask: ['.sticky', '#ad-slot']
+    }
+  }
+};
+```
+
+Or, if you’re using the [Playwright adapter](/docs/adapters/playwright), you can use the injectCSS option to hide or mask any elements you want with custom CSS.
+
 ## Common Use Cases
 
 ### Testing Form Interactions

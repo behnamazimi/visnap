@@ -202,6 +202,8 @@ export interface ScreenshotOptions {
   waitFor?: string | number;
   disableCSSInjection?: boolean;
   interactions?: InteractionAction[];
+  /** CSS selectors of elements to mask (overlay) before capture */
+  elementsToMask?: string[];
 }
 
 export interface ScreenshotResult {
@@ -292,6 +294,8 @@ export interface TestCaseVisualConfig {
   viewport?: Viewport;
   disableCSSInjection?: boolean;
   interactions?: InteractionAction[];
+  /** CSS selectors of elements to mask (overlay) before capture */
+  elementsToMask?: string[];
 }
 
 // Base meta fields common to all test case-related types
@@ -317,6 +321,8 @@ interface BaseTestCaseInstance {
   disableCSSInjection?: boolean;
   /** Optional interactions to execute before screenshot */
   interactions?: InteractionAction[];
+  /** CSS selectors of elements to mask (overlay) before capture */
+  elementsToMask?: string[];
 }
 
 export interface TestCaseMeta extends BaseTestCaseMeta {

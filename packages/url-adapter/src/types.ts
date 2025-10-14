@@ -16,6 +16,8 @@ export interface UrlConfig {
   title?: string;
   /** CSS selector for screenshot target */
   screenshotTarget?: string;
+  /** CSS selectors of elements to mask (overlay) before capture */
+  elementsToMask?: string[];
   /** Per-URL viewport override */
   viewport?: Viewport;
   /** Per-URL threshold override */

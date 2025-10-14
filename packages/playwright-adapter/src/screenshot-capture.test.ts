@@ -274,6 +274,35 @@ describe("screenshot-capture", () => {
       );
     });
 
+    it("should inject elementsToMask CSS when provided", async () => {
+      const { injectGlobalCSS } = await import("./browser-context.js");
+      const optionsNoCSS: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        injectCSS: undefined,
+      };
+
+      const screenshotOptionsWithMask = {
+        ...mockScreenshotOptions,
+        elementsToMask: [".sticky", "#ad"],
+      } as any;
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsNoCSS,
+        screenshotOptionsWithMask,
+        30000
+      );
+
+      expect(injectGlobalCSS).toHaveBeenCalledWith(
+        mockPage,
+        expect.stringContaining(".sticky{position:relative")
+      );
+      expect(injectGlobalCSS).toHaveBeenCalledWith(
+        mockPage,
+        expect.stringContaining("#ad::after{content:''")
+      );
+    });
+
     it("should not inject CSS when disableCSSInjection is true", async () => {
       const { injectGlobalCSS } = await import("./browser-context.js");
       const optionsWithCSS: PlaywrightAdapterOptions = {

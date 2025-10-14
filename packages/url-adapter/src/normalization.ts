@@ -81,6 +81,7 @@ export function normalizeUrls(
         threshold: urlConfig.threshold,
         disableCSSInjection: urlConfig.disableCSSInjection ?? false,
         interactions: urlConfig.interactions,
+        elementsToMask: urlConfig.elementsToMask,
 
         // Visual testing config
         visualTesting: {
@@ -90,6 +91,7 @@ export function normalizeUrls(
           viewport,
           disableCSSInjection: urlConfig.disableCSSInjection ?? false,
           interactions: urlConfig.interactions,
+          elementsToMask: urlConfig.elementsToMask,
         },
       };
 

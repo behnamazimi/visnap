@@ -116,6 +116,7 @@ describe("createAdapter", () => {
           screenshotTarget: "body",
           threshold: 0.05,
           interactions: [{ type: "click", selector: "button" }],
+          elementsToMask: [".sticky", "#ads"],
         },
       ],
     });
@@ -126,6 +127,7 @@ describe("createAdapter", () => {
       screenshotTarget: "body",
       threshold: 0.05,
       interactions: [{ type: "click", selector: "button" }],
+      elementsToMask: [".sticky", "#ads"],
     });
   });
 

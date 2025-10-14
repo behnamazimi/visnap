@@ -86,6 +86,7 @@ urls: [
     threshold: 0.05,
     disableCSSInjection: true, // prevent global CSS injection for this test
     screenshotTarget: "body",
+    elementsToMask: [".sticky-header", "#ad-slot"],
     interactions: [
       { type: "click", selector: "button.cta" },
       { type: "waitForTimeout", duration: 500 }
