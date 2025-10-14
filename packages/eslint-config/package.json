@@ -1,6 +1,6 @@
 {
   "name": "@visnap/eslint-config",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "type": "module",
   "scripts": {
     "test": "echo 'No tests available for eslint-config package'"

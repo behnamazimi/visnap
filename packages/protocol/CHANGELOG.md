@@ -1,5 +1,11 @@
 # @visnap/protocol
 
+## 0.2.2
+
+### Patch Changes
+
+- 2942d6c: Fix publish flow
+
 ## 0.2.1
 
 ### Patch Changes
