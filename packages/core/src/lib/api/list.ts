@@ -19,7 +19,11 @@ export interface ListResult {
 // Internal function that handles the core logic
 async function listTestCasesInternal(
   options: Partial<VisualTestingToolConfig> = {},
-  cliOptions?: { include?: string | string[]; exclude?: string | string[] }
+  cliOptions?: {
+    include?: string | string[];
+    exclude?: string | string[];
+    configPath?: string;
+  }
 ): Promise<ListResult> {
   const effectiveConfig = await resolveEffectiveConfig(options, cliOptions);
 

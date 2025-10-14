@@ -1,8 +1,8 @@
 import { getPackageInfo, setQuietMode } from "@visnap/core";
+import type { CliOptions } from "@visnap/protocol";
 import { Command } from "commander";
 
 import { loadCommands, registerCommands } from "./command-loader";
-import { type GlobalCliOptions } from "./types/cli-options";
 import { displayBanner } from "./utils/banner";
 import { ErrorHandler } from "./utils/error-handler";
 import { exit } from "./utils/exit";
@@ -28,7 +28,7 @@ const main = async (): Promise<void> => {
       .option("--quiet", "Suppress output except errors")
       .hook("preAction", (thisCommand, _actionCommand) => {
         // Apply global options
-        const globalOptions = thisCommand.opts() as GlobalCliOptions;
+        const globalOptions = thisCommand.opts() as CliOptions;
 
         // Handle quiet mode
         if (globalOptions.quiet) {
@@ -37,7 +37,7 @@ const main = async (): Promise<void> => {
       });
 
     // Display banner (skip in quiet mode)
-    const globalOptions = program.opts() as GlobalCliOptions;
+    const globalOptions = program.opts() as CliOptions;
     if (!globalOptions.quiet) {
       await displayBanner();
     }

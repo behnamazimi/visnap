@@ -1,9 +1,9 @@
+import type { CliOptions } from "@visnap/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { PresentationService } from "../services/presentation-service";
 import { TestService, resolveReporterConfig } from "../services/test-service";
 import { type Command } from "../types";
-import { type CliOptions } from "../types/cli-options";
 import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
 
@@ -11,6 +11,7 @@ interface TestCommandOptions extends CliOptions {
   jsonReport?: string | boolean; // when provided without a path => stdout JSON; when a path => write file
   htmlReport?: string | boolean; // when provided without a path => write to screenshotDir; when a path => write to specified location
   docker?: boolean;
+  config?: string;
 }
 
 const testHandler = async (options: TestCommandOptions): Promise<void> => {
@@ -82,6 +83,7 @@ export const command: Command<TestCommandOptions> = {
   handler: testHandler,
   configure: (cmd: CommanderCommand) => {
     return cmd
+      .option("--config <path>", "Path to configuration file")
       .option(
         "--jsonReport [value]",
         "Generate JSON report. Use --jsonReport=false to disable, --jsonReport or --jsonReport=path for custom location"

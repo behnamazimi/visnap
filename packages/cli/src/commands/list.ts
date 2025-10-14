@@ -1,8 +1,8 @@
 import { listTestCasesCli, log } from "@visnap/core";
+import type { CliOptions } from "@visnap/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
-import { type CliOptions } from "../types/cli-options";
 import { ErrorHandler } from "../utils/error-handler";
 import { formatTestCases } from "../utils/formatter";
 import { createSpinner, shouldUseSpinner } from "../utils/spinner";
@@ -22,9 +22,10 @@ const listHandler = async (options: ListOptions): Promise<void> => {
       log.info("Discovering test cases...");
     }
 
-    const cliOptions: CliOptions = {
+    const cliOptions: CliOptions & { configPath?: string } = {
       include: options.include,
       exclude: options.exclude,
+      ...(options.config ? { configPath: options.config } : {}),
     };
 
     if (useSpinner) {

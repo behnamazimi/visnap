@@ -4,11 +4,13 @@ import {
   runInDocker,
   DEFAULT_DOCKER_IMAGE,
 } from "@visnap/core";
-import { type VisualTestingToolConfig } from "@visnap/protocol";
+import {
+  type VisualTestingToolConfig,
+  type CliOptions,
+} from "@visnap/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
-import { type CliOptions } from "../types/cli-options";
 import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
 import { createSpinner, shouldUseSpinner } from "../utils/spinner";
@@ -17,6 +19,7 @@ interface UpdateCommandOptions
   extends Partial<VisualTestingToolConfig>,
     CliOptions {
   docker?: boolean;
+  config?: string;
 }
 
 const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
@@ -31,7 +34,10 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
         log.info("Starting Docker container...");
       }
       const image = DEFAULT_DOCKER_IMAGE;
-      const args: string[] = ["update"];
+      const args: string[] = [
+        "update",
+        ...(options.config ? ["--config", options.config] : []),
+      ];
       const status = await runInDocker({ image, args });
       if (useSpinner) {
         spinner!.succeed("Docker update completed");
@@ -47,9 +53,10 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
     } else {
       log.info("Discovering test cases...");
     }
-    const cliOptions: CliOptions = {
+    const cliOptions: CliOptions & { configPath?: string } = {
       include: options.include,
       exclude: options.exclude,
+      ...(options.config ? { configPath: options.config } : {}),
     };
 
     if (useSpinner) {
@@ -106,6 +113,7 @@ export const command: Command<UpdateCommandOptions> = {
   handler: updateHandler,
   configure: (cmd: CommanderCommand) => {
     return cmd
+      .option("--config <path>", "Path to configuration file")
       .option("--docker", "Run inside Docker")
       .option(
         "--include <pattern>",
