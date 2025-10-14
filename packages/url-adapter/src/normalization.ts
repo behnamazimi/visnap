@@ -4,7 +4,7 @@ import {
   type ViewportMap,
   type FilterOptions,
   type Viewport,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import type { UrlConfig } from "./types.js";
 

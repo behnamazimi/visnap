@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 
-import { type VisualTestingToolConfig } from "@vividiff/protocol";
+import { type VisualTestingToolConfig } from "@visnap/protocol";
 import { bundleRequire } from "bundle-require";
 import merge from "lodash/merge.js";
 
@@ -15,7 +15,7 @@ import {
 import { ConfigError } from "@/utils/error-handler";
 
 export const getConfigTsPath = (): string =>
-  join(process.cwd(), "vividiff.config.ts");
+  join(process.cwd(), "visnap.config.ts");
 
 export const loadConfigFile =
   async (): Promise<VisualTestingToolConfig | null> => {
@@ -34,11 +34,11 @@ function applyEnvOverrides(
   cfg: VisualTestingToolConfig
 ): VisualTestingToolConfig {
   const out = { ...cfg };
-  if (process.env.VIVIDIFF_SCREENSHOT_DIR) {
-    out.screenshotDir = process.env.VIVIDIFF_SCREENSHOT_DIR;
+  if (process.env.VISNAP_SCREENSHOT_DIR) {
+    out.screenshotDir = process.env.VISNAP_SCREENSHOT_DIR;
   }
-  if (process.env.VIVIDIFF_MAX_CONCURRENCY) {
-    const n = Number(process.env.VIVIDIFF_MAX_CONCURRENCY);
+  if (process.env.VISNAP_MAX_CONCURRENCY) {
+    const n = Number(process.env.VISNAP_MAX_CONCURRENCY);
     const nextRuntime = { ...(out.runtime ?? {}) } as NonNullable<
       VisualTestingToolConfig["runtime"]
     >;
@@ -48,14 +48,14 @@ function applyEnvOverrides(
 
   // Handle comparison config overrides
   if (
-    process.env.VIVIDIFF_COMPARISON_CORE ||
-    process.env.VIVIDIFF_COMPARISON_THRESHOLD ||
-    process.env.VIVIDIFF_COMPARISON_DIFF_COLOR ||
-    process.env.VIVIDIFF_THRESHOLD
+    process.env.VISNAP_COMPARISON_CORE ||
+    process.env.VISNAP_COMPARISON_THRESHOLD ||
+    process.env.VISNAP_COMPARISON_DIFF_COLOR ||
+    process.env.VISNAP_THRESHOLD
   ) {
     out.comparison = {
       core:
-        (process.env.VIVIDIFF_COMPARISON_CORE as
+        (process.env.VISNAP_COMPARISON_CORE as
           | "odiff"
           | "pixelmatch"
           | undefined) ??
@@ -65,16 +65,16 @@ function applyEnvOverrides(
       diffColor: out.comparison?.diffColor ?? DEFAULT_DIFF_COLOR,
     };
 
-    if (process.env.VIVIDIFF_COMPARISON_THRESHOLD) {
-      const n = Number(process.env.VIVIDIFF_COMPARISON_THRESHOLD);
+    if (process.env.VISNAP_COMPARISON_THRESHOLD) {
+      const n = Number(process.env.VISNAP_COMPARISON_THRESHOLD);
       if (!Number.isNaN(n)) out.comparison.threshold = n;
-    } else if (process.env.VIVIDIFF_THRESHOLD) {
-      // Backward compatibility for old VIVIDIFF_THRESHOLD env var
-      const n = Number(process.env.VIVIDIFF_THRESHOLD);
+    } else if (process.env.VISNAP_THRESHOLD) {
+      // Backward compatibility for old VISNAP_THRESHOLD env var
+      const n = Number(process.env.VISNAP_THRESHOLD);
       if (!Number.isNaN(n)) out.comparison.threshold = n;
     }
-    if (process.env.VIVIDIFF_COMPARISON_DIFF_COLOR) {
-      out.comparison.diffColor = process.env.VIVIDIFF_COMPARISON_DIFF_COLOR;
+    if (process.env.VISNAP_COMPARISON_DIFF_COLOR) {
+      out.comparison.diffColor = process.env.VISNAP_COMPARISON_DIFF_COLOR;
     }
   }
 
@@ -87,7 +87,7 @@ export const resolveEffectiveConfig = async (
 ): Promise<VisualTestingToolConfig> => {
   const configFile = await loadConfigFile();
   if (!configFile) {
-    throw new ConfigError("vividiff.config not found");
+    throw new ConfigError("visnap.config not found");
   }
   const merged = merge({}, configFile, options);
 

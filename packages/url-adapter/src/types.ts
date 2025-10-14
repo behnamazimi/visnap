@@ -2,7 +2,7 @@ import type {
   Viewport,
   InteractionAction,
   FilterOptions,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 /**
  * Configuration for a single URL to test

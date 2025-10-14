@@ -1,7 +1,7 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
     "main": ".open-next/worker.js",
-    "name": "vividiff-docs",
+    "name": "visnap-docs",
     "compatibility_date": "2024-12-30",
     "compatibility_flags": [
       "nodejs_compat",
@@ -14,14 +14,14 @@
     "services": [
       {
         "binding": "WORKER_SELF_REFERENCE",
-        "service": "vividiff-docs"
+        "service": "visnap-docs"
       }
     ],
     "r2_buckets": [
       // Optionally enable Next.js ISR cache in R2:
       // {
       //   "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      //   "bucket_name": "vividiff-docs-r2"
+      //   "bucket_name": "visnap-docs-r2"
       // }
     ]
   }

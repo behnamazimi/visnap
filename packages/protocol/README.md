@@ -1,11 +1,11 @@
-# @vividiff/protocol
+# @visnap/protocol
 
-Shared TypeScript types and interfaces for ViviDiff.
+Shared TypeScript types and interfaces for ViSnap.
 
 ## Installation
 
 ```bash
-npm install @vividiff/protocol
+npm install @visnap/protocol
 ```
 
 ## Main Types
@@ -31,7 +31,7 @@ import type {
   BrowserAdapter,
   TestCaseAdapter,
   ScreenshotOptions
-} from '@vividiff/protocol';
+} from '@visnap/protocol';
 ```
 
 ## When to Use
@@ -39,7 +39,7 @@ import type {
 Use this package when building:
 - Custom adapters
 - Type-safe configuration
-- Integration with ViviDiff core
+- Integration with ViSnap core
 - Extensions or plugins
 
 ## Related Packages

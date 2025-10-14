@@ -1,4 +1,4 @@
-import { log } from "@vividiff/core";
+import { log } from "@visnap/core";
 import chalk from "chalk";
 import { table } from "table";
 
@@ -64,7 +64,7 @@ export function formatNextSteps(summary: TestSummary): void {
     log.plain(
       "• Review failed tests and update baselines if changes are intentional:"
     );
-    log.plain("  " + chalk.cyan("vividiff update"));
+    log.plain("  " + chalk.cyan("visnap update"));
   }
 
   if (summary.errors > 0) {
@@ -93,7 +93,7 @@ export function formatDiffPaths(screenshotDir: string, testId: string): void {
   log.plain(`Current: ${chalk.gray(currentPath)}`);
   log.plain(`Diff:    ${chalk.gray(diffPath)}`);
   log.plain("\nTo view diffs:");
-  log.plain(chalk.cyan(`vividiff open ${testId}`));
+  log.plain(chalk.cyan(`visnap open ${testId}`));
 }
 
 /**

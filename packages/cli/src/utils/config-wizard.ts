@@ -3,7 +3,7 @@ import { existsSync } from "fs";
 import {
   log,
   generateConfigContent as generateConfigContentTemplate,
-} from "@vividiff/core";
+} from "@visnap/core";
 import inquirer from "inquirer";
 
 import { createSpinner } from "./spinner";
@@ -78,7 +78,7 @@ async function installPackages(
  */
 export async function runConfigWizard(): Promise<AdapterSelection> {
   console.clear();
-  log.info("🚀 Welcome to vividiff configuration wizard!");
+  log.info("🚀 Welcome to visnap configuration wizard!");
   log.info(
     "This will help you set up visual regression testing for your project.\n"
   );
@@ -93,7 +93,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
       message: "Choose browser adapter:",
       choices: [
         {
-          name: "@vividiff/playwright-adapter (recommended)",
+          name: "@visnap/playwright-adapter (recommended)",
           value: "playwright",
         },
         { name: "Skip - configure later", value: "skip" },
@@ -106,11 +106,11 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
       message: "Choose test case adapter:",
       choices: [
         {
-          name: "@vividiff/storybook-adapter (for Storybook projects)",
+          name: "@visnap/storybook-adapter (for Storybook projects)",
           value: "storybook",
         },
         {
-          name: "@vividiff/url-adapter (for any website/URL)",
+          name: "@visnap/url-adapter (for any website/URL)",
           value: "url",
         },
         { name: "Skip - configure later", value: "skip" },
@@ -219,23 +219,23 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
 
   if (
     selection.browserAdapter === "playwright" &&
-    !isPackageInstalled("@vividiff/playwright-adapter")
+    !isPackageInstalled("@visnap/playwright-adapter")
   ) {
-    packagesToInstall.push("@vividiff/playwright-adapter");
+    packagesToInstall.push("@visnap/playwright-adapter");
   }
 
   if (
     selection.testCaseAdapter === "storybook" &&
-    !isPackageInstalled("@vividiff/storybook-adapter")
+    !isPackageInstalled("@visnap/storybook-adapter")
   ) {
-    packagesToInstall.push("@vividiff/storybook-adapter");
+    packagesToInstall.push("@visnap/storybook-adapter");
   }
 
   if (
     selection.testCaseAdapter === "url" &&
-    !isPackageInstalled("@vividiff/url-adapter")
+    !isPackageInstalled("@visnap/url-adapter")
   ) {
-    packagesToInstall.push("@vividiff/url-adapter");
+    packagesToInstall.push("@visnap/url-adapter");
   }
 
   if (packagesToInstall.length > 0) {

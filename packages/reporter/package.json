@@ -1,5 +1,5 @@
 {
-  "name": "@vividiff/reporter",
+  "name": "@visnap/reporter",
   "version": "0.1.2",
   "description": "Visual Testing Tool - HTML and JSON reporters for test results",
   "type": "module",
@@ -16,7 +16,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@vividiff/protocol": "^0.1.2"
+    "@visnap/protocol": "^0.1.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

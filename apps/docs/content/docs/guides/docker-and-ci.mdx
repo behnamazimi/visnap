@@ -1,26 +1,26 @@
 ---
 title: Docker & CI/CD
-description: Run ViviDiff in Docker and integrate with CI/CD pipelines
+description: Run ViSnap in Docker and integrate with CI/CD pipelines
 ---
 
-ViviDiff supports Docker for consistent testing environments and integrates with popular CI/CD platforms.
+ViSnap supports Docker for consistent testing environments and integrates with popular CI/CD platforms.
 
 ## Docker Support
 
-Run ViviDiff tests in Docker for consistent results across different environments.
+Run ViSnap tests in Docker for consistent results across different environments.
 
 ### Docker Usage Model
 
-Use Docker via CLI flags. You typically do not configure Docker in `vividiff.config.ts`.
+Use Docker via CLI flags. You typically do not configure Docker in `visnap.config.ts`.
 
 ```npm
 # Run tests inside Docker
-npx vividiff test --docker
+npx visnap test --docker
 ```
 
 ```npm
 # Update baselines inside Docker
-npx vividiff update --docker
+npx visnap update --docker
 ```
 
 ## CI/CD Integration

@@ -1,4 +1,4 @@
-import type { InteractionAction } from "@vividiff/protocol";
+import type { InteractionAction } from "@visnap/protocol";
 import { describe, it, expect } from "vitest";
 
 import { createUrlFilter, isValidUrl, validateUrlConfig } from "./filtering.js";

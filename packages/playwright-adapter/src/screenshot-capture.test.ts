@@ -1,4 +1,4 @@
-import type { ScreenshotOptions } from "@vividiff/protocol";
+import type { ScreenshotOptions } from "@visnap/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import {

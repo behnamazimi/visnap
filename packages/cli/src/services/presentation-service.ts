@@ -1,4 +1,4 @@
-import { log } from "@vividiff/core";
+import { log } from "@visnap/core";
 
 import {
   formatTestSummary,

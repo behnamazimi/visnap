@@ -6,7 +6,7 @@ export default function HomePage() {
     <main className="flex flex-1 flex-col justify-center text-center px-4">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-6 text-4xl font-bold tracking-tight">
-          ViviDiff
+          ViSnap
         </h1>
         <p className="mb-8 text-lg text-fd-muted-foreground">
           Catch visual changes before they reach production. Automated screenshot testing for modern web applications.
@@ -21,7 +21,7 @@ export default function HomePage() {
             View Documentation
           </Link>
           <Link
-            href="https://github.com/behnamazimi/vividiff"
+            href="https://github.com/behnamazimi/visnap"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-fd-border px-6 py-3 text-sm font-medium transition-colors hover:bg-fd-accent"
@@ -34,7 +34,7 @@ export default function HomePage() {
         <div className="text-sm text-fd-muted-foreground">
           <p className="mb-2">Quick start:</p>
           <code className="rounded bg-fd-muted px-2 py-1 text-xs">
-            npx vividiff init
+            npx visnap init
           </code>
         </div>
       </div>

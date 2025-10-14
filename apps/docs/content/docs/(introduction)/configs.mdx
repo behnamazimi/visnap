@@ -1,21 +1,21 @@
 ---
 title: Configs
-description: Overview of ViviDiff configuration and where to learn more
+description: Overview of ViSnap configuration and where to learn more
 ---
 
-ViviDiff uses a `vividiff.config.ts` file in your project root. This file defines how tests run, which browsers to use, where to save screenshots, etc.
+ViSnap uses a `visnap.config.ts` file in your project root. This file defines how tests run, which browsers to use, where to save screenshots, etc.
 
 ## Basic Structure
 
 ```typescript
-import { type VisualTestingToolConfig } from '@vividiff/protocol';
+import { type VisualTestingToolConfig } from '@visnap/protocol';
 
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: { /* browser configuration */ },
     testCase: [ /* test case adapters */ ]
   },
-  screenshotDir: "vividiff",
+  screenshotDir: "visnap",
   // ... other options
 };
 
@@ -28,12 +28,12 @@ export default config;
 
 This type of adapter controls which browser engine to use for taking screenshots.
 
-For now, ViviDiff provides a Playwright-based browser adapter. More browser adapters will be added to support different tools.
+For now, ViSnap provides a Playwright-based browser adapter. More browser adapters will be added to support different tools.
 
 ```typescript
 adapters: {
   browser: {
-    name: "@vividiff/playwright-adapter",
+    name: "@visnap/playwright-adapter",
     options: {
       launch: { browser: 'chromium', headless: true },
       context: { colorScheme: 'light', reducedMotion: 'reduce' },
@@ -48,12 +48,12 @@ See the [Playwright Adapter](/docs/adapters/playwright) for detailed configurati
 
 ### Test Case Adapters
 
-Define where your test cases come from. Currently, ViviDiff includes a [Storybook adapter](/docs/adapters/storybook) and a [URL adapter](/docs/adapters/url).
+Define where your test cases come from. Currently, ViSnap includes a [Storybook adapter](/docs/adapters/storybook) and a [URL adapter](/docs/adapters/url).
 
 **Storybook Adapter:**
 ```typescript
 testCase: [{
-  name: "@vividiff/storybook-adapter",
+  name: "@visnap/storybook-adapter",
   options: {
     source: "./storybook-static", // or URL to remote Storybook
     port: 4477,
@@ -67,7 +67,7 @@ See the [Storybook Adapter](/docs/adapters/storybook) for detailed configuration
 **URL Adapter:**
 ```typescript
 testCase: [{
-  name: "@vividiff/url-adapter",
+  name: "@visnap/url-adapter",
   options: {
     urls: [
       { id: "homepage", url: "http://localhost:3000/" },
@@ -96,7 +96,7 @@ threshold: 0.1 // 10% difference threshold
 Where to save screenshots and reports.
 
 ```typescript
-screenshotDir: "vividiff" // default
+screenshotDir: "visnap" // default
 ```
 
 ### Viewports
@@ -150,9 +150,9 @@ reporter: {
 Override defaults without changing config:
 
 ```bash
-VIVIDIFF_SCREENSHOT_DIR=./screenshots
-VIVIDIFF_THRESHOLD=0.05
-VIVIDIFF_MAX_CONCURRENCY=8
+VISNAP_SCREENSHOT_DIR=./screenshots
+VISNAP_THRESHOLD=0.05
+VISNAP_MAX_CONCURRENCY=8
 ```
 
 ## Complete Example
@@ -160,12 +160,12 @@ VIVIDIFF_MAX_CONCURRENCY=8
 Here's a full configuration that works with Storybook:
 
 ```typescript
-import { type VisualTestingToolConfig } from '@vividiff/protocol';
+import { type VisualTestingToolConfig } from '@visnap/protocol';
 
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: "@vividiff/playwright-adapter",
+      name: "@visnap/playwright-adapter",
       options: {
         launch: { browser: 'chromium', headless: true },
         context: { colorScheme: 'light', reducedMotion: 'reduce' },
@@ -173,7 +173,7 @@ const config: VisualTestingToolConfig = {
       }
     },
     testCase: [{
-      name: "@vividiff/storybook-adapter",
+      name: "@visnap/storybook-adapter",
       options: {
         source: "./storybook-static",
         port: 4477,
@@ -182,7 +182,7 @@ const config: VisualTestingToolConfig = {
       }
     }]
   },
-  screenshotDir: "vividiff",
+  screenshotDir: "visnap",
   viewport: {
     desktop: { width: 1920, height: 1080 },
     mobile: { width: 375, height: 667 }

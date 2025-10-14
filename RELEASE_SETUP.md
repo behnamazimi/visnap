@@ -4,7 +4,7 @@ This guide explains how to set up the automated release process for maintainers 
 
 ## Prerequisites
 
-1. **NPM Account**: You need an npm account with publish permissions for the `@vividiff` scope
+1. **NPM Account**: You need an npm account with publish permissions for the `@visnap` scope
 2. **GitHub Repository Access**: Admin access to configure secrets
 3. **No 2FA on npm publish**: The npm token cannot have 2FA enabled for publishing (2FA on auth is fine)
 
@@ -75,7 +75,7 @@ npm run release
 ## Troubleshooting
 
 - **"NPM_TOKEN not found"**: Check that the secret is properly set in GitHub
-- **"Permission denied"**: Verify your npm token has publish access to `@vividiff` scope
+- **"Permission denied"**: Verify your npm token has publish access to `@visnap` scope
 - **"Package not found"**: Ensure all packages are built before publishing
 - **"Resource not accessible by integration"** or **"GitHub Actions is not permitted to create pull requests"**: 
   - Go to Settings → Actions → General → Workflow permissions

@@ -2,7 +2,7 @@ import type {
   VisualTestingToolConfig,
   TestCaseInstanceMeta,
   BrowserName,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import { resolveEffectiveConfig } from "@/lib/config";
 import { discoverTestCases } from "@/utils/testcase-runner";

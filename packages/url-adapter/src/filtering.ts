@@ -1,4 +1,4 @@
-import type { FilterOptions } from "@vividiff/protocol";
+import type { FilterOptions } from "@visnap/protocol";
 import { minimatch } from "minimatch";
 
 import type { UrlConfig } from "./types.js";

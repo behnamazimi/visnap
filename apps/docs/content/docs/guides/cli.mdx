@@ -1,29 +1,29 @@
 ---
 title: CLI Commands
-description: All ViviDiff CLI commands and options
+description: All ViSnap CLI commands and options
 ---
 
-ViviDiff provides a simple command-line interface for running visual tests. All commands work with your `vividiff.config.ts` file.
+ViSnap provides a simple command-line interface for running visual tests. All commands work with your `visnap.config.ts` file.
 
 ## Installation
 
 Install globally:
 
 ```npm
-npm install -g vividiff
+npm install -g visnap
 ```
 
 Or use with npx (no installation needed):
 
 ```npm
-npx vividiff [command]
+npx visnap [command]
 ```
 
 ## Global Options
 
 All commands support these options:
 
-- `--config <path>` - Path to configuration file (default: `vividiff.config.ts`)
+- `--config <path>` - Path to configuration file (default: `visnap.config.ts`)
 - `--quiet` - Suppress output except errors
 - `-h, --help` - Show help for command
 - `-v, --version` - Show version information
@@ -32,14 +32,14 @@ All commands support these options:
 
 ### `init`
 
-Initialize a new ViviDiff project with a configuration file.
+Initialize a new ViSnap project with a configuration file.
 
 ```npm
-npx vividiff init
+npx visnap init
 ```
 
 This command:
-- Creates `vividiff.config.ts` in your project root
+- Creates `visnap.config.ts` in your project root
 - Prompts for configuration type (TypeScript or JavaScript)
 - Sets up basic configuration for Storybook testing
 
@@ -49,7 +49,7 @@ This command:
 Capture current screenshots and compare them with baseline images.
 
 ```npm
-npx vividiff test [options]
+npx visnap test [options]
 ```
 
 **Options:**
@@ -58,10 +58,10 @@ npx vividiff test [options]
 
 ### `update`
 
-Capture baseline screenshots for all test cases and save them to `vividiff/base/`.
+Capture baseline screenshots for all test cases and save them to `visnap/base/`.
 
 ```npm 
-npx vividiff update [options]
+npx visnap update [options]
 ```
 
 **Options:**
@@ -73,7 +73,7 @@ npx vividiff update [options]
 Validate your configuration file and check dependencies.
 
 ```npm
-npx vividiff validate [options]
+npx visnap validate [options]
 ```
 
 ### `list`
@@ -81,7 +81,7 @@ npx vividiff validate [options]
 List all discovered test cases without running tests.
 
 ```npm
-npx vividiff list [options]
+npx visnap list [options]
 ```
 
 ### `open`
@@ -89,36 +89,36 @@ npx vividiff list [options]
 Open HTML report in browser or screenshot directory in Finder if the HTML report is not generated.
 
 ```npm
-npx vividiff open [options]
+npx visnap open [options]
 ```
 
 ## Configuration File
 
-ViviDiff looks for configuration in this order:
+ViSnap looks for configuration in this order:
 
 1. `--config` option
-2. `vividiff.config.ts`
-3. `vividiff.config.js`
+2. `visnap.config.ts`
+3. `visnap.config.js`
 
 ## Environment Variables
 
 Override configuration with environment variables:
 
 ```bash
-VIVIDIFF_SCREENSHOT_DIR=./screenshots
-VIVIDIFF_THRESHOLD=0.05
-VIVIDIFF_MAX_CONCURRENCY=8
-vividiff test
+VISNAP_SCREENSHOT_DIR=./screenshots
+VISNAP_THRESHOLD=0.05
+VISNAP_MAX_CONCURRENCY=8
+visnap test
 ```
 
 ## Troubleshooting
 
 ### Command Not Found
 
-Make sure ViviDiff is installed:
+Make sure ViSnap is installed:
 
 ```npm
-npm install -g vividiff
+npm install -g visnap
 ```
 
 ### Permission Errors

@@ -5,7 +5,7 @@ import type {
   PageWithEvaluate,
   BrowserName,
   BrowserAdapter,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import { type BrowserTarget } from "./browser-config";
 import log from "./logger";

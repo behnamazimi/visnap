@@ -1,12 +1,12 @@
 ---
-"@vividiff/eslint-config": minor
-"@vividiff/reporter": minor
-"@vividiff/cli": minor
-"@vividiff/core": minor
-"@vividiff/playwright-adapter": minor
-"@vividiff/protocol": minor
-"@vividiff/storybook-adapter": minor
-"@vividiff/url-adapter": minor
+"@visnap/eslint-config": minor
+"@visnap/reporter": minor
+"@visnap/cli": minor
+"@visnap/core": minor
+"@visnap/playwright-adapter": minor
+"@visnap/protocol": minor
+"@visnap/storybook-adapter": minor
+"@visnap/url-adapter": minor
 ---
 
 semi-stable version

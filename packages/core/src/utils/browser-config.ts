@@ -2,7 +2,7 @@ import type {
   VisualTestingToolConfig,
   BrowserName,
   BrowserConfiguration,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import { DEFAULT_BROWSER } from "@/constants";
 

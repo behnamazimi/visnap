@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync } from "fs";
 import { join } from "path";
 
-import { initializeProject, generateConfigContent, log } from "@vividiff/core";
+import { initializeProject, generateConfigContent, log } from "@visnap/core";
 import inquirer from "inquirer";
 
 import { type Command } from "../types";
@@ -37,8 +37,8 @@ const promptUser = async (): Promise<InitOptions> => {
       name: "configType",
       message: "Choose configuration file type:",
       choices: [
-        { name: "TypeScript (vividiff.config.ts)", value: "ts" },
-        { name: "JavaScript (vividiff.config.js)", value: "js" },
+        { name: "TypeScript (visnap.config.ts)", value: "ts" },
+        { name: "JavaScript (visnap.config.js)", value: "js" },
       ],
       default: "ts",
       when: answers => answers.setupType === "quick",
@@ -56,7 +56,7 @@ const initHandler = async (_options: void): Promise<void> => {
     const currentDir = process.cwd();
     const userOptions = await promptUser();
 
-    const configFileName = `vividiff.config.${userOptions.configType}`;
+    const configFileName = `visnap.config.${userOptions.configType}`;
     const newConfigPath = join(currentDir, configFileName);
 
     if (existsSync(newConfigPath)) {
@@ -104,9 +104,9 @@ const initHandler = async (_options: void): Promise<void> => {
     }
     log.plain("\n🎉 You can now customize the configuration file as needed.");
     log.plain("\nNext steps:");
-    log.plain("  1. Run 'vividiff validate' to check your configuration");
-    log.plain("  2. Run 'vividiff update' to create baseline screenshots");
-    log.plain("  3. Run 'vividiff test' to run visual tests");
+    log.plain("  1. Run 'visnap validate' to check your configuration");
+    log.plain("  2. Run 'visnap update' to create baseline screenshots");
+    log.plain("  3. Run 'visnap test' to run visual tests");
   } catch (error) {
     ErrorHandler.handle(error, {
       command: "init",

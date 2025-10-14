@@ -1,4 +1,4 @@
-import type { TestCaseDetail, RunOutcome, ComparisonConfig, ViewportMap } from "@vividiff/protocol";
+import type { TestCaseDetail, RunOutcome, ComparisonConfig, ViewportMap } from "@visnap/protocol";
 
 export interface ReporterOptions {
   outputPath?: string;

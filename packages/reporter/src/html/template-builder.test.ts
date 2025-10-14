@@ -85,16 +85,16 @@ describe("TemplateBuilder", () => {
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>{{STYLES}}</style>
 </head>
-<body x-data="vividiffReport()" x-init="init()">
+<body x-data="visnapReport()" x-init="init()">
   <h1>{{TITLE}}</h1>
   <script>
-    window.__VIVIDIFF_DATA__ = {{DATA}};
+    window.__VISNAP_DATA__ = {{DATA}};
     {{SCRIPT}}
   </script>
 </body>
 </html>`)
       .mockReturnValueOnce("body { font-family: Arial; }")
-      .mockReturnValueOnce("function vividiffReport() { return {}; }");
+      .mockReturnValueOnce("function visnapReport() { return {}; }");
   });
 
   afterEach(() => {
@@ -110,7 +110,7 @@ describe("TemplateBuilder", () => {
       expect(result).toContain("<!DOCTYPE html>");
       expect(result).toContain("<title>Test Report</title>");
       expect(result).toContain("body { font-family: Arial; }");
-      expect(result).toContain("function vividiffReport() { return {}; }");
+      expect(result).toContain("function visnapReport() { return {}; }");
     });
 
     it("should replace {{TITLE}} placeholder", () => {
@@ -123,7 +123,7 @@ describe("TemplateBuilder", () => {
     it("should replace {{DATA}} placeholder with JSON data", () => {
       const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
 
-      const dataMatch = result.match(/window\.__VIVIDIFF_DATA__ = (.+);/);
+      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       expect(dataMatch).toBeTruthy();
       
       const data = JSON.parse(dataMatch![1]);
@@ -136,7 +136,7 @@ describe("TemplateBuilder", () => {
     it("should include processed test cases in the data", () => {
       const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
 
-      const dataMatch = result.match(/window\.__VIVIDIFF_DATA__ = (.+);/);
+      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
       
       expect(data.outcome.testCases).toEqual(mockProcessedTestCases);
@@ -145,13 +145,13 @@ describe("TemplateBuilder", () => {
     it("should use default title when not provided", () => {
       const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
 
-      expect(result).toContain("<title>Vividiff Test Report</title>");
+      expect(result).toContain("<title>VISNAP Test Report</title>");
     });
 
     it("should handle empty test cases array", () => {
       const result = templateBuilder.build(mockReportData, []);
 
-      const dataMatch = result.match(/window\.__VIVIDIFF_DATA__ = (.+);/);
+      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
       
       expect(data.outcome.testCases).toEqual([]);
@@ -180,7 +180,7 @@ describe("TemplateBuilder", () => {
 
       const result = templateBuilder.build(minimalReportData, []);
 
-      const dataMatch = result.match(/window\.__VIVIDIFF_DATA__ = (.+);/);
+      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
       
       expect(data.success).toBe(false);
@@ -192,7 +192,7 @@ describe("TemplateBuilder", () => {
       mockReadFileSync
         .mockReturnValueOnce("<!DOCTYPE html><html><head><title>{{TITLE}}</title></head><body><h1>{{TITLE}}</h1></body></html>")
         .mockReturnValueOnce("body { font-family: Arial; }")
-        .mockReturnValueOnce("function vividiffReport() { return {}; }");
+        .mockReturnValueOnce("function visnapReport() { return {}; }");
 
       const title = "Test Report";
       const result = templateBuilder.build(mockReportData, mockProcessedTestCases, title);
@@ -204,7 +204,7 @@ describe("TemplateBuilder", () => {
     it("should preserve JSON data structure", () => {
       const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
 
-      const dataMatch = result.match(/window\.__VIVIDIFF_DATA__ = (.+);/);
+      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
       
       // Verify the structure is preserved

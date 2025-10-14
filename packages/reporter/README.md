@@ -1,11 +1,11 @@
-# @vividiff/reporter
+# @visnap/reporter
 
-Generate JSON and HTML reports for ViviDiff test results.
+Generate JSON and HTML reports for ViSnap test results.
 
 ## Installation
 
 ```bash
-npm install @vividiff/reporter
+npm install @visnap/reporter
 ```
 
 ## JSON Reporter
@@ -13,11 +13,11 @@ npm install @vividiff/reporter
 Generate machine-readable JSON reports:
 
 ```typescript
-import { JsonReporter } from "@vividiff/reporter";
+import { JsonReporter } from "@visnap/reporter";
 
 const reporter = new JsonReporter();
 const result = await reporter.generate(testResult, {
-  screenshotDir: "./vividiff",
+  screenshotDir: "./visnap",
   pretty: true
 });
 ```
@@ -32,11 +32,11 @@ const result = await reporter.generate(testResult, {
 Generate interactive HTML reports with visual comparison:
 
 ```typescript
-import { HtmlReporter } from "@vividiff/reporter";
+import { HtmlReporter } from "@visnap/reporter";
 
 const reporter = new HtmlReporter();
 const result = await reporter.generate(testResult, {
-  screenshotDir: "./vividiff",
+  screenshotDir: "./visnap",
   title: "My Test Report"
 });
 ```
@@ -44,7 +44,7 @@ const result = await reporter.generate(testResult, {
 **Options:**
 - `outputPath?: string` - Output file path (optional)
 - `screenshotDir: string` - Screenshot directory path
-- `title?: string` - Report title (default: "Vividiff Test Report")
+- `title?: string` - Report title (default: "VISNAP Test Report")
 
 ## HTML Report Features
 
@@ -56,8 +56,8 @@ const result = await reporter.generate(testResult, {
 ## Integration Example
 
 ```typescript
-import { runVisualTests } from "@vividiff/core";
-import { JsonReporter, HtmlReporter } from "@vividiff/reporter";
+import { runVisualTests } from "@visnap/core";
+import { JsonReporter, HtmlReporter } from "@visnap/reporter";
 
 async function runTestsWithReports() {
   const result = await runVisualTests({
@@ -69,11 +69,11 @@ async function runTestsWithReports() {
 
   const [jsonPath, htmlPath] = await Promise.all([
     jsonReporter.generate(result, {
-      screenshotDir: "./vividiff",
+      screenshotDir: "./visnap",
       pretty: true
     }),
     htmlReporter.generate(result, {
-      screenshotDir: "./vividiff",
+      screenshotDir: "./visnap",
       title: "Test Results"
     })
   ]);

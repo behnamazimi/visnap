@@ -1,4 +1,4 @@
-import type { ComparisonEngine, ComparisonCore } from "@vividiff/protocol";
+import type { ComparisonEngine, ComparisonCore } from "@visnap/protocol";
 
 /**
  * Registry for comparison engines

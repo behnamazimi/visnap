@@ -1,4 +1,4 @@
-import type { FilterOptions } from "@vividiff/protocol";
+import type { FilterOptions } from "@visnap/protocol";
 
 export interface ParsedArgs extends Pick<FilterOptions, "include" | "exclude"> {
   include?: string[];

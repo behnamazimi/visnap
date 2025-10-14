@@ -1,6 +1,6 @@
-function vividiffReport() {
+function visnapReport() {
   return {
-    data: window.__VIVIDIFF_DATA__,
+    data: window.__VISNAP_DATA__,
     filters: {
       search: '',
       status: 'all',

@@ -1,4 +1,4 @@
-import { getPackageInfo, setQuietMode } from "@vividiff/core";
+import { getPackageInfo, setQuietMode } from "@visnap/core";
 import { Command } from "commander";
 
 import { loadCommands, registerCommands } from "./command-loader";
@@ -21,7 +21,7 @@ const main = async (): Promise<void> => {
 
     // Configure the main program with global options
     program
-      .name("vividiff")
+      .name("visnap")
       .description("Visual Testing Tool - CLI for visual regression testing")
       .version(pkg.version, "-v, --version", "Show version information")
       .option("--config <path>", "Path to configuration file")
@@ -50,7 +50,7 @@ const main = async (): Promise<void> => {
     await program.parseAsync();
   } catch (error) {
     ErrorHandler.handle(error, {
-      command: "vividiff",
+      command: "visnap",
       operation: "CLI initialization",
       suggestion: "Check your installation and try again",
     });

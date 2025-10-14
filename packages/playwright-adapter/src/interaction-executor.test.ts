@@ -1,4 +1,4 @@
-import type { InteractionAction } from "@vividiff/protocol";
+import type { InteractionAction } from "@visnap/protocol";
 import type { Page } from "playwright-core";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 

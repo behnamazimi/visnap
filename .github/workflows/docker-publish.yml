@@ -30,7 +30,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: vividiff/vividiff
+          images: visnap/visnap
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -56,6 +56,6 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: vividiff/vividiff
+          subject-name: visnap/visnap
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true

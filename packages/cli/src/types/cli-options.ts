@@ -1,4 +1,4 @@
-import type { FilterOptions } from "@vividiff/protocol";
+import type { FilterOptions } from "@visnap/protocol";
 
 export type CliOptions = FilterOptions;
 

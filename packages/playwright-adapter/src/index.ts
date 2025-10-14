@@ -4,7 +4,7 @@ import type {
   ScreenshotResult,
   BrowserName as BrowserNameProtocol,
   BrowserAdapterInitOptions,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 import { type BrowserType, type Browser, type Page } from "playwright-core";
 
 import { createBrowserContext, navigateToUrl } from "./browser-context";
@@ -113,4 +113,4 @@ export function createAdapter(
 }
 
 // Re-export interaction types for user convenience
-export type { InteractionAction } from "@vividiff/protocol";
+export type { InteractionAction } from "@visnap/protocol";

@@ -10,7 +10,7 @@ import {
   type ComparisonCore,
   type ComparisonConfig,
   type ComparisonEngine,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 import odiff from "odiff-bin";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";

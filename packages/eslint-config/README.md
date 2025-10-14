@@ -1,11 +1,11 @@
-# @vividiff/eslint-config
+# @visnap/eslint-config
 
-Shared ESLint configurations for ViviDiff.
+Shared ESLint configurations for ViSnap.
 
 ## Installation
 
 ```bash
-npm install @vividiff/eslint-config --save-dev
+npm install @visnap/eslint-config --save-dev
 ```
 
 ## Available Configurations
@@ -26,7 +26,7 @@ Next.js specific configuration.
 
 ```javascript
 // eslint.config.js
-import baseConfig from '@vividiff/eslint-config/base.js';
+import baseConfig from '@visnap/eslint-config/base.js';
 
 export default [
   ...baseConfig,

@@ -1,4 +1,4 @@
-# @vividiff/core
+# @visnap/core
 
 ## 0.1.2
 
@@ -6,9 +6,9 @@
 
 - 42df006: Fix release process
 - Updated dependencies [42df006]
-  - @vividiff/playwright-adapter@0.1.2
-  - @vividiff/protocol@0.1.2
-  - @vividiff/storybook-adapter@0.1.2
+  - @visnap/playwright-adapter@0.1.2
+  - @visnap/protocol@0.1.2
+  - @visnap/storybook-adapter@0.1.2
 
 ## 0.1.1
 
@@ -16,9 +16,9 @@
 
 - 1001279: Bump patch version to try release workflow
 - Updated dependencies [1001279]
-  - @vividiff/playwright-adapter@0.1.1
-  - @vividiff/protocol@0.1.1
-  - @vividiff/storybook-adapter@0.1.1
+  - @visnap/playwright-adapter@0.1.1
+  - @visnap/protocol@0.1.1
+  - @visnap/storybook-adapter@0.1.1
 
 ## 0.1.0
 
@@ -35,6 +35,6 @@
 - Updated dependencies [1eda9a6]
 - Updated dependencies [01c5a94]
 - Updated dependencies [c6aa610]
-  - @vividiff/playwright-adapter@0.1.0
-  - @vividiff/storybook-adapter@0.1.0
-  - @vividiff/protocol@0.1.0
+  - @visnap/playwright-adapter@0.1.0
+  - @visnap/storybook-adapter@0.1.0
+  - @visnap/protocol@0.1.0

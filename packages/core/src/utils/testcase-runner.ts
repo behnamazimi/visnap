@@ -5,7 +5,7 @@ import type {
   ScreenshotResult,
   RunOutcome,
   BrowserName,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import {
   loadBrowserAdapter,

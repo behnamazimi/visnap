@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { serializeTestData } from "./data-serializer";
-import type { TestResult } from "@vividiff/protocol";
-import type { RunOutcome, TestCaseDetail } from "@vividiff/protocol";
+import type { TestResult } from "@visnap/protocol";
+import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
 
 describe("DataSerializer", () => {
   const createMockTestResult = (overrides: Partial<TestResult> = {}): TestResult => ({
@@ -49,7 +49,7 @@ describe("DataSerializer", () => {
     ],
     captureFailures: [],
     config: {
-      screenshotDir: "./vividiff",
+      screenshotDir: "./visnap",
       comparison: {
         core: "odiff",
         threshold: 0.1,

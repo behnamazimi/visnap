@@ -1,4 +1,4 @@
-import type { Viewport } from "@vividiff/protocol";
+import type { Viewport } from "@visnap/protocol";
 
 // Default viewport configuration
 export const DEFAULT_VIEWPORT = { width: 1920, height: 1080 };

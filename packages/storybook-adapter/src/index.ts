@@ -3,7 +3,7 @@ import type {
   TestCaseInstanceMeta,
   ViewportMap,
   PageWithEvaluate,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import { discoverCasesFromBrowser } from "./discovery.js";
 import { normalizeStories } from "./filtering.js";

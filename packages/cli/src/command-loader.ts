@@ -1,4 +1,4 @@
-import { log } from "@vividiff/core";
+import { log } from "@visnap/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { COMMAND_REGISTRY } from "./command-registry";
