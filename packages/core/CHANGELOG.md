@@ -1,5 +1,18 @@
 # @visnap/core
 
+## 0.2.0
+
+### Minor Changes
+
+- 37bda91: semi-stable version
+- 1d4139c: Fix and test the release flow
+
+### Patch Changes
+
+- Updated dependencies [37bda91]
+- Updated dependencies [1d4139c]
+  - @visnap/protocol@0.2.0
+
 ## 0.1.2
 
 ### Patch Changes
