@@ -1,7 +1,7 @@
 {
   "name": "example-storybook-v8",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,8 +14,8 @@
     "test": "echo 'No tests available for example-storybook app'"
   },
   "dependencies": {
-    "@visnap/playwright-adapter": "^0.2.3",
-    "@visnap/storybook-adapter": "^0.2.3",
+    "@visnap/playwright-adapter": "^0.3.0",
+    "@visnap/storybook-adapter": "^0.3.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
@@ -24,7 +24,7 @@
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
-    "@visnap/cli": "^0.2.0",
+    "@visnap/cli": "^0.3.0",
     "@visnap/eslint-config": "*",
     "@vitejs/plugin-react": "^5.0.4",
     "globals": "^16.4.0",

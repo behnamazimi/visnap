@@ -1,5 +1,11 @@
 # @visnap/eslint-config
 
+## 0.3.0
+
+### Minor Changes
+
+- f152643: Small improvement and bug fixes
+
 ## 0.2.3
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @visnap/cli
 
+## 0.3.0
+
+### Minor Changes
+
+- f152643: Small improvement and bug fixes
+
+### Patch Changes
+
+- Updated dependencies [f152643]
+  - @visnap/reporter@0.3.0
+  - @visnap/core@0.3.0
+
 ## 0.2.3
 
 ### Patch Changes

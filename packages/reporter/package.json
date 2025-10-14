@@ -1,6 +1,6 @@
 {
   "name": "@visnap/reporter",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Visual Testing Tool - HTML and JSON reporters for test results",
   "type": "module",
   "exports": {
@@ -18,7 +18,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@visnap/protocol": "^0.2.3"
+    "@visnap/protocol": "^0.3.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
