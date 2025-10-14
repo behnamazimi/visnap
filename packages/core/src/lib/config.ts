@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { join } from "path";
+import { isAbsolute, join, resolve } from "path";
 
 import { type VisualTestingToolConfig } from "@visnap/protocol";
 import { bundleRequire } from "bundle-require";
@@ -14,17 +14,34 @@ import {
 } from "@/constants";
 import { ConfigError } from "@/utils/error-handler";
 
-export const getConfigTsPath = (): string =>
-  join(process.cwd(), "visnap.config.ts");
+/**
+ * Resolve the effective path to the configuration file.
+ * - If an explicit path is provided, resolve and return it as-is.
+ * - Otherwise, return the first existing default among TS/JS in the CWD.
+ */
+export const resolveConfigPath = (configPath?: string): string | null => {
+  if (configPath) {
+    const candidate = isAbsolute(configPath)
+      ? configPath
+      : resolve(process.cwd(), configPath);
+    return existsSync(candidate) ? candidate : null;
+  }
+  const tsPath = join(process.cwd(), "visnap.config.ts");
+  if (existsSync(tsPath)) return tsPath;
+  const jsPath = join(process.cwd(), "visnap.config.js");
+  if (existsSync(jsPath)) return jsPath;
+  return null;
+};
 
-export const loadConfigFile =
-  async (): Promise<VisualTestingToolConfig | null> => {
-    const tsPath = getConfigTsPath();
-    if (!existsSync(tsPath)) return null;
-    const { mod } = await bundleRequire({ filepath: tsPath });
-    const config = (mod?.default ?? mod) as unknown;
-    return config as VisualTestingToolConfig;
-  };
+export const loadConfigFile = async (
+  configPath?: string
+): Promise<VisualTestingToolConfig | null> => {
+  const filepath = resolveConfigPath(configPath);
+  if (!filepath) return null;
+  const { mod } = await bundleRequire({ filepath });
+  const config = (mod?.default ?? mod) as unknown;
+  return config as VisualTestingToolConfig;
+};
 
 export const resolveScreenshotDir = (screenshotDir?: string): string => {
   return screenshotDir ?? DEFAULT_SCREENSHOT_DIR;
@@ -83,9 +100,13 @@ function applyEnvOverrides(
 
 export const resolveEffectiveConfig = async (
   options: Partial<VisualTestingToolConfig> = {},
-  cliOptions?: { include?: string | string[]; exclude?: string | string[] }
+  cliOptions?: {
+    include?: string | string[];
+    exclude?: string | string[];
+    configPath?: string;
+  }
 ): Promise<VisualTestingToolConfig> => {
-  const configFile = await loadConfigFile();
+  const configFile = await loadConfigFile(cliOptions?.configPath);
   if (!configFile) {
     throw new ConfigError("visnap.config not found");
   }

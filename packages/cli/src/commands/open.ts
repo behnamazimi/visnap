@@ -12,10 +12,13 @@ interface OpenOptions {
   config?: string;
 }
 
-const openHandler = async (_options: OpenOptions): Promise<void> => {
+const openHandler = async (options: OpenOptions): Promise<void> => {
   try {
     // Load config to get screenshot directory and HTML report path
-    const config = await resolveEffectiveConfig();
+    const cliOptions: any = options.config
+      ? { configPath: options.config }
+      : undefined;
+    const config = await resolveEffectiveConfig({}, cliOptions);
     const screenshotDir = config.screenshotDir || "visnap";
 
     // Get HTML report path from config or use default

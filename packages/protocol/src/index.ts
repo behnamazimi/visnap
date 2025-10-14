@@ -414,10 +414,14 @@ export type PageWithEvaluate = {
   close?: () => Promise<void>;
 };
 
-export interface FilterOptions {
+export interface CliOptions {
   include?: string | string[];
   exclude?: string | string[];
+  configPath?: string;
+  quiet?: boolean;
 }
+
+export type FilterOptions = Omit<CliOptions, "configPath" | "quiet">;
 
 // ============= Viewport Utilities =============
 

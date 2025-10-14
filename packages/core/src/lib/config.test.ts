@@ -5,7 +5,6 @@ import { bundleRequire } from "bundle-require";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import {
-  getConfigTsPath,
   loadConfigFile,
   resolveScreenshotDir,
   resolveEffectiveConfig,
@@ -45,13 +44,6 @@ describe("config", () => {
     delete process.env.VISNAP_SCREENSHOT_DIR;
     delete process.env.VISNAP_THRESHOLD;
     delete process.env.VISNAP_MAX_CONCURRENCY;
-  });
-
-  describe("getConfigTsPath", () => {
-    it("should return correct config file path", () => {
-      const result = getConfigTsPath();
-      expect(result).toBe(join(process.cwd(), "visnap.config.ts"));
-    });
   });
 
   describe("loadConfigFile", () => {

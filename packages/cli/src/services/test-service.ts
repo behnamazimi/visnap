@@ -3,10 +3,8 @@ import {
   runInDocker,
   DEFAULT_DOCKER_IMAGE,
 } from "@visnap/core";
-import type { VisualTestingToolConfig } from "@visnap/protocol";
+import type { VisualTestingToolConfig, CliOptions } from "@visnap/protocol";
 import { JsonReporter, HtmlReporter } from "@visnap/reporter";
-
-import { type CliOptions } from "../types/cli-options";
 
 export interface TestServiceOptions {
   include?: string | string[];
@@ -14,6 +12,7 @@ export interface TestServiceOptions {
   jsonReport?: string | boolean;
   htmlReport?: string | boolean;
   docker?: boolean;
+  config?: string;
 }
 
 export interface TestServiceResult {
@@ -178,9 +177,11 @@ export class TestService {
   private async executeTestsLocally(
     options: TestServiceOptions
   ): Promise<TestServiceResult> {
-    const cliOptions: CliOptions = {
+    const cliOptions: CliOptions & { configPath?: string } = {
       include: options.include,
       exclude: options.exclude,
+      // forward explicit config path to core
+      ...(options.config ? { configPath: options.config } : {}),
     };
 
     const result = await runVisualTestsCli({}, cliOptions);
@@ -224,6 +225,8 @@ export class TestService {
     const image = DEFAULT_DOCKER_IMAGE;
     const args: string[] = [
       "test",
+      // forward config if present
+      ...(options.config ? ["--config", options.config] : []),
       // Forward jsonReport flag if present
       ...(options.jsonReport
         ? [

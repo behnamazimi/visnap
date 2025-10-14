@@ -22,15 +22,14 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
       log.info("Validating configuration...");
     }
 
-    // Check if config file exists
-    const configPath = options.config || "visnap.config.ts";
-    if (!existsSync(configPath) && !existsSync("visnap.config.js")) {
+    // Check if config file exists when explicit path is given; otherwise fallback to defaults later
+    if (options.config && !existsSync(options.config)) {
       if (useSpinner) {
         spinner!.fail("Configuration file not found");
       } else {
         log.error("Configuration file not found");
       }
-      log.error(`No configuration file found at ${configPath}`);
+      log.error(`No configuration file found at ${options.config}`);
       log.plain("Run 'visnap init' to create a configuration file");
       return;
     }
@@ -41,8 +40,8 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
       log.info("Loading configuration...");
     }
 
-    // Load and validate config
-    const config = await loadConfigFile();
+    // Load and validate config (respect explicit path if provided)
+    const config = await loadConfigFile(options.config);
 
     if (!config) {
       if (useSpinner) {

@@ -6,7 +6,11 @@ import { executeTestRun } from "@/utils/testcase-runner";
 // Internal function that handles the core logic
 async function runVisualTestsInternal(
   options: Partial<VisualTestingToolConfig> = {},
-  cliOptions?: { include?: string | string[]; exclude?: string | string[] }
+  cliOptions?: {
+    include?: string | string[];
+    exclude?: string | string[];
+    configPath?: string;
+  }
 ): Promise<TestResult> {
   const effectiveConfig = await resolveEffectiveConfig(options, cliOptions);
 
