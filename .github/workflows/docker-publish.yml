@@ -1,13 +1,16 @@
 name: Publish Docker image
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+    branches: [main]
 
 jobs:
   push_to_registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       packages: write
       contents: read
@@ -16,6 +19,13 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
+
+      - name: Get published version from npm
+        id: get-version
+        run: |
+          VERSION=$(npm view @visnap/cli version)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Published version: $VERSION"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -32,11 +42,8 @@ jobs:
         with:
           images: visnap/visnap
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value={{version}},enable={{is_default_branch}}
+            type=raw,value=${{ steps.get-version.outputs.version }}
+            type=raw,value=latest
 
       - name: Build and push Docker image
         id: push
@@ -51,7 +58,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            VERSION=${{ github.event.release.tag_name }}
+            VERSION=${{ steps.get-version.outputs.version }}
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2

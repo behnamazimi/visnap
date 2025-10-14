@@ -197,6 +197,7 @@ export async function executeTestRun(
           viewport: variant.viewport,
           disableCSSInjection: variant.disableCSSInjection,
           interactions: variant.interactions,
+          elementsToMask: variant.elementsToMask,
         });
 
         const timeoutPromise = new Promise<never>((_, reject) => {

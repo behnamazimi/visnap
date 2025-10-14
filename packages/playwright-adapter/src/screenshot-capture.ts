@@ -9,6 +9,7 @@ import {
 } from "./browser-context";
 import { SCREENSHOT_ELEMENT_TIMEOUT } from "./constants";
 import { executeInteractions } from "./interaction-executor";
+import { buildElementsMaskCSS } from "./masking-css";
 import { resolveScreenshotTarget } from "./utils";
 
 import type { PlaywrightAdapterOptions } from "./index";
@@ -78,6 +79,17 @@ export async function performScreenshotCapture(
     // Inject global CSS if enabled and not disabled for this test case
     if (!screenshotOptions.disableCSSInjection && options.injectCSS) {
       await injectGlobalCSS(page, options.injectCSS);
+    }
+
+    // Inject per-test elements-to-mask overlay CSS (independent of disableCSSInjection)
+    if (
+      Array.isArray(screenshotOptions.elementsToMask) &&
+      screenshotOptions.elementsToMask.length > 0
+    ) {
+      const css = buildElementsMaskCSS(screenshotOptions.elementsToMask);
+      if (css) {
+        await injectGlobalCSS(page, css);
+      }
     }
 
     // Capture the screenshot

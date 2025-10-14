@@ -84,7 +84,9 @@ urls: [
     title: "Homepage", // display name
     viewport: { width: 1200, height: 800 },
     threshold: 0.05,
+    disableCSSInjection: true, // prevent global CSS injection for this test
     screenshotTarget: "body",
+    elementsToMask: [".sticky-header", "#ad-slot"],
     interactions: [
       { type: "click", selector: "button.cta" },
       { type: "waitForTimeout", duration: 500 }
@@ -152,6 +154,18 @@ Execute interactions before taking the screenshot:
     { type: "click", selector: "button[type='submit']" },
     { type: "waitForTimeout", duration: 1000 }
   ]
+}
+```
+
+### `disableCSSInjection`
+
+Disable the global CSS injection (configured in your browser adapter) for this specific URL test case:
+
+```typescript
+{
+  id: "no-css-injection",
+  url: "http://localhost:3000/",
+  disableCSSInjection: true
 }
 ```
 

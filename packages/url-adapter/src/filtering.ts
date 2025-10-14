@@ -104,5 +104,12 @@ export function validateUrlConfig(config: UrlConfig): string[] {
     errors.push("URL config 'interactions' must be an array");
   }
 
+  if (
+    config.disableCSSInjection !== undefined &&
+    typeof config.disableCSSInjection !== "boolean"
+  ) {
+    errors.push("URL config 'disableCSSInjection' must be a boolean");
+  }
+
   return errors;
 }

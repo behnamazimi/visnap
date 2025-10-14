@@ -104,6 +104,9 @@ export function normalizeStories(
     const interactions = Array.isArray(vt.interactions)
       ? vt.interactions
       : undefined;
+    const elementsToMask = Array.isArray(vt.elementsToMask)
+      ? vt.elementsToMask
+      : undefined;
 
     metas.push({
       id,
@@ -117,6 +120,7 @@ export function normalizeStories(
         viewport,
         disableCSSInjection,
         interactions,
+        elementsToMask,
       },
     });
   }
@@ -147,6 +151,7 @@ export function normalizeStories(
         threshold: cfg?.threshold,
         disableCSSInjection: cfg?.disableCSSInjection,
         interactions: cfg?.interactions,
+        elementsToMask: cfg?.elementsToMask,
       });
     }
   }
