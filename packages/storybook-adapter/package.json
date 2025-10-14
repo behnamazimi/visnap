@@ -1,6 +1,6 @@
 {
   "name": "@visnap/storybook-adapter",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Storybook test-case adapter for visnap",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -21,7 +21,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@visnap/protocol": "^0.2.1",
+    "@visnap/protocol": "^0.2.2",
     "minimatch": "^10.0.1",
     "serve-handler": "^6.1.5"
   },

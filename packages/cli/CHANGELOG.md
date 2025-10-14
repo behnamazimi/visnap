@@ -1,5 +1,14 @@
 # @visnap/cli
 
+## 0.2.2
+
+### Patch Changes
+
+- 2942d6c: Fix publish flow
+- Updated dependencies [2942d6c]
+  - @visnap/core@0.2.2
+  - @visnap/reporter@0.2.2
+
 ## 0.2.1
 
 ### Patch Changes
