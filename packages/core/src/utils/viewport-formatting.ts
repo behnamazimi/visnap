@@ -1,4 +1,4 @@
-import type { Viewport } from "@vividiff/protocol";
+import type { Viewport } from "@visnap/protocol";
 
 /**
  * Formats a viewport object into a human-readable string

@@ -25,7 +25,7 @@ export class TemplateBuilder {
   build(
     data: ReportData,
     testCases: ProcessedTestCase[],
-    title: string = "Vividiff Test Report"
+    title: string = "VISNAP Test Report"
   ): string {
     let template: string;
     let styles: string;

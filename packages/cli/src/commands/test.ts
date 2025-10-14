@@ -38,7 +38,7 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
       result.config?.reporter,
       options.htmlReport,
       options.jsonReport,
-      result.config?.screenshotDir || "./vividiff"
+      result.config?.screenshotDir || "./visnap"
     );
 
     // Generate JSON report if enabled

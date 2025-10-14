@@ -23,7 +23,7 @@ describe("constants", () => {
     });
 
     it("should have correct default screenshot directory", () => {
-      expect(DEFAULT_SCREENSHOT_DIR).toBe("vividiff");
+      expect(DEFAULT_SCREENSHOT_DIR).toBe("visnap");
     });
 
     it("should have correct default threshold", () => {
@@ -83,7 +83,7 @@ describe("constants", () => {
 
   describe("docker configuration", () => {
     it("should have correct default docker image", () => {
-      expect(DEFAULT_DOCKER_IMAGE).toBe("vividiff:latest");
+      expect(DEFAULT_DOCKER_IMAGE).toBe("visnap:latest");
     });
   });
 });

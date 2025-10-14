@@ -5,7 +5,7 @@
 // Default values
 /** Default concurrency level of 6 - balanced between performance and resource usage */
 export const DEFAULT_CONCURRENCY = 6;
-export const DEFAULT_SCREENSHOT_DIR = "vividiff";
+export const DEFAULT_SCREENSHOT_DIR = "visnap";
 /** Default threshold of 0.1 (10%) for pixel difference tolerance */
 export const DEFAULT_THRESHOLD = 0.1;
 export const DEFAULT_BROWSER = "chromium" as const;
@@ -38,4 +38,4 @@ export const STORYBOOK_SELECTORS = {
   BODY: "body",
 } as const;
 
-export const DEFAULT_DOCKER_IMAGE = "vividiff:latest";
+export const DEFAULT_DOCKER_IMAGE = "visnap:latest";

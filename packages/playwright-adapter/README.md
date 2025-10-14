@@ -1,11 +1,11 @@
-# @vividiff/playwright-adapter
+# @visnap/playwright-adapter
 
-Browser automation adapter for ViviDiff using Playwright.
+Browser automation adapter for ViSnap using Playwright.
 
 ## Installation
 
 ```bash
-npm install @vividiff/playwright-adapter
+npm install @visnap/playwright-adapter
 ```
 
 **Peer Dependencies:**
@@ -16,7 +16,7 @@ npm install playwright@>=1.40.0 playwright-core@>=1.40.0
 ## Basic Usage
 
 ```typescript
-import { createAdapter } from '@vividiff/playwright-adapter';
+import { createAdapter } from '@visnap/playwright-adapter';
 
 const adapter = createAdapter({
   launch: {

@@ -5,7 +5,7 @@ import type {
   BrowserName,
   Viewport,
   FilterOptions,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 import { minimatch } from "minimatch";
 
 /**

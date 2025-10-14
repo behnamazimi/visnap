@@ -2,7 +2,7 @@
 
 // Test API
 export { runVisualTests, runVisualTestsCli } from "./test";
-export type { TestResult } from "@vividiff/protocol";
+export type { TestResult } from "@visnap/protocol";
 
 // Update API
 export { updateBaseline, updateBaselineCli } from "./update";

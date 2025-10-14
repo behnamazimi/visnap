@@ -1,6 +1,6 @@
 import { join } from "path";
 import type { ProcessedTestCase } from "../types";
-import type { TestCaseDetail } from "@vividiff/protocol";
+import type { TestCaseDetail } from "@visnap/protocol";
 
 export interface ProcessedImagePaths {
   base: string;

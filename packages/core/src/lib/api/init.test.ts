@@ -22,7 +22,7 @@ vi.mock("../config", async importOriginal => {
   const actual = await importOriginal();
   return {
     ...(actual || {}),
-    resolveScreenshotDir: vi.fn(() => "vividiff"),
+    resolveScreenshotDir: vi.fn(() => "visnap"),
   };
 });
 
@@ -58,7 +58,7 @@ describe("init API", () => {
       const result = await initializeProject();
 
       expect(result.success).toBe(true);
-      expect(result.configPath).toBe(join(process.cwd(), "vividiff.config.ts"));
+      expect(result.configPath).toBe(join(process.cwd(), "visnap.config.ts"));
       expect(result.options).toEqual({
         configType: "ts",
         threshold: 0.1,
@@ -69,7 +69,7 @@ describe("init API", () => {
         threshold: 0.1,
       });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        join(process.cwd(), "vividiff.config.ts"),
+        join(process.cwd(), "visnap.config.ts"),
         "// Generated config content"
       );
     });
@@ -83,7 +83,7 @@ describe("init API", () => {
       });
 
       expect(result.success).toBe(true);
-      expect(result.configPath).toBe(join(process.cwd(), "vividiff.config.js"));
+      expect(result.configPath).toBe(join(process.cwd(), "visnap.config.js"));
       expect(result.options).toEqual({
         configType: "js",
         threshold: 0.2,
@@ -94,7 +94,7 @@ describe("init API", () => {
         threshold: 0.2,
       });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        join(process.cwd(), "vividiff.config.js"),
+        join(process.cwd(), "visnap.config.js"),
         "// Generated config content"
       );
     });
@@ -103,7 +103,7 @@ describe("init API", () => {
       mockExistsSync.mockReturnValue(true);
 
       await expect(initializeProject()).rejects.toThrow(
-        "vividiff.config.ts already exists in the current directory."
+        "visnap.config.ts already exists in the current directory."
       );
 
       expect(mockWriteFileSync).not.toHaveBeenCalled();
@@ -117,11 +117,11 @@ describe("init API", () => {
       await initializeProject();
 
       expect(mockMkdirSync).toHaveBeenCalledWith(
-        join(process.cwd(), "vividiff"),
+        join(process.cwd(), "visnap"),
         { recursive: true }
       );
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        join(process.cwd(), "vividiff", ".gitignore"),
+        join(process.cwd(), "visnap", ".gitignore"),
         "# Visual Testing Tool - Ignore generated screenshots\n# Keep baseline screenshots in version control, ignore current and diff\ncurrent/\ndiff/\n"
       );
     });
@@ -135,7 +135,7 @@ describe("init API", () => {
 
       expect(mockMkdirSync).not.toHaveBeenCalled();
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        join(process.cwd(), "vividiff", ".gitignore"),
+        join(process.cwd(), "visnap", ".gitignore"),
         "# Visual Testing Tool - Ignore generated screenshots\n# Keep baseline screenshots in version control, ignore current and diff\ncurrent/\ndiff/\n"
       );
     });

@@ -1,17 +1,17 @@
-# @vividiff/url-adapter
+# @visnap/url-adapter
 
-Test any URL with ViviDiff without requiring Storybook.
+Test any URL with ViSnap without requiring Storybook.
 
 ## Installation
 
 ```bash
-npm install @vividiff/url-adapter
+npm install @visnap/url-adapter
 ```
 
 ## Basic Usage
 
 ```typescript
-import { createAdapter } from '@vividiff/url-adapter';
+import { createAdapter } from '@visnap/url-adapter';
 
 const adapter = createAdapter({
   urls: [

@@ -1,4 +1,4 @@
-import { getErrorMessage, log } from "@vividiff/core";
+import { getErrorMessage, log } from "@visnap/core";
 import chalk from "chalk";
 
 import { exit } from "./exit";
@@ -101,7 +101,7 @@ export class ErrorHandler {
       case "file_not_found":
         log.plain("• Verify the file path exists");
         log.plain("• Check if you're in the correct directory");
-        log.plain("• Run 'vividiff init' to create a configuration file");
+        log.plain("• Run 'visnap init' to create a configuration file");
         break;
 
       case "permission_denied":
@@ -118,7 +118,7 @@ export class ErrorHandler {
 
       case "config_error":
         log.plain("• Validate your configuration file syntax");
-        log.plain("• Run 'vividiff validate' to check configuration");
+        log.plain("• Run 'visnap validate' to check configuration");
         log.plain("• Check the configuration documentation");
         break;
 

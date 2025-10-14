@@ -6,7 +6,7 @@ import type {
   TestCaseDetail,
   TestDurations,
   BrowserName,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import log from "./logger";
 import { roundToTwoDecimals } from "./math";

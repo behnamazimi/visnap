@@ -1,23 +1,23 @@
-# @vividiff/cli
+# @visnap/cli
 
-Command-line interface for ViviDiff visual regression testing.
+Command-line interface for ViSnap visual regression testing.
 
 ## Installation
 
 ```bash
-npm install @vividiff/cli
+npm install @visnap/cli
 ```
 
 Or use directly with npx:
 
 ```bash
-npx @vividiff/cli [command]
+npx @visnap/cli [command]
 ```
 
 ## CLI Help
 
 ```bash
-$ npx vividiff --help
+$ npx visnap --help
 
 Options:
   -v, --version       Show version information
@@ -28,7 +28,7 @@ Options:
 Commands:
   init                Initialize a new VTT project with sample config
   test [options]      Capture current screenshots and compare with baseline
-  update [options]    Capture baseline screenshots into vividiff/base
+  update [options]    Capture baseline screenshots into visnap/base
   validate [options]  Validate configuration file and dependencies
   list [options]      List all discovered test cases without running tests
   open [options]      Open HTML report in browser or screenshot directory in
@@ -43,17 +43,17 @@ Commands:
 Initialize a new visual testing project with a configuration file.
 
 ```bash
-vividiff init
+visnap init
 ```
 
-Creates `vividiff.config.ts` or `vividiff.config.js` in the current directory with interactive prompts for configuration type.
+Creates `visnap.config.ts` or `visnap.config.js` in the current directory with interactive prompts for configuration type.
 
 ### `test`
 
 Capture current screenshots and compare them with baseline images.
 
 ```bash
-vividiff test
+visnap test
 ```
 
 **Options:**
@@ -63,18 +63,18 @@ vividiff test
 **Examples:**
 ```bash
 # Run tests and output JSON to file
-vividiff test --jsonReport ./test-results.json
+visnap test --jsonReport ./test-results.json
 
 # Run tests in Docker
-vividiff test --docker
+visnap test --docker
 ```
 
 ### `update`
 
-Capture baseline screenshots for all stories and save them to `vividiff/base/`.
+Capture baseline screenshots for all stories and save them to `visnap/base/`.
 
 ```bash
-vividiff update
+visnap update
 ```
 
 **Options:**
@@ -82,7 +82,7 @@ vividiff update
 
 ## Configuration
 
-The CLI reads configuration from `vividiff.config.ts` in your project root. See the [core package documentation](../core/README.md) for all configuration options.
+The CLI reads configuration from `visnap.config.ts` in your project root. See the [core package documentation](../core/README.md) for all configuration options.
 
 ## Related Packages
 

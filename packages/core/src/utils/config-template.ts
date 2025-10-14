@@ -27,8 +27,8 @@ export function generateConfigObject(options: ConfigTemplateOptions): string {
   const {
     threshold = 0.1,
     adapters = {
-      browser: "@vividiff/playwright-adapter",
-      testCase: "@vividiff/storybook-adapter",
+      browser: "@visnap/playwright-adapter",
+      testCase: "@visnap/storybook-adapter",
     },
     viewport = {
       desktop: { width: 1920, height: 1080 },
@@ -83,7 +83,7 @@ export function generateTypeScriptConfig(
 ): string {
   const configObject = generateConfigObject(options);
 
-  return `import { type VisualTestingToolConfig } from "@vividiff/protocol";
+  return `import { type VisualTestingToolConfig } from "@visnap/protocol";
 
 const config: VisualTestingToolConfig = ${configObject};
 

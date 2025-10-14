@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ImageHandler } from "./image-handler";
-import type { TestCaseDetail } from "@vividiff/protocol";
+import type { TestCaseDetail } from "@visnap/protocol";
 
 describe("ImageHandler", () => {
   let imageHandler: ImageHandler;
@@ -39,7 +39,7 @@ describe("ImageHandler", () => {
   describe("getRelativeImagePaths", () => {
     it("should generate correct relative paths for passed test", async () => {
       const testCase = mockTestCases[0]; // passed test
-      const screenshotDir = "./vividiff";
+      const screenshotDir = "./visnap";
 
       const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
 
@@ -52,7 +52,7 @@ describe("ImageHandler", () => {
 
     it("should generate correct relative paths for failed test", async () => {
       const testCase = mockTestCases[1]; // failed test
-      const screenshotDir = "./vividiff";
+      const screenshotDir = "./visnap";
 
       const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
 
@@ -81,7 +81,7 @@ describe("ImageHandler", () => {
         ...mockTestCases[0],
         captureFilename: "test-1.jpg",
       };
-      const screenshotDir = "./vividiff";
+      const screenshotDir = "./visnap";
 
       const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
 
@@ -97,7 +97,7 @@ describe("ImageHandler", () => {
         ...mockTestCases[1],
         reason: "missing-base",
       };
-      const screenshotDir = "./vividiff";
+      const screenshotDir = "./visnap";
 
       const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
 
@@ -113,7 +113,7 @@ describe("ImageHandler", () => {
         ...mockTestCases[1],
         reason: "pixel-diff",
       };
-      const screenshotDir = "./vividiff";
+      const screenshotDir = "./visnap";
 
       const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
 
@@ -142,7 +142,7 @@ describe("ImageHandler", () => {
         ...mockTestCases[0],
         captureFilename: "test-with-special-chars_123.png",
       };
-      const screenshotDir = "./vividiff";
+      const screenshotDir = "./visnap";
 
       const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
 

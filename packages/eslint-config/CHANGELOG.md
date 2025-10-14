@@ -1,4 +1,4 @@
-# @vividiff/eslint-config
+# @visnap/eslint-config
 
 ## 0.0.3
 

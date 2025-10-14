@@ -1,11 +1,11 @@
-# @vividiff/core
+# @visnap/core
 
-Core orchestration engine for ViviDiff. Manages test execution, configuration, and coordinates between adapters.
+Core orchestration engine for ViSnap. Manages test execution, configuration, and coordinates between adapters.
 
 ## Installation
 
 ```bash
-npm install @vividiff/core
+npm install @visnap/core
 ```
 
 ## Main APIs
@@ -15,11 +15,11 @@ npm install @vividiff/core
 Run visual tests and compare with baseline images.
 
 ```typescript
-import { runVisualTests } from '@vividiff/core';
+import { runVisualTests } from '@visnap/core';
 
 const result = await runVisualTests({
   threshold: 0.1,
-  screenshotDir: 'vividiff'
+  screenshotDir: 'visnap'
 });
 
 console.log(`Tests passed: ${result.success}`);
@@ -30,10 +30,10 @@ console.log(`Tests passed: ${result.success}`);
 Capture baseline screenshots for all test cases.
 
 ```typescript
-import { updateBaseline } from '@vividiff/core';
+import { updateBaseline } from '@visnap/core';
 
 await updateBaseline({
-  screenshotDir: 'vividiff'
+  screenshotDir: 'visnap'
 });
 ```
 
@@ -42,7 +42,7 @@ await updateBaseline({
 Initialize a new project with configuration.
 
 ```typescript
-import { initializeProject } from '@vividiff/core';
+import { initializeProject } from '@visnap/core';
 
 const result = await initializeProject({
   configType: 'ts',
@@ -91,17 +91,17 @@ interface VisualTestingToolConfig {
 
 Control defaults via environment variables:
 
-- `VIVIDIFF_SCREENSHOT_DIR` - Screenshot directory (default: `vividiff`)
-- `VIVIDIFF_THRESHOLD` - Pixel diff threshold (default: `0.1`)
-- `VIVIDIFF_MAX_CONCURRENCY` - Max concurrent captures (default: `4`)
+- `VISNAP_SCREENSHOT_DIR` - Screenshot directory (default: `visnap`)
+- `VISNAP_THRESHOLD` - Pixel diff threshold (default: `0.1`)
+- `VISNAP_MAX_CONCURRENCY` - Max concurrent captures (default: `4`)
 
 Example:
 
 ```bash
-VIVIDIFF_SCREENSHOT_DIR=./screenshots \
-VIVIDIFF_THRESHOLD=0.05 \
-VIVIDIFF_MAX_CONCURRENCY=8 \
-npx vividiff test
+VISNAP_SCREENSHOT_DIR=./screenshots \
+VISNAP_THRESHOLD=0.05 \
+VISNAP_MAX_CONCURRENCY=8 \
+npx visnap test
 ```
 
 ## Related Packages

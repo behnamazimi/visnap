@@ -15,7 +15,7 @@ export default defineConfig({
   },
   external: [
     // Keep core package as external dependency
-    "@vividiff/core",
+    "@visnap/core",
   ],
   banner: {
     js: "#!/usr/bin/env node",

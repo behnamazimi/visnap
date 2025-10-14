@@ -1,4 +1,4 @@
-import { listTestCasesCli, log } from "@vividiff/core";
+import { listTestCasesCli, log } from "@visnap/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";

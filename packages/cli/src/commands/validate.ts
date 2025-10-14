@@ -1,6 +1,6 @@
 import { existsSync } from "fs";
 
-import { loadConfigFile, log } from "@vividiff/core";
+import { loadConfigFile, log } from "@visnap/core";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
@@ -23,15 +23,15 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
     }
 
     // Check if config file exists
-    const configPath = options.config || "vividiff.config.ts";
-    if (!existsSync(configPath) && !existsSync("vividiff.config.js")) {
+    const configPath = options.config || "visnap.config.ts";
+    if (!existsSync(configPath) && !existsSync("visnap.config.js")) {
       if (useSpinner) {
         spinner!.fail("Configuration file not found");
       } else {
         log.error("Configuration file not found");
       }
       log.error(`No configuration file found at ${configPath}`);
-      log.plain("Run 'vividiff init' to create a configuration file");
+      log.plain("Run 'visnap init' to create a configuration file");
       return;
     }
 
@@ -128,7 +128,7 @@ const validateHandler = async (options: ValidateOptions): Promise<void> => {
     log.plain(
       `• Threshold: ${config.comparison?.threshold || "Not configured"}`
     );
-    log.plain(`• Screenshot directory: ${config.screenshotDir || "vividiff"}`);
+    log.plain(`• Screenshot directory: ${config.screenshotDir || "visnap"}`);
 
     if (config.viewport) {
       const viewportKeys = Object.keys(config.viewport);

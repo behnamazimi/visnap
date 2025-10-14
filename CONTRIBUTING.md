@@ -1,13 +1,13 @@
 # Contributing
 
-Thank you for your interest in contributing to vividiff! This document provides guidelines for contributing to this project.
+Thank you for your interest in contributing to visnap! This document provides guidelines for contributing to this project.
 
 ## Development Setup
 
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd vividiff
+   cd visnap
    ```
 
 2. **Install dependencies**
@@ -70,11 +70,11 @@ This project uses automated releases with Changesets:
 
 This is a monorepo with the following packages:
 
-- `@vividiff/protocol` - Shared types and interfaces
-- `@vividiff/playwright-adapter` - Playwright browser integration
-- `@vividiff/storybook-adapter` - Storybook integration
-- `@vividiff/core` - Core functionality
-- `@vividiff/cli` - Command-line interface
+- `@visnap/protocol` - Shared types and interfaces
+- `@visnap/playwright-adapter` - Playwright browser integration
+- `@visnap/storybook-adapter` - Storybook integration
+- `@visnap/core` - Core functionality
+- `@visnap/cli` - Command-line interface
 
 All packages share the same version number (fixed versioning).
 

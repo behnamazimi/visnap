@@ -1,4 +1,4 @@
-import type { ScreenshotOptions, ScreenshotResult } from "@vividiff/protocol";
+import type { ScreenshotOptions, ScreenshotResult } from "@visnap/protocol";
 import type { Page, BrowserContext } from "playwright-core";
 
 import {

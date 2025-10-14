@@ -1,7 +1,7 @@
 {
-  "name": "@vividiff/protocol",
+  "name": "@visnap/protocol",
   "version": "0.1.2",
-  "description": "Shared protocol types for vividiff adapters and core",
+  "description": "Shared protocol types for visnap adapters and core",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "@vividiff/eslint-config": "*",
+    "@visnap/eslint-config": "*",
     "tsup": "^8.3.5",
     "typescript": "5.9.2"
   },

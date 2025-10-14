@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { writeFileSync, readFileSync, mkdirSync } from "fs";
 import { HtmlReporter } from "./html-reporter";
-import type { TestResult } from "@vividiff/protocol";
-import type { RunOutcome, TestCaseDetail } from "@vividiff/protocol";
+import type { TestResult } from "@visnap/protocol";
+import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -71,7 +71,7 @@ describe("HtmlReporter", () => {
       ],
       captureFailures: [],
       config: {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         comparison: {
           core: "odiff",
           threshold: 0.1,
@@ -91,16 +91,16 @@ describe("HtmlReporter", () => {
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>{{STYLES}}</style>
 </head>
-<body x-data="vividiffReport()" x-init="init()">
+<body x-data="visnapReport()" x-init="init()">
   <h1>{{TITLE}}</h1>
   <script>
-    window.__VIVIDIFF_DATA__ = {{DATA}};
+    window.__VISNAP_DATA__ = {{DATA}};
     {{SCRIPT}}
   </script>
 </body>
 </html>`)
       .mockReturnValueOnce("body { font-family: Arial; }")
-      .mockReturnValueOnce("function vividiffReport() { return {}; }");
+      .mockReturnValueOnce("function visnapReport() { return {}; }");
   });
 
   afterEach(() => {
@@ -110,24 +110,24 @@ describe("HtmlReporter", () => {
   describe("generate", () => {
     it("should generate HTML report with default output path", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
       const result = await htmlReporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("vividiff", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("visnap", { recursive: true });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "vividiff/report.html",
+        "visnap/report.html",
         expect.stringContaining("<!DOCTYPE html>")
       );
-      expect(result).toBe("vividiff/report.html");
+      expect(result).toBe("visnap/report.html");
     });
 
     it("should generate HTML report with custom output path", async () => {
       const options = {
         outputPath: "/custom/path/report.html",
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Custom Report",
       };
 
@@ -143,18 +143,18 @@ describe("HtmlReporter", () => {
 
     it("should use screenshot directory from test result config when not provided", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
       const result = await htmlReporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("vividiff", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("visnap", { recursive: true });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "vividiff/report.html",
+        "visnap/report.html",
         expect.any(String)
       );
-      expect(result).toBe("vividiff/report.html");
+      expect(result).toBe("visnap/report.html");
     });
 
     it("should use default screenshot directory when not provided in config", async () => {
@@ -164,19 +164,19 @@ describe("HtmlReporter", () => {
       };
 
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
       const result = await htmlReporter.generate(testResultWithoutConfig, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("vividiff", { recursive: true });
-      expect(result).toBe("vividiff/report.html");
+      expect(mockMkdirSync).toHaveBeenCalledWith("visnap", { recursive: true });
+      expect(result).toBe("visnap/report.html");
     });
 
     it("should include all required template files", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
@@ -192,7 +192,7 @@ describe("HtmlReporter", () => {
 
     it("should generate valid HTML structure", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
@@ -202,19 +202,19 @@ describe("HtmlReporter", () => {
       expect(writtenContent).toContain("<!DOCTYPE html>");
       expect(writtenContent).toContain("<html lang=\"en\">");
       expect(writtenContent).toContain("<head>");
-      expect(writtenContent).toContain("<body x-data=\"vividiffReport()\" x-init=\"init()\">");
+      expect(writtenContent).toContain("<body x-data=\"visnapReport()\" x-init=\"init()\">");
     });
 
     it("should include test data in the HTML", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
       await htmlReporter.generate(mockTestResult, options);
 
       const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      expect(writtenContent).toContain("window.__VIVIDIFF_DATA__");
+      expect(writtenContent).toContain("window.__VISNAP_DATA__");
       expect(writtenContent).toContain('"success":false');
       expect(writtenContent).toContain('"testCases"');
     });
@@ -229,16 +229,16 @@ describe("HtmlReporter", () => {
       };
 
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Empty Report",
       };
 
       const result = await htmlReporter.generate(testResultWithNoTests, options);
 
-      expect(result).toBe("vividiff/report.html");
+      expect(result).toBe("visnap/report.html");
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "vividiff/report.html",
-        expect.stringContaining("window.__VIVIDIFF_DATA__")
+        "visnap/report.html",
+        expect.stringContaining("window.__VISNAP_DATA__")
       );
     });
 
@@ -264,22 +264,22 @@ describe("HtmlReporter", () => {
       };
 
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Minimal Report",
       };
 
       const result = await htmlReporter.generate(minimalTestResult, options);
 
-      expect(result).toBe("vividiff/report.html");
+      expect(result).toBe("visnap/report.html");
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "vividiff/report.html",
-        expect.stringContaining("window.__VIVIDIFF_DATA__")
+        "visnap/report.html",
+        expect.stringContaining("window.__VISNAP_DATA__")
       );
     });
 
     it("should use custom title when provided", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Custom Test Report",
       };
 
@@ -295,7 +295,7 @@ describe("HtmlReporter", () => {
       });
 
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
@@ -304,14 +304,14 @@ describe("HtmlReporter", () => {
 
     it("should process test cases and add image paths", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         title: "Test Report",
       };
 
       await htmlReporter.generate(mockTestResult, options);
 
       const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const dataMatch = writtenContent.match(/window\.__VIVIDIFF_DATA__ = (.+);/);
+      const dataMatch = writtenContent.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
       
       expect(data.outcome.testCases).toHaveLength(2);

@@ -1,4 +1,4 @@
-import type { VisualTestingToolConfig, TestResult } from "@vividiff/protocol";
+import type { VisualTestingToolConfig, TestResult } from "@visnap/protocol";
 
 import { resolveEffectiveConfig } from "@/lib/config";
 import { executeTestRun } from "@/utils/testcase-runner";

@@ -2,9 +2,9 @@ import {
   runVisualTestsCli,
   runInDocker,
   DEFAULT_DOCKER_IMAGE,
-} from "@vividiff/core";
-import type { VisualTestingToolConfig } from "@vividiff/protocol";
-import { JsonReporter, HtmlReporter } from "@vividiff/reporter";
+} from "@visnap/core";
+import type { VisualTestingToolConfig } from "@visnap/protocol";
+import { JsonReporter, HtmlReporter } from "@visnap/reporter";
 
 import { type CliOptions } from "../types/cli-options";
 
@@ -58,7 +58,7 @@ export interface ReporterConfig {
 export function resolveHtmlReporterConfig(
   configReporter: VisualTestingToolConfig["reporter"],
   cliHtmlReport?: string | boolean,
-  screenshotDir: string = "./vividiff"
+  screenshotDir: string = "./visnap"
 ): { enabled: boolean; outputPath?: string } {
   let htmlEnabled = true; // default
   let htmlPath: string | undefined;
@@ -99,7 +99,7 @@ export function resolveHtmlReporterConfig(
 export function resolveJsonReporterConfig(
   configReporter: VisualTestingToolConfig["reporter"],
   cliJsonReport?: string | boolean,
-  screenshotDir: string = "./vividiff"
+  screenshotDir: string = "./visnap"
 ): { enabled: boolean; outputPath?: string } {
   let jsonEnabled = true; // default
   let jsonPath: string | undefined;
@@ -141,7 +141,7 @@ export function resolveReporterConfig(
   configReporter: VisualTestingToolConfig["reporter"],
   cliHtmlReport?: string | boolean,
   cliJsonReport?: string | boolean,
-  screenshotDir: string = "./vividiff"
+  screenshotDir: string = "./visnap"
 ): ReporterConfig {
   return {
     html: resolveHtmlReporterConfig(
@@ -190,7 +190,7 @@ export class TestService {
       result.config?.reporter,
       options.htmlReport,
       options.jsonReport,
-      result.config?.screenshotDir || "./vividiff"
+      result.config?.screenshotDir || "./visnap"
     );
 
     // Generate reports if enabled
@@ -198,7 +198,7 @@ export class TestService {
       const reporter = new JsonReporter();
       await reporter.generate(result, {
         outputPath: reporterConfig.json.outputPath,
-        screenshotDir: result.config?.screenshotDir || "./vividiff",
+        screenshotDir: result.config?.screenshotDir || "./visnap",
         pretty: true,
       });
     }
@@ -207,8 +207,8 @@ export class TestService {
       const reporter = new HtmlReporter();
       await reporter.generate(result, {
         outputPath: reporterConfig.html.outputPath,
-        screenshotDir: result.config?.screenshotDir || "./vividiff",
-        title: "Vividiff Test Report",
+        screenshotDir: result.config?.screenshotDir || "./visnap",
+        title: "VISNAP Test Report",
       });
     }
 

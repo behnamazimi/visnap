@@ -11,7 +11,7 @@ export async function getPackageInfo() {
   }
 
   let pkg: { name: string; version: string; description: string } = {
-    name: "vividiff",
+    name: "visnap",
     version: "0.0.0",
     description: "Visual Testing Tool - CLI and programmatic API",
   };

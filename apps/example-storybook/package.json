@@ -14,8 +14,8 @@
     "test": "echo 'No tests available for example-storybook app'"
   },
   "dependencies": {
-    "@vividiff/playwright-adapter": "^0.1.2",
-    "@vividiff/storybook-adapter": "^0.1.2",
+    "@visnap/playwright-adapter": "^0.1.2",
+    "@visnap/storybook-adapter": "^0.1.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
@@ -25,8 +25,8 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.4",
-    "@vividiff/cli": "^0.1.1",
-    "@vividiff/eslint-config": "*",
+    "@visnap/cli": "^0.1.1",
+    "@visnap/eslint-config": "*",
     "globals": "^16.4.0",
     "storybook": "^9.1.10",
     "typescript": "~5.9.3",

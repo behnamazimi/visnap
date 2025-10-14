@@ -1,7 +1,7 @@
 {
-  "name": "@vividiff/storybook-adapter",
+  "name": "@visnap/storybook-adapter",
   "version": "0.1.2",
-  "description": "Storybook test-case adapter for vividiff",
+  "description": "Storybook test-case adapter for visnap",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -21,14 +21,14 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@vividiff/protocol": "^0.1.2",
+    "@visnap/protocol": "^0.1.2",
     "minimatch": "^10.0.1",
     "serve-handler": "^6.1.5"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@types/serve-handler": "^6.1.4",
-    "@vividiff/eslint-config": "*",
+    "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/ui": "^2.1.8",
     "tsup": "^8.3.5",

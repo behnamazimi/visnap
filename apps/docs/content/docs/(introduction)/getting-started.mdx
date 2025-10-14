@@ -5,15 +5,15 @@ description: Install, initialize, configure adapters, and run visual tests
 
 ## Initialize
 
-Run the initializer to create a starter `vividiff.config.ts` and guide you through choosing adapters.
+Run the initializer to create a starter `visnap.config.ts` and guide you through choosing adapters.
 
 ```npm
-npx vividiff init
+npx visnap init
 ```
 
 ## Configure
 
-Edit `vividiff.config.ts` to set the adapter (Storybook or URL), the browser (Playwright), and core options like thresholds and viewports. See [Configuration](/docs/configs).
+Edit `visnap.config.ts` to set the adapter (Storybook or URL), the browser (Playwright), and core options like thresholds and viewports. See [Configuration](/docs/configs).
 
 ## Create Baselines
 
@@ -21,7 +21,7 @@ Capture baseline screenshots so future test runs have something to compare again
 
 
 ```npm
-npx vividiff update
+npx visnap update
 ```
 
 ## Run Tests
@@ -29,7 +29,7 @@ npx vividiff update
 Take fresh screenshots and compare them to baselines; differences above the threshold will fail the run.
 
 ```npm
-npx vividiff test
+npx visnap test
 ```
 
 ## Open Report or Screenshots
@@ -37,7 +37,7 @@ npx vividiff test
 Open the HTML report to review results and diffs, or browse the screenshots directly if you prefer.
 
 ```npm
-npx vividiff open
+npx visnap open
 ```
 
 ## Optional: Validate and List
@@ -46,10 +46,10 @@ Use validate to check your configuration for errors, and list to see discovered 
 
 ```npm
 # Validate configuration
-npx vividiff validate
+npx visnap validate
 
 # List test cases without running
-npx vividiff list
+npx visnap list
 ```
 
 ## Next Steps

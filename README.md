@@ -1,4 +1,4 @@
-# ViviDiff
+# ViSnap
 
 A visual regression testing tool for Storybook 8+ that captures and compares screenshots of your components.
 
@@ -22,7 +22,7 @@ A visual regression testing tool for Storybook 8+ that captures and compares scr
 <table align="center">
   <tr>
     <td align="center">
-      <img src="./html-report.png" alt="ViviDiff HTML Report Screenshot" width="600" />
+      <img src="./html-report.png" alt="ViSnap HTML Report Screenshot" width="600" />
     </td>
   </tr>
 </table>
@@ -33,45 +33,45 @@ Install and run:
 
 ```bash
 # Install globally
-npm install -g vividiff
+npm install -g visnap
 
 # Or use with npx (no installation needed)
-npx vividiff init
-npx vividiff update
-npx vividiff test
+npx visnap init
+npx visnap update
+npx visnap test
 ```
 
 ## Basic Usage
 
 1. **Initialize** in your Storybook project:
    ```bash
-   npx vividiff init
+   npx visnap init
    ```
 
 2. **Create baseline** screenshots:
    ```bash
-   npx vividiff update
+   npx visnap update
    ```
 
 3. **Run tests** on changes:
    ```bash
-   npx vividiff test
+   npx visnap test
    ```
 
-Screenshots are saved to the `vividiff/` directory.
+Screenshots are saved to the `visnap/` directory.
 
 ## Configuration
 
-ViviDiff uses a `vividiff.config.ts` file for configuration. This example uses all built-in adapters (Storybook, Playwright, and URL) and works perfectly with Storybook v8+ projects:
+ViSnap uses a `visnap.config.ts` file for configuration. This example uses all built-in adapters (Storybook, Playwright, and URL) and works perfectly with Storybook v8+ projects:
 
 ```typescript
-// vividiff.config.ts
-import { type VisualTestingToolConfig } from '@vividiff/protocol';
+// visnap.config.ts
+import { type VisualTestingToolConfig } from '@visnap/protocol';
 
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: "@vividiff/playwright-adapter",
+      name: "@visnap/playwright-adapter",
       options: { 
         browser: 'chromium',
         launch: { headless: true },
@@ -81,7 +81,7 @@ const config: VisualTestingToolConfig = {
       }
     },
     testCase: [{
-      name: "@vividiff/storybook-adapter",
+      name: "@visnap/storybook-adapter",
       options: {
         source: "./storybook-static",
         port: 4477,
@@ -90,7 +90,7 @@ const config: VisualTestingToolConfig = {
       }
     }]
   },
-  screenshotDir: "vividiff",
+  screenshotDir: "visnap",
   runtime: { maxConcurrency: 4 },
   viewport: {
     desktop: { width: 1920, height: 1080 },
@@ -114,7 +114,7 @@ See the [Core Documentation](./packages/core/README.md) for all available option
 
 ## Adapters
 
-ViviDiff supports different test sources through adapters:
+ViSnap supports different test sources through adapters:
 
 - **Storybook Adapter** - Test Storybook stories (default)
 - **URL Adapter** - Test any web page or application
@@ -144,7 +144,7 @@ export const FilledForm: Story = {
 Run tests in Docker for consistent environments:
 
 ```bash
-npx vividiff test --docker
+npx visnap test --docker
 ```
 
 ## Package Documentation

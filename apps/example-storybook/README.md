@@ -1,12 +1,12 @@
 # Example Storybook App
 
-Example Storybook setup demonstrating ViviDiff.
+Example Storybook setup demonstrating ViSnap.
 
 ## What it demonstrates
 
 This example shows:
 - Storybook 8+ configuration
-- ViviDiff setup
+- ViSnap setup
 - Sample components with different states
 - Interactive testing examples
 
@@ -22,11 +22,11 @@ This example shows:
    npm run build-storybook
    ```
 
-3. Run ViviDiff tests:
+3. Run ViSnap tests:
    ```bash
-   npx vividiff init
-   npx vividiff update
-   npx vividiff test
+   npx visnap init
+   npx visnap update
+   npx visnap test
    ```
 
 ## Learn more

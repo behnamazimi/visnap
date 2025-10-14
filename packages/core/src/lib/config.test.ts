@@ -42,15 +42,15 @@ describe("config", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset environment variables
-    delete process.env.VIVIDIFF_SCREENSHOT_DIR;
-    delete process.env.VIVIDIFF_THRESHOLD;
-    delete process.env.VIVIDIFF_MAX_CONCURRENCY;
+    delete process.env.VISNAP_SCREENSHOT_DIR;
+    delete process.env.VISNAP_THRESHOLD;
+    delete process.env.VISNAP_MAX_CONCURRENCY;
   });
 
   describe("getConfigTsPath", () => {
     it("should return correct config file path", () => {
       const result = getConfigTsPath();
-      expect(result).toBe(join(process.cwd(), "vividiff.config.ts"));
+      expect(result).toBe(join(process.cwd(), "visnap.config.ts"));
     });
   });
 
@@ -79,7 +79,7 @@ describe("config", () => {
 
       expect(result).toEqual(mockConfig);
       expect(mockBundleRequire).toHaveBeenCalledWith({
-        filepath: join(process.cwd(), "vividiff.config.ts"),
+        filepath: join(process.cwd(), "visnap.config.ts"),
       });
     });
 
@@ -103,7 +103,7 @@ describe("config", () => {
   describe("resolveScreenshotDir", () => {
     it("should return default screenshot directory when none provided", () => {
       const result = resolveScreenshotDir();
-      expect(result).toBe("vividiff");
+      expect(result).toBe("visnap");
     });
 
     it("should return provided screenshot directory", () => {
@@ -117,7 +117,7 @@ describe("config", () => {
       mockExistsSync.mockReturnValue(false);
 
       await expect(resolveEffectiveConfig()).rejects.toThrow(
-        "vividiff.config not found"
+        "visnap.config not found"
       );
     });
 
@@ -152,9 +152,9 @@ describe("config", () => {
         dependencies: [],
       });
 
-      process.env.VIVIDIFF_SCREENSHOT_DIR = "env-dir";
-      process.env.VIVIDIFF_THRESHOLD = "0.3";
-      process.env.VIVIDIFF_MAX_CONCURRENCY = "8";
+      process.env.VISNAP_SCREENSHOT_DIR = "env-dir";
+      process.env.VISNAP_THRESHOLD = "0.3";
+      process.env.VISNAP_MAX_CONCURRENCY = "8";
 
       const result = await resolveEffectiveConfig();
 
@@ -173,8 +173,8 @@ describe("config", () => {
         dependencies: [],
       });
 
-      process.env.VIVIDIFF_THRESHOLD = "invalid";
-      process.env.VIVIDIFF_MAX_CONCURRENCY = "invalid";
+      process.env.VISNAP_THRESHOLD = "invalid";
+      process.env.VISNAP_MAX_CONCURRENCY = "invalid";
 
       const result = await resolveEffectiveConfig();
 
@@ -192,7 +192,7 @@ describe("config", () => {
 
       const result = await resolveEffectiveConfig();
 
-      expect(result.screenshotDir).toBe("vividiff");
+      expect(result.screenshotDir).toBe("visnap");
     });
   });
 

@@ -25,7 +25,7 @@ dist-ssr
 
 *storybook.log
 storybook-static
-vividiff/current
-vividiff/diff
-vividiff/**/*.html
-vividiff/**/*.json
+visnap/current
+visnap/diff
+visnap/**/*.html
+visnap/**/*.json

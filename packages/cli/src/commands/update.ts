@@ -3,8 +3,8 @@ import {
   log,
   runInDocker,
   DEFAULT_DOCKER_IMAGE,
-} from "@vividiff/core";
-import { type VisualTestingToolConfig } from "@vividiff/protocol";
+} from "@visnap/core";
+import { type VisualTestingToolConfig } from "@visnap/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { type Command } from "../types";
@@ -66,7 +66,7 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
     }
 
     log.plain(
-      "\n📸 Baseline screenshots have been captured and saved to the 'vividiff/base/' directory"
+      "\n📸 Baseline screenshots have been captured and saved to the 'visnap/base/' directory"
     );
     log.plain(
       "These will be used as reference images for future visual comparisons"
@@ -80,9 +80,9 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
 
     log.plain("\nNext steps:");
     log.plain(
-      "• Run 'vividiff test' to compare current screenshots with baselines"
+      "• Run 'visnap test' to compare current screenshots with baselines"
     );
-    log.plain("• Run 'vividiff list' to see all available test cases");
+    log.plain("• Run 'visnap list' to see all available test cases");
 
     exit(0);
   } catch (error) {
@@ -102,7 +102,7 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
 
 export const command: Command<UpdateCommandOptions> = {
   name: "update",
-  description: "Capture baseline screenshots into vividiff/base",
+  description: "Capture baseline screenshots into visnap/base",
   handler: updateHandler,
   configure: (cmd: CommanderCommand) => {
     return cmd

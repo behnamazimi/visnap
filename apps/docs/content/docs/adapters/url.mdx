@@ -10,7 +10,7 @@ Use the URL adapter to test arbitrary pages without Storybook.
 ```typescript
 adapters: {
   testCase: [{
-    name: '@vividiff/url-adapter',
+    name: '@visnap/url-adapter',
     options: {
       urls: [
         { id: 'homepage', url: 'http://localhost:3000/' },
@@ -38,7 +38,7 @@ urls: [{ id: 'mobile-home', url: 'http://localhost:3000/', viewport: { width: 37
 
 ---
 title: URL Adapter
-description: Test any URL with ViviDiff without requiring Storybook
+description: Test any URL with ViSnap without requiring Storybook
 ---
 
 The URL adapter lets you test any web page or application without needing Storybook. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
@@ -49,7 +49,7 @@ Add the URL adapter to your configuration:
 
 ```typescript
 testCase: [{
-  name: "@vividiff/url-adapter",
+  name: "@visnap/url-adapter",
   options: {
     urls: [
       { id: "homepage", url: "http://localhost:3000/" },
@@ -247,14 +247,14 @@ Combine URL testing with Storybook testing:
 ```typescript
 testCase: [
   {
-    name: "@vividiff/storybook-adapter",
+    name: "@visnap/storybook-adapter",
     options: {
       source: "./storybook-static",
       include: "*"
     }
   },
   {
-    name: "@vividiff/url-adapter",
+    name: "@visnap/url-adapter",
     options: {
       urls: [
         { id: "homepage", url: "http://localhost:3000/" },

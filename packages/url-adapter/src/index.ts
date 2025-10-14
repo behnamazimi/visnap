@@ -3,7 +3,7 @@ import type {
   TestCaseInstanceMeta,
   ViewportMap,
   PageWithEvaluate,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import { createUrlFilter, validateUrlConfig } from "./filtering.js";
 import { normalizeUrls } from "./normalization.js";

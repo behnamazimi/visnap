@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { writeFileSync, mkdirSync } from "fs";
 import { JsonReporter } from "./json-reporter";
-import type { TestResult } from "@vividiff/protocol";
-import type { RunOutcome, TestCaseDetail } from "@vividiff/protocol";
+import type { TestResult } from "@visnap/protocol";
+import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -65,7 +65,7 @@ describe("JsonReporter", () => {
       ],
       captureFailures: [],
       config: {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         comparison: {
           core: "odiff",
           threshold: 0.1,
@@ -83,7 +83,7 @@ describe("JsonReporter", () => {
     it("should generate JSON report with file output", async () => {
       const options = {
         outputPath: "/path/to/report.json",
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         pretty: true,
       };
 
@@ -99,24 +99,24 @@ describe("JsonReporter", () => {
 
     it("should generate JSON report with default output path", async () => {
       const options = {
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         pretty: true,
       };
 
       const result = await reporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("./vividiff", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("./visnap", { recursive: true });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "./vividiff/report.json",
+        "./visnap/report.json",
         expect.stringContaining('"success": false')
       );
-      expect(result).toBe("./vividiff/report.json");
+      expect(result).toBe("./visnap/report.json");
     });
 
     it("should generate compact JSON when pretty is false", async () => {
       const options = {
         outputPath: "/path/to/report.json",
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         pretty: false,
       };
 
@@ -130,7 +130,7 @@ describe("JsonReporter", () => {
     it("should include all required fields in the report", async () => {
       const options = {
         outputPath: "/path/to/report.json",
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         pretty: true,
       };
 
@@ -170,7 +170,7 @@ describe("JsonReporter", () => {
 
       const options = {
         outputPath: "/path/to/report.json",
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         pretty: true,
       };
 
@@ -187,7 +187,7 @@ describe("JsonReporter", () => {
     it("should generate valid JSON timestamp", async () => {
       const options = {
         outputPath: "/path/to/report.json",
-        screenshotDir: "./vividiff",
+        screenshotDir: "./visnap",
         pretty: true,
       };
 

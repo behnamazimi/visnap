@@ -1,17 +1,17 @@
-# @vividiff/storybook-adapter
+# @visnap/storybook-adapter
 
-Storybook integration adapter for ViviDiff.
+Storybook integration adapter for ViSnap.
 
 ## Installation
 
 ```bash
-npm install @vividiff/storybook-adapter
+npm install @visnap/storybook-adapter
 ```
 
 ## Basic Usage
 
 ```typescript
-import { createAdapter } from '@vividiff/storybook-adapter';
+import { createAdapter } from '@visnap/storybook-adapter';
 
 const adapter = createAdapter({
   source: './storybook-static',

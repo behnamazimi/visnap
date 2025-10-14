@@ -1,5 +1,5 @@
 {
-  "name": "@vividiff/root",
+  "name": "@visnap/root",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,7 +12,7 @@
     "lint:ci": "turbo run lint",
     "test": "turbo run test -- --run",
     "version": "changeset version",
-    "release": "turbo run build --filter=@vividiff/* && changeset publish"
+    "release": "turbo run build --filter=@visnap/* && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",

@@ -1,4 +1,4 @@
-import type { PageWithEvaluate } from "@vividiff/protocol";
+import type { PageWithEvaluate } from "@visnap/protocol";
 
 import { withTimeout } from "./utils.js";
 

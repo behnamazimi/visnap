@@ -1,7 +1,6 @@
 {
-  "name": "@vividiff/eslint-config",
+  "name": "@visnap/eslint-config",
   "version": "0.0.3",
-  "private": true,
   "type": "module",
   "scripts": {
     "test": "echo 'No tests available for eslint-config package'"

@@ -1,3 +1,3 @@
-import baseConfig from "@vividiff/eslint-config/base";
+import baseConfig from "@visnap/eslint-config/base";
 
 export default baseConfig;

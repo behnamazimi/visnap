@@ -1,9 +1,9 @@
 ---
 title: Storybook Adapter
-description: Test your Storybook stories with ViviDiff
+description: Test your Storybook stories with ViSnap
 ---
 
-The Storybook adapter lets you test individual stories from your Storybook build. It's the most common way to use ViviDiff.
+The Storybook adapter lets you test individual stories from your Storybook build. It's the most common way to use ViSnap.
 
 ## Setup
 
@@ -11,7 +11,7 @@ Add the Storybook adapter to your configuration:
 
 ```typescript
 testCase: [{
-  name: "@vividiff/storybook-adapter",
+  name: "@visnap/storybook-adapter",
   options: {
     source: "./storybook-static", // path to Storybook build
     port: 4477,                   // port for local static server

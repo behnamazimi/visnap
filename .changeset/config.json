@@ -4,17 +4,19 @@
   "commit": false,
   "fixed": [
     [
-      "@vividiff/protocol",
-      "@vividiff/playwright-adapter", 
-      "@vividiff/storybook-adapter",
-      "@vividiff/core",
-      "@vividiff/cli",
-      "@vividiff/reporter"
+      "@visnap/protocol",
+      "@visnap/playwright-adapter", 
+      "@visnap/storybook-adapter",
+      "@visnap/core",
+      "@visnap/cli",
+      "@visnap/reporter"
     ]
   ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": []
+  "ignore": [
+    "@visnap/docs"
+  ]
 }

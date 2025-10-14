@@ -1,4 +1,4 @@
-# @vividiff/protocol
+# @visnap/protocol
 
 ## 0.1.2
 

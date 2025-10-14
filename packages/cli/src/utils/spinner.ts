@@ -1,4 +1,4 @@
-import { isQuiet } from "@vividiff/core";
+import { isQuiet } from "@visnap/core";
 import ora, { type Ora } from "ora";
 
 /**

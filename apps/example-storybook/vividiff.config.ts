@@ -1,9 +1,9 @@
-import { type VisualTestingToolConfig } from "@vividiff/protocol";
+import { type VisualTestingToolConfig } from "@visnap/protocol";
 
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: "@vividiff/playwright-adapter",
+      name: "@visnap/playwright-adapter",
       options: {
         // Option 1: Single browser (string)
         browser: "chromium",
@@ -23,7 +23,7 @@ const config: VisualTestingToolConfig = {
     },
     testCase: [
       {
-        name: "@vividiff/storybook-adapter",
+        name: "@visnap/storybook-adapter",
         options: {
           source: "./storybook-static",
           port: 4477,
@@ -32,7 +32,7 @@ const config: VisualTestingToolConfig = {
         },
       },
       // {
-      //   name: "@vividiff/url-adapter",
+      //   name: "@visnap/url-adapter",
       //   options: {
       //     urls: [{ id: "homepage", url: "https://www.example.com/" }],
       //     include: "*",

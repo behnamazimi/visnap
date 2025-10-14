@@ -1,6 +1,6 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
-import type { TestResult } from "@vividiff/protocol";
+import type { TestResult } from "@visnap/protocol";
 import type { HtmlReporterOptions } from "../types";
 import { serializeTestData } from "./data-serializer";
 import { ImageHandler } from "./image-handler";

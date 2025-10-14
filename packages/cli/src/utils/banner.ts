@@ -1,8 +1,8 @@
-import { getPackageInfo, log } from "@vividiff/core";
+import { getPackageInfo, log } from "@visnap/core";
 import figlet from "figlet";
 
 /**
- * Display the vividiff ASCII art banner
+ * Display the visnap ASCII art banner
  */
 export async function displayBanner(): Promise<void> {
   // Skip banner in CI environments
@@ -14,7 +14,7 @@ export async function displayBanner(): Promise<void> {
     const pkg = await getPackageInfo();
 
     // Generate ASCII art
-    const banner = figlet.textSync("vividiff", {
+    const banner = figlet.textSync("visnap", {
       font: "ANSI Shadow",
       horizontalLayout: "default",
       verticalLayout: "default",
@@ -27,6 +27,6 @@ export async function displayBanner(): Promise<void> {
   } catch {
     // Fallback to simple text if figlet fails
     const pkg = await getPackageInfo();
-    log.plain(`\n🚀 vividiff - ${pkg.description}\n`);
+    log.plain(`\n🚀 visnap - ${pkg.description}\n`);
   }
 }

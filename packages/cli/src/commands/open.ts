@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { join } from "path";
 
-import { log, resolveEffectiveConfig } from "@vividiff/core";
+import { log, resolveEffectiveConfig } from "@visnap/core";
 import { type Command as CommanderCommand } from "commander";
 import open from "open";
 
@@ -16,7 +16,7 @@ const openHandler = async (_options: OpenOptions): Promise<void> => {
   try {
     // Load config to get screenshot directory and HTML report path
     const config = await resolveEffectiveConfig();
-    const screenshotDir = config.screenshotDir || "vividiff";
+    const screenshotDir = config.screenshotDir || "visnap";
 
     // Get HTML report path from config or use default
     let htmlReportPath: string;
@@ -35,7 +35,7 @@ const openHandler = async (_options: OpenOptions): Promise<void> => {
       // Open screenshot directory in Finder
       if (!existsSync(screenshotDir)) {
         log.error(`Screenshot directory not found: ${screenshotDir}`);
-        log.plain("Run 'vividiff test' to generate test results");
+        log.plain("Run 'visnap test' to generate test results");
         return;
       }
 
@@ -47,7 +47,7 @@ const openHandler = async (_options: OpenOptions): Promise<void> => {
       command: "open",
       operation: "opening report or screenshot directory",
       suggestion:
-        "Check if the vividiff config exists and you have permission to open files",
+        "Check if the visnap config exists and you have permission to open files",
     });
   }
 };

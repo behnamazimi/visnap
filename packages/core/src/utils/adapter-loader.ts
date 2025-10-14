@@ -3,7 +3,7 @@ import type {
   TestCaseAdapter,
   VisualTestingToolConfig,
   BrowserName,
-} from "@vividiff/protocol";
+} from "@visnap/protocol";
 
 import log from "./logger";
 
