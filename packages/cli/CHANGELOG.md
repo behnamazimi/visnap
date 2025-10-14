@@ -1,5 +1,14 @@
 # @visnap/cli
 
+## 0.2.1
+
+### Patch Changes
+
+- 9663237: Fix release flow
+- Updated dependencies [9663237]
+  - @visnap/core@0.2.1
+  - @visnap/reporter@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
