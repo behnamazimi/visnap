@@ -1,5 +1,16 @@
 # @visnap/cli
 
+## 0.2.3
+
+### Patch Changes
+
+- ee2512b: Fix auth problem in release flow
+- 879a219: Trying to debug and fix automated publish flow
+- Updated dependencies [ee2512b]
+- Updated dependencies [879a219]
+  - @visnap/core@0.2.3
+  - @visnap/reporter@0.2.3
+
 ## 0.2.2
 
 ### Patch Changes
