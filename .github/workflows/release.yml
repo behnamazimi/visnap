@@ -29,6 +29,11 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Verify npm auth
+        run: npm whoami
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1.4.7
