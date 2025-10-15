@@ -1,6 +1,8 @@
 import { readdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 
+import { createConcurrencyPool } from "@/lib/pool";
+
 // Module-level regex for hex color validation
 const HEX_COLOR_REGEX = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
 
@@ -302,9 +304,15 @@ export const compareTestCases = async (
   const files = Array.from(expectedFiles).sort((a, b) => a.localeCompare(b));
 
   const engine = createComparisonEngine(comparisonConfig.core);
-  const results: CompareResult[] = [];
+  const mc = config.runtime?.maxConcurrency;
+  const compareMax = typeof mc === "number" ? mc : mc?.compare;
+  const maxConcurrentCompares = Math.max(1, compareMax ?? 4);
+  const runWithPool = createConcurrencyPool({
+    concurrency: maxConcurrentCompares,
+  });
 
-  for (const file of files) {
+  const workItems: string[] = files;
+  const results = await runWithPool(workItems, async (file, _index) => {
     const currentFile = join(currentDir, file);
     const baseFile = join(baseDir, file);
     const diffFile = join(diffDir, file);
@@ -312,12 +320,10 @@ export const compareTestCases = async (
     const inBase = baseFiles.has(file);
 
     if (!inCurrent && inBase) {
-      results.push({ id: file, match: false, reason: "missing-current" });
-      continue;
+      return { id: file, match: false, reason: "missing-current" };
     }
     if (inCurrent && !inBase) {
-      results.push({ id: file, match: false, reason: "missing-base" });
-      continue;
+      return { id: file, match: false, reason: "missing-base" };
     }
 
     const threshold = idToThreshold.get(file) ?? comparisonConfig.threshold;
@@ -331,14 +337,14 @@ export const compareTestCases = async (
       performance.now() - comparisonStartTime
     );
 
-    results.push({
+    return {
       id: file,
       match: diffResult.match,
       reason: diffResult.reason,
       diffPercentage: diffResult.diffPercentage,
       comparisonDurationMs,
-    });
-  }
+    };
+  });
 
   return results;
 };

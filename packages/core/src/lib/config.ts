@@ -54,14 +54,6 @@ function applyEnvOverrides(
   if (process.env.VISNAP_SCREENSHOT_DIR) {
     out.screenshotDir = process.env.VISNAP_SCREENSHOT_DIR;
   }
-  if (process.env.VISNAP_MAX_CONCURRENCY) {
-    const n = Number(process.env.VISNAP_MAX_CONCURRENCY);
-    const nextRuntime = { ...(out.runtime ?? {}) } as NonNullable<
-      VisualTestingToolConfig["runtime"]
-    >;
-    if (!Number.isNaN(n)) nextRuntime.maxConcurrency = n;
-    out.runtime = nextRuntime;
-  }
 
   // Handle comparison config overrides
   if (

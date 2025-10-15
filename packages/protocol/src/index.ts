@@ -241,7 +241,7 @@ export interface TestResult {
     };
     comparison?: ComparisonConfig;
     runtime?: {
-      maxConcurrency?: number;
+      maxConcurrency?: number | { capture?: number; compare?: number };
       quiet?: boolean;
     };
     viewport?: ViewportMap;
@@ -399,8 +399,12 @@ export interface VisualTestingToolConfig {
   comparison?: ComparisonConfig;
   screenshotDir?: string;
   runtime?: {
-    /** Maximum number of concurrent captures to run; defaults to 4 */
-    maxConcurrency?: number;
+    /**
+     * Maximum concurrency configuration.
+     * - number: applies to both capture and compare
+     * - object: specify separate limits for capture and compare
+     */
+    maxConcurrency?: number | { capture?: number; compare?: number };
     /** Suppress output except errors; defaults to false */
     quiet?: boolean;
   };

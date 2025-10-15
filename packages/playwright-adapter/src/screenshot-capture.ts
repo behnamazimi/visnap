@@ -37,14 +37,19 @@ export async function captureElementScreenshot(
   }
 
   // Prefer locator for stability if available; otherwise use element handle
-  const maybeLocator = (page as unknown as { locator?: (s: string) => any })
-    .locator?.bind(page);
+  const maybeLocator = (
+    page as unknown as { locator?: (s: string) => any }
+  ).locator?.bind(page);
   if (typeof maybeLocator === "function") {
     const locator = maybeLocator(selector);
-    const buf = (await locator.screenshot({ type: "png" })) as unknown as Uint8Array;
+    const buf = (await locator.screenshot({
+      type: "png",
+    })) as unknown as Uint8Array;
     return buf;
   }
-  return (await storyElement.screenshot({ type: "png" })) as unknown as Uint8Array;
+  return (await storyElement.screenshot({
+    type: "png",
+  })) as unknown as Uint8Array;
 }
 
 /**
