@@ -1,13 +1,29 @@
 import Link from 'next/link';
 import { Github, BookOpen, Play } from 'lucide-react';
+import Image from 'next/image';
 
 export default function HomePage() {
   return (
     <main className="flex flex-1 flex-col justify-center text-center px-4">
       <div className="mx-auto max-w-2xl">
-        <h1 className="mb-6 text-4xl font-bold tracking-tight">
-          ViSnap
-        </h1>
+        <div className="mb-6 flex justify-center">
+          <Image
+            src="/visnap-logo-light.png"
+            alt=""
+            width={250}
+            height={62}
+            className="dark:hidden w-[250px] h-auto"
+            sizes="250px"
+          />
+          <Image
+            src="/visnap-logo-dark.png"
+            alt=""
+            width={250}
+            height={62}
+            className="hidden dark:inline w-[250px] h-auto"
+            sizes="250px"
+          />
+        </div>
         <p className="mb-8 text-lg text-fd-muted-foreground">
           Catch visual changes before they reach production. Automated screenshot testing for modern web applications.
         </p>
