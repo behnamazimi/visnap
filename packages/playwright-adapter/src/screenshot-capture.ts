@@ -6,6 +6,7 @@ import {
   navigateToUrl,
   handleWaitFor,
   injectGlobalCSS,
+  NO_ANIMATIONS_CSS,
 } from "./browser-context";
 import { SCREENSHOT_ELEMENT_TIMEOUT } from "./constants";
 import { executeInteractions } from "./interaction-executor";
@@ -35,9 +36,15 @@ export async function captureElementScreenshot(
     throw new Error(message);
   }
 
-  return (await storyElement.screenshot({
-    type: "png",
-  })) as unknown as Uint8Array;
+  // Prefer locator for stability if available; otherwise use element handle
+  const maybeLocator = (page as unknown as { locator?: (s: string) => any })
+    .locator?.bind(page);
+  if (typeof maybeLocator === "function") {
+    const locator = maybeLocator(selector);
+    const buf = (await locator.screenshot({ type: "png" })) as unknown as Uint8Array;
+    return buf;
+  }
+  return (await storyElement.screenshot({ type: "png" })) as unknown as Uint8Array;
 }
 
 /**
@@ -57,6 +64,18 @@ export async function performScreenshotCapture(
 
     // Set up the page with viewport and timeout
     await setupPage(page, screenshotOptions.viewport, timeout);
+    // Disable animations if configured (adapter option) and not explicitly disabled per test
+    if (
+      !screenshotOptions.disableCSSInjection &&
+      options.performance?.disableAnimations
+    ) {
+      try {
+        await page.emulateMedia({ reducedMotion: "reduce" });
+      } catch {
+        /* ignore */
+      }
+      await injectGlobalCSS(page, NO_ANIMATIONS_CSS);
+    }
 
     // Navigate to the target URL
     await navigateToUrl(page, screenshotOptions.url, options, timeout);
