@@ -1,5 +1,5 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-
+import Image from 'next/image';
 /**
  * Shared layout configurations
  *
@@ -12,15 +12,22 @@ export function baseOptions(): BaseLayoutProps {
     nav: {
       title: (
         <>
-          <svg
-            width="24"
-            height="24"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-label="Logo"
-          >
-            <circle cx={12} cy={12} r={12} fill="currentColor" />
-          </svg>
-          ViSnap
+          <Image
+            src="/visnap-logo-light.png"
+            alt=""
+            width={180}
+            height={48}
+            className="dark:hidden h-6 w-auto sm:h-7 md:h-8"
+            sizes="(min-width: 768px) 128px, (min-width: 640px) 112px, 96px"
+          />
+          <Image
+            src="/visnap-logo-dark.png"
+            alt=""
+            width={180}
+            height={48}
+            className="hidden dark:inline h-6 w-auto sm:h-7 md:h-8"
+            sizes="(min-width: 768px) 128px, (min-width: 640px) 112px, 96px"
+          />
         </>
       ),
     },
