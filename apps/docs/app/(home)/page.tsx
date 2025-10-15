@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function HomePage() {
   return (
-    <main className="flex flex-1 flex-col justify-center text-center px-4">
+    <main className="flex flex-1 flex-col justify-center text-center px-4 py-16 md:py-32">
       <div className="mx-auto max-w-2xl">
         <div className="mb-6 flex justify-center">
           <Image
@@ -24,8 +24,9 @@ export default function HomePage() {
             sizes="250px"
           />
         </div>
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight">See visual changes before you merge</h1>
         <p className="mb-8 text-lg text-fd-muted-foreground">
-          Catch visual changes before they reach production. Automated screenshot testing for modern web applications.
+          ViSnap takes screenshots of your UI, compares them to a baseline, and highlights what changed. Fast feedback for layout, color, and spacing regressions.
         </p>
         
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
@@ -34,7 +35,7 @@ export default function HomePage() {
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-fd-primary px-6 py-3 text-sm font-medium text-fd-primary-foreground transition-colors hover:bg-fd-primary/90"
           >
             <BookOpen className="h-4 w-4" />
-            View Documentation
+            Get Started
           </Link>
           <Link
             href="https://github.com/behnamazimi/visnap"
@@ -43,7 +44,7 @@ export default function HomePage() {
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-fd-border px-6 py-3 text-sm font-medium transition-colors hover:bg-fd-accent"
           >
             <Github className="h-4 w-4" />
-            View on GitHub
+            GitHub
           </Link>
         </div>
 
