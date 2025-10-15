@@ -43,7 +43,6 @@ describe("config", () => {
     // Reset environment variables
     delete process.env.VISNAP_SCREENSHOT_DIR;
     delete process.env.VISNAP_THRESHOLD;
-    delete process.env.VISNAP_MAX_CONCURRENCY;
   });
 
   describe("loadConfigFile", () => {
@@ -146,13 +145,11 @@ describe("config", () => {
 
       process.env.VISNAP_SCREENSHOT_DIR = "env-dir";
       process.env.VISNAP_THRESHOLD = "0.3";
-      process.env.VISNAP_MAX_CONCURRENCY = "8";
 
       const result = await resolveEffectiveConfig();
 
       expect(result.screenshotDir).toBe("env-dir");
       expect(result.comparison?.threshold).toBe(0.3);
-      expect(result.runtime?.maxConcurrency).toBe(8);
     });
 
     it("should ignore invalid environment variable values", async () => {
@@ -166,12 +163,10 @@ describe("config", () => {
       });
 
       process.env.VISNAP_THRESHOLD = "invalid";
-      process.env.VISNAP_MAX_CONCURRENCY = "invalid";
 
       const result = await resolveEffectiveConfig();
 
       expect(result.comparison?.threshold).toBe(0.1);
-      expect(result.runtime?.maxConcurrency).toBeUndefined();
     });
 
     it("should ensure default screenshot directory", async () => {

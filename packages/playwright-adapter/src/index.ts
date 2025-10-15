@@ -5,7 +5,12 @@ import type {
   BrowserName as BrowserNameProtocol,
   BrowserAdapterInitOptions,
 } from "@visnap/protocol";
-import { type BrowserType, type Browser, type Page } from "playwright-core";
+import {
+  type BrowserType,
+  type Browser,
+  type Page,
+  type BrowserContext,
+} from "playwright-core";
 
 import { createBrowserContext, navigateToUrl } from "./browser-context";
 import { performScreenshotCapture } from "./screenshot-capture";
@@ -36,6 +41,15 @@ export interface PlaywrightAdapterOptions {
     timeoutMs?: number;
   };
   injectCSS?: string;
+  /** Adapter-level performance knobs */
+  performance?: {
+    /** Glob-like URL patterns or substrings to block via routing */
+    blockResources?: string[];
+    /** Reuse a single BrowserContext across captures (clears storage between runs) */
+    reuseContext?: boolean;
+    /** Disable animations via emulateMedia + CSS during capture */
+    disableAnimations?: boolean;
+  };
 }
 
 /**
@@ -47,6 +61,7 @@ export function createAdapter(
 ): BrowserAdapter {
   let browserType: BrowserType | null = null;
   let browser: Browser | null = null;
+  let sharedContext: BrowserContext | null = null;
   const defaultTimeout = opts.navigation?.timeoutMs ?? 30000;
 
   /** Ensures the adapter has been initialized. */
@@ -84,9 +99,24 @@ export function createAdapter(
       ensureInitialized();
 
       const targetUrl = buildAbsoluteUrl(s.url, opts.navigation?.baseUrl);
-
-      // Create per-capture isolated context
-      const context = await createBrowserContext(browser!, opts);
+      // Create (or reuse) context
+      const desiredDsf = s.viewport?.deviceScaleFactor;
+      const reuseContext = Boolean(opts.performance?.reuseContext);
+      let context: BrowserContext;
+      if (reuseContext) {
+        if (!sharedContext) {
+          sharedContext =
+            desiredDsf !== undefined
+              ? await createBrowserContext(browser!, opts, desiredDsf)
+              : await createBrowserContext(browser!, opts);
+        }
+        context = sharedContext;
+      } else {
+        context =
+          desiredDsf !== undefined
+            ? await createBrowserContext(browser!, opts, desiredDsf)
+            : await createBrowserContext(browser!, opts);
+      }
 
       try {
         return await performScreenshotCapture(
@@ -99,12 +129,41 @@ export function createAdapter(
           defaultTimeout
         );
       } finally {
-        await context.close();
+        if (opts.performance?.reuseContext) {
+          // Clear storage between captures to maintain isolation while reusing context
+          try {
+            const tmpPage = await context.newPage();
+            await tmpPage.evaluate(() => {
+              try {
+                localStorage.clear();
+              } catch {
+                /* ignore */
+              }
+              try {
+                sessionStorage.clear();
+              } catch {
+                /* ignore */
+              }
+            });
+            await tmpPage.close();
+            await context.clearCookies();
+          } catch {
+            // ignore cleanup errors for reuse mode
+          }
+        } else {
+          await context.close();
+        }
       }
     },
 
     /** Closes the browser and disposes adapter resources. Safe to call multiple times. */
     async dispose() {
+      try {
+        await sharedContext?.close();
+      } catch {
+        // skip
+      }
+      sharedContext = null;
       await browser?.close();
       browser = null;
       browserType = null;

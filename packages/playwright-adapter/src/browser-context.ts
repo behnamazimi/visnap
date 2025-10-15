@@ -13,16 +13,40 @@ import type { PlaywrightAdapterOptions } from "./index";
  */
 export async function createBrowserContext(
   browser: Browser,
-  options: PlaywrightAdapterOptions
+  options: PlaywrightAdapterOptions,
+  deviceScaleFactor?: number
 ): Promise<BrowserContext> {
-  return await browser.newContext({
+  const context = await browser.newContext({
     ...options.context,
     colorScheme: options.context?.colorScheme ?? "light",
     reducedMotion: options.context?.reducedMotion ?? "reduce",
+    ...(typeof deviceScaleFactor === "number" ? { deviceScaleFactor } : {}),
     ...(options.context?.storageStatePath
       ? { storageState: options.context.storageStatePath }
       : {}),
   });
+
+  // Route and block heavy/irrelevant resources if configured
+  const patterns = options.performance?.blockResources ?? [];
+  if (patterns.length > 0) {
+    const shouldBlock = (url: string): boolean => {
+      // Simple substring matching; callers can provide hostnames, extensions, or paths
+      // Examples: ".map", ".mp4", "fonts.gstatic.com", "/analytics"
+      for (const p of patterns) {
+        if (p && url.includes(p)) return true;
+      }
+      return false;
+    };
+    await context.route("**/*", route => {
+      const url = route.request().url();
+      if (shouldBlock(url)) {
+        return route.abort();
+      }
+      return route.continue();
+    });
+  }
+
+  return context;
 }
 
 /**
@@ -117,3 +141,12 @@ export async function injectGlobalCSS(
     console.warn(`Failed to inject CSS: ${error}`);
   }
 }
+
+/** CSS that disables animations and transitions to improve visual stability */
+export const NO_ANIMATIONS_CSS = `
+*, *::before, *::after {
+  transition: none !important;
+  animation: none !important;
+  caret-color: transparent !important;
+}
+`;

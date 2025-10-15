@@ -123,3 +123,32 @@ runtime: {
   maxConcurrency: 2
 }
 ```
+
+### Adapter Performance Options
+
+You can tune Playwright-specific performance behavior from the adapter options. These are adapter-only and do not affect other adapters.
+
+```typescript
+adapters: {
+  browser: {
+    name: "@visnap/playwright-adapter",
+    options: {
+      // ... launch/context/navigation ...
+      performance: {
+        // Block heavy/irrelevant resources via routing (substrings/hostnames/extensions)
+        blockResources: [".map", ".mp4", "fonts.gstatic.com", "/analytics"],
+        // Reuse a single BrowserContext across captures (storage cleared between runs)
+        reuseContext: true,
+        // Disable animations via emulateMedia + CSS for more stable screenshots
+        disableAnimations: true,
+      }
+    }
+  }
+}
+```
+
+Note: The capture code uses `page.locator(selector).screenshot()` when available for stability; otherwise it falls back to the element handle’s `screenshot()`.
+
+Note:
+- Device scale factor should be set on the viewport (e.g. `{ width, height, deviceScaleFactor }`) rather than adapter performance.
+- You can also inject your own CSS (see above) to hide dynamic elements.

@@ -113,12 +113,15 @@ viewport: {
 
 ### Runtime Options
 
-Control how tests execute.
+Control how tests execute. You can set a single numeric concurrency (applies to both capture and compare), or provide separate limits.
 
 ```typescript
 runtime: {
-  maxConcurrency: 4, // parallel test limit
-  quiet: false // suppress output
+  // single number (applies to capture and compare)
+  maxConcurrency: 4,
+  // Or separate concurrency limits
+  // maxConcurrency: { capture: 4, compare: 4 },
+  quiet: false
 }
 ```
 
@@ -152,7 +155,6 @@ Override defaults without changing config:
 ```bash
 VISNAP_SCREENSHOT_DIR=./screenshots
 VISNAP_THRESHOLD=0.05
-VISNAP_MAX_CONCURRENCY=8
 ```
 
 ## Complete Example
@@ -188,7 +190,7 @@ const config: VisualTestingToolConfig = {
     mobile: { width: 375, height: 667 }
   },
   runtime: {
-    maxConcurrency: 4
+    maxConcurrency: { capture: 4, compare:2 } // Or a number which will be applied to both
   },
   comparison: {
     core: "odiff",

@@ -138,10 +138,9 @@ export async function executeTestRun(
     // Cases are already discovered and expanded by discoverCasesFromAllAdapters
 
     captureResults = [];
-    const maxConcurrency = Math.max(
-      1,
-      options.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY
-    );
+    const mc = options.runtime?.maxConcurrency;
+    const captureMax = typeof mc === "number" ? mc : mc?.capture;
+    const maxConcurrency = Math.max(1, captureMax ?? DEFAULT_CONCURRENCY);
 
     // Prepare output directory based on mode
     ensureVttDirectories(options.screenshotDir);
