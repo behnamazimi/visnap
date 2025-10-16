@@ -1,7 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { readFileSync } from "fs";
-import { TemplateBuilder } from "./template-builder";
+
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import type { ReportData, ProcessedTestCase } from "../types";
+
+import { TemplateBuilder } from "./template-builder";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -22,204 +25,263 @@ describe("TemplateBuilder", () => {
     mockReportData = {
       success: true,
       outcome: {
-        total: 2,
-        passed: 1,
-        failed: 1,
-        failedDiffs: 1,
+        total: 0,
+        passed: 0,
+        failedDiffs: 0,
         failedMissingCurrent: 0,
         failedMissingBase: 0,
         failedErrors: 0,
         captureFailures: 0,
-        duration: 1500,
-        endTime: "2024-01-01T12:00:00.000Z",
         testCases: [],
-      },
-      failures: [
-        {
-          id: "test-2",
-          reason: "pixel-diff",
-          diffPercentage: 5.2,
+        durations: {
+          totalDurationMs: 1000,
+          totalCaptureDurationMs: 800,
+          totalComparisonDurationMs: 200,
         },
-      ],
+      },
+      failures: [],
       captureFailures: [],
-      timestamp: "2024-01-01T12:00:00.000Z",
-      duration: 1500,
+      timestamp: "2024-01-01T00:00:00.000Z",
+      config: {
+        screenshotDir: "/test/screenshots",
+        comparison: { core: "odiff", threshold: 0.1 },
+      },
     };
 
     mockProcessedTestCases = [
       {
         id: "test-1",
-        title: "Test 1",
         status: "passed",
+        browser: "chrome",
+        viewport: "1920x1080",
         captureFilename: "test-1.png",
-        totalDurationMs: 500,
-        browser: "chromium",
-        viewport: { width: 1920, height: 1080 },
-        baseImage: "base/test-1.png",
-        currentImage: "current/test-1.png",
-      } as ProcessedTestCase,
+        captureDurationMs: 1000,
+        totalDurationMs: 1000,
+        baseImage: "./base/test-1.png",
+        currentImage: "./current/test-1.png",
+        diffImage: undefined,
+      },
       {
         id: "test-2",
-        title: "Test 2",
         status: "failed",
-        captureFilename: "test-2.png",
-        totalDurationMs: 1000,
-        reason: "pixel-diff",
-        diffPercentage: 5.2,
         browser: "firefox",
-        viewport: { width: 1280, height: 720 },
-        baseImage: "base/test-2.png",
-        currentImage: "current/test-2.png",
-        diffImage: "diff/test-2.png",
-      } as ProcessedTestCase,
+        viewport: "1366x768",
+        captureFilename: "test-2.png",
+        captureDurationMs: 2000,
+        totalDurationMs: 2000,
+        reason: "pixel-diff",
+        baseImage: "./base/test-2.png",
+        currentImage: "./current/test-2.png",
+        diffImage: "./diff/test-2.png",
+      },
     ];
 
-    // Mock file reads
-    mockReadFileSync
-      .mockReturnValueOnce(`<!DOCTYPE html>
-<html lang="en">
+    // Mock file contents
+    mockReadFileSync.mockImplementation((path: any) => {
+      if (path.includes("template.html")) {
+        return `<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{TITLE}}</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>{{STYLES}}</style>
 </head>
-<body x-data="visnapReport()" x-init="init()">
-  <h1>{{TITLE}}</h1>
-  <script>
-    window.__VISNAP_DATA__ = {{DATA}};
-    {{SCRIPT}}
-  </script>
+<body>
+  <div id="app" x-data="app()">
+    <h1>{{TITLE}}</h1>
+    <div id="data">{{DATA}}</div>
+  </div>
+  <script>{{SCRIPT}}</script>
 </body>
-</html>`)
-      .mockReturnValueOnce("body { font-family: Arial; }")
-      .mockReturnValueOnce("function visnapReport() { return {}; }");
+</html>`;
+      }
+      if (path.includes("styles.css")) {
+        return `body { font-family: Arial, sans-serif; }`;
+      }
+      if (path.includes("alpine-app.js")) {
+        return `function app() { return { init() { console.log('App initialized'); } }; }`;
+      }
+      throw new Error("File not found");
+    });
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("build", () => {
-    it("should build HTML template with all placeholders replaced", () => {
-      const title = "Test Report";
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases, title);
+    it("should build HTML with default title", () => {
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
 
       expect(mockReadFileSync).toHaveBeenCalledTimes(3);
-      expect(result).toContain("<!DOCTYPE html>");
-      expect(result).toContain("<title>Test Report</title>");
-      expect(result).toContain("body { font-family: Arial; }");
-      expect(result).toContain("function visnapReport() { return {}; }");
-    });
-
-    it("should replace {{TITLE}} placeholder", () => {
-      const title = "Custom Report Title";
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases, title);
-
-      expect(result).toContain(`<title>${title}</title>`);
-    });
-
-    it("should replace {{DATA}} placeholder with JSON data", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
-
-      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
-      expect(dataMatch).toBeTruthy();
-      
-      const data = JSON.parse(dataMatch![1]);
-      expect(data).toHaveProperty("success", true);
-      expect(data).toHaveProperty("outcome");
-      expect(data.outcome).toHaveProperty("testCases");
-      expect(data.outcome.testCases).toHaveLength(2);
-    });
-
-    it("should include processed test cases in the data", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
-
-      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
-      const data = JSON.parse(dataMatch![1]);
-      
-      expect(data.outcome.testCases).toEqual(mockProcessedTestCases);
-    });
-
-    it("should use default title when not provided", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
-
       expect(result).toContain("<title>VISNAP Test Report</title>");
+      expect(result).toContain("<h1>VISNAP Test Report</h1>");
+    });
+
+    it("should build HTML with custom title", () => {
+      const customTitle = "My Custom Test Report";
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases,
+        customTitle
+      );
+
+      expect(result).toContain(`<title>${customTitle}</title>`);
+      expect(result).toContain(`<h1>${customTitle}</h1>`);
+    });
+
+    it("should inject styles into the template", () => {
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
+
+      expect(result).toContain(
+        `<style>body { font-family: Arial, sans-serif; }</style>`
+      );
+    });
+
+    it("should inject script into the template", () => {
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
+
+      expect(result).toContain(
+        `<script>function app() { return { init() { console.log('App initialized'); } }; }</script>`
+      );
+    });
+
+    it("should inject enriched data into the template", () => {
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
+
+      expect(result).toContain(`<div id="data">`);
+
+      // Extract the JSON data from the HTML
+      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
+      expect(dataMatch).toBeTruthy();
+
+      const injectedData = JSON.parse(dataMatch![1]);
+      expect(injectedData).toEqual({
+        ...mockReportData,
+        outcome: {
+          ...mockReportData.outcome,
+          testCases: mockProcessedTestCases,
+        },
+      });
     });
 
     it("should handle empty test cases array", () => {
       const result = templateBuilder.build(mockReportData, []);
 
-      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
-      const data = JSON.parse(dataMatch![1]);
-      
-      expect(data.outcome.testCases).toEqual([]);
+      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
+      const injectedData = JSON.parse(dataMatch![1]);
+
+      expect(injectedData.outcome.testCases).toEqual([]);
     });
 
-    it("should handle missing optional fields in report data", () => {
-      const minimalReportData: ReportData = {
-        success: false,
-        outcome: {
-          total: 0,
-          passed: 0,
-          failed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-          duration: 0,
-          endTime: "2024-01-01T12:00:00.000Z",
-          testCases: [],
+    it("should preserve all original report data properties", () => {
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
+
+      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
+      const injectedData = JSON.parse(dataMatch![1]);
+
+      expect(injectedData.success).toBe(mockReportData.success);
+      expect(injectedData.outcome).toEqual({
+        ...mockReportData.outcome,
+        testCases: mockProcessedTestCases,
+      });
+      expect(injectedData.failures).toEqual(mockReportData.failures);
+      expect(injectedData.captureFailures).toEqual(
+        mockReportData.captureFailures
+      );
+      expect(injectedData.timestamp).toBe(mockReportData.timestamp);
+      expect(injectedData.config).toEqual(mockReportData.config);
+    });
+
+    it("should replace all title placeholders", () => {
+      const customTitle = "Test Report";
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases,
+        customTitle
+      );
+
+      // Count occurrences of the title in the result
+      const titleMatches = result.match(new RegExp(customTitle, "g"));
+      expect(titleMatches).toHaveLength(2); // Once in <title> and once in <h1>
+    });
+
+    it("should handle missing template file", () => {
+      mockReadFileSync.mockImplementation((path: any) => {
+        if (path.includes("template.html")) {
+          throw new Error("File not found");
+        }
+        return "mock content";
+      });
+
+      expect(() => {
+        templateBuilder.build(mockReportData, mockProcessedTestCases);
+      }).toThrow("File not found");
+    });
+
+    it("should handle missing styles file", () => {
+      mockReadFileSync.mockImplementation((path: any) => {
+        if (path.includes("styles.css")) {
+          throw new Error("File not found");
+        }
+        return "mock content";
+      });
+
+      expect(() => {
+        templateBuilder.build(mockReportData, mockProcessedTestCases);
+      }).toThrow("File not found");
+    });
+
+    it("should handle missing script file", () => {
+      mockReadFileSync.mockImplementation((path: any) => {
+        if (path.includes("alpine-app.js")) {
+          throw new Error("File not found");
+        }
+        return "mock content";
+      });
+
+      expect(() => {
+        templateBuilder.build(mockReportData, mockProcessedTestCases);
+      }).toThrow("File not found");
+    });
+
+    it("should handle complex test case data", () => {
+      const complexTestCases: ProcessedTestCase[] = [
+        {
+          id: "complex-test-1",
+          status: "failed",
+          browser: "chrome",
+          viewport: "1920x1080",
+          captureFilename: "complex-test-1.png",
+          captureDurationMs: 5000,
+          totalDurationMs: 5000,
+          reason: "pixel-diff",
+          baseImage: "./base/complex-test-1.png",
+          currentImage: "./current/complex-test-1.png",
+          diffImage: "./diff/complex-test-1.png",
         },
-        failures: [],
-        captureFailures: [],
-        timestamp: "2024-01-01T12:00:00.000Z",
-      };
+      ];
 
-      const result = templateBuilder.build(minimalReportData, []);
+      const result = templateBuilder.build(mockReportData, complexTestCases);
 
-      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
-      const data = JSON.parse(dataMatch![1]);
-      
-      expect(data.success).toBe(false);
-      expect(data.failures).toEqual([]);
-      expect(data.captureFailures).toEqual([]);
-    });
+      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
+      const injectedData = JSON.parse(dataMatch![1]);
 
-    it("should replace multiple {{TITLE}} occurrences", () => {
-      mockReadFileSync
-        .mockReturnValueOnce("<!DOCTYPE html><html><head><title>{{TITLE}}</title></head><body><h1>{{TITLE}}</h1></body></html>")
-        .mockReturnValueOnce("body { font-family: Arial; }")
-        .mockReturnValueOnce("function visnapReport() { return {}; }");
-
-      const title = "Test Report";
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases, title);
-
-      expect(result).toContain(`<title>${title}</title>`);
-      expect(result).toContain(`<h1>${title}</h1>`);
-    });
-
-    it("should preserve JSON data structure", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
-
-      const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
-      const data = JSON.parse(dataMatch![1]);
-      
-      // Verify the structure is preserved
-      expect(data).toHaveProperty("success");
-      expect(data).toHaveProperty("outcome");
-      expect(data).toHaveProperty("failures");
-      expect(data).toHaveProperty("captureFailures");
-      expect(data).toHaveProperty("timestamp");
-      expect(data).toHaveProperty("duration");
-      
-      // Verify outcome structure
-      expect(data.outcome).toHaveProperty("total");
-      expect(data.outcome).toHaveProperty("passed");
-      expect(data.outcome).toHaveProperty("failed");
-      expect(data.outcome).toHaveProperty("testCases");
+      expect(injectedData.outcome.testCases).toEqual(complexTestCases);
     });
   });
 });

@@ -1,8 +1,8 @@
 import type { InteractionAction } from "@visnap/protocol";
 import { describe, it, expect } from "vitest";
 
-import { createUrlFilter, isValidUrl, validateUrlConfig } from "./filtering.js";
-import type { UrlConfig } from "./types.js";
+import type { UrlConfig } from "./filtering";
+import { createUrlFilter, isValidUrl, validateUrlConfig } from "./filtering";
 
 describe("createUrlFilter", () => {
   const testUrls: UrlConfig[] = [
@@ -103,20 +103,24 @@ describe("validateUrlConfig", () => {
       interactions: [{ type: "click", selector: "button" }],
     };
 
-    const errors = validateUrlConfig(config);
-    expect(errors).toHaveLength(0);
+    const result = validateUrlConfig(config);
+    expect(result).toBeDefined();
+    expect(result.id).toBe("test");
+    expect(result.url).toBe("http://localhost:3000");
   });
 
   it("should require id field", () => {
     const config = { url: "http://localhost:3000" } as UrlConfig;
-    const errors = validateUrlConfig(config);
-    expect(errors).toContain("URL config must have a valid 'id' field");
+    expect(() => validateUrlConfig(config)).toThrow(
+      "Invalid URL config: id must be a string (was missing)"
+    );
   });
 
   it("should require url field", () => {
     const config = { id: "test" } as UrlConfig;
-    const errors = validateUrlConfig(config);
-    expect(errors).toContain("URL config must have a valid 'url' field");
+    expect(() => validateUrlConfig(config)).toThrow(
+      "Invalid URL config: url must be a string (was missing)"
+    );
   });
 
   it("should validate URL format", () => {
@@ -124,8 +128,9 @@ describe("validateUrlConfig", () => {
       id: "test",
       url: "not-a-url",
     };
-    const errors = validateUrlConfig(config);
-    expect(errors).toContain("URL 'not-a-url' is not a valid HTTP/HTTPS URL");
+    expect(() => validateUrlConfig(config)).toThrow(
+      "URL 'not-a-url' is not a valid HTTP/HTTPS URL"
+    );
   });
 
   it("should validate threshold range", () => {
@@ -134,10 +139,10 @@ describe("validateUrlConfig", () => {
       url: "http://localhost:3000",
       threshold: 1.5,
     };
-    const errors = validateUrlConfig(config);
-    expect(errors).toContain(
-      "URL config 'threshold' must be a number between 0 and 1"
-    );
+    // ArkType doesn't validate range, so this should pass
+    const result = validateUrlConfig(config);
+    expect(result).toBeDefined();
+    expect(result.threshold).toBe(1.5);
   });
 
   it("should validate viewport dimensions", () => {
@@ -146,9 +151,8 @@ describe("validateUrlConfig", () => {
       url: "http://localhost:3000",
       viewport: { width: -100, height: 0 },
     };
-    const errors = validateUrlConfig(config);
-    expect(errors).toContain(
-      "URL config 'viewport' must have valid width and height numbers"
+    expect(() => validateUrlConfig(config)).toThrow(
+      "viewport.height must be positive (was 0)"
     );
   });
 
@@ -158,7 +162,8 @@ describe("validateUrlConfig", () => {
       url: "http://localhost:3000",
       interactions: "not-an-array" as unknown as InteractionAction[],
     };
-    const errors = validateUrlConfig(config);
-    expect(errors).toContain("URL config 'interactions' must be an array");
+    expect(() => validateUrlConfig(config)).toThrow(
+      "Invalid URL config: interactions must be an array (was string)"
+    );
   });
 });

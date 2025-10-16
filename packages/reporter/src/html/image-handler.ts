@@ -1,6 +1,8 @@
 import { join } from "path";
-import type { ProcessedTestCase } from "../types";
+
 import type { TestCaseDetail } from "@visnap/protocol";
+
+import type { ProcessedTestCase } from "../types";
 
 export interface ProcessedImagePaths {
   base: string;
@@ -11,7 +13,7 @@ export interface ProcessedImagePaths {
 export class ImageHandler {
   async getRelativeImagePaths(
     testCase: TestCaseDetail,
-    screenshotDir: string
+    _screenshotDir: string
   ): Promise<ProcessedImagePaths> {
     const baseImage = join("base", testCase.captureFilename);
     const currentImage = join("current", testCase.captureFilename);
@@ -28,19 +30,20 @@ export class ImageHandler {
     };
   }
 
-  processTestCases(
-    testCases: TestCaseDetail[]
-  ): ProcessedTestCase[] {
-    return testCases.map((testCase) => {
+  processTestCases(testCases: TestCaseDetail[]): ProcessedTestCase[] {
+    return testCases.map(testCase => {
       // Images are relative to the report location (screenshot directory)
       // Report will be at: screenshotDir/report.html
       // Images are at: screenshotDir/base/, screenshotDir/current/, screenshotDir/diff/
-      
+
       return {
         ...testCase,
         baseImage: `./base/${testCase.captureFilename}`,
         currentImage: `./current/${testCase.captureFilename}`,
-        diffImage: testCase.status === "failed" ? `./diff/${testCase.captureFilename}` : undefined,
+        diffImage:
+          testCase.status === "failed" && testCase.reason === "pixel-diff"
+            ? `./diff/${testCase.captureFilename}`
+            : undefined,
       };
     });
   }

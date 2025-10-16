@@ -5,9 +5,9 @@ import type {
   PageWithEvaluate,
 } from "@visnap/protocol";
 
-import { createUrlFilter, validateUrlConfig } from "./filtering.js";
-import { normalizeUrls } from "./normalization.js";
-import type { CreateUrlAdapterOptions } from "./types.js";
+import type { CreateUrlAdapterOptions } from "./filtering";
+import { createUrlFilter, validateCreateUrlAdapterOptions } from "./filtering";
+import { normalizeUrls } from "./normalization";
 
 /**
  * Creates a URL-based TestCaseAdapter that can:
@@ -19,41 +19,17 @@ import type { CreateUrlAdapterOptions } from "./types.js";
  * The returned API shape matches `TestCaseAdapter` and is preserved.
  */
 export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
-  if (!opts || !Array.isArray(opts.urls)) {
-    throw new Error(
-      "Invalid options provided to createAdapter: 'urls' array is required"
-    );
-  }
-
-  if (opts.urls.length === 0) {
-    throw new Error("At least one URL must be provided");
-  }
-
-  // Validate all URL configurations
-  const validationErrors: string[] = [];
-  for (const urlConfig of opts.urls) {
-    const errors = validateUrlConfig(urlConfig);
-    if (errors.length > 0) {
-      validationErrors.push(
-        ...errors.map(error => `URL '${urlConfig.id}': ${error}`)
-      );
-    }
-  }
-
-  if (validationErrors.length > 0) {
-    throw new Error(
-      `URL configuration validation failed:\n${validationErrors.join("\n")}`
-    );
-  }
+  // Validate options using ArkType schema
+  const validatedOpts = validateCreateUrlAdapterOptions(opts);
 
   // Create filter function
   const filter = createUrlFilter({
-    include: opts.include,
-    exclude: opts.exclude,
+    include: validatedOpts.include,
+    exclude: validatedOpts.exclude,
   });
 
   // Filter URLs
-  const filteredUrls = opts.urls.filter(filter);
+  const filteredUrls = validatedOpts.urls.filter(filter);
 
   if (filteredUrls.length === 0) {
     console.warn("No URLs match the include/exclude patterns");
@@ -91,8 +67,8 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
 
       // Normalize URLs to test case instances
       return normalizeUrls(filteredUrls, {
-        include: opts.include,
-        exclude: opts.exclude,
+        include: validatedOpts.include,
+        exclude: validatedOpts.exclude,
         viewportKeys,
         globalViewport: o?.viewport,
       });
@@ -108,4 +84,4 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
 }
 
 // Re-export types for convenience
-export type { CreateUrlAdapterOptions, UrlConfig } from "./types.js";
+export type { CreateUrlAdapterOptions, UrlConfig } from "./filtering";

@@ -58,6 +58,10 @@ describe("config", () => {
     it("should load and return config when file exists", async () => {
       mockExistsSync.mockReturnValue(true);
       const mockConfig = {
+        adapters: {
+          browser: { name: "chromium" },
+          testCase: [],
+        },
         comparison: { core: "odiff" as const, threshold: 0.1 },
         screenshotDir: "test",
       };
@@ -77,6 +81,10 @@ describe("config", () => {
     it("should handle config without default export", async () => {
       mockExistsSync.mockReturnValue(true);
       const mockConfig = {
+        adapters: {
+          browser: { name: "chromium" },
+          testCase: [],
+        },
         comparison: { core: "odiff" as const, threshold: 0.1 },
         screenshotDir: "test",
       };
@@ -115,10 +123,18 @@ describe("config", () => {
     it("should merge config file with options", async () => {
       mockExistsSync.mockReturnValue(true);
       const fileConfig = {
+        adapters: {
+          browser: { name: "chromium" },
+          testCase: [],
+        },
         comparison: { core: "odiff" as const, threshold: 0.1 },
         screenshotDir: "file-dir",
       };
       const options = {
+        adapters: {
+          browser: { name: "chromium" },
+          testCase: [],
+        },
         comparison: { core: "odiff" as const, threshold: 0.2 },
       };
       mockBundleRequire.mockResolvedValue({
@@ -135,6 +151,10 @@ describe("config", () => {
     it("should apply environment variable overrides", async () => {
       mockExistsSync.mockReturnValue(true);
       const fileConfig = {
+        adapters: {
+          browser: { name: "chromium" },
+          testCase: [],
+        },
         comparison: { core: "odiff" as const, threshold: 0.1 },
         screenshotDir: "file-dir",
       };
@@ -155,6 +175,10 @@ describe("config", () => {
     it("should ignore invalid environment variable values", async () => {
       mockExistsSync.mockReturnValue(true);
       const fileConfig = {
+        adapters: {
+          browser: { name: "chromium" },
+          testCase: [],
+        },
         comparison: { core: "odiff" as const, threshold: 0.1 },
       };
       mockBundleRequire.mockResolvedValue({
@@ -171,7 +195,12 @@ describe("config", () => {
 
     it("should ensure default screenshot directory", async () => {
       mockExistsSync.mockReturnValue(true);
-      const fileConfig = {};
+      const fileConfig = {
+        adapters: {
+          browser: { name: "chromium" },
+          testCase: [],
+        },
+      };
       mockBundleRequire.mockResolvedValue({
         mod: { default: fileConfig },
         dependencies: [],

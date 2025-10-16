@@ -35,7 +35,7 @@ export class ErrorHandler {
    */
   private static formatErrorMessage(
     message: string,
-    errorType: string,
+    _errorType: string,
     context?: ErrorContext
   ): string {
     let formatted = message;

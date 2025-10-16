@@ -1,14 +1,14 @@
 import type { PageWithEvaluate } from "@visnap/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { discoverCasesFromBrowser } from "./discovery.js";
+import { discoverCasesFromBrowser } from "./discovery";
 
 // Mock the utils module
 vi.mock("./utils.js", () => ({
   withTimeout: vi.fn(promise => promise), // Just pass through for most tests
 }));
 
-import { withTimeout } from "./utils.js";
+import { withTimeout } from "./utils";
 
 const mockWithTimeout = vi.mocked(withTimeout);
 

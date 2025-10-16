@@ -7,9 +7,11 @@
       "@visnap/protocol",
       "@visnap/playwright-adapter", 
       "@visnap/storybook-adapter",
+      "@visnap/url-adapter",
       "@visnap/core",
       "@visnap/cli",
-      "@visnap/reporter"
+      "@visnap/reporter",
+      "@visnap/fs-adapter"
     ]
   ],
   "linked": [],

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
-import { normalizeUrls, expandUrlsForViewports } from "./normalization.js";
-import type { UrlConfig } from "./types.js";
+import type { UrlConfig } from "./filtering";
+import { normalizeUrls, expandUrlsForViewports } from "./normalization";
 
 describe("normalizeUrls", () => {
   const testUrls: UrlConfig[] = [

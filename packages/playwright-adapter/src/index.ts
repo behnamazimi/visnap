@@ -15,6 +15,7 @@ import {
 import { createBrowserContext, navigateToUrl } from "./browser-context";
 import { performScreenshotCapture } from "./screenshot-capture";
 import { selectBrowserType, buildAbsoluteUrl } from "./utils";
+import { validateOptions } from "./validation";
 
 /**
  * Options to configure the Playwright browser adapter.
@@ -59,10 +60,12 @@ export interface PlaywrightAdapterOptions {
 export function createAdapter(
   opts: PlaywrightAdapterOptions = {}
 ): BrowserAdapter {
+  // Validate options using ArkType schema
+  const validatedOpts = validateOptions(opts);
   let browserType: BrowserType | null = null;
   let browser: Browser | null = null;
   let sharedContext: BrowserContext | null = null;
-  const defaultTimeout = opts.navigation?.timeoutMs ?? 30000;
+  const defaultTimeout = validatedOpts.navigation?.timeoutMs ?? 30000;
 
   /** Ensures the adapter has been initialized. */
   function ensureInitialized(): void {
@@ -74,13 +77,13 @@ export function createAdapter(
     /** Launches a browser instance. Safe to call multiple times. */
     async init(initOpts?: BrowserAdapterInitOptions) {
       browserType = selectBrowserType(
-        initOpts?.browser || opts.launch?.browser
+        initOpts?.browser || validatedOpts.launch?.browser
       );
       if (browser) return; // idempotent
       browser = await browserType.launch({
-        headless: opts.launch?.headless ?? true,
-        channel: opts.launch?.channel,
-        ...opts.launch,
+        headless: validatedOpts.launch?.headless ?? true,
+        channel: validatedOpts.launch?.channel,
+        ...validatedOpts.launch,
       });
     },
 
@@ -89,8 +92,11 @@ export function createAdapter(
       ensureInitialized();
       const page = await browser!.newPage();
       page.setDefaultTimeout(defaultTimeout);
-      const targetUrl = buildAbsoluteUrl(url, opts.navigation?.baseUrl);
-      await navigateToUrl(page, targetUrl, opts, defaultTimeout);
+      const targetUrl = buildAbsoluteUrl(
+        url,
+        validatedOpts.navigation?.baseUrl
+      );
+      await navigateToUrl(page, targetUrl, validatedOpts, defaultTimeout);
       return page;
     },
 
@@ -98,30 +104,33 @@ export function createAdapter(
     async capture(s: ScreenshotOptions): Promise<ScreenshotResult> {
       ensureInitialized();
 
-      const targetUrl = buildAbsoluteUrl(s.url, opts.navigation?.baseUrl);
+      const targetUrl = buildAbsoluteUrl(
+        s.url,
+        validatedOpts.navigation?.baseUrl
+      );
       // Create (or reuse) context
       const desiredDsf = s.viewport?.deviceScaleFactor;
-      const reuseContext = Boolean(opts.performance?.reuseContext);
+      const reuseContext = Boolean(validatedOpts.performance?.reuseContext);
       let context: BrowserContext;
       if (reuseContext) {
         if (!sharedContext) {
           sharedContext =
             desiredDsf !== undefined
-              ? await createBrowserContext(browser!, opts, desiredDsf)
-              : await createBrowserContext(browser!, opts);
+              ? await createBrowserContext(browser!, validatedOpts, desiredDsf)
+              : await createBrowserContext(browser!, validatedOpts);
         }
         context = sharedContext;
       } else {
         context =
           desiredDsf !== undefined
-            ? await createBrowserContext(browser!, opts, desiredDsf)
-            : await createBrowserContext(browser!, opts);
+            ? await createBrowserContext(browser!, validatedOpts, desiredDsf)
+            : await createBrowserContext(browser!, validatedOpts);
       }
 
       try {
         return await performScreenshotCapture(
           context,
-          opts,
+          validatedOpts,
           {
             ...s,
             url: targetUrl,
@@ -129,7 +138,7 @@ export function createAdapter(
           defaultTimeout
         );
       } finally {
-        if (opts.performance?.reuseContext) {
+        if (validatedOpts.performance?.reuseContext) {
           // Clear storage between captures to maintain isolation while reusing context
           try {
             const tmpPage = await context.newPage();

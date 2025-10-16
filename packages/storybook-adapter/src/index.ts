@@ -5,9 +5,10 @@ import type {
   PageWithEvaluate,
 } from "@visnap/protocol";
 
-import { discoverCasesFromBrowser } from "./discovery.js";
-import { normalizeStories } from "./filtering.js";
-import { createServerManager } from "./server.js";
+import { discoverCasesFromBrowser } from "./discovery";
+import { normalizeStories } from "./filtering";
+import { createServerManager } from "./server";
+import { validateOptions } from "./validation";
 
 /**
  * Options to create a Storybook adapter.
@@ -39,15 +40,13 @@ export interface CreateStorybookAdapterOptions {
 export function createAdapter(
   opts: CreateStorybookAdapterOptions
 ): TestCaseAdapter {
-  if (
-    !opts ||
-    typeof opts.source !== "string" ||
-    opts.source.trim().length === 0
-  ) {
-    throw new Error("Invalid 'source' provided to createAdapter");
-  }
+  // Validate options using ArkType schema
+  const validatedOpts = validateOptions(opts);
 
-  const serverManager = createServerManager(opts.source, opts.port);
+  const serverManager = createServerManager(
+    validatedOpts.source,
+    validatedOpts.port
+  );
 
   return {
     name: "storybook",
@@ -75,7 +74,10 @@ export function createAdapter(
 
       let cases: Record<string, unknown>;
       try {
-        cases = await discoverCasesFromBrowser(pageCtx, opts.discovery);
+        cases = await discoverCasesFromBrowser(
+          pageCtx,
+          validatedOpts.discovery
+        );
       } finally {
         await pageCtx?.close?.();
       }
@@ -93,8 +95,8 @@ export function createAdapter(
       keys.sort((a, b) => a.localeCompare(b));
 
       return normalizeStories(cases, {
-        include: opts?.include,
-        exclude: opts?.exclude,
+        include: validatedOpts?.include,
+        exclude: validatedOpts?.exclude,
         baseUrl,
         viewportKeys: keys,
         globalViewport: o?.viewport,

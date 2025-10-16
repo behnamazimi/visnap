@@ -1,8 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { writeFileSync, mkdirSync } from "fs";
-import { JsonReporter } from "./json-reporter";
+
 import type { TestResult } from "@visnap/protocol";
-import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+import type { JsonReporterOptions } from "../types";
+
+import { JsonReporter } from "./json-reporter";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -21,174 +24,152 @@ describe("JsonReporter", () => {
     reporter = new JsonReporter();
     vi.clearAllMocks();
 
-    // Create mock test result
-    const mockOutcome: RunOutcome = {
-      total: 2,
-      passed: 1,
-      failed: 1,
-      failedDiffs: 1,
-      failedMissingCurrent: 0,
-      failedMissingBase: 0,
-      failedErrors: 0,
-      captureFailures: 0,
-      duration: 1500,
-      endTime: "2024-01-01T12:00:00.000Z",
-      testCases: [
-        {
-          id: "test-1",
-          title: "Test 1",
-          status: "passed",
-          captureFilename: "test-1.png",
-          totalDurationMs: 500,
-        } as TestCaseDetail,
-        {
-          id: "test-2",
-          title: "Test 2",
-          status: "failed",
-          captureFilename: "test-2.png",
-          totalDurationMs: 1000,
-          reason: "pixel-diff",
-          diffPercentage: 5.2,
-        } as TestCaseDetail,
-      ],
-    };
-
     mockTestResult = {
-      success: false,
-      outcome: mockOutcome,
-      failures: [
-        {
-          id: "test-2",
-          reason: "pixel-diff",
-          diffPercentage: 5.2,
+      success: true,
+      exitCode: 0,
+      outcome: {
+        total: 0,
+        passed: 0,
+        failedDiffs: 0,
+        failedMissingCurrent: 0,
+        failedMissingBase: 0,
+        failedErrors: 0,
+        captureFailures: 0,
+        testCases: [],
+        durations: {
+          totalDurationMs: 1000,
+          totalCaptureDurationMs: 800,
+          totalComparisonDurationMs: 200,
         },
-      ],
+      },
+      failures: [],
       captureFailures: [],
       config: {
-        screenshotDir: "./visnap",
-        comparison: {
-          core: "odiff",
-          threshold: 0.1,
-          diffColor: "#00ff00",
-        },
+        screenshotDir: "/test/screenshots",
+        comparison: { core: "odiff", threshold: 0.1 },
       },
     };
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("generate", () => {
-    it("should generate JSON report with file output", async () => {
-      const options = {
-        outputPath: "/path/to/report.json",
-        screenshotDir: "./visnap",
-        pretty: true,
+    it("should generate a JSON report with default options", async () => {
+      const options: JsonReporterOptions = {
+        screenshotDir: "/test/screenshots",
       };
 
       const result = await reporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("/path/to", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("/test/screenshots", {
+        recursive: true,
+      });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "/path/to/report.json",
-        expect.stringContaining('"success": false')
+        "/test/screenshots/report.json",
+        expect.stringContaining('"success": true')
       );
-      expect(result).toBe("/path/to/report.json");
+      expect(result).toBe("/test/screenshots/report.json");
     });
 
-    it("should generate JSON report with default output path", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        pretty: true,
+    it("should generate a JSON report with custom output path", async () => {
+      const options: JsonReporterOptions = {
+        screenshotDir: "/test/screenshots",
+        outputPath: "/custom/path/report.json",
       };
 
       const result = await reporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("./visnap", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("/custom/path", {
+        recursive: true,
+      });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "./visnap/report.json",
-        expect.stringContaining('"success": false')
+        "/custom/path/report.json",
+        expect.any(String)
       );
-      expect(result).toBe("./visnap/report.json");
+      expect(result).toBe("/custom/path/report.json");
     });
 
-    it("should generate compact JSON when pretty is false", async () => {
-      const options = {
-        outputPath: "/path/to/report.json",
-        screenshotDir: "./visnap",
+    it("should format JSON with pretty printing by default", async () => {
+      const options: JsonReporterOptions = {
+        screenshotDir: "/test/screenshots",
+      };
+
+      await reporter.generate(mockTestResult, options);
+
+      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
+      const parsed = JSON.parse(writtenContent);
+      expect(parsed).toEqual({
+        success: true,
+        outcome: mockTestResult.outcome,
+        failures: [],
+        captureFailures: [],
+        config: mockTestResult.config,
+        timestamp: expect.any(String),
+      });
+    });
+
+    it("should format JSON without pretty printing when pretty is false", async () => {
+      const options: JsonReporterOptions = {
+        screenshotDir: "/test/screenshots",
         pretty: false,
       };
 
       await reporter.generate(mockTestResult, options);
 
       const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      expect(writtenContent).not.toContain("\n");
+      // Should be minified (no spaces/indentation)
       expect(writtenContent).not.toContain("  ");
+      expect(writtenContent).not.toContain("\n");
     });
 
-    it("should include all required fields in the report", async () => {
-      const options = {
-        outputPath: "/path/to/report.json",
-        screenshotDir: "./visnap",
-        pretty: true,
+    it("should handle test result with failures", async () => {
+      const testResultWithFailures: TestResult = {
+        ...mockTestResult,
+        success: false,
+        failures: [
+          {
+            id: "test-1",
+            reason: "pixel-diff",
+            diffPercentage: 5.2,
+          },
+        ],
+        captureFailures: [
+          {
+            id: "test-2",
+            error: "Screenshot failed",
+          },
+        ],
       };
 
-      await reporter.generate(mockTestResult, options);
+      const options: JsonReporterOptions = {
+        screenshotDir: "/test/screenshots",
+      };
+
+      await reporter.generate(testResultWithFailures, options);
 
       const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const report = JSON.parse(writtenContent);
-
-      expect(report).toHaveProperty("success", false);
-      expect(report).toHaveProperty("outcome");
-      expect(report).toHaveProperty("failures");
-      expect(report).toHaveProperty("captureFailures");
-      expect(report).toHaveProperty("timestamp");
-      expect(report.outcome).toHaveProperty("duration", 1500);
-      expect(report.outcome).toHaveProperty("testCases");
-    });
-
-    it("should handle missing optional fields", async () => {
-      const minimalTestResult: TestResult = {
-        success: true,
-        outcome: {
-          total: 0,
-          passed: 0,
-          failed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-          duration: 0,
-          endTime: "2024-01-01T12:00:00.000Z",
-          testCases: [],
+      const parsed = JSON.parse(writtenContent);
+      expect(parsed.success).toBe(false);
+      expect(parsed.failures).toEqual([
+        {
+          id: "test-1",
+          reason: "pixel-diff",
+          diffPercentage: 5.2,
         },
-        failures: undefined,
-        captureFailures: undefined,
-      };
-
-      const options = {
-        outputPath: "/path/to/report.json",
-        screenshotDir: "./visnap",
-        pretty: true,
-      };
-
-      await reporter.generate(minimalTestResult, options);
-
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const report = JSON.parse(writtenContent);
-
-      expect(report.failures).toEqual([]);
-      expect(report.captureFailures).toEqual([]);
-      expect(report.success).toBe(true);
+      ]);
+      expect(parsed.captureFailures).toEqual([
+        {
+          id: "test-2",
+          error: "Screenshot failed",
+        },
+      ]);
     });
 
-    it("should generate valid JSON timestamp", async () => {
-      const options = {
-        outputPath: "/path/to/report.json",
-        screenshotDir: "./visnap",
-        pretty: true,
+    it("should include timestamp in the report", async () => {
+      const options: JsonReporterOptions = {
+        screenshotDir: "/test/screenshots",
       };
 
       const beforeTime = new Date().toISOString();
@@ -196,11 +177,13 @@ describe("JsonReporter", () => {
       const afterTime = new Date().toISOString();
 
       const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const report = JSON.parse(writtenContent);
+      const parsed = JSON.parse(writtenContent);
+      const reportTime = new Date(parsed.timestamp).getTime();
+      const beforeTimeMs = new Date(beforeTime).getTime();
+      const afterTimeMs = new Date(afterTime).getTime();
 
-      expect(report.timestamp).toBeDefined();
-      expect(new Date(report.timestamp).getTime()).toBeGreaterThanOrEqual(new Date(beforeTime).getTime());
-      expect(new Date(report.timestamp).getTime()).toBeLessThanOrEqual(new Date(afterTime).getTime());
+      expect(reportTime).toBeGreaterThanOrEqual(beforeTimeMs);
+      expect(reportTime).toBeLessThanOrEqual(afterTimeMs);
     });
   });
 });

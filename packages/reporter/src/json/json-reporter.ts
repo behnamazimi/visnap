@@ -1,6 +1,8 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { dirname } from "path";
+
 import type { TestResult } from "@visnap/protocol";
+
 import type { JsonReporterOptions, ReportData } from "../types";
 
 export class JsonReporter {
@@ -23,12 +25,13 @@ export class JsonReporter {
       options.pretty !== false ? 2 : undefined
     );
 
-    const outputPath = options.outputPath || `${options.screenshotDir}/report.json`;
+    const outputPath =
+      options.outputPath || `${options.screenshotDir}/report.json`;
     const outputDir = dirname(outputPath);
-    
+
     mkdirSync(outputDir, { recursive: true });
     writeFileSync(outputPath, reportJson);
-    
+
     return outputPath;
   }
 }

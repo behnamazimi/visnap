@@ -1,6 +1,6 @@
 import type { PageWithEvaluate } from "@visnap/protocol";
 
-import { withTimeout } from "./utils.js";
+import { withTimeout } from "./utils";
 
 /**
  * Story discovery for Storybook adapter

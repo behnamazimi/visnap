@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 function visnapReport() {
   return {
     data: window.__VISNAP_DATA__,
     filters: {
-      search: '',
-      status: 'all',
-      browser: ''
+      search: "",
+      status: "all",
+      browser: "",
     },
     expandedTests: [],
     filteredTests: [],
@@ -20,7 +21,7 @@ function visnapReport() {
       // Auto-expand failed tests
       if (this.data.outcome.testCases) {
         this.data.outcome.testCases.forEach(test => {
-          if (test.status === 'failed' || test.status === 'capture-failed') {
+          if (test.status === "failed" || test.status === "capture-failed") {
             this.expandedTests.push(test.id);
           }
         });
@@ -63,7 +64,7 @@ function visnapReport() {
       let tests = this.data.outcome.testCases || [];
 
       // Status filter
-      if (this.filters.status !== 'all') {
+      if (this.filters.status !== "all") {
         tests = tests.filter(t => t.status === this.filters.status);
       }
 
@@ -75,23 +76,24 @@ function visnapReport() {
       // Search filter
       if (this.filters.search) {
         const query = this.filters.search.toLowerCase();
-        tests = tests.filter(t => 
-          t.id?.toLowerCase().includes(query) ||
-          t.title?.toLowerCase().includes(query) ||
-          t.kind?.toLowerCase().includes(query)
+        tests = tests.filter(
+          t =>
+            t.id?.toLowerCase().includes(query) ||
+            t.title?.toLowerCase().includes(query) ||
+            t.kind?.toLowerCase().includes(query)
         );
       }
 
       // Sort tests: failed first, then passed, then others
       tests.sort((a, b) => {
-        const statusOrder = { 'failed': 0, 'capture-failed': 1, 'passed': 2 };
+        const statusOrder = { failed: 0, "capture-failed": 1, passed: 2 };
         const aOrder = statusOrder[a.status] ?? 3;
         const bOrder = statusOrder[b.status] ?? 3;
-        
+
         if (aOrder !== bOrder) {
           return aOrder - bOrder;
         }
-        
+
         // If same status, sort by test ID for consistency
         return a.id.localeCompare(b.id);
       });
@@ -100,7 +102,7 @@ function visnapReport() {
     },
 
     clearFilters() {
-      this.filters = { search: '', status: 'all', browser: '' };
+      this.filters = { search: "", status: "all", browser: "" };
       this.applyFilters();
     },
 
@@ -122,14 +124,14 @@ function visnapReport() {
     // Per-test comparison methods
     initializeTestComparison(testId) {
       if (!this.testViewModes[testId]) {
-        this.testViewModes[testId] = 'side-by-side';
+        this.testViewModes[testId] = "side-by-side";
         this.testSliderPositions[testId] = 50;
         this.testOverlayOpacities[testId] = 0.5;
       }
     },
 
     getTestViewMode(testId) {
-      return this.testViewModes[testId] || 'side-by-side';
+      return this.testViewModes[testId] || "side-by-side";
     },
 
     setTestViewMode(testId, mode) {
@@ -148,30 +150,30 @@ function visnapReport() {
       this.testOverlayOpacities[testId] = parseFloat(opacity);
     },
 
-    initTestSlider(testId) {
+    initTestSlider(_testId) {
       // Called when slider view is initialized for a specific test
     },
 
-    startTestSliderDrag(event, testId) {
+    startTestSliderDrag(event, _testId) {
       this.isDragging = true;
       const slider = event.target.parentElement;
-      
-      const move = (e) => {
+
+      const move = e => {
         if (!this.isDragging) return;
         const rect = slider.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const position = Math.max(0, Math.min(100, (x / rect.width) * 100));
-        this.testSliderPositions[testId] = position;
+        this.testSliderPositions[_testId] = position;
       };
 
       const stop = () => {
         this.isDragging = false;
-        document.removeEventListener('mousemove', move);
-        document.removeEventListener('mouseup', stop);
+        document.removeEventListener("mousemove", move);
+        document.removeEventListener("mouseup", stop);
       };
 
-      document.addEventListener('mousemove', move);
-      document.addEventListener('mouseup', stop);
-    }
+      document.addEventListener("mousemove", move);
+      document.addEventListener("mouseup", stop);
+    },
   };
 }

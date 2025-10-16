@@ -4,7 +4,7 @@ import {
   mockBrowser,
   mockContext,
   mockPage,
-} from "./__mocks__/playwright-core.js";
+} from "./__mocks__/playwright-core";
 import {
   createBrowserContext,
   waitForNetworkIdle,
@@ -12,9 +12,9 @@ import {
   setupPage,
   handleWaitFor,
   injectGlobalCSS,
-} from "./browser-context.js";
+} from "./browser-context";
 
-import type { PlaywrightAdapterOptions } from "./index.js";
+import type { PlaywrightAdapterOptions } from "./index";
 
 describe("browser-context", () => {
   beforeEach(() => {

@@ -5,10 +5,10 @@ import {
   mockBrowser,
   mockContext,
   mockPage,
-} from "./__mocks__/playwright-core.js";
+} from "./__mocks__/playwright-core";
 
-import { createAdapter } from "./index.js";
-import type { PlaywrightAdapterOptions } from "./index.js";
+import { createAdapter } from "./index";
+import type { PlaywrightAdapterOptions } from "./index";
 
 // Mock the utility modules
 vi.mock("./utils.js", () => ({

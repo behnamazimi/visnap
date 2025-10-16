@@ -1,4 +1,9 @@
-import type { TestCaseDetail, RunOutcome, ComparisonConfig, ViewportMap } from "@visnap/protocol";
+import type {
+  TestCaseDetail,
+  RunOutcome,
+  ComparisonConfig,
+  ViewportMap,
+} from "@visnap/protocol";
 
 export interface ReporterOptions {
   outputPath?: string;
@@ -36,9 +41,9 @@ export interface ReportData {
 }
 
 export interface ProcessedTestCase extends TestCaseDetail {
-  baseImage?: string;      // Relative path to base image
-  currentImage?: string;   // Relative path to current image
-  diffImage?: string;      // Relative path to diff image
+  baseImage?: string; // Relative path to base image
+  currentImage?: string; // Relative path to current image
+  diffImage?: string; // Relative path to diff image
 }
 
 export interface SerializedReportData extends ReportData {

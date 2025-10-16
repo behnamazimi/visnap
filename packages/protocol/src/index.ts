@@ -452,3 +452,14 @@ export type FilterOptions = Omit<CliOptions, "configPath" | "quiet">;
 // ============= Viewport Utilities =============
 
 export const DEFAULT_VIEWPORT = { width: 1920, height: 1080 };
+
+// ============= Error Types (shared) =============
+
+export class StorageError extends Error {
+  public readonly code: string;
+  constructor(message: string) {
+    super(message);
+    this.name = "StorageError";
+    this.code = "STORAGE_ERROR";
+  }
+}

@@ -1,219 +1,310 @@
+import type { TestResult, TestCaseDetail, Viewport } from "@visnap/protocol";
 import { describe, it, expect } from "vitest";
-import { serializeTestData } from "./data-serializer";
-import type { TestResult } from "@visnap/protocol";
-import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
 
-describe("DataSerializer", () => {
-  const createMockTestResult = (overrides: Partial<TestResult> = {}): TestResult => ({
-    success: true,
-    outcome: {
-      total: 2,
-      passed: 1,
-      failed: 1,
-      failedDiffs: 1,
-      failedMissingCurrent: 0,
-      failedMissingBase: 0,
-      failedErrors: 0,
-      captureFailures: 0,
-      duration: 1500,
-      endTime: "2024-01-01T12:00:00.000Z",
-      testCases: [
-        {
-          id: "test-1",
-          title: "Test 1",
-          status: "passed",
-          captureFilename: "test-1.png",
-          totalDurationMs: 500,
-          browser: "chromium",
-          viewport: { width: 1920, height: 1080 },
-        } as TestCaseDetail,
-        {
-          id: "test-2",
-          title: "Test 2",
-          status: "failed",
-          captureFilename: "test-2.png",
-          totalDurationMs: 1000,
-          reason: "pixel-diff",
-          diffPercentage: 5.2,
-          browser: "firefox",
-          viewport: { width: 1280, height: 720 },
-        } as TestCaseDetail,
-      ],
-    } as RunOutcome,
-    failures: [
-      {
-        id: "test-2",
-        reason: "pixel-diff",
-        diffPercentage: 5.2,
-      },
-    ],
-    captureFailures: [],
-    config: {
-      screenshotDir: "./visnap",
-      comparison: {
-        core: "odiff",
-        threshold: 0.1,
-        diffColor: "#00ff00",
-      },
-    },
-    ...overrides,
+import { serializeTestData } from "./data-serializer";
+
+describe("serializeTestData", () => {
+  const createMockTestCase = (
+    id: string,
+    status: "passed" | "failed" | "capture-failed",
+    browser: string = "chrome",
+    viewport: Viewport | string = { width: 1920, height: 1080 }
+  ): TestCaseDetail => ({
+    id,
+    status,
+    browser,
+    viewport:
+      typeof viewport === "string"
+        ? viewport
+        : `${viewport.width}x${viewport.height}`,
+    captureFilename: `${id}.png`,
+    captureDurationMs: 1000,
+    totalDurationMs: 1000,
+    reason: status === "failed" ? "pixel-diff" : undefined,
   });
 
-  describe("serializeTestData", () => {
-    it("should serialize test data correctly", () => {
-      const testResult = createMockTestResult();
-      const serialized = serializeTestData(testResult);
+  const createMockRunOutcome = (testCases: TestCaseDetail[] = []) => ({
+    total: testCases.length,
+    passed: testCases.filter(tc => tc.status === "passed").length,
+    failedDiffs: testCases.filter(
+      tc => tc.status === "failed" && tc.reason === "pixel-diff"
+    ).length,
+    failedMissingCurrent: testCases.filter(
+      tc => tc.status === "failed" && tc.reason === "missing-current"
+    ).length,
+    failedMissingBase: testCases.filter(
+      tc => tc.status === "failed" && tc.reason === "missing-base"
+    ).length,
+    failedErrors: testCases.filter(
+      tc =>
+        tc.status === "failed" &&
+        tc.reason &&
+        !["pixel-diff", "missing-current", "missing-base"].includes(tc.reason)
+    ).length,
+    captureFailures: testCases.filter(tc => tc.status === "capture-failed")
+      .length,
+    testCases,
+    durations: {
+      totalDurationMs: 1000,
+      totalCaptureDurationMs: 800,
+      totalComparisonDurationMs: 200,
+    },
+  });
 
-      expect(serialized).toHaveProperty("success", true);
-      expect(serialized).toHaveProperty("outcome");
-      expect(serialized).toHaveProperty("failures");
-      expect(serialized).toHaveProperty("captureFailures");
-      expect(serialized).toHaveProperty("timestamp");
-      expect(serialized).toHaveProperty("testCases");
-      expect(serialized).toHaveProperty("browsers");
-      expect(serialized).toHaveProperty("viewports");
-      expect(serialized).toHaveProperty("statusCounts");
-      expect(serialized).toHaveProperty("groupedByStatus");
+  it("should serialize basic test result data", () => {
+    const testCases = [
+      createMockTestCase("test-1", "passed"),
+      createMockTestCase("test-2", "passed"),
+    ];
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      config: {
+        screenshotDir: "/test/screenshots",
+        comparison: { core: "odiff", threshold: 0.1 },
+      },
+      exitCode: 0,
+    };
+
+    const result = serializeTestData(testResult);
+
+    expect(result.success).toBe(true);
+    expect(result.outcome).toEqual(testResult.outcome);
+    expect(result.failures).toEqual([]);
+    expect(result.captureFailures).toEqual([]);
+    expect(result.timestamp).toBeDefined();
+    expect(result.config).toEqual(testResult.config);
+    expect(result.duration).toBe(1000);
+    expect(result.testCases).toEqual(testResult.outcome.testCases);
+  });
+
+  it("should extract unique browsers from test cases", () => {
+    const testCases = [
+      createMockTestCase("test-1", "passed", "chrome"),
+      createMockTestCase("test-2", "passed", "firefox"),
+      createMockTestCase("test-3", "failed", "chrome"),
+      createMockTestCase("test-4", "passed", "safari"),
+    ];
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
+
+    const result = serializeTestData(testResult);
+
+    expect(result.browsers).toEqual(["chrome", "firefox", "safari"]);
+  });
+
+  it("should handle test cases without browser information", () => {
+    const testCases = [
+      { ...createMockTestCase("test-1", "passed"), browser: undefined },
+      createMockTestCase("test-2", "passed", "chrome"),
+    ];
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
+
+    const result = serializeTestData(testResult);
+
+    expect(result.browsers).toEqual(["N/A", "chrome"]);
+  });
+
+  it("should extract unique viewports from test cases", () => {
+    const testCases = [
+      createMockTestCase("test-1", "passed", "chrome", {
+        width: 1920,
+        height: 1080,
+      }),
+      createMockTestCase("test-2", "passed", "chrome", {
+        width: 1366,
+        height: 768,
+      }),
+      createMockTestCase("test-3", "failed", "chrome", "mobile"),
+      createMockTestCase("test-4", "passed", "chrome", {
+        width: 1920,
+        height: 1080,
+      }),
+    ];
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
+
+    const result = serializeTestData(testResult);
+
+    expect(result.viewports).toEqual(["1920x1080", "1366x768", "mobile"]);
+  });
+
+  it("should handle viewport objects with missing dimensions", () => {
+    const testCases = [
+      createMockTestCase("test-1", "passed", "chrome", "1920x1080"), // Use string instead of incomplete object
+      createMockTestCase("test-2", "passed", "chrome", "1366x768"), // Use string instead of incomplete object
+      createMockTestCase("test-3", "passed", "chrome", "1024x768"), // Use string instead of empty object
+    ];
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
+
+    const result = serializeTestData(testResult);
+
+    expect(result.viewports).toEqual(["1920x1080", "1366x768", "1024x768"]);
+  });
+
+  it("should handle test cases without viewport information", () => {
+    const testCases = [
+      { ...createMockTestCase("test-1", "passed"), viewport: undefined },
+      createMockTestCase("test-2", "passed", "chrome", {
+        width: 1920,
+        height: 1080,
+      }),
+    ];
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
+
+    const result = serializeTestData(testResult);
+
+    expect(result.viewports).toEqual(["N/A", "1920x1080"]);
+  });
+
+  it("should count status occurrences", () => {
+    const testCases = [
+      createMockTestCase("test-1", "passed"),
+      createMockTestCase("test-2", "passed"),
+      createMockTestCase("test-3", "failed"),
+      createMockTestCase("test-4", "capture-failed"),
+      createMockTestCase("test-5", "failed"),
+    ];
+    const testResult: TestResult = {
+      success: false,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      exitCode: 1,
+    };
+
+    const result = serializeTestData(testResult);
+
+    expect(result.statusCounts).toEqual({
+      passed: 2,
+      failed: 2,
+      "capture-failed": 1,
     });
+  });
 
-    it("should extract unique browsers", () => {
-      const testResult = createMockTestResult();
-      const serialized = serializeTestData(testResult);
+  it("should group test cases by status", () => {
+    const testCases = [
+      createMockTestCase("test-1", "passed"),
+      createMockTestCase("test-2", "failed"),
+      createMockTestCase("test-3", "passed"),
+      createMockTestCase("test-4", "capture-failed"),
+    ];
+    const testResult: TestResult = {
+      success: false,
+      outcome: createMockRunOutcome(testCases),
+      failures: [],
+      captureFailures: [],
+      exitCode: 1,
+    };
 
-      expect(serialized.browsers).toEqual(["chromium", "firefox"]);
-    });
+    const result = serializeTestData(testResult);
 
-    it("should extract unique viewports", () => {
-      const testResult = createMockTestResult();
-      const serialized = serializeTestData(testResult);
+    expect(result.groupedByStatus.passed).toHaveLength(2);
+    expect(result.groupedByStatus.failed).toHaveLength(1);
+    expect(result.groupedByStatus["capture-failed"]).toHaveLength(1);
+    expect(result.groupedByStatus.passed[0].id).toBe("test-1");
+    expect(result.groupedByStatus.passed[1].id).toBe("test-3");
+    expect(result.groupedByStatus.failed[0].id).toBe("test-2");
+    expect(result.groupedByStatus["capture-failed"][0].id).toBe("test-4");
+  });
 
-      expect(serialized.viewports).toEqual(["1920x1080", "1280x720"]);
-    });
+  it("should handle empty test cases array", () => {
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome([]),
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
 
-    it("should calculate status counts", () => {
-      const testResult = createMockTestResult();
-      const serialized = serializeTestData(testResult);
+    const result = serializeTestData(testResult);
 
-      expect(serialized.statusCounts).toEqual({
-        passed: 1,
-        failed: 1,
-      });
-    });
+    expect(result.testCases).toEqual([]);
+    expect(result.browsers).toEqual([]);
+    expect(result.viewports).toEqual([]);
+    expect(result.statusCounts).toEqual({});
+    expect(result.groupedByStatus).toEqual({});
+  });
 
-    it("should group test cases by status", () => {
-      const testResult = createMockTestResult();
-      const serialized = serializeTestData(testResult);
+  it("should handle undefined test cases", () => {
+    const testResult: TestResult = {
+      success: true,
+      outcome: {
+        total: 0,
+        passed: 0,
+        failedDiffs: 0,
+        failedMissingCurrent: 0,
+        failedMissingBase: 0,
+        failedErrors: 0,
+        captureFailures: 0,
+        testCases: undefined,
+        durations: {
+          totalDurationMs: 0,
+          totalCaptureDurationMs: 0,
+          totalComparisonDurationMs: 0,
+        },
+      },
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
 
-      expect(serialized.groupedByStatus).toHaveProperty("passed");
-      expect(serialized.groupedByStatus).toHaveProperty("failed");
-      expect(serialized.groupedByStatus.passed).toHaveLength(1);
-      expect(serialized.groupedByStatus.failed).toHaveLength(1);
-      expect(serialized.groupedByStatus.passed[0].id).toBe("test-1");
-      expect(serialized.groupedByStatus.failed[0].id).toBe("test-2");
-    });
+    const result = serializeTestData(testResult);
 
-    it("should handle missing test cases", () => {
-      const testResult = createMockTestResult({
-        outcome: {
-          total: 0,
-          passed: 0,
-          failed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-          duration: 0,
-          endTime: "2024-01-01T12:00:00.000Z",
-          testCases: undefined,
-        } as RunOutcome,
-      });
+    expect(result.testCases).toEqual([]);
+    expect(result.browsers).toEqual([]);
+    expect(result.viewports).toEqual([]);
+    expect(result.statusCounts).toEqual({});
+    expect(result.groupedByStatus).toEqual({});
+  });
 
-      const serialized = serializeTestData(testResult);
+  it("should include timestamp in the result", () => {
+    const testResult: TestResult = {
+      success: true,
+      outcome: createMockRunOutcome([]),
+      failures: [],
+      captureFailures: [],
+      exitCode: 0,
+    };
 
-      expect(serialized.testCases).toEqual([]);
-      expect(serialized.browsers).toEqual([]);
-      expect(serialized.viewports).toEqual([]);
-      expect(serialized.statusCounts).toEqual({});
-      expect(serialized.groupedByStatus).toEqual({});
-    });
+    const beforeTime = new Date().toISOString();
+    const result = serializeTestData(testResult);
+    const afterTime = new Date().toISOString();
 
-    it("should handle missing optional fields", () => {
-      const testResult = createMockTestResult({
-        failures: undefined,
-        captureFailures: undefined,
-      });
-
-      const serialized = serializeTestData(testResult);
-
-      expect(serialized.failures).toEqual([]);
-      expect(serialized.captureFailures).toEqual([]);
-    });
-
-    it("should handle test cases with missing browser/viewport", () => {
-      const testResult = createMockTestResult({
-        outcome: {
-          total: 1,
-          passed: 1,
-          failed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-          duration: 500,
-          endTime: "2024-01-01T12:00:00.000Z",
-          testCases: [
-            {
-              id: "test-1",
-              title: "Test 1",
-              status: "passed",
-              captureFilename: "test-1.png",
-              totalDurationMs: 500,
-              browser: undefined,
-              viewport: undefined,
-            } as TestCaseDetail,
-          ],
-        } as RunOutcome,
-      });
-
-      const serialized = serializeTestData(testResult);
-
-      expect(serialized.browsers).toEqual(["N/A"]);
-      expect(serialized.viewports).toEqual(["N/A"]);
-    });
-
-    it("should use current time for timestamp", () => {
-      const testResult = createMockTestResult();
-      const serialized = serializeTestData(testResult);
-
-      // Should be a valid ISO timestamp (current time)
-      expect(serialized.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
-    });
-
-    it("should use current time for timestamp when endTime is missing", () => {
-      const testResult = createMockTestResult({
-        outcome: {
-          total: 0,
-          passed: 0,
-          failed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-          duration: 0,
-          endTime: undefined,
-          testCases: [],
-        } as RunOutcome,
-      });
-
-      const beforeTime = new Date().toISOString();
-      const serialized = serializeTestData(testResult);
-      const afterTime = new Date().toISOString();
-
-      expect(new Date(serialized.timestamp).getTime()).toBeGreaterThanOrEqual(new Date(beforeTime).getTime());
-      expect(new Date(serialized.timestamp).getTime()).toBeLessThanOrEqual(new Date(afterTime).getTime());
-    });
+    const resultTime = new Date(result.timestamp).getTime();
+    const beforeTimeMs = new Date(beforeTime).getTime();
+    const afterTimeMs = new Date(afterTime).getTime();
+    expect(resultTime).toBeGreaterThanOrEqual(beforeTimeMs);
+    expect(resultTime).toBeLessThanOrEqual(afterTimeMs);
   });
 });

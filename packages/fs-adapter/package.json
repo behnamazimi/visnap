@@ -3,13 +3,14 @@
   "version": "0.3.0",
   "description": "Filesystem storage adapter for visnap visual testing",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
@@ -22,7 +23,7 @@
     "test:ui": "vitest --ui",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit"
+    "check-types": "tsc --noEmit"
   },
   "keywords": [
     "visual-testing",
@@ -41,11 +42,11 @@
     "@visnap/eslint-config": "^0.3.0",
     "eslint": "^9.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0",
+    "typescript": "5.9.2",
     "vitest": "^1.0.0"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "engines": {
+    "node": ">=18"
   },
   "publishConfig": {
     "access": "public"

@@ -6,7 +6,7 @@ import {
   type Viewport,
 } from "@visnap/protocol";
 
-import type { UrlConfig } from "./types.js";
+import type { UrlConfig } from "./filtering";
 
 /**
  * Creates a safe viewport with basic validation and fallbacks
@@ -80,7 +80,7 @@ export function normalizeUrls(
         viewport,
         threshold: urlConfig.threshold,
         disableCSSInjection: urlConfig.disableCSSInjection ?? false,
-        interactions: urlConfig.interactions,
+        interactions: urlConfig.interactions as any,
         elementsToMask: urlConfig.elementsToMask,
 
         // Visual testing config
@@ -90,7 +90,7 @@ export function normalizeUrls(
           threshold: urlConfig.threshold,
           viewport,
           disableCSSInjection: urlConfig.disableCSSInjection ?? false,
-          interactions: urlConfig.interactions,
+          interactions: urlConfig.interactions as any,
           elementsToMask: urlConfig.elementsToMask,
         },
       };

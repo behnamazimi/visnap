@@ -11,8 +11,7 @@
   },
   "files": [
     "dist",
-    "README.md",
-    "LICENSE"
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -44,6 +43,13 @@
     "tsup": "^8.3.5",
     "typescript": "5.9.2",
     "vitest": "^2.1.8"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
   "engines": {
     "node": ">=18"
