@@ -5,13 +5,13 @@
 /**
  * Custom error classes for better error handling
  */
-export class VTTError extends Error {
+export class ViSnapError extends Error {
   public readonly code: string;
   public readonly originalError?: Error;
 
   constructor(message: string, code: string, originalError?: Error) {
     super(message);
-    this.name = "VTTError";
+    this.name = "ViSnapError";
     this.code = code;
     this.originalError = originalError;
   }
@@ -20,8 +20,8 @@ export class VTTError extends Error {
 /**
  * Factory function to create VTT error classes with consistent structure
  */
-function createVTTError(name: string, code: string) {
-  return class extends VTTError {
+function createViSnapError(name: string, code: string) {
+  return class extends ViSnapError {
     constructor(message: string, originalError?: Error) {
       super(message, code, originalError);
       this.name = name;
@@ -29,10 +29,13 @@ function createVTTError(name: string, code: string) {
   };
 }
 
-export const ConfigError = createVTTError("ConfigError", "CONFIG_ERROR");
-export const BrowserError = createVTTError("BrowserError", "BROWSER_ERROR");
-export const TestCaseError = createVTTError("TestCaseError", "TEST_CASE_ERROR");
-export const ScreenshotError = createVTTError(
+export const ConfigError = createViSnapError("ConfigError", "CONFIG_ERROR");
+export const BrowserError = createViSnapError("BrowserError", "BROWSER_ERROR");
+export const TestCaseError = createViSnapError(
+  "TestCaseError",
+  "TEST_CASE_ERROR"
+);
+export const ScreenshotError = createViSnapError(
   "ScreenshotError",
   "SCREENSHOT_ERROR"
 );

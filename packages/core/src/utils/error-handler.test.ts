@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
 import {
-  VTTError,
+  ViSnapError,
   ConfigError,
   BrowserError,
   TestCaseError,
@@ -10,23 +10,23 @@ import {
 } from "./error-handler";
 
 describe("error-handler", () => {
-  describe("VTTError", () => {
-    it("should create VTTError with message and code", () => {
-      const error = new VTTError("Test error", "TEST_CODE");
+  describe("ViSnapError", () => {
+    it("should create ViSnapError with message and code", () => {
+      const error = new ViSnapError("Test error", "TEST_CODE");
 
       expect(error.message).toBe("Test error");
       expect(error.code).toBe("TEST_CODE");
-      expect(error.name).toBe("VTTError");
+      expect(error.name).toBe("ViSnapError");
       expect(error.originalError).toBeUndefined();
     });
 
-    it("should create VTTError with original error", () => {
+    it("should create ViSnapError with original error", () => {
       const originalError = new Error("Original error");
-      const error = new VTTError("Test error", "TEST_CODE", originalError);
+      const error = new ViSnapError("Test error", "TEST_CODE", originalError);
 
       expect(error.message).toBe("Test error");
       expect(error.code).toBe("TEST_CODE");
-      expect(error.name).toBe("VTTError");
+      expect(error.name).toBe("ViSnapError");
       expect(error.originalError).toBe(originalError);
     });
   });

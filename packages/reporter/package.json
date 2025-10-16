@@ -18,6 +18,8 @@
   ],
   "scripts": {
     "build": "tsup",
+    "dev": "tsup --watch",
+    "check-types": "tsc --noEmit",
     "test": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
