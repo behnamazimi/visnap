@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 
-import { withTimeout } from "./utils.js";
+import { withTimeout } from "./utils";
 
 describe("utils", () => {
   describe("withTimeout", () => {

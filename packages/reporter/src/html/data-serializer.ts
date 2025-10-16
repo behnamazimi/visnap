@@ -1,4 +1,4 @@
-import type { TestResult } from "@visnap/protocol";
+import type { TestResult, Viewport } from "@visnap/protocol";
 
 import type { SerializedReportData } from "../types";
 
@@ -13,7 +13,10 @@ export function serializeTestData(result: TestResult): SerializedReportData {
       testCases.map(tc => {
         if (!tc.viewport) return "N/A";
         if (typeof tc.viewport === "string") return tc.viewport;
-        return `${tc.viewport.width}x${tc.viewport.height}`;
+        const width = (tc.viewport as Viewport).width ?? undefined;
+        const height = (tc.viewport as Viewport).height ?? undefined;
+        if (!width || !height) return "N/A";
+        return `${width}x${height}`;
       })
     )
   );

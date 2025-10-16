@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 
-import type { CreateUrlAdapterOptions } from "./types.js";
+import type { CreateUrlAdapterOptions } from "./filtering";
 
-import { createAdapter } from "./index.js";
+import { createAdapter } from "./index";
 
 describe("createAdapter", () => {
   const validOptions: CreateUrlAdapterOptions = {
@@ -26,7 +26,9 @@ describe("createAdapter", () => {
   it("should throw error for invalid options", () => {
     expect(() =>
       createAdapter({} as unknown as CreateUrlAdapterOptions)
-    ).toThrow("Invalid options provided to createAdapter");
+    ).toThrow(
+      "Invalid URL adapter options: urls must be an array (was missing)"
+    );
     expect(() => createAdapter({ urls: [] })).toThrow(
       "At least one URL must be provided"
     );
@@ -38,7 +40,7 @@ describe("createAdapter", () => {
     };
 
     expect(() => createAdapter(invalidOptions)).toThrow(
-      "URL configuration validation failed"
+      "Invalid URL config: id must be non-empty"
     );
   });
 

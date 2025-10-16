@@ -4,7 +4,7 @@ import { join } from "path";
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-import { FsStorageAdapter } from "./fs-storage-adapter.js";
+import { FsStorageAdapter } from "./fs-storage-adapter";
 
 describe("FsStorageAdapter", () => {
   let tempDir: string;

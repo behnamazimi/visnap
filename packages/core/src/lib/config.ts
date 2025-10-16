@@ -5,6 +5,8 @@ import { type VisualTestingToolConfig } from "@visnap/protocol";
 import { bundleRequire } from "bundle-require";
 import merge from "lodash/merge.js";
 
+import { validateConfig } from "./config-schema";
+
 import {
   DEFAULT_SCREENSHOT_DIR,
   DEFAULT_CONCURRENCY,
@@ -40,7 +42,16 @@ export const loadConfigFile = async (
   if (!filepath) return null;
   const { mod } = await bundleRequire({ filepath });
   const config = (mod?.default ?? mod) as unknown;
-  return config as VisualTestingToolConfig;
+
+  // Validate the loaded config
+  try {
+    return validateConfig(config) as VisualTestingToolConfig;
+  } catch (error) {
+    if (error instanceof ConfigError) {
+      throw error;
+    }
+    throw new ConfigError(`Failed to validate config file: ${error}`);
+  }
 };
 
 export const resolveScreenshotDir = (screenshotDir?: string): string => {
@@ -129,7 +140,15 @@ export const resolveEffectiveConfig = async (
     };
   }
 
-  return withEnv;
+  // Validate the final merged config
+  try {
+    return validateConfig(withEnv) as VisualTestingToolConfig;
+  } catch (error) {
+    if (error instanceof ConfigError) {
+      throw error;
+    }
+    throw new ConfigError(`Failed to validate effective config: ${error}`);
+  }
 };
 
 export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {

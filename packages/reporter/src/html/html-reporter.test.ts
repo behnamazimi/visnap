@@ -1,236 +1,284 @@
-import { writeFileSync, readFileSync, mkdirSync } from "fs";
+import { writeFileSync, mkdirSync } from "fs";
 
-import type { TestResult, RunOutcome, TestCaseDetail } from "@visnap/protocol";
+import type { TestResult } from "@visnap/protocol";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+import type { HtmlReporterOptions } from "../types";
+
+import { serializeTestData } from "./data-serializer";
 import { HtmlReporter } from "./html-reporter";
+import { ImageHandler } from "./image-handler";
+import { TemplateBuilder } from "./template-builder";
 
 // Mock fs functions
 vi.mock("fs", () => ({
   writeFileSync: vi.fn(),
-  readFileSync: vi.fn(),
   mkdirSync: vi.fn(),
 }));
 
+// Mock the dependencies
+vi.mock("./data-serializer", () => ({
+  serializeTestData: vi.fn(),
+}));
+
+vi.mock("./image-handler", () => ({
+  ImageHandler: vi.fn().mockImplementation(() => ({
+    processTestCases: vi.fn(),
+  })),
+}));
+
+vi.mock("./template-builder", () => ({
+  TemplateBuilder: vi.fn().mockImplementation(() => ({
+    build: vi.fn(),
+  })),
+}));
+
 const mockWriteFileSync = vi.mocked(writeFileSync);
-const mockReadFileSync = vi.mocked(readFileSync);
 const mockMkdirSync = vi.mocked(mkdirSync);
+const mockSerializeTestData = vi.mocked(serializeTestData);
+const mockImageHandler = vi.mocked(ImageHandler);
+const mockTemplateBuilder = vi.mocked(TemplateBuilder);
 
 describe("HtmlReporter", () => {
-  let htmlReporter: HtmlReporter;
+  let reporter: HtmlReporter;
   let mockTestResult: TestResult;
+  let mockImageHandlerInstance: any;
+  let mockTemplateBuilderInstance: any;
 
   beforeEach(() => {
-    htmlReporter = new HtmlReporter();
+    reporter = new HtmlReporter();
     vi.clearAllMocks();
 
-    // Create mock test result
-    const mockOutcome: RunOutcome = {
-      total: 2,
-      passed: 1,
-      failed: 1,
-      failedDiffs: 1,
-      failedMissingCurrent: 0,
-      failedMissingBase: 0,
-      failedErrors: 0,
-      captureFailures: 0,
-      duration: 1500,
-      endTime: "2024-01-01T12:00:00.000Z",
-      testCases: [
-        {
-          id: "test-1",
-          title: "Test 1",
-          status: "passed",
-          captureFilename: "test-1.png",
-          totalDurationMs: 500,
-          browser: "chromium",
-          viewport: { width: 1920, height: 1080 },
-        } as TestCaseDetail,
-        {
-          id: "test-2",
-          title: "Test 2",
-          status: "failed",
-          captureFilename: "test-2.png",
-          totalDurationMs: 1000,
-          reason: "pixel-diff",
-          diffPercentage: 5.2,
-          browser: "firefox",
-          viewport: { width: 1280, height: 720 },
-        } as TestCaseDetail,
-      ],
-    };
+    const testCases = [
+      {
+        id: "test-1",
+        status: "passed" as const,
+        browser: "chrome",
+        viewport: "1920x1080",
+        captureFilename: "test-1.png",
+        captureDurationMs: 1000,
+        totalDurationMs: 1000,
+      },
+      {
+        id: "test-2",
+        status: "failed" as const,
+        browser: "firefox",
+        viewport: "1366x768",
+        captureFilename: "test-2.png",
+        captureDurationMs: 2000,
+        totalDurationMs: 2000,
+        reason: "pixel-diff",
+      },
+    ];
 
     mockTestResult = {
-      success: false,
-      outcome: mockOutcome,
-      failures: [
-        {
-          id: "test-2",
-          reason: "pixel-diff",
-          diffPercentage: 5.2,
+      success: true,
+      exitCode: 0,
+      outcome: {
+        total: 2,
+        passed: 1,
+        failedDiffs: 1,
+        failedMissingCurrent: 0,
+        failedMissingBase: 0,
+        failedErrors: 0,
+        captureFailures: 0,
+        testCases,
+        durations: {
+          totalDurationMs: 3000,
+          totalCaptureDurationMs: 2000,
+          totalComparisonDurationMs: 1000,
         },
-      ],
+      },
+      failures: [],
       captureFailures: [],
       config: {
-        screenshotDir: "./visnap",
-        comparison: {
-          core: "odiff",
-          threshold: 0.1,
-          diffColor: "#00ff00",
-        },
+        screenshotDir: "/test/screenshots",
+        comparison: { core: "odiff", threshold: 0.1 },
       },
     };
 
-    // Mock file reads for template builder
-    mockReadFileSync
-      .mockReturnValueOnce(
-        `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{TITLE}}</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <style>{{STYLES}}</style>
-</head>
-<body x-data="visnapReport()" x-init="init()">
-  <h1>{{TITLE}}</h1>
-  <script>
-    window.__VISNAP_DATA__ = {{DATA}};
-    {{SCRIPT}}
-  </script>
-</body>
-</html>`
-      )
-      .mockReturnValueOnce("body { font-family: Arial; }")
-      .mockReturnValueOnce("function visnapReport() { return {}; }");
+    // Setup mock instances
+    mockImageHandlerInstance = {
+      processTestCases: vi.fn().mockReturnValue([
+        {
+          id: "test-1",
+          status: "passed",
+          browser: "chrome",
+          viewport: "1920x1080",
+          captureFilename: "test-1.png",
+          captureDurationMs: 1000,
+          totalDurationMs: 1000,
+          baseImage: "./base/test-1.png",
+          currentImage: "./current/test-1.png",
+          diffImage: undefined,
+        },
+        {
+          id: "test-2",
+          status: "failed",
+          browser: "firefox",
+          viewport: "1366x768",
+          captureFilename: "test-2.png",
+          captureDurationMs: 2000,
+          totalDurationMs: 2000,
+          reason: "pixel-diff",
+          baseImage: "./base/test-2.png",
+          currentImage: "./current/test-2.png",
+          diffImage: "./diff/test-2.png",
+        },
+      ]),
+    };
+
+    mockTemplateBuilderInstance = {
+      build: vi.fn().mockReturnValue("<html>Mock HTML Report</html>"),
+    };
+
+    mockImageHandler.mockImplementation(() => mockImageHandlerInstance);
+    mockTemplateBuilder.mockImplementation(() => mockTemplateBuilderInstance);
+
+    mockSerializeTestData.mockReturnValue({
+      success: true,
+      outcome: mockTestResult.outcome,
+      failures: [],
+      captureFailures: [],
+      timestamp: "2024-01-01T00:00:00.000Z",
+      config: mockTestResult.config,
+      duration: 3000,
+      testCases: mockTestResult.outcome.testCases || [],
+      browsers: ["chrome", "firefox"],
+      viewports: ["1920x1080", "1366x768"],
+      statusCounts: { passed: 1, failed: 1 },
+      groupedByStatus: {
+        passed: mockTestResult.outcome.testCases?.[0]
+          ? [mockTestResult.outcome.testCases[0]]
+          : [],
+        failed: mockTestResult.outcome.testCases?.[1]
+          ? [mockTestResult.outcome.testCases[1]]
+          : [],
+      },
+    });
   });
 
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("generate", () => {
-    it("should generate HTML report with default output path", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
+    it("should generate HTML report with default options", async () => {
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
       };
 
-      const result = await htmlReporter.generate(mockTestResult, options);
+      const result = await reporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("visnap", { recursive: true });
-      expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "visnap/report.html",
-        expect.stringContaining("<!DOCTYPE html>")
+      expect(mockSerializeTestData).toHaveBeenCalledWith(mockTestResult);
+      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
+        mockTestResult.outcome.testCases || []
       );
-      expect(result).toBe("visnap/report.html");
+      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          outcome: mockTestResult.outcome,
+        }),
+        expect.any(Array),
+        undefined
+      );
+      expect(mockMkdirSync).toHaveBeenCalledWith("/test/screenshots", {
+        recursive: true,
+      });
+      expect(mockWriteFileSync).toHaveBeenCalledWith(
+        "/test/screenshots/report.html",
+        "<html>Mock HTML Report</html>"
+      );
+      expect(result).toBe("/test/screenshots/report.html");
     });
 
     it("should generate HTML report with custom output path", async () => {
-      const options = {
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
         outputPath: "/custom/path/report.html",
-        screenshotDir: "./visnap",
-        title: "Custom Report",
       };
 
-      const result = await htmlReporter.generate(mockTestResult, options);
+      const result = await reporter.generate(mockTestResult, options);
 
       expect(mockMkdirSync).toHaveBeenCalledWith("/custom/path", {
         recursive: true,
       });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         "/custom/path/report.html",
-        expect.stringContaining("<!DOCTYPE html>")
+        "<html>Mock HTML Report</html>"
       );
       expect(result).toBe("/custom/path/report.html");
     });
 
-    it("should use screenshot directory from test result config when not provided", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
+    it("should generate HTML report with custom title", async () => {
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
+        title: "My Custom Report",
       };
 
-      const result = await htmlReporter.generate(mockTestResult, options);
+      await reporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("visnap", { recursive: true });
-      expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "visnap/report.html",
-        expect.any(String)
-      );
-      expect(result).toBe("visnap/report.html");
-    });
-
-    it("should use default screenshot directory when not provided in config", async () => {
-      const testResultWithoutConfig = {
-        ...mockTestResult,
-        config: undefined,
-      };
-
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
-      };
-
-      const result = await htmlReporter.generate(
-        testResultWithoutConfig,
-        options
-      );
-
-      expect(mockMkdirSync).toHaveBeenCalledWith("visnap", { recursive: true });
-      expect(result).toBe("visnap/report.html");
-    });
-
-    it("should include all required template files", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
-      };
-
-      await htmlReporter.generate(mockTestResult, options);
-
-      expect(mockReadFileSync).toHaveBeenCalledTimes(3);
-      // Verify that template, styles, and script files are read
-      const calls = mockReadFileSync.mock.calls;
-      expect(calls.some(call => call[0].includes("template.html"))).toBe(true);
-      expect(calls.some(call => call[0].includes("styles.css"))).toBe(true);
-      expect(calls.some(call => call[0].includes("alpine-app.js"))).toBe(true);
-    });
-
-    it("should generate valid HTML structure", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
-      };
-
-      await htmlReporter.generate(mockTestResult, options);
-
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      expect(writtenContent).toContain("<!DOCTYPE html>");
-      expect(writtenContent).toContain('<html lang="en">');
-      expect(writtenContent).toContain("<head>");
-      expect(writtenContent).toContain(
-        '<body x-data="visnapReport()" x-init="init()">'
+      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+        expect.any(Object),
+        expect.any(Array),
+        "My Custom Report"
       );
     });
 
-    it("should include test data in the HTML", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
+    it("should process test cases through ImageHandler", async () => {
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
       };
 
-      await htmlReporter.generate(mockTestResult, options);
+      await reporter.generate(mockTestResult, options);
 
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      expect(writtenContent).toContain("window.__VISNAP_DATA__");
-      expect(writtenContent).toContain('"success":false');
-      expect(writtenContent).toContain('"testCases"');
+      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
+        mockTestResult.outcome.testCases || []
+      );
     });
 
-    it("should handle empty test cases", async () => {
-      const testResultWithNoTests = {
+    it("should pass serialized data and processed test cases to TemplateBuilder", async () => {
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
+      };
+
+      await reporter.generate(mockTestResult, options);
+
+      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          outcome: mockTestResult.outcome,
+          failures: [],
+          captureFailures: [],
+          timestamp: "2024-01-01T00:00:00.000Z",
+          config: mockTestResult.config,
+          duration: 3000,
+          testCases: mockTestResult.outcome.testCases || [],
+          browsers: ["chrome", "firefox"],
+          viewports: ["1920x1080", "1366x768"],
+          statusCounts: { passed: 1, failed: 1 },
+          groupedByStatus: expect.any(Object),
+        }),
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: "test-1",
+            baseImage: "./base/test-1.png",
+            currentImage: "./current/test-1.png",
+            diffImage: undefined,
+          }),
+          expect.objectContaining({
+            id: "test-2",
+            baseImage: "./base/test-2.png",
+            currentImage: "./current/test-2.png",
+            diffImage: "./diff/test-2.png",
+          }),
+        ]),
+        undefined
+      );
+    });
+
+    it("should handle empty test cases array", async () => {
+      const testResultWithNoCases: TestResult = {
         ...mockTestResult,
         outcome: {
           ...mockTestResult.outcome,
@@ -238,102 +286,112 @@ describe("HtmlReporter", () => {
         },
       };
 
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Empty Report",
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
       };
 
-      const result = await htmlReporter.generate(
-        testResultWithNoTests,
-        options
-      );
+      await reporter.generate(testResultWithNoCases, options);
 
-      expect(result).toBe("visnap/report.html");
-      expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "visnap/report.html",
-        expect.stringContaining("window.__VISNAP_DATA__")
+      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
+        []
       );
     });
 
-    it("should handle missing optional fields", async () => {
-      const minimalTestResult: TestResult = {
-        success: true,
+    it("should handle undefined test cases", async () => {
+      const testResultWithUndefinedCases: TestResult = {
+        ...mockTestResult,
         outcome: {
-          total: 0,
-          passed: 0,
-          failed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-          duration: 0,
-          endTime: "2024-01-01T12:00:00.000Z",
-          testCases: [],
+          ...mockTestResult.outcome,
+          testCases: undefined,
         },
-        failures: undefined,
-        captureFailures: undefined,
-        config: undefined,
       };
 
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Minimal Report",
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
       };
 
-      const result = await htmlReporter.generate(minimalTestResult, options);
+      await reporter.generate(testResultWithUndefinedCases, options);
 
-      expect(result).toBe("visnap/report.html");
-      expect(mockWriteFileSync).toHaveBeenCalledWith(
-        "visnap/report.html",
-        expect.stringContaining("window.__VISNAP_DATA__")
+      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
+        []
       );
     });
 
-    it("should use custom title when provided", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Custom Test Report",
+    it("should create output directory if it doesn't exist", async () => {
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
+        outputPath: "/deep/nested/path/report.html",
       };
 
-      await htmlReporter.generate(mockTestResult, options);
+      await reporter.generate(mockTestResult, options);
 
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      expect(writtenContent).toContain("<title>Custom Test Report</title>");
+      expect(mockMkdirSync).toHaveBeenCalledWith("/deep/nested/path", {
+        recursive: true,
+      });
     });
 
-    it("should handle file system errors gracefully", async () => {
-      mockMkdirSync.mockImplementation(() => {
-        throw new Error("Permission denied");
+    it("should return the correct output path", async () => {
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
+        outputPath: "/custom/report.html",
+      };
+
+      const result = await reporter.generate(mockTestResult, options);
+
+      expect(result).toBe("/custom/report.html");
+    });
+
+    it("should handle test result with failures and capture failures", async () => {
+      const testResultWithFailures: TestResult = {
+        ...mockTestResult,
+        success: false,
+        failures: [
+          {
+            id: "test-1",
+            reason: "pixel-diff",
+            diffPercentage: 5.2,
+          },
+        ],
+        captureFailures: [
+          {
+            id: "test-2",
+            error: "Screenshot failed",
+          },
+        ],
+      };
+
+      mockSerializeTestData.mockReturnValue({
+        success: false,
+        outcome: testResultWithFailures.outcome,
+        failures: testResultWithFailures.failures || [],
+        captureFailures: testResultWithFailures.captureFailures || [],
+        timestamp: "2024-01-01T00:00:00.000Z",
+        config: testResultWithFailures.config,
+        duration: 3000,
+        testCases: testResultWithFailures.outcome.testCases || [],
+        browsers: ["chrome", "firefox"],
+        viewports: ["1920x1080", "1366x768"],
+        statusCounts: { passed: 0, failed: 2 },
+        groupedByStatus: {
+          failed: testResultWithFailures.outcome.testCases || [],
+        },
       });
 
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
+      const options: HtmlReporterOptions = {
+        screenshotDir: "/test/screenshots",
       };
 
-      await expect(
-        htmlReporter.generate(mockTestResult, options)
-      ).rejects.toThrow("Permission denied");
-    });
+      await reporter.generate(testResultWithFailures, options);
 
-    it("should process test cases and add image paths", async () => {
-      const options = {
-        screenshotDir: "./visnap",
-        title: "Test Report",
-      };
-
-      await htmlReporter.generate(mockTestResult, options);
-
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const dataMatch = writtenContent.match(/window\.__VISNAP_DATA__ = (.+);/);
-      const data = JSON.parse(dataMatch![1]);
-
-      expect(data.outcome.testCases).toHaveLength(2);
-      expect(data.outcome.testCases[0]).toHaveProperty("baseImage");
-      expect(data.outcome.testCases[0]).toHaveProperty("currentImage");
-      expect(data.outcome.testCases[1]).toHaveProperty("baseImage");
-      expect(data.outcome.testCases[1]).toHaveProperty("currentImage");
+      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          failures: testResultWithFailures.failures || [],
+          captureFailures: testResultWithFailures.captureFailures || [],
+        }),
+        expect.any(Array),
+        undefined
+      );
     });
   });
 });

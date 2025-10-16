@@ -41,7 +41,7 @@ export class ImageHandler {
         baseImage: `./base/${testCase.captureFilename}`,
         currentImage: `./current/${testCase.captureFilename}`,
         diffImage:
-          testCase.status === "failed"
+          testCase.status === "failed" && testCase.reason === "pixel-diff"
             ? `./diff/${testCase.captureFilename}`
             : undefined,
       };

@@ -1,7 +1,6 @@
 import type { FilterOptions } from "@visnap/protocol";
+import { type } from "arktype";
 import { minimatch } from "minimatch";
-
-import type { UrlConfig } from "./types.js";
 
 /**
  * Creates a predicate function that filters URLs by include and exclude patterns.
@@ -42,6 +41,64 @@ export function createUrlFilter(opts: FilterOptions) {
   };
 }
 
+// ============= ArkType Schemas =============
+
+const viewportSchema = type({
+  width: "number>0",
+  height: "number>0",
+  "deviceScaleFactor?": "number>0",
+});
+
+// const interactionActionSchema = type("object"); // Not used currently
+
+const urlConfigSchema = type({
+  id: "string>0",
+  url: "string>0",
+  "title?": "string",
+  "screenshotTarget?": "string",
+  "elementsToMask?": "string[]",
+  "viewport?": viewportSchema,
+  "threshold?": "number",
+  "disableCSSInjection?": "boolean",
+  "interactions?": "object[]",
+});
+
+const createUrlAdapterOptionsSchema = type({
+  urls: "object[]",
+  include: "string|string[]?",
+  exclude: "string|string[]?",
+});
+
+// ============= Type Exports (inferred from schemas) =============
+
+export type Viewport = typeof viewportSchema.infer;
+export type InteractionAction = object; // Simplified type for interactions
+
+// ============= Type Definitions =============
+
+export interface UrlConfig {
+  id: string;
+  url: string;
+  title?: string;
+  screenshotTarget?: string;
+  elementsToMask?: string[];
+  viewport?: Viewport;
+  threshold?: number;
+  disableCSSInjection?: boolean;
+  interactions?: object[];
+}
+
+export interface CreateUrlAdapterOptions {
+  urls: UrlConfig[];
+  include?: string | string[];
+  exclude?: string | string[];
+}
+
+// Re-export types for compatibility
+export type { FilterOptions } from "@visnap/protocol";
+
+// ============= Validation Functions =============
+
 /**
  * Validates URL format
  */
@@ -55,61 +112,42 @@ export function isValidUrl(url: string): boolean {
 }
 
 /**
- * Validates URL configuration
+ * Validates URL configuration using ArkType
  */
-export function validateUrlConfig(config: UrlConfig): string[] {
-  const errors: string[] = [];
-
-  if (!config.id || typeof config.id !== "string") {
-    errors.push("URL config must have a valid 'id' field");
+export function validateUrlConfig(config: unknown): UrlConfig {
+  const result = urlConfigSchema(config);
+  if (result instanceof type.errors) {
+    throw new Error(`Invalid URL config: ${result.summary}`);
   }
 
-  if (!config.url || typeof config.url !== "string") {
-    errors.push("URL config must have a valid 'url' field");
-  } else if (!isValidUrl(config.url)) {
-    errors.push(`URL '${config.url}' is not a valid HTTP/HTTPS URL`);
+  // Additional URL format validation
+  if (!isValidUrl(result.url)) {
+    throw new Error(`URL '${result.url}' is not a valid HTTP/HTTPS URL`);
   }
 
-  if (config.title && typeof config.title !== "string") {
-    errors.push("URL config 'title' must be a string");
+  return result as UrlConfig;
+}
+
+/**
+ * Validates create URL adapter options
+ */
+export function validateCreateUrlAdapterOptions(
+  opts: unknown
+): CreateUrlAdapterOptions {
+  const result = createUrlAdapterOptionsSchema(opts);
+  if (result instanceof type.errors) {
+    throw new Error(`Invalid URL adapter options: ${result.summary}`);
   }
 
-  if (config.screenshotTarget && typeof config.screenshotTarget !== "string") {
-    errors.push("URL config 'screenshotTarget' must be a string");
+  // Validate that at least one URL is provided
+  if (result.urls.length === 0) {
+    throw new Error("At least one URL must be provided");
   }
 
-  if (
-    config.threshold !== undefined &&
-    (typeof config.threshold !== "number" ||
-      config.threshold < 0 ||
-      config.threshold > 1)
-  ) {
-    errors.push("URL config 'threshold' must be a number between 0 and 1");
+  // Validate each URL config
+  for (const urlConfig of result.urls as UrlConfig[]) {
+    validateUrlConfig(urlConfig);
   }
 
-  if (
-    config.viewport &&
-    (typeof config.viewport !== "object" ||
-      typeof config.viewport.width !== "number" ||
-      typeof config.viewport.height !== "number" ||
-      config.viewport.width <= 0 ||
-      config.viewport.height <= 0)
-  ) {
-    errors.push(
-      "URL config 'viewport' must have valid width and height numbers"
-    );
-  }
-
-  if (config.interactions && !Array.isArray(config.interactions)) {
-    errors.push("URL config 'interactions' must be an array");
-  }
-
-  if (
-    config.disableCSSInjection !== undefined &&
-    typeof config.disableCSSInjection !== "boolean"
-  ) {
-    errors.push("URL config 'disableCSSInjection' must be a boolean");
-  }
-
-  return errors;
+  return result as CreateUrlAdapterOptions;
 }

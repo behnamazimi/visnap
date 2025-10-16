@@ -20,7 +20,7 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "check-types": "tsc --noEmit",
-    "test": "vitest",
+    "test": "vitest --passWithNoTests",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

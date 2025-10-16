@@ -5,13 +5,13 @@ import {
   mockPage,
   mockContext,
   mockElement,
-} from "./__mocks__/playwright-core.js";
+} from "./__mocks__/playwright-core";
 import {
   captureElementScreenshot,
   performScreenshotCapture,
-} from "./screenshot-capture.js";
+} from "./screenshot-capture";
 
-import type { PlaywrightAdapterOptions } from "./index.js";
+import type { PlaywrightAdapterOptions } from "./index";
 
 // Mock the utils module
 vi.mock("./utils.js", () => ({

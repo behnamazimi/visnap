@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-import { createServerManager } from "./server.js";
+import { createServerManager } from "./server";
 
 // Mock dependencies
 vi.mock("node:fs", () => ({

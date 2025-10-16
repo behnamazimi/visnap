@@ -4,7 +4,7 @@ import {
   selectBrowserType,
   buildAbsoluteUrl,
   resolveScreenshotTarget,
-} from "./utils.js";
+} from "./utils";
 
 describe("utils", () => {
   describe("selectBrowserType", () => {

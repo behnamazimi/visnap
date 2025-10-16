@@ -1,4 +1,4 @@
-import { createAdapter } from "./index.js";
+import { createAdapter } from "./index";
 
 import type { PageWithEvaluate, ViewportMap } from "@visnap/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -16,9 +16,9 @@ vi.mock("./filtering.js", () => ({
   normalizeStories: vi.fn(),
 }));
 
-import { discoverCasesFromBrowser } from "./discovery.js";
-import { normalizeStories } from "./filtering.js";
-import { createServerManager } from "./server.js";
+import { discoverCasesFromBrowser } from "./discovery";
+import { normalizeStories } from "./filtering";
+import { createServerManager } from "./server";
 
 const mockCreateServerManager = vi.mocked(createServerManager);
 const mockDiscoverCasesFromBrowser = vi.mocked(discoverCasesFromBrowser);
@@ -48,31 +48,31 @@ describe("createAdapter", () => {
   describe("validation", () => {
     it("should throw error for null options", () => {
       expect(() => createAdapter(null as any)).toThrow(
-        "Invalid 'source' provided to createAdapter"
+        "Invalid storybook adapter options: must be an object (was null)"
       );
     });
 
     it("should throw error for undefined options", () => {
       expect(() => createAdapter(undefined as any)).toThrow(
-        "Invalid 'source' provided to createAdapter"
+        "Invalid storybook adapter options: must be an object (was undefined)"
       );
     });
 
     it("should throw error for non-string source", () => {
       expect(() => createAdapter({ source: 123 as any })).toThrow(
-        "Invalid 'source' provided to createAdapter"
+        "Invalid storybook adapter options: source must be a string (was a number)"
       );
     });
 
     it("should throw error for empty source", () => {
       expect(() => createAdapter({ source: "" })).toThrow(
-        "Invalid 'source' provided to createAdapter"
+        "Invalid storybook adapter options: source must be non-empty"
       );
     });
 
     it("should throw error for whitespace-only source", () => {
       expect(() => createAdapter({ source: "   " })).toThrow(
-        "Invalid 'source' provided to createAdapter"
+        "Invalid storybook adapter options: source must be non-empty"
       );
     });
   });
