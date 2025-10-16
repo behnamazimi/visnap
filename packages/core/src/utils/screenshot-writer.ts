@@ -1,29 +1,29 @@
-import { writeFile, unlink } from "fs/promises";
-import { join } from "path";
+import { unlink } from "fs/promises";
+
+import type { StorageAdapter, StorageKind } from "@visnap/protocol";
 
 import log from "./logger";
-import { validatePath } from "./path-validation";
 
 /**
- * Write screenshot buffer to file with atomic operation
+ * Write screenshot buffer to file using storage adapter
  * Uses direct write approach for better performance and simplicity
  */
 export async function writeScreenshotToFile(
   buffer: Uint8Array,
-  outDir: string,
-  id: string
+  storage: StorageAdapter,
+  id: string,
+  kind: StorageKind = "current"
 ): Promise<string> {
-  // Validate paths for security
-  const safeId = id.replace(/[^a-zA-Z0-9\-_]/g, "_"); // Sanitize ID
-  const finalPath = validatePath(join(outDir, `${safeId}.png`), outDir);
+  // Sanitize ID for security
+  const safeId = id.replace(/[^a-zA-Z0-9\-_]/g, "_");
+  const filename = `${safeId}.png`;
 
   try {
-    await writeFile(finalPath, buffer);
+    const path = await storage.write(kind, filename, buffer);
+    return path;
   } catch (error) {
     throw new Error(`Failed to write screenshot file: ${error}`);
   }
-
-  return finalPath;
 }
 
 /**

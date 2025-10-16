@@ -21,7 +21,8 @@ import { summarizeTestMode, summarizeUpdateMode } from "./test-summary";
 import { DEFAULT_CONCURRENCY, DEFAULT_CAPTURE_TIMEOUT_MS } from "@/constants";
 import { logEffectiveConfig } from "@/lib/config";
 import { createConcurrencyPool } from "@/lib/pool";
-import { ensureVttDirectories, getBaseDir, getCurrentDir } from "@/utils/fs";
+import { loadStorageAdapter } from "@/utils/adapter-loader";
+import { ensureVttDirectories } from "@/utils/fs";
 import { roundToTwoDecimals } from "@/utils/math";
 
 export async function discoverTestCases(
@@ -94,6 +95,9 @@ export async function executeTestRun(
   // Log effective configuration for traceability
   logEffectiveConfig(options);
 
+  // Initialize storage adapter
+  const storage = await loadStorageAdapter(options);
+
   // Track cleanup state to prevent double cleanup
   let isCleaningUp = false;
 
@@ -142,12 +146,7 @@ export async function executeTestRun(
     const captureMax = typeof mc === "number" ? mc : mc?.capture;
     const maxConcurrency = Math.max(1, captureMax ?? DEFAULT_CONCURRENCY);
 
-    // Prepare output directory based on mode
     ensureVttDirectories(options.screenshotDir);
-    const outDir =
-      mode === "test"
-        ? getCurrentDir(options.screenshotDir)
-        : getBaseDir(options.screenshotDir);
 
     log.info(
       `Running ${cases.length} test cases with max concurrency: ${maxConcurrency}`
@@ -220,8 +219,9 @@ export async function executeTestRun(
         // cleared from memory to reduce memory pressure.
         const finalPath = await writeScreenshotToFile(
           result.buffer,
-          outDir,
-          result.meta.id
+          storage,
+          result.meta.id,
+          mode === "update" ? "base" : "current"
         );
         tempFiles.add(finalPath);
 
@@ -283,6 +283,9 @@ export async function executeTestRun(
             );
           }
         }
+
+        // Clean up storage adapter
+        await storage.cleanup?.();
       } catch (error) {
         log.warn(`Error during adapter cleanup: ${error}`);
       }
@@ -293,6 +296,7 @@ export async function executeTestRun(
 
   if (mode === "test") {
     const { outcome, failures, captureFailures } = await summarizeTestMode(
+      storage,
       options,
       cases,
       captureResults

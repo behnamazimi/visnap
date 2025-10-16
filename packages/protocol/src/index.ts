@@ -15,9 +15,8 @@ export type ComparisonCore = "odiff" | "pixelmatch" | (string & {});
 export interface ComparisonEngine {
   name: string;
   compare(
-    currentFile: string,
-    baseFile: string,
-    diffFile: string,
+    storage: StorageAdapter,
+    filename: string,
     options: { threshold: number; diffColor?: string }
   ): Promise<{ match: boolean; reason: string; diffPercentage?: number }>;
 }
@@ -387,6 +386,23 @@ export interface BrowserAdapterOptions {
 interface TestCaseAdapterOptions<T = Record<string, unknown>> {
   name: string;
   options?: T;
+}
+
+// ============= Storage Types =============
+
+export type StorageKind = "base" | "current" | "diff";
+
+export interface StorageAdapter {
+  write(
+    kind: StorageKind,
+    filename: string,
+    buffer: Uint8Array
+  ): Promise<string>;
+  read(kind: StorageKind, filename: string): Promise<Uint8Array>;
+  getReadablePath(kind: StorageKind, filename: string): Promise<string>;
+  exists(kind: StorageKind, filename: string): Promise<boolean>;
+  list(kind: StorageKind): Promise<string[]>;
+  cleanup?(): Promise<void>;
 }
 
 // ============= Configuration Types =============

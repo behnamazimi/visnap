@@ -21,6 +21,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "@visnap/fs-adapter": "^0.3.0",
     "@visnap/protocol": "^0.3.0",
     "ajv": "^8.17.1",
     "bundle-require": "^4.0.2",

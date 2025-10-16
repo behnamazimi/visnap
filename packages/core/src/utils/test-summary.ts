@@ -1,4 +1,5 @@
 import type {
+  StorageAdapter,
   VisualTestingToolConfig,
   TestCaseInstanceMeta,
   ScreenshotResult,
@@ -18,6 +19,7 @@ import { compareTestCases } from "@/lib/compare";
  * Summarize test mode results with comparison and logging
  */
 export async function summarizeTestMode(
+  storage: StorageAdapter,
   options: VisualTestingToolConfig,
   cases: (TestCaseInstanceMeta & { browser: BrowserName })[],
   captureResults: {
@@ -32,7 +34,7 @@ export async function summarizeTestMode(
   failures: Array<{ id: string; reason: string; diffPercentage?: number }>;
   captureFailures: Array<{ id: string; error: string }>;
 }> {
-  const results = await compareTestCases(options, cases);
+  const results = await compareTestCases(storage, options, cases);
 
   const passed = results.filter(r => r.match).length;
   const failedCaptures = captureResults.filter(r => r.error).length;

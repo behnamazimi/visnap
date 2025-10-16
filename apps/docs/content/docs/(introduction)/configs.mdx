@@ -204,3 +204,16 @@ const config: VisualTestingToolConfig = {
 
 export default config;
 ```
+
+## Storage
+
+ViSnap uses the filesystem to store screenshot files. Screenshots are organized in the following directory structure:
+
+```
+visnap/
+├── base/     # Baseline screenshots (from visnap update)
+├── current/  # Current screenshots (from visnap test)
+└── diff/     # Diff images (generated during comparison)
+```
+
+The storage system is abstracted through the `@visnap/fs-adapter` package, which handles all file operations.
