@@ -1,18 +1,17 @@
-import { readdir, readFile, writeFile } from "fs/promises";
-import { join } from "path";
+import type {
+  StorageAdapter,
+  TestCaseInstance,
+  VisualTestingToolConfig,
+  ComparisonCore,
+  ComparisonConfig,
+  ComparisonEngine,
+} from "@visnap/protocol";
 
 import { createConcurrencyPool } from "@/lib/pool";
 
 // Module-level regex for hex color validation
 const HEX_COLOR_REGEX = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
 
-import {
-  type TestCaseInstance,
-  type VisualTestingToolConfig,
-  type ComparisonCore,
-  type ComparisonConfig,
-  type ComparisonEngine,
-} from "@visnap/protocol";
 import odiff from "odiff-bin";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
@@ -42,12 +41,16 @@ export interface CompareResult {
 export class OdiffEngine implements ComparisonEngine {
   name = "odiff";
   async compare(
-    currentFile: string,
-    baseFile: string,
-    diffFile: string,
+    storage: StorageAdapter,
+    filename: string,
     options: { threshold: number; diffColor?: string }
   ): Promise<{ match: boolean; reason: string; diffPercentage?: number }> {
     try {
+      // Get readable paths for odiff (it expects file paths)
+      const currentFile = await storage.getReadablePath("current", filename);
+      const baseFile = await storage.getReadablePath("base", filename);
+      const diffFile = await storage.getReadablePath("diff", filename);
+
       const diffResult = await odiff.compare(currentFile, baseFile, diffFile, {
         diffColor: options.diffColor ?? DEFAULT_DIFF_COLOR,
         threshold: options.threshold,
@@ -92,19 +95,18 @@ export class OdiffEngine implements ComparisonEngine {
 export class PixelmatchEngine implements ComparisonEngine {
   name = "pixelmatch";
   async compare(
-    currentFile: string,
-    baseFile: string,
-    diffFile: string,
+    storage: StorageAdapter,
+    filename: string,
     options: { threshold: number; diffColor?: string }
   ): Promise<{ match: boolean; reason: string; diffPercentage?: number }> {
     try {
-      // Read and decode PNG files
+      // Read and decode PNG files using storage adapter
       const [currentBuffer, baseBuffer] = await Promise.all([
-        readFile(currentFile),
-        readFile(baseFile),
+        storage.read("current", filename),
+        storage.read("base", filename),
       ]);
-      const currentPng = PNG.sync.read(currentBuffer);
-      const basePng = PNG.sync.read(baseBuffer);
+      const currentPng = PNG.sync.read(Buffer.from(currentBuffer));
+      const basePng = PNG.sync.read(Buffer.from(baseBuffer));
 
       // Ensure images have same dimensions
       if (
@@ -139,8 +141,8 @@ export class PixelmatchEngine implements ComparisonEngine {
         }
       );
 
-      // Write diff image
-      await writeFile(diffFile, PNG.sync.write(diffPng));
+      // Write diff image using storage adapter
+      await storage.write("diff", filename, PNG.sync.write(diffPng));
 
       const diffPercentage = (mismatchedPixels / totalPixels) * 100;
 
@@ -151,7 +153,7 @@ export class PixelmatchEngine implements ComparisonEngine {
       };
     } catch (error) {
       const message = getErrorMessage(error);
-      if (message.includes("ENOENT") && message.includes(baseFile)) {
+      if (message.includes("ENOENT") || message.includes("not found")) {
         return {
           match: false,
           reason: "missing-base",
@@ -202,15 +204,13 @@ function createComparisonEngine(core: ComparisonCore): ComparisonEngine {
 }
 
 export const compareDirectories = async (
-  currentDir: string,
-  baseDir: string,
-  diffDir: string,
+  storage: StorageAdapter,
   options: CompareOptions
 ): Promise<CompareResult[]> => {
   // Build deterministic, sorted union of filenames from current and base
   const [currentFilesList, baseFilesList] = await Promise.all([
-    readdir(currentDir),
-    readdir(baseDir),
+    storage.list("current"),
+    storage.list("base"),
   ]);
   const currentFiles = new Set(currentFilesList);
   const baseFiles = new Set(baseFilesList);
@@ -224,9 +224,6 @@ export const compareDirectories = async (
   const results: CompareResult[] = [];
 
   for (const file of files) {
-    const currentFile = join(currentDir, file);
-    const baseFile = join(baseDir, file);
-    const diffFile = join(diffDir, file);
     const inCurrent = currentFiles.has(file);
     const inBase = baseFiles.has(file);
 
@@ -239,7 +236,7 @@ export const compareDirectories = async (
       continue;
     }
 
-    const diffResult = await engine.compare(currentFile, baseFile, diffFile, {
+    const diffResult = await engine.compare(storage, file, {
       threshold,
       diffColor,
     });
@@ -260,15 +257,10 @@ export const compareDirectories = async (
  * This function can handle different thresholds per story.
  */
 export const compareTestCases = async (
+  storage: StorageAdapter,
   config: VisualTestingToolConfig,
   testCases: TestCaseInstance[]
 ): Promise<CompareResult[]> => {
-  const { getCurrentDir, getBaseDir, getDiffDir } = await import("@/utils/fs");
-
-  const currentDir = getCurrentDir(config.screenshotDir);
-  const baseDir = getBaseDir(config.screenshotDir);
-  const diffDir = getDiffDir(config.screenshotDir);
-
   // Extract comparison config with defaults
   const comparisonConfig: ComparisonConfig = {
     core: config.comparison?.core ?? DEFAULT_COMPARISON_CORE,
@@ -294,8 +286,8 @@ export const compareTestCases = async (
 
   // Get files that exist in current and base directories
   const [currentFilesList, baseFilesList] = await Promise.all([
-    readdir(currentDir),
-    readdir(baseDir),
+    storage.list("current"),
+    storage.list("base"),
   ]);
   const currentFiles = new Set(currentFilesList);
   const baseFiles = new Set(baseFilesList);
@@ -313,9 +305,6 @@ export const compareTestCases = async (
 
   const workItems: string[] = files;
   const results = await runWithPool(workItems, async (file, _index) => {
-    const currentFile = join(currentDir, file);
-    const baseFile = join(baseDir, file);
-    const diffFile = join(diffDir, file);
     const inCurrent = currentFiles.has(file);
     const inBase = baseFiles.has(file);
 
@@ -329,7 +318,7 @@ export const compareTestCases = async (
     const threshold = idToThreshold.get(file) ?? comparisonConfig.threshold;
 
     const comparisonStartTime = performance.now();
-    const diffResult = await engine.compare(currentFile, baseFile, diffFile, {
+    const diffResult = await engine.compare(storage, file, {
       threshold,
       diffColor: comparisonConfig.diffColor,
     });

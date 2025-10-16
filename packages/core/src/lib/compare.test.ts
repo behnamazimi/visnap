@@ -1,20 +1,31 @@
 import { join } from "path";
 
+import type { StorageAdapter } from "@visnap/protocol";
 import odiff from "odiff-bin";
 import pixelmatch from "pixelmatch";
 import { PNG } from "pngjs";
-import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { compareDirectories, compareTestCases } from "./compare";
 
 import { getErrorMessage } from "@/utils/error-handler";
 
-// Mock dependencies
-vi.mock("fs/promises", () => ({
-  readdir: vi.fn(),
-  readFile: vi.fn(),
-  writeFile: vi.fn(),
-}));
+// No fs/promises mocking needed since we use StorageAdapter now
+
+// Mock storage adapter helper
+const createMockStorage = (): StorageAdapter => ({
+  list: vi.fn().mockResolvedValue(["file1.png", "file2.png"]),
+  getReadablePath: vi.fn().mockImplementation((kind, filename) => {
+    if (kind === "current") return `/current/${filename}`;
+    if (kind === "base") return `/base/${filename}`;
+    if (kind === "diff") return `/diff/${filename}`;
+    return `/${kind}/${filename}`;
+  }),
+  write: vi.fn().mockResolvedValue(""),
+  exists: vi.fn().mockResolvedValue(true),
+  read: vi.fn().mockResolvedValue(new Uint8Array()),
+  cleanup: vi.fn().mockResolvedValue(undefined),
+});
 
 vi.mock("odiff-bin", () => ({
   default: {
@@ -57,16 +68,10 @@ vi.mock("../../utils/fs", () => ({
 }));
 
 describe("compare", () => {
-  let mockReaddir: any;
   const mockOdiffCompare = vi.mocked(odiff.compare);
   const mockPixelmatch = vi.mocked(pixelmatch);
   const mockPNG = vi.mocked(PNG);
   const mockGetErrorMessage = vi.mocked(getErrorMessage);
-
-  beforeAll(async () => {
-    const fsPromises = await import("fs/promises");
-    mockReaddir = vi.mocked(fsPromises.readdir);
-  });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -74,9 +79,10 @@ describe("compare", () => {
 
   describe("compareDirectories with odiff", () => {
     it("should compare files and return match results", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png", "file2.png"] as any)
-        .mockResolvedValueOnce(["file1.png", "file2.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["file1.png", "file2.png"])
+      );
 
       mockOdiffCompare
         .mockResolvedValueOnce({ match: true })
@@ -87,7 +93,7 @@ describe("compare", () => {
           diffPercentage: 5.2,
         });
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "odiff",
       });
 
@@ -107,15 +113,18 @@ describe("compare", () => {
     });
 
     it("should handle missing files in current directory", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png"] as any)
-        .mockResolvedValueOnce(["file1.png", "file2.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation((kind: string) =>
+        Promise.resolve(
+          kind === "current" ? ["file1.png"] : ["file1.png", "file2.png"]
+        )
+      );
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
       });
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "odiff",
       });
 
@@ -134,15 +143,18 @@ describe("compare", () => {
     });
 
     it("should handle missing files in base directory", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png", "file2.png"] as any)
-        .mockResolvedValueOnce(["file1.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation((kind: string) =>
+        Promise.resolve(
+          kind === "current" ? ["file1.png", "file2.png"] : ["file1.png"]
+        )
+      );
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
       });
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "odiff",
       });
 
@@ -161,15 +173,16 @@ describe("compare", () => {
     });
 
     it("should use custom threshold and diff color", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png"] as any)
-        .mockResolvedValueOnce(["file1.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["file1.png"])
+      );
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
       });
 
-      await compareDirectories("/current", "/base", "/diff", {
+      await compareDirectories(mockStorage, {
         comparisonCore: "odiff",
         threshold: 0.2,
         diffColor: "#ff0000",
@@ -187,9 +200,10 @@ describe("compare", () => {
     });
 
     it("should handle odiff errors", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png"] as any)
-        .mockResolvedValueOnce(["file1.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["file1.png"])
+      );
 
       const error = new Error(
         "Could not load comparison image: /base/file1.png"
@@ -199,7 +213,7 @@ describe("compare", () => {
         "Could not load comparison image: /base/file1.png"
       );
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "odiff",
       });
 
@@ -213,15 +227,16 @@ describe("compare", () => {
     });
 
     it("should handle generic odiff errors", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png"] as any)
-        .mockResolvedValueOnce(["file1.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["file1.png"])
+      );
 
       const error = new Error("Generic error");
       mockOdiffCompare.mockRejectedValueOnce(error);
       mockGetErrorMessage.mockReturnValue("Generic error");
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "odiff",
       });
 
@@ -237,14 +252,15 @@ describe("compare", () => {
 
   describe("compareDirectories with pixelmatch", () => {
     it("should compare files using pixelmatch", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png"] as any)
-        .mockResolvedValueOnce(["file1.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["file1.png"])
+      );
 
       // Mock PNG data is handled by global mock
       mockPixelmatch.mockReturnValue(50); // 50 mismatched pixels
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "pixelmatch",
         threshold: 0.1,
       });
@@ -259,14 +275,15 @@ describe("compare", () => {
     });
 
     it("should handle pixelmatch with matching images", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png"] as any)
-        .mockResolvedValueOnce(["file1.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["file1.png"])
+      );
 
       // Mock PNG data is handled by global mock
       mockPixelmatch.mockReturnValue(0); // No mismatched pixels
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "pixelmatch",
       });
 
@@ -280,9 +297,10 @@ describe("compare", () => {
     });
 
     it("should handle pixelmatch errors", async () => {
-      mockReaddir
-        .mockResolvedValueOnce(["file1.png"] as any)
-        .mockResolvedValueOnce(["file1.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["file1.png"])
+      );
 
       const error = new Error("ENOENT: no such file or directory");
       (mockPNG.sync.read as any).mockImplementation(() => {
@@ -290,7 +308,7 @@ describe("compare", () => {
       });
       mockGetErrorMessage.mockReturnValue("ENOENT: no such file or directory");
 
-      const result = await compareDirectories("/current", "/base", "/diff", {
+      const result = await compareDirectories(mockStorage, {
         comparisonCore: "pixelmatch",
       });
 
@@ -298,7 +316,7 @@ describe("compare", () => {
       expect(result[0]).toEqual({
         id: "file1.png",
         match: false,
-        reason: "error",
+        reason: "missing-base",
         diffPercentage: 0,
       });
     });
@@ -324,15 +342,10 @@ describe("compare", () => {
     ];
 
     it("should compare files with test case specific thresholds", async () => {
-      mockReaddir
-        .mockResolvedValueOnce([
-          "story1-default.png",
-          "story2-default.png",
-        ] as any)
-        .mockResolvedValueOnce([
-          "story1-default.png",
-          "story2-default.png",
-        ] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["story1-default.png", "story2-default.png"])
+      );
 
       mockOdiffCompare
         .mockResolvedValueOnce({ match: true })
@@ -344,6 +357,7 @@ describe("compare", () => {
         });
 
       const result = await compareTestCases(
+        mockStorage,
         mockConfig as any,
         mockTestCases as any
       );
@@ -351,9 +365,9 @@ describe("compare", () => {
       expect(result).toHaveLength(2);
       expect(mockOdiffCompare).toHaveBeenNthCalledWith(
         1,
-        join(process.cwd(), "test-dir", "current", "story1-default.png"),
-        join(process.cwd(), "test-dir", "base", "story1-default.png"),
-        join(process.cwd(), "test-dir", "diff", "story1-default.png"),
+        join("/current", "story1-default.png"),
+        join("/base", "story1-default.png"),
+        join("/diff", "story1-default.png"),
         {
           threshold: 0.1, // default threshold
           diffColor: "#00ff00",
@@ -361,9 +375,9 @@ describe("compare", () => {
       );
       expect(mockOdiffCompare).toHaveBeenNthCalledWith(
         2,
-        join(process.cwd(), "test-dir", "current", "story2-default.png"),
-        join(process.cwd(), "test-dir", "base", "story2-default.png"),
-        join(process.cwd(), "test-dir", "diff", "story2-default.png"),
+        join("/current", "story2-default.png"),
+        join("/base", "story2-default.png"),
+        join("/diff", "story2-default.png"),
         {
           threshold: 0.2, // test case specific threshold
           diffColor: "#00ff00",
@@ -375,15 +389,17 @@ describe("compare", () => {
       const configWithoutComparison = { ...mockConfig };
       delete (configWithoutComparison as any).comparison;
 
-      mockReaddir
-        .mockResolvedValueOnce(["story1-default.png"] as any)
-        .mockResolvedValueOnce(["story1-default.png"] as any);
+      const mockStorage = createMockStorage();
+      (mockStorage.list as any).mockImplementation(() =>
+        Promise.resolve(["story1-default.png"])
+      );
 
       mockOdiffCompare.mockResolvedValueOnce({
         match: true,
       });
 
       await compareTestCases(
+        mockStorage,
         configWithoutComparison as any,
         [mockTestCases[0]] as any
       );

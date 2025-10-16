@@ -1,11 +1,15 @@
+import { FsStorageAdapter } from "@visnap/fs-adapter";
 import type {
   BrowserAdapter,
   TestCaseAdapter,
   VisualTestingToolConfig,
   BrowserName,
+  StorageAdapter,
 } from "@visnap/protocol";
 
 import log from "./logger";
+
+import { DEFAULT_SCREENSHOT_DIR } from "@/constants";
 
 /**
  * Helper function to format consistent error messages for adapter loading
@@ -148,4 +152,16 @@ export class BrowserAdapterPool {
     await Promise.all(disposePromises);
     this.adapters.clear();
   }
+}
+
+/**
+ * Load storage adapter based on configuration.
+ * - Currently only supports filesystem storage
+ */
+export async function loadStorageAdapter(
+  config: VisualTestingToolConfig
+): Promise<StorageAdapter> {
+  return new FsStorageAdapter({
+    screenshotDir: config.screenshotDir ?? DEFAULT_SCREENSHOT_DIR,
+  });
 }
