@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { writeFileSync, mkdirSync } from "fs";
+
+import type { TestResult, RunOutcome, TestCaseDetail } from "@visnap/protocol";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import { JsonReporter } from "./json-reporter";
-import type { TestResult } from "@visnap/protocol";
-import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -89,7 +90,9 @@ describe("JsonReporter", () => {
 
       const result = await reporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("/path/to", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("/path/to", {
+        recursive: true,
+      });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         "/path/to/report.json",
         expect.stringContaining('"success": false')
@@ -105,7 +108,9 @@ describe("JsonReporter", () => {
 
       const result = await reporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("./visnap", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("./visnap", {
+        recursive: true,
+      });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         "./visnap/report.json",
         expect.stringContaining('"success": false')
@@ -199,8 +204,12 @@ describe("JsonReporter", () => {
       const report = JSON.parse(writtenContent);
 
       expect(report.timestamp).toBeDefined();
-      expect(new Date(report.timestamp).getTime()).toBeGreaterThanOrEqual(new Date(beforeTime).getTime());
-      expect(new Date(report.timestamp).getTime()).toBeLessThanOrEqual(new Date(afterTime).getTime());
+      expect(new Date(report.timestamp).getTime()).toBeGreaterThanOrEqual(
+        new Date(beforeTime).getTime()
+      );
+      expect(new Date(report.timestamp).getTime()).toBeLessThanOrEqual(
+        new Date(afterTime).getTime()
+      );
     });
   });
 });

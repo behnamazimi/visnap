@@ -3,6 +3,15 @@ import { join, resolve } from "path";
 
 import type { StorageAdapter, StorageKind } from "@visnap/protocol";
 
+class StorageError extends Error {
+  public readonly code: string;
+  constructor(message: string) {
+    super(message);
+    this.name = "StorageError";
+    this.code = "STORAGE_ERROR";
+  }
+}
+
 export interface FsStorageAdapterOptions {
   screenshotDir: string;
   baseDirName?: string;
@@ -54,7 +63,7 @@ export class FsStorageAdapter implements StorageAdapter {
       filename.includes("\\") ||
       filename.includes("..")
     ) {
-      throw new Error("Invalid filename");
+      throw new StorageError("Invalid filename");
     }
     // Sanitize remaining unsafe characters by normalizing to underscore
     const sanitized = filename.replace(/[^a-zA-Z0-9\-_.]/g, "_");
@@ -64,7 +73,7 @@ export class FsStorageAdapter implements StorageAdapter {
   private validatePath(filePath: string, baseDir: string): string {
     const resolved = resolve(filePath);
     if (!resolved.startsWith(baseDir)) {
-      throw new Error(`Path traversal detected: ${filePath}`);
+      throw new StorageError(`Path traversal detected: ${filePath}`);
     }
     return resolved;
   }

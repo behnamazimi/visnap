@@ -1,7 +1,10 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { join, dirname } from "path";
+
 import type { TestResult } from "@visnap/protocol";
+
 import type { HtmlReporterOptions } from "../types";
+
 import { serializeTestData } from "./data-serializer";
 import { ImageHandler } from "./image-handler";
 import { TemplateBuilder } from "./template-builder";
@@ -23,9 +26,10 @@ export class HtmlReporter {
     const html = templateBuilder.build(data, processedTests, options.title);
 
     // Determine output path
-    const outputPath = options.outputPath || join(options.screenshotDir, "report.html");
+    const outputPath =
+      options.outputPath || join(options.screenshotDir, "report.html");
     const outputDir = dirname(outputPath);
-    
+
     mkdirSync(outputDir, { recursive: true });
     writeFileSync(outputPath, html);
 

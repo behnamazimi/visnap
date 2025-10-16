@@ -1,10 +1,12 @@
+import type { TestResult, RunOutcome, TestCaseDetail } from "@visnap/protocol";
 import { describe, it, expect } from "vitest";
+
 import { serializeTestData } from "./data-serializer";
-import type { TestResult } from "@visnap/protocol";
-import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
 
 describe("DataSerializer", () => {
-  const createMockTestResult = (overrides: Partial<TestResult> = {}): TestResult => ({
+  const createMockTestResult = (
+    overrides: Partial<TestResult> = {}
+  ): TestResult => ({
     success: true,
     outcome: {
       total: 2,
@@ -188,7 +190,9 @@ describe("DataSerializer", () => {
       const serialized = serializeTestData(testResult);
 
       // Should be a valid ISO timestamp (current time)
-      expect(serialized.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+      expect(serialized.timestamp).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+      );
     });
 
     it("should use current time for timestamp when endTime is missing", () => {
@@ -212,8 +216,12 @@ describe("DataSerializer", () => {
       const serialized = serializeTestData(testResult);
       const afterTime = new Date().toISOString();
 
-      expect(new Date(serialized.timestamp).getTime()).toBeGreaterThanOrEqual(new Date(beforeTime).getTime());
-      expect(new Date(serialized.timestamp).getTime()).toBeLessThanOrEqual(new Date(afterTime).getTime());
+      expect(new Date(serialized.timestamp).getTime()).toBeGreaterThanOrEqual(
+        new Date(beforeTime).getTime()
+      );
+      expect(new Date(serialized.timestamp).getTime()).toBeLessThanOrEqual(
+        new Date(afterTime).getTime()
+      );
     });
   });
 });

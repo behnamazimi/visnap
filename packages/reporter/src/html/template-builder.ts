@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+
 import type { ReportData, ProcessedTestCase } from "../types";
 
 export class TemplateBuilder {
@@ -30,12 +31,12 @@ export class TemplateBuilder {
     let template: string;
     let styles: string;
     let script: string;
-    
+
     try {
       template = readFileSync(this.templatePath, "utf-8");
       styles = readFileSync(this.stylesPath, "utf-8");
       script = readFileSync(this.scriptPath, "utf-8");
-    } catch (error) {
+    } catch {
       throw new Error("File not found");
     }
 
@@ -44,8 +45,8 @@ export class TemplateBuilder {
       ...data,
       outcome: {
         ...data.outcome,
-        testCases
-      }
+        testCases,
+      },
     };
 
     return template

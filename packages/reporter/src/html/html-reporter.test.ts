@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { writeFileSync, readFileSync, mkdirSync } from "fs";
+
+import type { TestResult, RunOutcome, TestCaseDetail } from "@visnap/protocol";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import { HtmlReporter } from "./html-reporter";
-import type { TestResult } from "@visnap/protocol";
-import type { RunOutcome, TestCaseDetail } from "@visnap/protocol";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -82,7 +83,8 @@ describe("HtmlReporter", () => {
 
     // Mock file reads for template builder
     mockReadFileSync
-      .mockReturnValueOnce(`<!DOCTYPE html>
+      .mockReturnValueOnce(
+        `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -98,7 +100,8 @@ describe("HtmlReporter", () => {
     {{SCRIPT}}
   </script>
 </body>
-</html>`)
+</html>`
+      )
       .mockReturnValueOnce("body { font-family: Arial; }")
       .mockReturnValueOnce("function visnapReport() { return {}; }");
   });
@@ -133,7 +136,9 @@ describe("HtmlReporter", () => {
 
       const result = await htmlReporter.generate(mockTestResult, options);
 
-      expect(mockMkdirSync).toHaveBeenCalledWith("/custom/path", { recursive: true });
+      expect(mockMkdirSync).toHaveBeenCalledWith("/custom/path", {
+        recursive: true,
+      });
       expect(mockWriteFileSync).toHaveBeenCalledWith(
         "/custom/path/report.html",
         expect.stringContaining("<!DOCTYPE html>")
@@ -168,7 +173,10 @@ describe("HtmlReporter", () => {
         title: "Test Report",
       };
 
-      const result = await htmlReporter.generate(testResultWithoutConfig, options);
+      const result = await htmlReporter.generate(
+        testResultWithoutConfig,
+        options
+      );
 
       expect(mockMkdirSync).toHaveBeenCalledWith("visnap", { recursive: true });
       expect(result).toBe("visnap/report.html");
@@ -200,9 +208,11 @@ describe("HtmlReporter", () => {
 
       const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
       expect(writtenContent).toContain("<!DOCTYPE html>");
-      expect(writtenContent).toContain("<html lang=\"en\">");
+      expect(writtenContent).toContain('<html lang="en">');
       expect(writtenContent).toContain("<head>");
-      expect(writtenContent).toContain("<body x-data=\"visnapReport()\" x-init=\"init()\">");
+      expect(writtenContent).toContain(
+        '<body x-data="visnapReport()" x-init="init()">'
+      );
     });
 
     it("should include test data in the HTML", async () => {
@@ -233,7 +243,10 @@ describe("HtmlReporter", () => {
         title: "Empty Report",
       };
 
-      const result = await htmlReporter.generate(testResultWithNoTests, options);
+      const result = await htmlReporter.generate(
+        testResultWithNoTests,
+        options
+      );
 
       expect(result).toBe("visnap/report.html");
       expect(mockWriteFileSync).toHaveBeenCalledWith(
@@ -299,7 +312,9 @@ describe("HtmlReporter", () => {
         title: "Test Report",
       };
 
-      await expect(htmlReporter.generate(mockTestResult, options)).rejects.toThrow("Permission denied");
+      await expect(
+        htmlReporter.generate(mockTestResult, options)
+      ).rejects.toThrow("Permission denied");
     });
 
     it("should process test cases and add image paths", async () => {
@@ -313,7 +328,7 @@ describe("HtmlReporter", () => {
       const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
       const dataMatch = writtenContent.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
-      
+
       expect(data.outcome.testCases).toHaveLength(2);
       expect(data.outcome.testCases[0]).toHaveProperty("baseImage");
       expect(data.outcome.testCases[0]).toHaveProperty("currentImage");

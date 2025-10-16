@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ImageHandler } from "./image-handler";
 import type { TestCaseDetail } from "@visnap/protocol";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+import { ImageHandler } from "./image-handler";
 
 describe("ImageHandler", () => {
   let imageHandler: ImageHandler;
@@ -41,7 +42,10 @@ describe("ImageHandler", () => {
       const testCase = mockTestCases[0]; // passed test
       const screenshotDir = "./visnap";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-1.png",
@@ -54,7 +58,10 @@ describe("ImageHandler", () => {
       const testCase = mockTestCases[1]; // failed test
       const screenshotDir = "./visnap";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-2.png",
@@ -67,7 +74,10 @@ describe("ImageHandler", () => {
       const testCase = mockTestCases[0];
       const screenshotDir = "/custom/path/screenshots";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-1.png",
@@ -83,7 +93,10 @@ describe("ImageHandler", () => {
       };
       const screenshotDir = "./visnap";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-1.jpg",
@@ -99,7 +112,10 @@ describe("ImageHandler", () => {
       };
       const screenshotDir = "./visnap";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-2.png",
@@ -115,7 +131,10 @@ describe("ImageHandler", () => {
       };
       const screenshotDir = "./visnap";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-2.png",
@@ -128,7 +147,10 @@ describe("ImageHandler", () => {
       const testCase = mockTestCases[0];
       const screenshotDir = "";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-1.png",
@@ -144,7 +166,10 @@ describe("ImageHandler", () => {
       };
       const screenshotDir = "./visnap";
 
-      const result = await imageHandler.getRelativeImagePaths(testCase, screenshotDir);
+      const result = await imageHandler.getRelativeImagePaths(
+        testCase,
+        screenshotDir
+      );
 
       expect(result).toEqual({
         base: "base/test-with-special-chars_123.png",

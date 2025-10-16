@@ -1,13 +1,16 @@
 import type { TestResult } from "@visnap/protocol";
+
 import type { SerializedReportData } from "../types";
 
 export function serializeTestData(result: TestResult): SerializedReportData {
   const testCases = result.outcome.testCases || [];
 
-  const browsers = Array.from(new Set(testCases.map((tc) => tc.browser || "N/A")));
+  const browsers = Array.from(
+    new Set(testCases.map(tc => tc.browser || "N/A"))
+  );
   const viewports = Array.from(
     new Set(
-      testCases.map((tc) => {
+      testCases.map(tc => {
         if (!tc.viewport) return "N/A";
         if (typeof tc.viewport === "string") return tc.viewport;
         return `${tc.viewport.width}x${tc.viewport.height}`;

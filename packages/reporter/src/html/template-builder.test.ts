@@ -1,7 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { readFileSync } from "fs";
-import { TemplateBuilder } from "./template-builder";
+
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import type { ReportData, ProcessedTestCase } from "../types";
+
+import { TemplateBuilder } from "./template-builder";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -76,7 +79,8 @@ describe("TemplateBuilder", () => {
 
     // Mock file reads
     mockReadFileSync
-      .mockReturnValueOnce(`<!DOCTYPE html>
+      .mockReturnValueOnce(
+        `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -92,7 +96,8 @@ describe("TemplateBuilder", () => {
     {{SCRIPT}}
   </script>
 </body>
-</html>`)
+</html>`
+      )
       .mockReturnValueOnce("body { font-family: Arial; }")
       .mockReturnValueOnce("function visnapReport() { return {}; }");
   });
@@ -104,7 +109,11 @@ describe("TemplateBuilder", () => {
   describe("build", () => {
     it("should build HTML template with all placeholders replaced", () => {
       const title = "Test Report";
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases, title);
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases,
+        title
+      );
 
       expect(mockReadFileSync).toHaveBeenCalledTimes(3);
       expect(result).toContain("<!DOCTYPE html>");
@@ -115,17 +124,24 @@ describe("TemplateBuilder", () => {
 
     it("should replace {{TITLE}} placeholder", () => {
       const title = "Custom Report Title";
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases, title);
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases,
+        title
+      );
 
       expect(result).toContain(`<title>${title}</title>`);
     });
 
     it("should replace {{DATA}} placeholder with JSON data", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
 
       const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       expect(dataMatch).toBeTruthy();
-      
+
       const data = JSON.parse(dataMatch![1]);
       expect(data).toHaveProperty("success", true);
       expect(data).toHaveProperty("outcome");
@@ -134,16 +150,22 @@ describe("TemplateBuilder", () => {
     });
 
     it("should include processed test cases in the data", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
 
       const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
-      
+
       expect(data.outcome.testCases).toEqual(mockProcessedTestCases);
     });
 
     it("should use default title when not provided", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
 
       expect(result).toContain("<title>VISNAP Test Report</title>");
     });
@@ -153,7 +175,7 @@ describe("TemplateBuilder", () => {
 
       const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
-      
+
       expect(data.outcome.testCases).toEqual([]);
     });
 
@@ -182,7 +204,7 @@ describe("TemplateBuilder", () => {
 
       const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
-      
+
       expect(data.success).toBe(false);
       expect(data.failures).toEqual([]);
       expect(data.captureFailures).toEqual([]);
@@ -190,23 +212,32 @@ describe("TemplateBuilder", () => {
 
     it("should replace multiple {{TITLE}} occurrences", () => {
       mockReadFileSync
-        .mockReturnValueOnce("<!DOCTYPE html><html><head><title>{{TITLE}}</title></head><body><h1>{{TITLE}}</h1></body></html>")
+        .mockReturnValueOnce(
+          "<!DOCTYPE html><html><head><title>{{TITLE}}</title></head><body><h1>{{TITLE}}</h1></body></html>"
+        )
         .mockReturnValueOnce("body { font-family: Arial; }")
         .mockReturnValueOnce("function visnapReport() { return {}; }");
 
       const title = "Test Report";
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases, title);
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases,
+        title
+      );
 
       expect(result).toContain(`<title>${title}</title>`);
       expect(result).toContain(`<h1>${title}</h1>`);
     });
 
     it("should preserve JSON data structure", () => {
-      const result = templateBuilder.build(mockReportData, mockProcessedTestCases);
+      const result = templateBuilder.build(
+        mockReportData,
+        mockProcessedTestCases
+      );
 
       const dataMatch = result.match(/window\.__VISNAP_DATA__ = (.+);/);
       const data = JSON.parse(dataMatch![1]);
-      
+
       // Verify the structure is preserved
       expect(data).toHaveProperty("success");
       expect(data).toHaveProperty("outcome");
@@ -214,7 +245,7 @@ describe("TemplateBuilder", () => {
       expect(data).toHaveProperty("captureFailures");
       expect(data).toHaveProperty("timestamp");
       expect(data).toHaveProperty("duration");
-      
+
       // Verify outcome structure
       expect(data.outcome).toHaveProperty("total");
       expect(data.outcome).toHaveProperty("passed");
