@@ -72,7 +72,7 @@ function visnapReport() {
       const diffMs = now - date;
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
       const diffMinutes = Math.floor(diffMs / (1000 * 60));
-      
+
       if (diffHours > 0) {
         return `${diffHours}h ago`;
       } else if (diffMinutes > 0) {
