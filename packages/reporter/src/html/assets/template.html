@@ -8,118 +8,120 @@
   <style>{{STYLES}}</style>
 </head>
 <body x-data="visnapReport()" x-init="init()">
-  <!-- Dashboard -->
-  <header class="dashboard">
-    <h1>{{TITLE}}</h1>
-    <div class="stats-grid">
-      <div class="stat-card" :class="{ 'success': data.outcome.total === data.outcome.passed }">
-        <span class="stat-value" x-text="data.outcome.total"></span>
-        <span class="stat-label">Total</span>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>{{TITLE}}</h1>
+      <div class="navbar-subtitle">
+        <span class="stat-label" x-text="formattedInitTime"></span>
       </div>
-      <div class="stat-card success">
+    </div>
+    <div class="navbar-stats">
+      <span class="stat-item">
+        <span class="stat-value" x-text="data.outcome.total"></span>
+        <span class="stat-label">Tests</span>
+      </span>
+      <span class="stat-divider">•</span>
+      <span class="stat-item stat-passed">
         <span class="stat-value" x-text="data.outcome.passed"></span>
         <span class="stat-label">Passed</span>
-      </div>
-      <div class="stat-card" :class="{ 'error': failedCount > 0 }">
+      </span>
+      <span class="stat-divider">•</span>
+      <span class="stat-item stat-failed">
         <span class="stat-value" x-text="failedCount"></span>
         <span class="stat-label">Failed</span>
-      </div>
-      <div class="stat-card" :class="{ 'warning': data.outcome.captureFailures > 0 }">
-        <span class="stat-value" x-text="data.outcome.captureFailures"></span>
-        <span class="stat-label">Capture Failures</span>
+      </span>
+      <span class="stat-divider">•</span>
+      <span class="stat-item">
+        <span class="stat-value" x-text="formattedDuration"></span>
+        <span class="stat-label">Duration</span>
+      </span>
+    </div>
+    <div class="navbar-actions" x-show="data.config">
+      <button @click="toggleConfig()" class="config-toggle-btn">
+        <span class="config-icon">⚙️</span>
+        <span class="config-text" x-text="showConfig ? 'Hide Config' : 'Config'"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Config Section -->
+  <div x-show="showConfig && data.config" class="config-section">
+    <div class="config-content">
+      <h3>Test Configuration</h3>
+      <div class="config-grid">
+        <template x-if="data.config.comparison">
+          <div class="config-item">
+            <span class="config-label">Comparison Engine</span>
+            <span class="config-value" x-text="data.config.comparison.core || 'Default'"></span>
+          </div>
+        </template>
+        
+        <template x-if="data.config.comparison?.threshold">
+          <div class="config-item">
+            <span class="config-label">Threshold</span>
+            <span class="config-value" x-text="data.config.comparison.threshold"></span>
+          </div>
+        </template>
+        
+        <template x-if="data.config.runtime">
+          <div class="config-item">
+            <span class="config-label">Max Concurrency</span>
+            <span class="config-value" x-text="data.config.runtime.maxConcurrency || 'Default'"></span>
+          </div>
+        </template>
+        
+        <template x-if="data.config.runtime?.quiet">
+          <div class="config-item">
+            <span class="config-label">Quiet Mode</span>
+            <span class="config-value" x-text="data.config.runtime.quiet ? 'Enabled' : 'Disabled'"></span>
+          </div>
+        </template>
+        
+        <template x-if="data.config.adapters">
+          <div class="config-item config-item-wide">
+            <span class="config-label">Adapters</span>
+            <div class="config-value">
+              <template x-for="(adapter, key) in data.config.adapters" :key="key">
+                <div class="config-adapter">
+                  <strong x-text="key"></strong>: <span x-text="JSON.stringify(adapter)"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+        
+        <template x-if="data.config.viewport">
+          <div class="config-item config-item-wide">
+            <span class="config-label">Viewports</span>
+            <div class="config-value">
+              <template x-for="(viewport, key) in data.config.viewport" :key="key">
+                <div class="config-viewport">
+                  <strong x-text="key"></strong>: <span x-text="viewport.width + 'x' + viewport.height"></span>
+                  <template x-if="viewport.deviceScaleFactor">
+                    <span class="config-detail"> (scale: <span x-text="viewport.deviceScaleFactor"></span>)</span>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+        
+        <template x-if="data.config.reporter">
+          <div class="config-item config-item-wide">
+            <span class="config-label">Reporters</span>
+            <div class="config-value">
+              <template x-for="(reporter, key) in data.config.reporter" :key="key">
+                <div class="config-reporter">
+                  <strong x-text="key"></strong>: <span x-text="reporter === true ? 'Enabled' : reporter"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
-    <div class="meta-info">
-      <div class="meta-left">
-        <span x-text="formattedTimestamp"></span>
-        <span x-show="duration" x-text="`Duration: ${duration}ms`"></span>
-      </div>
-      <div class="meta-right" x-show="data.config">
-        <button @click="toggleConfig()" class="config-toggle-btn">
-          <span x-text="showConfig ? 'Hide Config' : 'Show Config'"></span>
-          <span class="config-toggle-icon" :class="{ 'expanded': showConfig }">▼</span>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Config Section -->
-    <div x-show="showConfig && data.config" class="config-section">
-      <div class="config-content">
-        <h3>Test Configuration</h3>
-        <div class="config-grid">
-          <template x-if="data.config.comparison">
-            <div class="config-item">
-              <span class="config-label">Comparison Engine</span>
-              <span class="config-value" x-text="data.config.comparison.core || 'Default'"></span>
-            </div>
-          </template>
-          
-          <template x-if="data.config.comparison?.threshold">
-            <div class="config-item">
-              <span class="config-label">Threshold</span>
-              <span class="config-value" x-text="data.config.comparison.threshold"></span>
-            </div>
-          </template>
-          
-          <template x-if="data.config.runtime">
-            <div class="config-item">
-              <span class="config-label">Max Concurrency</span>
-              <span class="config-value" x-text="data.config.runtime.maxConcurrency || 'Default'"></span>
-            </div>
-          </template>
-          
-          <template x-if="data.config.runtime?.quiet">
-            <div class="config-item">
-              <span class="config-label">Quiet Mode</span>
-              <span class="config-value" x-text="data.config.runtime.quiet ? 'Enabled' : 'Disabled'"></span>
-            </div>
-          </template>
-          
-          <template x-if="data.config.adapters">
-            <div class="config-item config-item-wide">
-              <span class="config-label">Adapters</span>
-              <div class="config-value">
-                <template x-for="(adapter, key) in data.config.adapters" :key="key">
-                  <div class="config-adapter">
-                    <strong x-text="key"></strong>: <span x-text="JSON.stringify(adapter)"></span>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </template>
-          
-          <template x-if="data.config.viewport">
-            <div class="config-item config-item-wide">
-              <span class="config-label">Viewports</span>
-              <div class="config-value">
-                <template x-for="(viewport, key) in data.config.viewport" :key="key">
-                  <div class="config-viewport">
-                    <strong x-text="key"></strong>: <span x-text="viewport.width + 'x' + viewport.height"></span>
-                    <template x-if="viewport.deviceScaleFactor">
-                      <span class="config-detail"> (scale: <span x-text="viewport.deviceScaleFactor"></span>)</span>
-                    </template>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </template>
-          
-          <template x-if="data.config.reporter">
-            <div class="config-item config-item-wide">
-              <span class="config-label">Reporters</span>
-              <div class="config-value">
-                <template x-for="(reporter, key) in data.config.reporter" :key="key">
-                  <div class="config-reporter">
-                    <strong x-text="key"></strong>: <span x-text="reporter === true ? 'Enabled' : reporter"></span>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-  </header>
+  </div>
 
   <!-- Filters -->
   <div class="filter-bar">
@@ -164,30 +166,25 @@
     <template x-for="testCase in filteredTests" :key="testCase.id">
       <div class="test-card" :class="testCase.status">
         <div class="test-header" @click="toggleTest(testCase.id)">
-          <div class="test-info">
-            <span class="status-icon" :data-status="testCase.status">●</span>
+          <div class="test-main">
+            <div class="test-status">
+              <span class="status-dot" :data-status="testCase.status"></span>
+            </div>
             <div class="test-content">
-              <div class="test-id">
-                <span class="test-id-prefix" x-text="testCase.id.split('--')[0] + '--'"></span>
-                <span class="test-id-suffix" x-text="testCase.id.split('--').slice(1).join('--')"></span>
-              </div>
+              <div class="test-title" x-text="testCase.id"></div>
+              <div class="test-id" x-text="testCase.title || 'Untitled Test'"></div>
               <div class="test-meta">
-                <div class="test-meta-item">
-                  <span class="test-title" x-text="testCase.title"></span>
-                </div>
-                <div class="test-meta-item">
-                  <span class="browser-tag" x-text="testCase.browser"></span>
-                </div>
-                <div class="test-meta-item" x-show="testCase.viewport">
-                  <span class="viewport-tag" x-text="testCase.viewport"></span>
-                </div>
-                <div class="test-meta-item" x-show="testCase.diffPercentage">
-                  <span class="diff-badge" x-text="`${testCase.diffPercentage?.toFixed(2)}% diff`"></span>
-                </div>
+                <span class="test-browser" x-text="testCase.browser"></span>
+                <span class="test-viewport" x-show="testCase.viewport" x-text="testCase.viewport"></span>
+                <span class="test-diff" x-show="testCase.diffPercentage" x-text="`${testCase.diffPercentage?.toFixed(2)}% diff`"></span>
               </div>
             </div>
           </div>
-          <button class="expand-btn" :class="{ 'expanded': expandedTests.includes(testCase.id) }">▼</button>
+          <div class="test-actions">
+            <button class="expand-btn" :class="{ 'expanded': expandedTests.includes(testCase.id) }">
+              <span class="expand-icon">▼</span>
+            </button>
+          </div>
         </div>
 
         <div x-show="expandedTests.includes(testCase.id)" class="test-details">
@@ -345,8 +342,14 @@
           </div>
 
           <div class="test-metadata">
-            <span>Duration: <span x-text="testCase.totalDurationMs"></span>ms</span>
-            <span x-show="testCase.reason">Reason: <span x-text="testCase.reason"></span></span>
+            <div class="test-stat-item">
+              <span class="test-stat-value" x-text="testCase.totalDurationMs + 'ms'"></span>
+              <span class="test-stat-label">Duration</span>
+            </div>
+            <div class="test-stat-item" x-show="testCase.reason">
+              <span class="test-stat-value" x-text="testCase.reason"></span>
+              <span class="test-stat-label">Reason</span>
+            </div>
           </div>
         </div>
       </div>

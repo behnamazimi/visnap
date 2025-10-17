@@ -55,6 +55,33 @@ function visnapReport() {
       return new Date(this.data.timestamp).toLocaleString();
     },
 
+    get formattedDuration() {
+      if (!this.duration) return "0ms";
+      const ms = this.duration;
+      if (ms < 1000) return `${ms}ms`;
+      const seconds = Math.floor(ms / 1000);
+      if (seconds < 60) return `${seconds}s`;
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+      return `${minutes}m ${remainingSeconds}s`;
+    },
+
+    get formattedInitTime() {
+      const date = new Date(this.data.timestamp);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      
+      if (diffHours > 0) {
+        return `${diffHours}h ago`;
+      } else if (diffMinutes > 0) {
+        return `${diffMinutes}m ago`;
+      } else {
+        return "Just now";
+      }
+    },
+
     setStatusFilter(status) {
       this.filters.status = status;
       this.applyFilters();
