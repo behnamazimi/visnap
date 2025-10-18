@@ -58,14 +58,14 @@ export interface PlaywrightAdapterOptions {
  * Adds resilient navigation, baseUrl support, and safe cleanup.
  */
 export function createAdapter(
-  opts: PlaywrightAdapterOptions = {}
+  options: PlaywrightAdapterOptions = {}
 ): BrowserAdapter {
   // Validate options using ArkType schema
-  const validatedOpts = validateOptions(opts);
+  const validatedOptions = validateOptions(options);
   let browserType: BrowserType | null = null;
   let browser: Browser | null = null;
   let sharedContext: BrowserContext | null = null;
-  const defaultTimeout = validatedOpts.navigation?.timeoutMs ?? 30000;
+  const defaultTimeout = validatedOptions.navigation?.timeoutMs ?? 30000;
 
   /** Ensures the adapter has been initialized */
   function ensureInitialized(): void {
@@ -77,13 +77,13 @@ export function createAdapter(
     /** Launches a browser instance. Safe to call multiple times */
     async init(initOpts?: BrowserAdapterInitOptions) {
       browserType = selectBrowserType(
-        initOpts?.browser || validatedOpts.launch?.browser
+        initOpts?.browser || validatedOptions.launch?.browser
       );
       if (browser) return; // idempotent
       browser = await browserType.launch({
-        headless: validatedOpts.launch?.headless ?? true,
-        channel: validatedOpts.launch?.channel,
-        ...validatedOpts.launch,
+        headless: validatedOptions.launch?.headless ?? true,
+        channel: validatedOptions.launch?.channel,
+        ...validatedOptions.launch,
       });
     },
 
@@ -94,9 +94,9 @@ export function createAdapter(
       page.setDefaultTimeout(defaultTimeout);
       const targetUrl = buildAbsoluteUrl(
         url,
-        validatedOpts.navigation?.baseUrl
+        validatedOptions.navigation?.baseUrl
       );
-      await navigateToUrl(page, targetUrl, validatedOpts, defaultTimeout);
+      await navigateToUrl(page, targetUrl, validatedOptions, defaultTimeout);
       return page;
     },
 
@@ -106,31 +106,35 @@ export function createAdapter(
 
       const targetUrl = buildAbsoluteUrl(
         s.url,
-        validatedOpts.navigation?.baseUrl
+        validatedOptions.navigation?.baseUrl
       );
       // Create (or reuse) context
       const desiredDsf = s.viewport?.deviceScaleFactor;
-      const reuseContext = Boolean(validatedOpts.performance?.reuseContext);
+      const reuseContext = Boolean(validatedOptions.performance?.reuseContext);
       let context: BrowserContext;
       if (reuseContext) {
         if (!sharedContext) {
           sharedContext =
             desiredDsf !== undefined
-              ? await createBrowserContext(browser!, validatedOpts, desiredDsf)
-              : await createBrowserContext(browser!, validatedOpts);
+              ? await createBrowserContext(
+                  browser!,
+                  validatedOptions,
+                  desiredDsf
+                )
+              : await createBrowserContext(browser!, validatedOptions);
         }
         context = sharedContext;
       } else {
         context =
           desiredDsf !== undefined
-            ? await createBrowserContext(browser!, validatedOpts, desiredDsf)
-            : await createBrowserContext(browser!, validatedOpts);
+            ? await createBrowserContext(browser!, validatedOptions, desiredDsf)
+            : await createBrowserContext(browser!, validatedOptions);
       }
 
       try {
         return await performScreenshotCapture(
           context,
-          validatedOpts,
+          validatedOptions,
           {
             ...s,
             url: targetUrl,
@@ -138,7 +142,7 @@ export function createAdapter(
           defaultTimeout
         );
       } finally {
-        if (validatedOpts.performance?.reuseContext) {
+        if (validatedOptions.performance?.reuseContext) {
           // Clear storage between captures to maintain isolation while reusing context
           try {
             const tmpPage = await context.newPage();

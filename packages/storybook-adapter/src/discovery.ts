@@ -38,7 +38,7 @@ export async function discoverCasesFromBrowser(
   const maxRetries = config.maxRetries ?? DEFAULT_DISCOVERY_MAX_RETRIES;
   const retryDelayMs = config.retryDelayMs ?? DEFAULT_DISCOVERY_RETRY_DELAY_MS;
 
-  const attempt = async (): Promise<Record<string, unknown>> => {
+  const attemptStoryDiscovery = async (): Promise<Record<string, unknown>> => {
     const evalPromise = (
       pageCtx.evaluate as NonNullable<PageWithEvaluate["evaluate"]>
     )(async () => {
@@ -65,7 +65,7 @@ export async function discoverCasesFromBrowser(
   let lastError: unknown;
   for (let i = 0; i < maxRetries; i++) {
     try {
-      return await attempt();
+      return await attemptStoryDiscovery();
     } catch (e) {
       lastError = e;
       if (i < maxRetries - 1) {

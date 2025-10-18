@@ -44,18 +44,18 @@ export interface CreateStorybookAdapterOptions {
  * - Discover stories via the browser by calling Storybook's `extract()` API
  * - Filter, normalize, and expand stories into test case instances
  *
- * @param opts - Configuration options for the Storybook adapter
+ * @param options - Configuration options for the Storybook adapter
  * @returns A TestCaseAdapter instance configured for Storybook testing
  */
 export function createAdapter(
-  opts: CreateStorybookAdapterOptions
+  options: CreateStorybookAdapterOptions
 ): TestCaseAdapter {
   // Validate options using ArkType schema
-  const validatedOpts = validateOptions(opts);
+  const validatedOptions = validateOptions(options);
 
   const serverManager = createServerManager(
-    validatedOpts.source,
-    validatedOpts.port
+    validatedOptions.source,
+    validatedOptions.port
   );
 
   return {
@@ -94,7 +94,7 @@ export function createAdapter(
       try {
         cases = await discoverCasesFromBrowser(
           pageCtx,
-          validatedOpts.discovery
+          validatedOptions.discovery
         );
       } finally {
         await pageCtx?.close?.();
@@ -113,8 +113,8 @@ export function createAdapter(
       keys.sort((a, b) => a.localeCompare(b));
 
       return normalizeStories(cases, {
-        include: validatedOpts?.include,
-        exclude: validatedOpts?.exclude,
+        include: validatedOptions?.include,
+        exclude: validatedOptions?.exclude,
         baseUrl,
         viewportKeys: keys,
         globalViewport: o?.viewport,

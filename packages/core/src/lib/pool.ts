@@ -42,7 +42,7 @@ export function createConcurrencyPool(options: PoolOptions) {
     const results: R[] = Array.from({ length: items.length });
     let cursor = 0;
 
-    async function runOne(): Promise<void> {
+    async function processNextItem(): Promise<void> {
       while (true) {
         const index = cursor++;
         if (index >= items.length) return;
@@ -52,7 +52,7 @@ export function createConcurrencyPool(options: PoolOptions) {
     }
 
     const workers = Array.from({ length: Math.min(limit, items.length) }, () =>
-      runOne()
+      processNextItem()
     );
     await Promise.all(workers);
     return results;

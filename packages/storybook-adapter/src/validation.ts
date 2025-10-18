@@ -45,8 +45,10 @@ export function validateDiscoveryConfig(discovery: unknown): DiscoveryConfig {
 /**
  * Validates create storybook adapter options
  */
-export function validateOptions(opts: unknown): CreateStorybookAdapterOptions {
-  const result = createStorybookAdapterOptionsSchema(opts);
+export function validateOptions(
+  options: unknown
+): CreateStorybookAdapterOptions {
+  const result = createStorybookAdapterOptionsSchema(options);
   if (result instanceof type.errors) {
     throw new Error(`Invalid storybook adapter options: ${result.summary}`);
   }

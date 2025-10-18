@@ -140,6 +140,6 @@ const initHandler = async (_options: void): Promise<void> => {
 
 export const command: Command<void> = {
   name: "init",
-  description: "Initialize a new VTT project with sample config",
+  description: "Initialize a new ViSnap project with sample config",
   handler: initHandler,
 };

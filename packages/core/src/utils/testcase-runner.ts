@@ -7,7 +7,7 @@ import type {
   BrowserName,
 } from "@visnap/protocol";
 
-import { ensureVttDirectories } from "./fs";
+import { ensureViSnapDirectories } from "./fs";
 import log from "./logger";
 import { roundToTwoDecimals } from "./math";
 
@@ -145,11 +145,14 @@ export async function executeTestRun(
     // Cases are already discovered and expanded by discoverCasesFromAllAdapters
 
     captureResults = [];
-    const mc = options.runtime?.maxConcurrency;
-    const captureMax = typeof mc === "number" ? mc : mc?.capture;
+    const maxConcurrencyConfig = options.runtime?.maxConcurrency;
+    const captureMax =
+      typeof maxConcurrencyConfig === "number"
+        ? maxConcurrencyConfig
+        : maxConcurrencyConfig?.capture;
     const maxConcurrency = Math.max(1, captureMax ?? DEFAULT_CONCURRENCY);
 
-    ensureVttDirectories(options.screenshotDir);
+    ensureViSnapDirectories(options.screenshotDir);
 
     log.info(
       `Running ${cases.length} test cases with max concurrency: ${maxConcurrency}`

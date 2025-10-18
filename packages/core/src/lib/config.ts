@@ -79,15 +79,15 @@ export const resolveScreenshotDir = (screenshotDir?: string): string => {
 
 /**
  * Applies environment variable overrides to configuration.
- * @param cfg - Base configuration object
+ * @param config - Base configuration object
  * @returns Configuration with environment overrides applied
  */
 function applyEnvOverrides(
-  cfg: VisualTestingToolConfig
+  config: VisualTestingToolConfig
 ): VisualTestingToolConfig {
-  const out = { ...cfg };
+  const updatedConfig = { ...config };
   if (process.env.VISNAP_SCREENSHOT_DIR) {
-    out.screenshotDir = process.env.VISNAP_SCREENSHOT_DIR;
+    updatedConfig.screenshotDir = process.env.VISNAP_SCREENSHOT_DIR;
   }
 
   // Handle comparison config overrides
@@ -97,32 +97,35 @@ function applyEnvOverrides(
     process.env.VISNAP_COMPARISON_DIFF_COLOR ||
     process.env.VISNAP_THRESHOLD
   ) {
-    out.comparison = {
+    updatedConfig.comparison = {
       core:
         (process.env.VISNAP_COMPARISON_CORE as
           | "odiff"
           | "pixelmatch"
           | undefined) ??
-        out.comparison?.core ??
+        updatedConfig.comparison?.core ??
         DEFAULT_COMPARISON_CORE,
-      threshold: out.comparison?.threshold ?? DEFAULT_THRESHOLD,
-      diffColor: out.comparison?.diffColor ?? DEFAULT_DIFF_COLOR,
+      threshold: updatedConfig.comparison?.threshold ?? DEFAULT_THRESHOLD,
+      diffColor: updatedConfig.comparison?.diffColor ?? DEFAULT_DIFF_COLOR,
     };
 
     if (process.env.VISNAP_COMPARISON_THRESHOLD) {
-      const n = Number(process.env.VISNAP_COMPARISON_THRESHOLD);
-      if (!Number.isNaN(n)) out.comparison.threshold = n;
+      const thresholdValue = Number(process.env.VISNAP_COMPARISON_THRESHOLD);
+      if (!Number.isNaN(thresholdValue))
+        updatedConfig.comparison.threshold = thresholdValue;
     } else if (process.env.VISNAP_THRESHOLD) {
       // Backward compatibility for old VISNAP_THRESHOLD env var
-      const n = Number(process.env.VISNAP_THRESHOLD);
-      if (!Number.isNaN(n)) out.comparison.threshold = n;
+      const thresholdValue = Number(process.env.VISNAP_THRESHOLD);
+      if (!Number.isNaN(thresholdValue))
+        updatedConfig.comparison.threshold = thresholdValue;
     }
     if (process.env.VISNAP_COMPARISON_DIFF_COLOR) {
-      out.comparison.diffColor = process.env.VISNAP_COMPARISON_DIFF_COLOR;
+      updatedConfig.comparison.diffColor =
+        process.env.VISNAP_COMPARISON_DIFF_COLOR;
     }
   }
 
-  return out;
+  return updatedConfig;
 }
 
 /**
@@ -158,13 +161,15 @@ export const resolveEffectiveConfig = async (
     }
   }
 
-  const withEnv = applyEnvOverrides(merged);
+  const configWithEnv = applyEnvOverrides(merged);
   // ensure defaults
-  withEnv.screenshotDir = resolveScreenshotDir(withEnv.screenshotDir);
+  configWithEnv.screenshotDir = resolveScreenshotDir(
+    configWithEnv.screenshotDir
+  );
 
   // Ensure comparison config has defaults
-  if (!withEnv.comparison) {
-    withEnv.comparison = {
+  if (!configWithEnv.comparison) {
+    configWithEnv.comparison = {
       core: DEFAULT_COMPARISON_CORE,
       threshold: DEFAULT_THRESHOLD,
       diffColor: DEFAULT_DIFF_COLOR,
@@ -173,7 +178,7 @@ export const resolveEffectiveConfig = async (
 
   // Validate the final merged config
   try {
-    return validateConfig(withEnv) as VisualTestingToolConfig;
+    return validateConfig(configWithEnv) as VisualTestingToolConfig;
   } catch (error) {
     if (error instanceof ConfigError) {
       throw error;

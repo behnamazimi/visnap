@@ -24,7 +24,7 @@ import { validateCreateUrlAdapterOptions } from "./validation";
  * - Expand URLs across multiple viewport configurations
  * - Support per-URL configuration (viewport, threshold, interactions)
  *
- * @param opts - Configuration options for the URL adapter
+ * @param options - Configuration options for the URL adapter
  * @returns A TestCaseAdapter instance configured for URL testing
  *
  * @example
@@ -39,18 +39,20 @@ import { validateCreateUrlAdapterOptions } from "./validation";
  * });
  * ```
  */
-export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
+export function createAdapter(
+  options: CreateUrlAdapterOptions
+): TestCaseAdapter {
   // Validate options using ArkType schema
-  const validatedOpts = validateCreateUrlAdapterOptions(opts);
+  const validatedOptions = validateCreateUrlAdapterOptions(options);
 
   // Create filter function
   const filter = createUrlFilter({
-    include: validatedOpts.include,
-    exclude: validatedOpts.exclude,
+    include: validatedOptions.include,
+    exclude: validatedOptions.exclude,
   });
 
   // Filter URLs
-  const filteredUrls = validatedOpts.urls.filter(filter);
+  const filteredUrls = validatedOptions.urls.filter(filter);
 
   if (filteredUrls.length === 0) {
     console.warn("No URLs match the include/exclude patterns");
@@ -93,8 +95,8 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
 
       // Normalize URLs to test case instances
       return normalizeUrls(filteredUrls, {
-        include: validatedOpts.include,
-        exclude: validatedOpts.exclude,
+        include: validatedOptions.include,
+        exclude: validatedOptions.exclude,
         viewportKeys,
         globalViewport: o?.viewport,
       });

@@ -10,7 +10,7 @@ import { validateScreenshotDir } from "./path-validation";
 
 import { resolveScreenshotDir } from "@/lib/config";
 
-export const ensureVttDirectories = (
+export const ensureViSnapDirectories = (
   screenshotDir?: string,
   directoryConfig?: Partial<DirectoryConfig>
 ): void => {
@@ -24,17 +24,17 @@ export const ensureVttDirectories = (
     createDirectoryConfig(directoryConfig)
   );
 
-  const vttDir = join(process.cwd(), effectiveScreenshotDir);
-  if (!existsSync(vttDir)) mkdirSync(vttDir);
+  const visnapDir = join(process.cwd(), effectiveScreenshotDir);
+  if (!existsSync(visnapDir)) mkdirSync(visnapDir);
 
-  const ensure = (name: string) => {
-    const dir = join(vttDir, name);
+  const ensureDirectoryExists = (name: string) => {
+    const dir = join(visnapDir, name);
     if (!existsSync(dir)) mkdirSync(dir);
   };
 
-  ensure(dirConfig.baseDirName);
-  ensure(dirConfig.currentDirName);
-  ensure(dirConfig.diffDirName);
+  ensureDirectoryExists(dirConfig.baseDirName);
+  ensureDirectoryExists(dirConfig.currentDirName);
+  ensureDirectoryExists(dirConfig.diffDirName);
 };
 
 export const getCurrentDir = (

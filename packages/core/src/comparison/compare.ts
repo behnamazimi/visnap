@@ -334,9 +334,10 @@ export const compareTestCases = async (
 
   // Map filename -> threshold (supports per-instance override)
   const idToThreshold = new Map<string, number>();
-  for (const t of testCases) {
-    const file = `${t.caseId}-${t.variantId}.png`;
-    const maybeThreshold = (t as unknown as { threshold?: number }).threshold;
+  for (const testCase of testCases) {
+    const file = `${testCase.caseId}-${testCase.variantId}.png`;
+    const maybeThreshold = (testCase as unknown as { threshold?: number })
+      .threshold;
     if (typeof maybeThreshold === "number") {
       idToThreshold.set(file, maybeThreshold);
     }
@@ -360,8 +361,11 @@ export const compareTestCases = async (
   const files = Array.from(expectedFiles).sort((a, b) => a.localeCompare(b));
 
   const engine = createComparisonEngine(comparisonConfig.core);
-  const mc = config.runtime?.maxConcurrency;
-  const compareMax = typeof mc === "number" ? mc : mc?.compare;
+  const maxConcurrencyConfig = config.runtime?.maxConcurrency;
+  const compareMax =
+    typeof maxConcurrencyConfig === "number"
+      ? maxConcurrencyConfig
+      : maxConcurrencyConfig?.compare;
   const maxConcurrentCompares = Math.max(1, compareMax ?? 4);
   const runWithPool = createConcurrencyPool({
     concurrency: maxConcurrentCompares,
