@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Validation utilities for Storybook adapter
+ *
+ * Provides ArkType-based validation schemas and functions for Storybook adapter options
+ * and discovery configuration with comprehensive error handling.
+ */
+
 import { type } from "arktype";
 
 // ============= Schema Definitions =============

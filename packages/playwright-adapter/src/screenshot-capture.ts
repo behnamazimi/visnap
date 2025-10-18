@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Screenshot capture utilities for Playwright adapter
+ *
+ * Provides functions for capturing screenshots, executing interactions,
+ * and handling element-specific screenshot capture with Playwright.
+ */
+
 import type { ScreenshotOptions, ScreenshotResult } from "@visnap/protocol";
 import type { Page, BrowserContext } from "playwright-core";
 
@@ -8,10 +15,10 @@ import {
   injectGlobalCSS,
   NO_ANIMATIONS_CSS,
 } from "./browser-context";
+import { resolveScreenshotTarget } from "./browser-utils";
 import { SCREENSHOT_ELEMENT_TIMEOUT } from "./constants";
 import { executeInteractions } from "./interaction-executor";
 import { buildElementsMaskCSS } from "./masking-css";
-import { resolveScreenshotTarget } from "./utils";
 
 import type { PlaywrightAdapterOptions } from "./index";
 

@@ -1,10 +1,13 @@
+/**
+ * @fileoverview Story discovery utilities for Storybook adapter
+ *
+ * Provides functions for discovering Storybook stories from the browser context
+ * using Storybook's extract() API with retry mechanisms and timeout handling.
+ */
+
 import type { PageWithEvaluate } from "@visnap/protocol";
 
 import { withTimeout } from "./utils";
-
-/**
- * Story discovery for Storybook adapter
- */
 
 // Default configuration values
 const DEFAULT_EVAL_TIMEOUT_MS = 15000;

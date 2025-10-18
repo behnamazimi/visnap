@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Image comparison and testing utilities
+ *
+ * Comparison engines for different backends (odiff, pixelmatch) and functions
+ * for comparing test cases and directories.
+ */
+
 import type {
   StorageAdapter,
   TestCaseInstance,
@@ -8,6 +15,11 @@ import type {
 } from "@visnap/protocol";
 
 import { createConcurrencyPool } from "@/lib/pool";
+
+import {
+  comparisonEngineRegistry,
+  registerBuiltInEngines,
+} from "./comparison-engine-registry";
 
 // Module-level regex for hex color validation
 const HEX_COLOR_REGEX = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
@@ -24,22 +36,47 @@ import {
 import { getErrorMessage } from "@/utils/error-handler";
 import { roundToTwoDecimals } from "@/utils/math";
 
+/**
+ * Options for image comparison operations.
+ */
 export interface CompareOptions {
+  /** The comparison engine to use for image comparison. */
   comparisonCore: ComparisonCore;
+  /** Pixel difference threshold (0-1) for determining matches. */
   threshold?: number;
+  /** Color to use for highlighting differences in diff images. */
   diffColor?: string;
 }
 
+/**
+ * Result of an image comparison operation.
+ */
 export interface CompareResult {
+  /** Unique identifier for the compared file. */
   id: string;
+  /** Whether the images match within the threshold. */
   match: boolean;
+  /** Reason for the comparison result (e.g., "pixel-diff", "missing-base"). */
   reason: string;
+  /** Percentage of pixels that differ (0-100). */
   diffPercentage?: number;
+  /** Duration of the comparison operation in milliseconds. */
   comparisonDurationMs?: number;
 }
 
+/**
+ * Odiff-based comparison engine for image comparison.
+ */
 export class OdiffEngine implements ComparisonEngine {
   name = "odiff";
+
+  /**
+   * Compares two images using the odiff engine.
+   * @param storage - Storage adapter for accessing image files
+   * @param filename - Name of the image file to compare
+   * @param options - Comparison options including threshold and diff color
+   * @returns Promise resolving to comparison result
+   */
   async compare(
     storage: StorageAdapter,
     filename: string,
@@ -92,8 +129,19 @@ export class OdiffEngine implements ComparisonEngine {
   }
 }
 
+/**
+ * Pixelmatch-based comparison engine for image comparison.
+ */
 export class PixelmatchEngine implements ComparisonEngine {
   name = "pixelmatch";
+
+  /**
+   * Compares two images using the pixelmatch engine.
+   * @param storage - Storage adapter for accessing image files
+   * @param filename - Name of the image file to compare
+   * @param options - Comparison options including threshold and diff color
+   * @returns Promise resolving to comparison result
+   */
   async compare(
     storage: StorageAdapter,
     filename: string,
@@ -169,6 +217,12 @@ export class PixelmatchEngine implements ComparisonEngine {
   }
 }
 
+/**
+ * Converts a hex color string to RGB values.
+ * @param hex - Hex color string (e.g., "#ff0000" or "ff0000")
+ * @returns RGB values as a tuple
+ * @throws {Error} If the hex string is invalid
+ */
 function hexToRgb(hex: string): [number, number, number] {
   const result = HEX_COLOR_REGEX.exec(hex);
   if (!result) {
@@ -181,15 +235,16 @@ function hexToRgb(hex: string): [number, number, number] {
   ];
 }
 
+/**
+ * Creates a comparison engine instance based on the specified core.
+ * @param core - The comparison core to use
+ * @returns Comparison engine instance
+ * @throws {Error} If the comparison core is not supported
+ */
 function createComparisonEngine(core: ComparisonCore): ComparisonEngine {
-  // Import registry and register built-in engines if not already done
-  import("../utils/comparison-engine-registry").then(
-    ({ comparisonEngineRegistry, registerBuiltInEngines }) => {
-      if (!comparisonEngineRegistry.has(core)) {
-        registerBuiltInEngines();
-      }
-    }
-  );
+  if (!comparisonEngineRegistry.has(core)) {
+    registerBuiltInEngines();
+  }
 
   // For now, fall back to the old switch statement
   // TODO: Replace with registry lookup once async initialization is handled
@@ -203,6 +258,12 @@ function createComparisonEngine(core: ComparisonCore): ComparisonEngine {
   }
 }
 
+/**
+ * Compares all images in current and base directories.
+ * @param storage - Storage adapter for accessing image files
+ * @param options - Comparison options
+ * @returns Promise resolving to array of comparison results
+ */
 export const compareDirectories = async (
   storage: StorageAdapter,
   options: CompareOptions
@@ -253,8 +314,11 @@ export const compareDirectories = async (
 };
 
 /**
- * Compare base and current screenshots with story-level configuration support.
- * This function can handle different thresholds per story.
+ * Compares test case screenshots with support for per-story configuration.
+ * @param storage - Storage adapter for accessing image files
+ * @param config - Visual testing tool configuration
+ * @param testCases - Array of test case instances to compare
+ * @returns Promise resolving to array of comparison results
  */
 export const compareTestCases = async (
   storage: StorageAdapter,

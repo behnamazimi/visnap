@@ -1,5 +1,7 @@
 import type { ComparisonEngine, ComparisonCore } from "@visnap/protocol";
 
+import { OdiffEngine, PixelmatchEngine } from "./compare";
+
 /**
  * Registry for comparison engines
  */
@@ -48,9 +50,6 @@ export const comparisonEngineRegistry = new ComparisonEngineRegistry();
  * Register built-in comparison engines
  */
 export function registerBuiltInEngines(): void {
-  // Import and register engines dynamically to avoid circular dependencies
-  import("../lib/compare").then(({ OdiffEngine, PixelmatchEngine }) => {
-    comparisonEngineRegistry.register(new OdiffEngine());
-    comparisonEngineRegistry.register(new PixelmatchEngine());
-  });
+  comparisonEngineRegistry.register(new OdiffEngine());
+  comparisonEngineRegistry.register(new PixelmatchEngine());
 }

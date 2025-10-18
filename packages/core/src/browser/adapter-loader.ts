@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Adapter loading utilities
+ *
+ * Dynamically loads browser adapters, test case adapters, and storage adapters
+ * based on configuration. Includes error handling and adapter pooling.
+ */
+
 import { FsStorageAdapter } from "@visnap/fs-adapter";
 import type {
   BrowserAdapter,
@@ -7,12 +14,15 @@ import type {
   StorageAdapter,
 } from "@visnap/protocol";
 
-import log from "./logger";
-
 import { DEFAULT_SCREENSHOT_DIR } from "@/constants";
+import log from "@/utils/logger";
 
 /**
- * Helper function to format consistent error messages for adapter loading
+ * Formats error messages for adapter loading failures.
+ * @param moduleName - Name of the adapter module
+ * @param errorType - Type of adapter (browser, test case, etc.)
+ * @param errorMessage - Original error message
+ * @returns Formatted error message with helpful suggestions
  */
 function formatAdapterError(
   moduleName: string,
@@ -32,7 +42,10 @@ function formatAdapterError(
 }
 
 /**
- * Load a browser adapter dynamically based on configuration
+ * Loads a browser adapter dynamically based on configuration.
+ * @param adapters - Adapter configuration from the visual testing tool config
+ * @returns Promise resolving to initialized browser adapter
+ * @throws {Error} If adapter loading fails or required configuration is missing
  */
 export async function loadBrowserAdapter(
   adapters: VisualTestingToolConfig["adapters"]
@@ -65,7 +78,10 @@ export async function loadBrowserAdapter(
 }
 
 /**
- * Load all test case adapters dynamically based on configuration
+ * Loads all test case adapters dynamically based on configuration.
+ * @param adapters - Adapter configuration from the visual testing tool config
+ * @returns Promise resolving to array of initialized test case adapters
+ * @throws {Error} If no adapters can be loaded successfully
  */
 export async function loadAllTestCaseAdapters(
   adapters: VisualTestingToolConfig["adapters"]
@@ -117,11 +133,18 @@ export async function loadAllTestCaseAdapters(
 }
 
 /**
- * Browser adapter pool for managing multiple browser instances
+ * Browser adapter pool for managing multiple browser instances.
  */
 export class BrowserAdapterPool {
   private adapters = new Map<BrowserName, BrowserAdapter>();
 
+  /**
+   * Gets or creates a browser adapter for the specified browser.
+   * @param browserName - Name of the browser to get adapter for
+   * @param browserOptions - Browser-specific options
+   * @param loadBrowserAdapter - Function to load the browser adapter
+   * @returns Promise resolving to the browser adapter
+   */
   async getAdapter(
     browserName: BrowserName,
     browserOptions: Record<string, unknown> | undefined,
@@ -138,6 +161,10 @@ export class BrowserAdapterPool {
     return this.adapters.get(browserName)!;
   }
 
+  /**
+   * Disposes all browser adapters in the pool.
+   * @returns Promise that resolves when all adapters are disposed
+   */
   async disposeAll(): Promise<void> {
     const disposePromises = Array.from(this.adapters.values()).map(
       async adapter => {
@@ -155,8 +182,10 @@ export class BrowserAdapterPool {
 }
 
 /**
- * Load storage adapter based on configuration.
- * - Currently only supports filesystem storage
+ * Loads storage adapter based on configuration.
+ * Currently only supports filesystem storage via FsStorageAdapter.
+ * @param config - Visual testing tool configuration
+ * @returns Promise resolving to initialized storage adapter
  */
 export async function loadStorageAdapter(
   config: VisualTestingToolConfig

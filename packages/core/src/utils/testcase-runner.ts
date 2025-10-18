@@ -7,23 +7,26 @@ import type {
   BrowserName,
 } from "@visnap/protocol";
 
+import { ensureVttDirectories } from "./fs";
+import log from "./logger";
+import { roundToTwoDecimals } from "./math";
+
 import {
   loadBrowserAdapter,
   loadAllTestCaseAdapters,
   BrowserAdapterPool,
-} from "./adapter-loader";
-import { parseBrowsersFromConfig } from "./browser-config";
-import log from "./logger";
-import { writeScreenshotToFile, cleanupTempFiles } from "./screenshot-writer";
-import { discoverCasesFromAllAdapters } from "./test-discovery";
-import { summarizeTestMode, summarizeUpdateMode } from "./test-summary";
-
+  loadStorageAdapter,
+} from "@/browser/adapter-loader";
+import { parseBrowsersFromConfig } from "@/browser/browser-config";
 import { DEFAULT_CONCURRENCY, DEFAULT_CAPTURE_TIMEOUT_MS } from "@/constants";
 import { logEffectiveConfig } from "@/lib/config";
 import { createConcurrencyPool } from "@/lib/pool";
-import { loadStorageAdapter } from "@/utils/adapter-loader";
-import { ensureVttDirectories } from "@/utils/fs";
-import { roundToTwoDecimals } from "@/utils/math";
+import {
+  writeScreenshotToFile,
+  cleanupTempFiles,
+} from "@/test/screenshot-writer";
+import { discoverCasesFromAllAdapters } from "@/test/test-discovery";
+import { summarizeTestMode, summarizeUpdateMode } from "@/test/test-summary";
 
 export async function discoverTestCases(
   options: VisualTestingToolConfig

@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Command loading utilities
+ *
+ * Provides functions for loading and registering CLI commands from the centralized
+ * registry. Handles command validation and registration with the commander.js
+ * program instance.
+ */
+
 import { log } from "@visnap/core";
 import { type Command as CommanderCommand } from "commander";
 

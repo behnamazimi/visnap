@@ -7,7 +7,7 @@ export interface PoolOptions {
 }
 
 /**
- * Creates a small, framework-agnostic concurrency pool for processing a list of items with a given parallelism limit.
+ * Creates a concurrency pool for processing items with a parallelism limit.
  *
  * Usage:
  * ```ts
@@ -15,14 +15,12 @@ export interface PoolOptions {
  * const results = await runWithPool(items, async (item, index) => doWork(item));
  * ```
  *
- * - The provided `worker` is called exactly once per item.
- * - Items are processed in batches up to `concurrency` at a time.
- * - The returned array preserves input order; `results[i]` corresponds to `items[i]`.
+ * - The worker function is called once per item
+ * - Items are processed in batches up to the concurrency limit
+ * - Results preserve input order; `results[i]` corresponds to `items[i]`
  *
- * This utility is transport- and framework-agnostic: it does not depend on Node, Playwright, HTTP, etc.
- *
- * @param options Concurrency pool options
- * @returns A function that accepts a list of items and an async worker, returning results in input order
+ * @param options - Concurrency pool options
+ * @returns A function that processes items and returns results in input order
  */
 export function createConcurrencyPool(options: PoolOptions) {
   // Validate input parameters

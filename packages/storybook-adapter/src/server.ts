@@ -1,11 +1,14 @@
+/**
+ * @fileoverview Server management utilities for Storybook adapter
+ *
+ * Provides functions for starting and managing a local static file server
+ * for Storybook static builds or connecting to existing Storybook instances.
+ */
+
 import { existsSync } from "node:fs";
 import http from "node:http";
 
 import handler from "serve-handler";
-
-/**
- * Server management for Storybook adapter
- */
 
 const DEFAULT_PORT = 4477;
 const SERVER_START_TIMEOUT_MS = 5000;

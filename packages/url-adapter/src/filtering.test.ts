@@ -1,8 +1,9 @@
 import type { InteractionAction } from "@visnap/protocol";
 import { describe, it, expect } from "vitest";
 
-import type { UrlConfig } from "./filtering";
-import { createUrlFilter, isValidUrl, validateUrlConfig } from "./filtering";
+import { createUrlFilter } from "./filtering";
+import type { UrlConfig } from "./validation";
+import { isValidUrl, validateUrlConfig } from "./validation";
 
 describe("createUrlFilter", () => {
   const testUrls: UrlConfig[] = [

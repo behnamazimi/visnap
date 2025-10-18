@@ -1,8 +1,16 @@
+/**
+ * @fileoverview ViSnap banner display utilities
+ *
+ * Displays the ViSnap ASCII art banner and version information.
+ * Includes fallback handling for environments where figlet may not be available.
+ */
+
 import { getPackageInfo, log } from "@visnap/core";
 import figlet from "figlet";
 
 /**
- * Display the visnap ASCII art banner
+ * Displays the ViSnap ASCII art banner with version information.
+ * @returns Promise that resolves when banner is displayed
  */
 export async function displayBanner(): Promise<void> {
   // Skip banner in CI environments

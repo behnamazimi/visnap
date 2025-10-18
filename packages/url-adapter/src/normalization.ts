@@ -1,3 +1,10 @@
+/**
+ * @fileoverview URL normalization utilities for URL adapter
+ *
+ * Provides functions for normalizing and expanding URL configurations into
+ * test case instances with viewport expansion and safe viewport validation.
+ */
+
 import {
   DEFAULT_VIEWPORT,
   type TestCaseInstanceMeta,
@@ -6,11 +13,17 @@ import {
   type Viewport,
 } from "@visnap/protocol";
 
-import type { UrlConfig } from "./filtering";
+import type { UrlConfig } from "./validation";
 
 /**
  * Creates a safe viewport with basic validation and fallbacks
  * This is a simplified version of the core createSafeViewport function
+ *
+ * @param viewport - Viewport configuration to validate
+ * @param fallback - Fallback viewport if validation fails
+ * @param context - Context string for error messages
+ * @returns Validated viewport configuration
+ * @throws {Error} If viewport is invalid
  */
 function createSafeViewport(
   viewport: unknown | undefined,
@@ -45,6 +58,21 @@ function createSafeViewport(
 /**
  * Normalizes and expands URL configurations into TestCaseInstanceMeta[].
  * Applies filtering, viewport expansion, and per-URL configuration.
+ *
+ * @param urlConfigs - Array of URL configurations to normalize
+ * @param options - Options including viewport keys and global viewport configuration
+ * @returns Array of normalized test case instances
+ *
+ * @example
+ * ```typescript
+ * const instances = normalizeUrls(urlConfigs, {
+ *   viewportKeys: ["desktop", "mobile"],
+ *   globalViewport: {
+ *     desktop: { width: 1920, height: 1080 },
+ *     mobile: { width: 375, height: 667 }
+ *   }
+ * });
+ * ```
  */
 export function normalizeUrls(
   urlConfigs: UrlConfig[],
@@ -104,6 +132,17 @@ export function normalizeUrls(
 
 /**
  * Generates deterministic test IDs from URL configurations
+ * @param urlConfig - URL configuration
+ * @param viewportKey - Viewport key for this variant
+ * @returns Generated test ID in format "urlId-viewportKey"
+ *
+ * @example
+ * ```typescript
+ * const testId = generateTestId(
+ *   { id: "homepage", url: "https://example.com" },
+ *   "desktop"
+ * ); // Returns "homepage-desktop"
+ * ```
  */
 export function generateTestId(
   urlConfig: UrlConfig,
@@ -114,6 +153,17 @@ export function generateTestId(
 
 /**
  * Expands URLs across multiple viewport configurations
+ * @param urlConfigs - Array of URL configurations to expand
+ * @param viewportMap - Map of viewport configurations
+ * @returns Array of test case instances expanded across viewports
+ *
+ * @example
+ * ```typescript
+ * const instances = expandUrlsForViewports(urlConfigs, {
+ *   desktop: { width: 1920, height: 1080 },
+ *   mobile: { width: 375, height: 667 }
+ * });
+ * ```
  */
 export function expandUrlsForViewports(
   urlConfigs: UrlConfig[],

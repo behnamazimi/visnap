@@ -3,7 +3,11 @@ import type { VisualTestingToolConfig } from "@visnap/protocol";
 import { resolveEffectiveConfig } from "@/lib/config";
 import { executeTestRun } from "@/utils/testcase-runner";
 
-// Internal function that handles the core logic
+/**
+ * Internal function that updates baseline screenshots with optional CLI overrides.
+ * @param options - Configuration options for the update run
+ * @param cliOptions - CLI-specific options for filtering and config path
+ */
 async function updateBaselineInternal(
   options: Partial<VisualTestingToolConfig> = {},
   cliOptions?: {
@@ -17,15 +21,21 @@ async function updateBaselineInternal(
   await executeTestRun(effectiveConfig, "update");
 }
 
-// New function after tool agnostic design
-// TODO: should accept partial options in mature versions
+/**
+ * Updates baseline screenshots with current captures.
+ * @param options - Configuration options for the update run
+ */
 export async function updateBaseline(
   options: Partial<VisualTestingToolConfig>
 ): Promise<void> {
   return updateBaselineInternal(options);
 }
 
-// CLI-specific function that handles CLI options
+/**
+ * Updates baseline screenshots with CLI-specific options.
+ * @param options - Configuration options for the update run
+ * @param cliOptions - CLI options for filtering test cases
+ */
 export async function updateBaselineCli(
   options: Partial<VisualTestingToolConfig> = {},
   cliOptions: { include?: string | string[]; exclude?: string | string[] }

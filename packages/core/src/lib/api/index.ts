@@ -1,6 +1,3 @@
-// API barrel file - exports all API functions and types
-
-// Test API
 export { runVisualTests, runVisualTestsCli } from "./test";
 export type { TestResult } from "@visnap/protocol";
 

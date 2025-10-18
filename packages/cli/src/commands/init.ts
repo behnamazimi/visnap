@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Init command implementation
+ *
+ * Implements the 'init' command for initializing new Visnap projects.
+ * Provides both interactive wizard and quick setup modes for configuration
+ * file generation.
+ */
+
 import { existsSync, writeFileSync } from "fs";
 import { join } from "path";
 
@@ -11,11 +19,20 @@ import {
 } from "../utils/config-wizard";
 import { ErrorHandler } from "../utils/error-handler";
 
+/**
+ * Options for the init command.
+ */
 interface InitOptions {
+  /** Configuration file type (TypeScript or JavaScript) */
   configType?: "ts" | "js";
+  /** Whether to use interactive wizard mode */
   wizard?: boolean;
 }
 
+/**
+ * Prompts the user for initialization options.
+ * @returns Promise resolving to user-selected options.
+ */
 const promptUser = async (): Promise<InitOptions> => {
   console.clear();
   log.info("🚀 Welcome to Visual Testing Tool setup!");
@@ -51,6 +68,11 @@ const promptUser = async (): Promise<InitOptions> => {
   };
 };
 
+/**
+ * Handler for the init command.
+ * @param _options - Unused options parameter.
+ * @returns Promise that resolves when initialization completes.
+ */
 const initHandler = async (_options: void): Promise<void> => {
   try {
     const currentDir = process.cwd();

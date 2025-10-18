@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Configuration management
+ *
+ * Loads, validates, and resolves configuration files and options.
+ * Merges configurations and applies environment overrides.
+ */
+
 import { existsSync } from "fs";
 import { isAbsolute, join, resolve } from "path";
 
@@ -15,11 +22,12 @@ import {
   DEFAULT_DIFF_COLOR,
 } from "@/constants";
 import { ConfigError } from "@/utils/error-handler";
+import { log } from "@/utils/logger";
 
 /**
- * Resolve the effective path to the configuration file.
- * - If an explicit path is provided, resolve and return it as-is.
- * - Otherwise, return the first existing default among TS/JS in the CWD.
+ * Finds the configuration file path.
+ * @param configPath - Optional explicit configuration file path
+ * @returns Configuration file path or null if not found
  */
 export const resolveConfigPath = (configPath?: string): string | null => {
   if (configPath) {
@@ -35,6 +43,12 @@ export const resolveConfigPath = (configPath?: string): string | null => {
   return null;
 };
 
+/**
+ * Loads and validates a configuration file.
+ * @param configPath - Optional path to configuration file
+ * @returns Promise resolving to validated configuration or null if not found
+ * @throws {ConfigError} If configuration validation fails
+ */
 export const loadConfigFile = async (
   configPath?: string
 ): Promise<VisualTestingToolConfig | null> => {
@@ -54,10 +68,20 @@ export const loadConfigFile = async (
   }
 };
 
+/**
+ * Gets the screenshot directory path with default fallback.
+ * @param screenshotDir - Optional screenshot directory path
+ * @returns Screenshot directory path
+ */
 export const resolveScreenshotDir = (screenshotDir?: string): string => {
   return screenshotDir ?? DEFAULT_SCREENSHOT_DIR;
 };
 
+/**
+ * Applies environment variable overrides to configuration.
+ * @param cfg - Base configuration object
+ * @returns Configuration with environment overrides applied
+ */
 function applyEnvOverrides(
   cfg: VisualTestingToolConfig
 ): VisualTestingToolConfig {
@@ -101,6 +125,13 @@ function applyEnvOverrides(
   return out;
 }
 
+/**
+ * Builds the final configuration by combining file config, options, and CLI overrides.
+ * @param options - Configuration options to merge
+ * @param cliOptions - CLI options for filters and config path
+ * @returns Promise resolving to the final effective configuration
+ * @throws {ConfigError} If configuration file is not found or validation fails
+ */
 export const resolveEffectiveConfig = async (
   options: Partial<VisualTestingToolConfig> = {},
   cliOptions?: {
@@ -151,56 +182,29 @@ export const resolveEffectiveConfig = async (
   }
 };
 
+/**
+ * Logs the effective configuration to the console.
+ * @param config - The configuration to log
+ */
 export const logEffectiveConfig = (config: VisualTestingToolConfig): void => {
   // Use dynamic import to avoid circular dependency
-  import("@/utils/logger")
-    .then(({ log }) => {
-      log.info("Effective configuration:");
-      log.dim(`  Screenshot directory: ${config.screenshotDir}`);
-      log.dim(
-        `  Comparison core: ${config.comparison?.core ?? DEFAULT_COMPARISON_CORE}`
-      );
-      log.dim(
-        `  Comparison threshold: ${config.comparison?.threshold ?? DEFAULT_THRESHOLD}`
-      );
-      log.dim(
-        `  Comparison diff color: ${config.comparison?.diffColor ?? DEFAULT_DIFF_COLOR}`
-      );
-      log.dim(
-        `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
-      );
-      log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
-      log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
-      if (config.viewport) {
-        const viewportKeys = Object.keys(config.viewport);
-        log.dim(
-          `  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`
-        );
-      }
-    })
-    .catch(() => {
-      // Fallback to console if logger is not available
-      console.log("Effective configuration:");
-      console.log(`  Screenshot directory: ${config.screenshotDir}`);
-      console.log(
-        `  Comparison core: ${config.comparison?.core ?? DEFAULT_COMPARISON_CORE}`
-      );
-      console.log(
-        `  Comparison threshold: ${config.comparison?.threshold ?? DEFAULT_THRESHOLD}`
-      );
-      console.log(
-        `  Comparison diff color: ${config.comparison?.diffColor ?? DEFAULT_DIFF_COLOR}`
-      );
-      console.log(
-        `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
-      );
-      console.log(`  Browser adapter: ${config.adapters.browser.name}`);
-      console.log(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
-      if (config.viewport) {
-        const viewportKeys = Object.keys(config.viewport);
-        console.log(
-          `  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`
-        );
-      }
-    });
+  log.info("Effective configuration:");
+  log.dim(`  Screenshot directory: ${config.screenshotDir}`);
+  log.dim(
+    `  Comparison core: ${config.comparison?.core ?? DEFAULT_COMPARISON_CORE}`
+  );
+  log.dim(
+    `  Comparison threshold: ${config.comparison?.threshold ?? DEFAULT_THRESHOLD}`
+  );
+  log.dim(
+    `  Max concurrency: ${config.runtime?.maxConcurrency ?? DEFAULT_CONCURRENCY}`
+  );
+  log.dim(`  Browser adapter: ${config.adapters.browser.name}`);
+  log.dim(`  Test case adapter: ${config.adapters.testCase[0]?.name}`);
+  if (config.viewport) {
+    const viewportKeys = Object.keys(config.viewport);
+    log.dim(
+      `  Global viewports: ${viewportKeys.length} configured (${viewportKeys.join(", ")})`
+    );
+  }
 };

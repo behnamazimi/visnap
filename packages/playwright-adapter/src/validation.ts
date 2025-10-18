@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Validation utilities for Playwright adapter
+ *
+ * Provides ArkType-based validation schemas and functions for Playwright adapter options
+ * and browser configuration with comprehensive error handling.
+ */
+
 import { type } from "arktype";
 
 // ============= Schema Definitions =============

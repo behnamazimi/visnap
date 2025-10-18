@@ -8,7 +8,7 @@ import {
 } from "./directory-config";
 import { validateScreenshotDir } from "./path-validation";
 
-import { resolveScreenshotDir } from "@/lib";
+import { resolveScreenshotDir } from "@/lib/config";
 
 export const ensureVttDirectories = (
   screenshotDir?: string,

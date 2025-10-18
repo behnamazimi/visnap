@@ -26,7 +26,9 @@ export interface InitResult extends BaseResult {
 }
 
 /**
- * Initialize a new project with configuration
+ * Sets up a new project with configuration files and directory structure.
+ * @param options - Configuration options for the project setup
+ * @returns Project initialization result with config path and options used
  */
 export async function initializeProject(
   options: InitOptions = {}

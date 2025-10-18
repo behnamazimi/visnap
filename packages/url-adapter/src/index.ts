@@ -1,3 +1,10 @@
+/**
+ * @fileoverview URL adapter for Visnap visual testing framework
+ *
+ * URL-based TestCaseAdapter that can test any absolute URL without requiring a server.
+ * Supports include/exclude filtering, viewport expansion, and per-URL configuration.
+ */
+
 import type {
   TestCaseAdapter,
   TestCaseInstanceMeta,
@@ -5,9 +12,10 @@ import type {
   PageWithEvaluate,
 } from "@visnap/protocol";
 
-import type { CreateUrlAdapterOptions } from "./filtering";
-import { createUrlFilter, validateCreateUrlAdapterOptions } from "./filtering";
+import { createUrlFilter } from "./filtering";
 import { normalizeUrls } from "./normalization";
+import type { CreateUrlAdapterOptions } from "./validation";
+import { validateCreateUrlAdapterOptions } from "./validation";
 
 /**
  * Creates a URL-based TestCaseAdapter that can:
@@ -16,7 +24,20 @@ import { normalizeUrls } from "./normalization";
  * - Expand URLs across multiple viewport configurations
  * - Support per-URL configuration (viewport, threshold, interactions)
  *
- * The returned API shape matches `TestCaseAdapter` and is preserved.
+ * @param opts - Configuration options for the URL adapter
+ * @returns A TestCaseAdapter instance configured for URL testing
+ *
+ * @example
+ * ```typescript
+ * const adapter = createAdapter({
+ *   urls: [
+ *     { id: "homepage", url: "https://example.com" },
+ *     { id: "about", url: "https://example.com/about" }
+ *   ],
+ *   include: ["homepage"],
+ *   exclude: ["*test*"]
+ * });
+ * ```
  */
 export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
   // Validate options using ArkType schema
@@ -40,6 +61,7 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
 
     /**
      * Start the adapter and provide initial page URL for discovery
+     * @returns Promise resolving to adapter start result with initial page URL
      */
     async start() {
       return {
@@ -51,6 +73,10 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
     /**
      * Lists normalized and filtered URLs as test case instances.
      * No page context needed since URLs are absolute.
+     *
+     * @param _pageCtx - Page context (not used for URL adapter)
+     * @param o - Options including viewport configuration
+     * @returns Promise resolving to array of test case instances
      */
     async listCases(
       _pageCtx?: PageWithEvaluate,
@@ -76,6 +102,7 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
 
     /**
      * No stop() needed - no server to manage
+     * @returns Promise resolving immediately
      */
     async stop() {
       // No cleanup needed
@@ -84,4 +111,4 @@ export function createAdapter(opts: CreateUrlAdapterOptions): TestCaseAdapter {
 }
 
 // Re-export types for convenience
-export type { CreateUrlAdapterOptions, UrlConfig } from "./filtering";
+export type { CreateUrlAdapterOptions, UrlConfig } from "./validation";

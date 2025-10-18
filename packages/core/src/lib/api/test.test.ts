@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-import { executeTestRun } from "../../utils/testcase-runner";
-import { resolveEffectiveConfig } from "../config";
-
 import { runVisualTests, runVisualTestsCli } from "./test";
 
+import { resolveEffectiveConfig } from "@/lib/config";
+import { executeTestRun } from "@/utils/testcase-runner";
+
 // Mock dependencies
-vi.mock("../config", async importOriginal => {
+vi.mock("@/lib/config", async importOriginal => {
   const actual = await importOriginal();
   return {
     ...(actual && typeof actual === "object" ? actual : {}),
@@ -14,7 +14,7 @@ vi.mock("../config", async importOriginal => {
   };
 });
 
-vi.mock("../../utils/testcase-runner", () => ({
+vi.mock("@/utils/testcase-runner", () => ({
   executeTestRun: vi.fn().mockImplementation(async () => ({
     outcome: { passed: 5, total: 5, captureFailures: 0 },
     failures: [],

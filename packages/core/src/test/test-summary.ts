@@ -9,14 +9,18 @@ import type {
   BrowserName,
 } from "@visnap/protocol";
 
-import log from "./logger";
-import { roundToTwoDecimals } from "./math";
-import { formatViewport } from "./viewport-formatting";
-
-import { compareTestCases } from "@/lib/compare";
+import { compareTestCases } from "@/comparison/compare";
+import log from "@/utils/logger";
+import { roundToTwoDecimals } from "@/utils/math";
+import { formatViewport } from "@/utils/viewport-formatting";
 
 /**
- * Summarize test mode results with comparison and logging
+ * Summarizes test mode results with comparison and logging.
+ * @param storage - Storage adapter for accessing image files
+ * @param options - Visual testing tool configuration
+ * @param cases - Test case instances with browser information
+ * @param captureResults - Results from screenshot capture operations
+ * @returns Test outcome with failures and capture failures
  */
 export async function summarizeTestMode(
   storage: StorageAdapter,
@@ -170,7 +174,10 @@ export async function summarizeTestMode(
 }
 
 /**
- * Summarize update mode results (no comparison, just capture success/failure)
+ * Summarizes update mode results (no comparison, just capture success/failure).
+ * @param captureResults - Results from screenshot capture operations
+ * @param cases - Optional test case instances with browser information
+ * @returns Test outcome with capture failures
  */
 export function summarizeUpdateMode(
   captureResults: {

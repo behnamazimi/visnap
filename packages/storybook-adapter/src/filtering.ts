@@ -13,8 +13,12 @@ import { minimatch } from "minimatch";
  */
 
 /**
- * Creates a predicate function that filters stories by `include` and `exclude` patterns.
+ * Creates a predicate function that filters stories by include and exclude patterns
  * Patterns support minimatch wildcards. Invalid patterns are ignored.
+ *
+ * @param opts - Filter options with include and exclude patterns
+ * @returns Predicate function that returns true if story should be included
+ *
  */
 export function createTestCaseFilter(opts: FilterOptions) {
   const includePatterns = Array.isArray(opts.include)
