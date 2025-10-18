@@ -1,10 +1,13 @@
 {
   "root": true,
   "pages": [
-    "(introduction)",
+    "introduction",
+    "configuration",
+    "adapters",
+    "testing-features",
+    "usage",
+    "ci-cd-docker",
     "guides",
-    "adapters"
+    "contributing"
   ]
 }
-
-

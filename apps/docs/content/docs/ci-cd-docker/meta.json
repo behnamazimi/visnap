@@ -1,0 +1,10 @@
+{
+  "title": "CI/CD & Docker",
+  "defaultOpen": true,
+  "pages": [
+    "docker",
+    "github-actions",
+    "gitlab-ci",
+    "jenkins"
+  ]
+}

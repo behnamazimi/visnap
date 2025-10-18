@@ -1,0 +1,52 @@
+---
+title: Comparison
+description: Threshold, engines (odiff/pixelmatch), diff colors
+---
+
+ViSnap supports comparison with [odiff](https://github.com/dmtrKovalenko/odiff) and [pixelmatch](https://github.com/mapbox/pixelmatch) in its core.
+
+## Choosing a Core
+
+- `odiff`: fast, robust defaults; recommended for most projects
+- `pixelmatch`: traditional per-pixel comparison; use if you need its behavior
+
+## Configuration
+
+```typescript
+comparison: {
+  core: 'odiff',        // or 'pixelmatch'
+  threshold: 0.1,       // 0.0–1.0, higher = less strict
+  diffColor: '#00ff00', // optional
+}
+```
+
+## Threshold
+
+How different pixels need to be to count as a change (0.0 to 1.0).
+
+```typescript
+threshold: 0.1 // 10% difference threshold
+```
+
+- `0.0` = No differences allowed (very strict)
+- `1.0` = All differences ignored (very loose)
+- `0.1` = 10% difference threshold (recommended starting point)
+
+## Diff Colors
+
+Customize the color used to highlight differences in diff images:
+
+```typescript
+comparison: {
+  core: 'odiff',
+  threshold: 0.1,
+  diffColor: '#ff0000' // Red differences
+}
+```
+
+## Tips
+
+- Consider starting with `odiff` + 0.1 threshold, then adjust gradually if you notice flakiness
+- You might want to combine with CSS injection to reduce animation noise or mask elements
+- Higher thresholds work well for components with subtle animations or dynamic content
+- Lower thresholds are better for precise UI elements like icons or text

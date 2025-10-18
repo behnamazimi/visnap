@@ -1,0 +1,54 @@
+---
+title: Getting Started
+description: Install, initialize, configure adapters, and run visual tests
+---
+
+## Initialize
+
+The initializer creates a starter `visnap.config.ts` and helps you choose the right adapters for your project.
+
+```npm
+npx visnap init
+```
+
+## Configure
+
+Edit `visnap.config.ts` to set up your testing environment. You'll choose between Storybook or URL adapters for test cases, configure Playwright for browser automation, and set options like comparison thresholds and viewport sizes. See [Configuration](/docs/02-configuration/config-file) for all available options.
+
+## Create Baselines
+
+Baseline screenshots serve as your reference point for future comparisons. These represent the "correct" state of your UI that you want to maintain.
+
+```npm
+npx visnap update
+```
+
+## Run Tests
+
+This captures fresh screenshots and compares them against your baselines. Any differences above your threshold will be flagged as failures, helping you catch unintended visual changes.
+
+```npm
+npx visnap test
+```
+
+## Open Report or Screenshots
+
+Review your test results through the interactive HTML report, which shows side-by-side comparisons and highlights differences. You can also browse screenshots directly if you prefer.
+
+```npm
+npx visnap open
+```
+
+## Optional: Validate and List
+
+These commands help you verify your setup and explore what test cases are available without running the full test suite.
+
+```npm
+# Validate configuration
+npx visnap validate
+
+# List test cases without running
+npx visnap list
+```
+
+## Next Steps

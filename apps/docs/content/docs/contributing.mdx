@@ -1,4 +1,7 @@
-# Contributing
+---
+title: Contributing
+description: Development setup, building, testing, and pull request guidelines
+---
 
 Thank you for your interest in contributing to visnap! This document provides guidelines for contributing to this project.
 
@@ -25,6 +28,18 @@ Thank you for your interest in contributing to visnap! This document provides gu
    npm run test
    ```
 
+## Package Structure
+
+This is a monorepo with the following packages:
+
+- `@visnap/protocol` - Shared types and interfaces
+- `@visnap/playwright-adapter` - Playwright browser integration
+- `@visnap/storybook-adapter` - Storybook integration
+- `@visnap/core` - Core functionality
+- `@visnap/cli` - Command-line interface
+
+All packages share the same version number (fixed versioning).
+
 ## Making Changes
 
 ### Code Style
@@ -50,7 +65,7 @@ When making changes that should be released, you need to create a changeset:
 
 3. **Include the changeset file** in your PR
 
-### Pull Request Process
+## Pull Request Process
 
 1. Create a feature branch from `main`
 2. Make your changes
@@ -58,7 +73,7 @@ When making changes that should be released, you need to create a changeset:
 4. Create a changeset if the change should be released
 5. Submit a pull request with a clear description
 
-### Release Process
+## Release Process
 
 This project uses automated releases with Changesets:
 
@@ -66,15 +81,10 @@ This project uses automated releases with Changesets:
 - Maintainers review and merge the version PR
 - Packages are automatically published to npm
 
-## Package Structure
+## Guidelines
 
-This is a monorepo with the following packages:
-
-- `@visnap/protocol` - Shared types and interfaces
-- `@visnap/playwright-adapter` - Playwright browser integration
-- `@visnap/storybook-adapter` - Storybook integration
-- `@visnap/core` - Core functionality
-- `@visnap/cli` - Command-line interface
-
-All packages share the same version number (fixed versioning).
-
+- Ensure all tests pass before submitting
+- Follow the existing code style and patterns
+- Include tests for new functionality
+- Update documentation if needed
+- Create a changeset for any changes that should be released
