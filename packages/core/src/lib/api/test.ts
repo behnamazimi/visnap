@@ -3,7 +3,12 @@ import type { VisualTestingToolConfig, TestResult } from "@visnap/protocol";
 import { resolveEffectiveConfig } from "@/lib/config";
 import { executeTestRun } from "@/utils/testcase-runner";
 
-// Internal function that handles the core logic
+/**
+ * Internal function that runs visual tests with optional CLI overrides.
+ * @param options - Configuration options for the test run
+ * @param cliOptions - CLI-specific options for filtering and config path
+ * @returns Test results with outcome, failures, and configuration metadata
+ */
 async function runVisualTestsInternal(
   options: Partial<VisualTestingToolConfig> = {},
   cliOptions?: {
@@ -45,14 +50,23 @@ async function runVisualTestsInternal(
   };
 }
 
-// New function after tool agnostic design
+/**
+ * Runs visual regression tests using the provided configuration.
+ * @param options - Configuration options for the test run
+ * @returns Test results with outcome, failures, and configuration metadata
+ */
 export async function runVisualTests(
   options: Partial<VisualTestingToolConfig> = {}
 ): Promise<TestResult> {
   return runVisualTestsInternal(options);
 }
 
-// CLI-specific function that handles CLI options
+/**
+ * Runs visual regression tests with CLI-specific options.
+ * @param options - Configuration options for the test run
+ * @param cliOptions - CLI options for filtering test cases
+ * @returns Test results with outcome, failures, and configuration metadata
+ */
 export async function runVisualTestsCli(
   options: Partial<VisualTestingToolConfig> = {},
   cliOptions: { include?: string | string[]; exclude?: string | string[] }

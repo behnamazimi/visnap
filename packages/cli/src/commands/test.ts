@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Test command implementation
+ *
+ * Implements the 'test' command for running visual regression tests.
+ * Handles test execution, report generation, and Docker execution modes.
+ */
+
 import type { CliOptions } from "@visnap/protocol";
 import { type Command as CommanderCommand } from "commander";
 
@@ -7,13 +14,25 @@ import { type Command } from "../types";
 import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
 
+/**
+ * Options for the test command.
+ */
 interface TestCommandOptions extends CliOptions {
-  jsonReport?: string | boolean; // when provided without a path => stdout JSON; when a path => write file
-  htmlReport?: string | boolean; // when provided without a path => write to screenshotDir; when a path => write to specified location
+  /** JSON report configuration - when provided without a path => stdout JSON; when a path => write file */
+  jsonReport?: string | boolean;
+  /** HTML report configuration - when provided without a path => write to screenshotDir; when a path => write to specified location */
+  htmlReport?: string | boolean;
+  /** Whether to run tests inside Docker */
   docker?: boolean;
+  /** Path to configuration file */
   config?: string;
 }
 
+/**
+ * Handler for the test command.
+ * @param options - Test command options
+ * @returns Promise that resolves when test execution completes
+ */
 const testHandler = async (options: TestCommandOptions): Promise<void> => {
   const testService = new TestService();
   const presentationService = new PresentationService();

@@ -2,7 +2,7 @@ import { unlink } from "fs/promises";
 
 import type { StorageAdapter, StorageKind } from "@visnap/protocol";
 
-import log from "./logger";
+import log from "@/utils/logger";
 
 /**
  * Write screenshot buffer to file using storage adapter

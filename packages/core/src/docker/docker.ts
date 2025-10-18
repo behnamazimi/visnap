@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 
-import log from "./logger";
+import log from "@/utils/logger";
 
 export interface DockerRunOptions {
   image: string;

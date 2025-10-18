@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Type definitions for Visnap reporter package
+ *
+ * Provides type definitions for reporter options, report data structures,
+ * and serialized report formats used across different reporter implementations.
+ */
+
 import type {
   TestCaseDetail,
   RunOutcome,
@@ -5,6 +12,11 @@ import type {
   ViewportMap,
 } from "@visnap/protocol";
 
+/**
+ * Base options interface for all reporters
+ * @property outputPath - Path where the report file should be written
+ * @property screenshotDir - Directory containing screenshot files
+ */
 export interface ReporterOptions {
   outputPath?: string;
   screenshotDir: string;

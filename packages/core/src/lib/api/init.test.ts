@@ -3,13 +3,13 @@ import { join } from "path";
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+import { initializeProject } from "./init";
+
+import { resolveScreenshotDir } from "@/lib/config";
 import {
   generateConfigContent,
   generateGitignoreContent,
-} from "../../utils/config-generator";
-import { resolveScreenshotDir } from "../config";
-
-import { initializeProject } from "./init";
+} from "@/utils/config-generator";
 
 // Mock dependencies
 vi.mock("fs", () => ({
@@ -18,7 +18,7 @@ vi.mock("fs", () => ({
   mkdirSync: vi.fn(),
 }));
 
-vi.mock("../config", async importOriginal => {
+vi.mock("@/lib/config", async importOriginal => {
   const actual = await importOriginal();
   return {
     ...(actual || {}),
@@ -26,7 +26,7 @@ vi.mock("../config", async importOriginal => {
   };
 });
 
-vi.mock("../../utils/config-generator", () => ({
+vi.mock("@/utils/config-generator", () => ({
   generateConfigContent: vi.fn().mockReturnValue("// Generated config content"),
   generateGitignoreContent: vi
     .fn()

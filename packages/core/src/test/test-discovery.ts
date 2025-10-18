@@ -7,8 +7,8 @@ import type {
   BrowserAdapter,
 } from "@visnap/protocol";
 
-import { type BrowserTarget } from "./browser-config";
-import log from "./logger";
+import { type BrowserTarget } from "@/browser/browser-config";
+import log from "@/utils/logger";
 
 /**
  * Start test case adapter and resolve page URL

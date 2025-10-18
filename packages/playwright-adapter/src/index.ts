@@ -13,15 +13,15 @@ import {
 } from "playwright-core";
 
 import { createBrowserContext, navigateToUrl } from "./browser-context";
+import { selectBrowserType, buildAbsoluteUrl } from "./browser-utils";
 import { performScreenshotCapture } from "./screenshot-capture";
-import { selectBrowserType, buildAbsoluteUrl } from "./utils";
 import { validateOptions } from "./validation";
 
 /**
  * Options to configure the Playwright browser adapter.
- * - `launch`: Browser launch options including `browser`, `headless`, `channel`, plus passthrough options.
- * - `context`: Defaults applied to each capture's isolated context (visual stability flags, storage state file, etc.).
- * - `navigation`: URL handling and navigation behavior including `baseUrl`, `waitUntil`, and `timeoutMs`.
+ * - `launch`: Browser launch options including `browser`, `headless`, `channel`, plus passthrough options
+ * - `context`: Defaults applied to each capture's isolated context (visual stability flags, storage state file, etc.)
+ * - `navigation`: URL handling and navigation behavior including `baseUrl`, `waitUntil`, and `timeoutMs`
  */
 export interface PlaywrightAdapterOptions {
   launch?: {
@@ -55,7 +55,7 @@ export interface PlaywrightAdapterOptions {
 
 /**
  * Creates a Playwright-backed `BrowserAdapter` for opening pages and capturing screenshots.
- * Public API remains unchanged; adds resilient navigation, baseUrl support, and safe cleanup.
+ * Adds resilient navigation, baseUrl support, and safe cleanup.
  */
 export function createAdapter(
   opts: PlaywrightAdapterOptions = {}
@@ -67,14 +67,14 @@ export function createAdapter(
   let sharedContext: BrowserContext | null = null;
   const defaultTimeout = validatedOpts.navigation?.timeoutMs ?? 30000;
 
-  /** Ensures the adapter has been initialized. */
+  /** Ensures the adapter has been initialized */
   function ensureInitialized(): void {
     if (!browser) throw new Error("Playwright adapter not initialized");
   }
 
   return {
     name: "playwright",
-    /** Launches a browser instance. Safe to call multiple times. */
+    /** Launches a browser instance. Safe to call multiple times */
     async init(initOpts?: BrowserAdapterInitOptions) {
       browserType = selectBrowserType(
         initOpts?.browser || validatedOpts.launch?.browser
@@ -87,7 +87,7 @@ export function createAdapter(
       });
     },
 
-    /** Opens a new page at the given URL using configured navigation settings. */
+    /** Opens a new page at the given URL using configured navigation settings */
     async openPage(url: string): Promise<Page> {
       ensureInitialized();
       const page = await browser!.newPage();
@@ -100,7 +100,7 @@ export function createAdapter(
       return page;
     },
 
-    /** Captures a screenshot of the provided URL/selector with isolation per capture. */
+    /** Captures a screenshot of the provided URL/selector with isolation per capture */
     async capture(s: ScreenshotOptions): Promise<ScreenshotResult> {
       ensureInitialized();
 
@@ -165,7 +165,7 @@ export function createAdapter(
       }
     },
 
-    /** Closes the browser and disposes adapter resources. Safe to call multiple times. */
+    /** Closes the browser and disposes adapter resources. Safe to call multiple times */
     async dispose() {
       try {
         await sharedContext?.close();

@@ -5,6 +5,10 @@ let cachedPackageInfo: {
   description: string;
 } | null = null;
 
+/**
+ * Retrieves package information (name, version, description) with caching.
+ * @returns Promise resolving to package information object.
+ */
 export async function getPackageInfo() {
   if (cachedPackageInfo) {
     return cachedPackageInfo;
@@ -48,17 +52,25 @@ export {
 // High-level API types
 export type { InitOptions, InitResult, ListResult, TestResult } from "./api";
 
-// Low-level utilities
+// Configuration utilities
 export {
   loadConfigFile,
   resolveScreenshotDir,
   resolveEffectiveConfig,
 } from "./config";
-export { compareTestCases } from "./compare";
-export type { CompareOptions, CompareResult } from "./compare";
-export { createConcurrencyPool } from "./pool";
 
-// Utilities for CLI and other packages
+// Comparison utilities
+export { compareTestCases } from "@/comparison";
+export type { CompareOptions, CompareResult } from "@/comparison";
+
+// Test execution utilities
+export { createConcurrencyPool } from "@/test";
+
+// Browser utilities
+export { loadBrowserAdapter, BrowserAdapterPool } from "@/browser";
+export type { BrowserTarget } from "@/browser";
+
+// General utilities
 export {
   getErrorMessage,
   log,
@@ -79,8 +91,10 @@ export {
   formatViewport,
 } from "@/utils";
 export type { DirectoryConfig } from "@/utils";
-export { runInDocker, runInDockerWithConfig } from "../utils/docker";
-export type { DockerRunOptions, DockerConfigOptions } from "../utils/docker";
+
+// Docker utilities
+export { runInDocker, runInDockerWithConfig } from "@/docker";
+export type { DockerRunOptions, DockerConfigOptions } from "@/docker";
 
 // Re-export constants
-export { DEFAULT_DOCKER_IMAGE } from "../constants";
+export { DEFAULT_DOCKER_IMAGE } from "@/constants";

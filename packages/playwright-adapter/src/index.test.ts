@@ -11,11 +11,16 @@ import { createAdapter } from "./index";
 import type { PlaywrightAdapterOptions } from "./index";
 
 // Mock the utility modules
-vi.mock("./utils.js", () => ({
+vi.mock("./browser-utils.js", () => ({
   selectBrowserType: vi.fn(() => ({
     launch: vi.fn().mockResolvedValue(mockBrowser),
   })),
-  buildAbsoluteUrl: vi.fn((url: string) => url),
+  buildAbsoluteUrl: vi.fn((url: string, baseUrl?: string) => {
+    if (baseUrl && !url.startsWith("http")) {
+      return new URL(url, baseUrl).toString();
+    }
+    return url;
+  }),
 }));
 
 vi.mock("./browser-context.js", () => ({
@@ -75,7 +80,7 @@ describe("createAdapter", () => {
 
       await adapter.init({ browser: "firefox" });
 
-      const { selectBrowserType } = await import("./utils.js");
+      const { selectBrowserType } = await import("./browser-utils.js");
       expect(selectBrowserType).toHaveBeenCalledWith("firefox");
     });
 
@@ -84,7 +89,7 @@ describe("createAdapter", () => {
 
       await adapter.init({ browser: "webkit" });
 
-      const { selectBrowserType } = await import("./utils.js");
+      const { selectBrowserType } = await import("./browser-utils.js");
       expect(selectBrowserType).toHaveBeenCalledWith("webkit");
     });
 
@@ -98,7 +103,7 @@ describe("createAdapter", () => {
 
       await adapter.init({ browser: "firefox" });
 
-      const { selectBrowserType } = await import("./utils.js");
+      const { selectBrowserType } = await import("./browser-utils.js");
       expect(selectBrowserType).toHaveBeenCalledWith("firefox");
     });
 
@@ -109,7 +114,7 @@ describe("createAdapter", () => {
       await adapter.init({ browser: "firefox" });
 
       // Should only be called once (the second call should be skipped due to idempotent check)
-      const { selectBrowserType } = await import("./utils.js");
+      const { selectBrowserType } = await import("./browser-utils.js");
       expect(selectBrowserType).toHaveBeenCalledTimes(2); // Both calls should happen, but browser.launch should only be called once
     });
   });
@@ -159,7 +164,7 @@ describe("createAdapter", () => {
 
       await adapter.openPage("/page");
 
-      const { buildAbsoluteUrl } = await import("./utils.js");
+      const { buildAbsoluteUrl } = await import("./browser-utils.js");
       expect(buildAbsoluteUrl).toHaveBeenCalledWith(
         "/page",
         "https://example.com"
@@ -215,7 +220,7 @@ describe("createAdapter", () => {
 
       await adapter.capture(screenshotOptions);
 
-      const { buildAbsoluteUrl } = await import("./utils.js");
+      const { buildAbsoluteUrl } = await import("./browser-utils.js");
       expect(buildAbsoluteUrl).toHaveBeenCalledWith(
         "/page",
         "https://example.com"
@@ -285,10 +290,16 @@ describe("createAdapter", () => {
     it("should handle browser launch failure", async () => {
       const mockBrowserType = {
         launch: vi.fn().mockRejectedValue(new Error("Launch failed")),
-      };
+        connectOverCDP: vi.fn(),
+        connect: vi.fn(),
+        executablePath: vi.fn(),
+        launchPersistentContext: vi.fn(),
+        name: vi.fn(),
+      } as any;
 
-      const { selectBrowserType } = await import("./utils.js");
-      (selectBrowserType as any).mockReturnValueOnce(mockBrowserType);
+      // Get the mocked function and set its return value
+      const { selectBrowserType } = await import("./browser-utils.js");
+      vi.mocked(selectBrowserType).mockReturnValueOnce(mockBrowserType);
 
       const adapter = createAdapter();
 

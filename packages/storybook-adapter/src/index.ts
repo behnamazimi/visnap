@@ -1,3 +1,11 @@
+/**
+ * @fileoverview Storybook adapter for Visnap visual testing framework
+ *
+ * Storybook-based TestCaseAdapter that can discover and test Storybook stories.
+ * Manages a local Storybook server, discovers stories from the browser context,
+ * and normalizes them into test case instances.
+ */
+
 import type {
   TestCaseAdapter,
   TestCaseInstanceMeta,
@@ -11,11 +19,12 @@ import { createServerManager } from "./server";
 import { validateOptions } from "./validation";
 
 /**
- * Options to create a Storybook adapter.
- * - `source`: Either a URL to a running Storybook or a path to a `storybook-static` directory.
- * - `port`: If serving from disk, which port to bind to (defaults to 4477).
- * - `include`/`exclude`: Optional minimatch pattern (supports `*`) matched against story IDs.
- * - `discovery`: Configuration for story discovery timeouts and retries.
+ * Options to create a Storybook adapter
+ * @property source - Either a URL to a running Storybook or a path to a `storybook-static` directory
+ * @property port - If serving from disk, which port to bind to (defaults to 4477)
+ * @property include - Optional minimatch pattern(s) matched against story IDs
+ * @property exclude - Optional minimatch pattern(s) to exclude from story IDs
+ * @property discovery - Configuration for story discovery timeouts and retries
  */
 export interface CreateStorybookAdapterOptions {
   source: string;
@@ -31,11 +40,12 @@ export interface CreateStorybookAdapterOptions {
 
 /**
  * Creates a Storybook-based TestCaseAdapter that can:
- * - Start a local static file server for `storybook-static` or use a provided URL.
- * - Discover stories via the browser by calling Storybook's `extract()` API.
- * - Filter, normalize, and expand stories into test case instances.
+ * - Start a local static file server for `storybook-static` or use a provided URL
+ * - Discover stories via the browser by calling Storybook's `extract()` API
+ * - Filter, normalize, and expand stories into test case instances
  *
- * The returned API shape matches `TestCaseAdapter` and is preserved.
+ * @param opts - Configuration options for the Storybook adapter
+ * @returns A TestCaseAdapter instance configured for Storybook testing
  */
 export function createAdapter(
   opts: CreateStorybookAdapterOptions
@@ -50,7 +60,10 @@ export function createAdapter(
 
   return {
     name: "storybook",
-    /** Starts the adapter and returns `{ baseUrl }` of the Storybook under test. */
+    /**
+     * Starts the adapter and returns base URL of the Storybook under test
+     * @returns Promise resolving to adapter start result with base URL and initial page URL
+     */
     async start() {
       await serverManager.ensureStarted();
       const baseUrl = serverManager.getBaseUrl();
@@ -61,8 +74,13 @@ export function createAdapter(
     },
 
     /**
-     * Lists normalized and filtered stories from the current page context.
+     * Lists normalized and filtered stories from the current page context
      * Requires a page context capable of `evaluate`. Automatically closes the page context afterwards.
+     *
+     * @param pageCtx - Page context required for story discovery
+     * @param o - Options including viewport configuration
+     * @returns Promise resolving to array of test case instances
+     * @throws {Error} If page context is not provided or adapter not started
      */
     async listCases(
       pageCtx?: PageWithEvaluate,
@@ -102,7 +120,11 @@ export function createAdapter(
         globalViewport: o?.viewport,
       });
     },
-    /** Stops the adapter server (if any) and clears `baseUrl`. Safe to call multiple times. */
+    /**
+     * Stops the adapter server (if any) and clears base URL
+     * Safe to call multiple times
+     * @returns Promise resolving when server is stopped
+     */
     async stop() {
       await serverManager.stop();
     },

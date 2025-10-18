@@ -1,3 +1,11 @@
+/**
+ * @fileoverview CLI main
+ *
+ * Main entry point for the Visnap CLI application. Handles command line argument
+ * parsing, global option processing, and command registration. Provides error
+ * handling and graceful shutdown for the CLI application.
+ */
+
 import { getPackageInfo, setQuietMode } from "@visnap/core";
 import type { CliOptions } from "@visnap/protocol";
 import { Command } from "commander";
@@ -7,6 +15,10 @@ import { displayBanner } from "./utils/banner";
 import { ErrorHandler } from "./utils/error-handler";
 import { exit } from "./utils/exit";
 
+/**
+ * Main CLI function that initializes and runs the application.
+ * @returns Promise that resolves when the CLI execution completes.
+ */
 const main = async (): Promise<void> => {
   try {
     // Set up error handling

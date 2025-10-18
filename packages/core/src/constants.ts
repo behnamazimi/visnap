@@ -1,5 +1,9 @@
 /**
- * Application constants
+ * @fileoverview Application constants
+ *
+ * Defines default values, timeouts, and configuration constants used throughout
+ * the visual testing tool. These constants provide sensible defaults and ensure
+ * consistency across the application.
  */
 
 // Default values

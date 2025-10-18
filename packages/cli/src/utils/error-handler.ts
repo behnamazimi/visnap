@@ -1,20 +1,35 @@
+/**
+ * @fileoverview Error handling utilities for CLI
+ *
+ * Provides centralized error handling with context-aware error messages,
+ * troubleshooting suggestions, and graceful error recovery for the CLI.
+ */
+
 import { getErrorMessage, log } from "@visnap/core";
 import chalk from "chalk";
 
 import { exit } from "./exit";
 
+/**
+ * Context information for error handling.
+ */
 export interface ErrorContext {
+  /** Name of the command that failed */
   command?: string;
+  /** Description of the operation that failed */
   operation?: string;
+  /** Suggested action to resolve the error */
   suggestion?: string;
 }
 
 /**
- * Centralized error handler with actionable messages
+ * Centralized error handler with actionable messages and troubleshooting.
  */
 export class ErrorHandler {
   /**
-   * Handle and format errors with context
+   * Handles and formats errors with context and suggestions.
+   * @param error - The error to handle.
+   * @param context - Optional context information for better error messages.
    */
   static handle(error: unknown, context?: ErrorContext): void {
     const message = getErrorMessage(error);
@@ -31,7 +46,11 @@ export class ErrorHandler {
   }
 
   /**
-   * Format error message with context
+   * Formats error message with context information.
+   * @param message - The error message to format.
+   * @param _errorType - The type of error (unused but kept for consistency).
+   * @param context - Optional context information.
+   * @returns Formatted error message.
    */
   private static formatErrorMessage(
     message: string,
@@ -52,7 +71,9 @@ export class ErrorHandler {
   }
 
   /**
-   * Determine error type for better handling
+   * Determines error type for better handling and troubleshooting.
+   * @param error - The error to analyze.
+   * @returns Error type string for categorization.
    */
   private static getErrorType(error: unknown): string {
     if (error instanceof Error) {
@@ -83,7 +104,9 @@ export class ErrorHandler {
   }
 
   /**
-   * Add troubleshooting steps based on error type
+   * Adds troubleshooting steps based on error type.
+   * @param errorType - The type of error to provide troubleshooting for.
+   * @param _context - Unused context parameter.
    */
   private static addTroubleshootingSteps(
     errorType: string,
@@ -130,7 +153,8 @@ export class ErrorHandler {
   }
 
   /**
-   * Handle SIGINT gracefully
+   * Handles SIGINT (Ctrl+C) gracefully with optional cleanup.
+   * @param cleanup - Optional cleanup function to run before exit.
    */
   static handleSigint(cleanup?: () => void | Promise<void>): void {
     process.on("SIGINT", async () => {
@@ -150,7 +174,7 @@ export class ErrorHandler {
   }
 
   /**
-   * Handle unhandled promise rejections
+   * Handles unhandled promise rejections to prevent crashes.
    */
   static handleUnhandledRejection(): void {
     process.on("unhandledRejection", reason => {

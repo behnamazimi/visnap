@@ -1,10 +1,31 @@
+/**
+ * @fileoverview URL filtering utilities for URL adapter
+ *
+ * Provides filtering functionality for URL test cases using minimatch patterns
+ * for include/exclude filtering with comprehensive pattern matching support.
+ */
+
 import type { FilterOptions } from "@visnap/protocol";
-import { type } from "arktype";
 import { minimatch } from "minimatch";
+
+import type { UrlConfig } from "./validation";
 
 /**
  * Creates a predicate function that filters URLs by include and exclude patterns.
  * Patterns support minimatch wildcards. Invalid patterns are ignored.
+ *
+ * @param opts - Filter options with include and exclude patterns
+ * @returns Predicate function that returns true if URL should be included
+ *
+ * @example
+ * ```typescript
+ * const filter = createUrlFilter({
+ *   include: ["homepage", "about*"],
+ *   exclude: ["*test*", "admin*"]
+ * });
+ *
+ * const shouldInclude = filter({ id: "homepage", url: "https://example.com" });
+ * ```
  */
 export function createUrlFilter(opts: FilterOptions) {
   const includePatterns = Array.isArray(opts.include)
@@ -41,113 +62,10 @@ export function createUrlFilter(opts: FilterOptions) {
   };
 }
 
-// ============= ArkType Schemas =============
-
-const viewportSchema = type({
-  width: "number>0",
-  height: "number>0",
-  "deviceScaleFactor?": "number>0",
-});
-
-// const interactionActionSchema = type("object"); // Not used currently
-
-const urlConfigSchema = type({
-  id: "string>0",
-  url: "string>0",
-  "title?": "string",
-  "screenshotTarget?": "string",
-  "elementsToMask?": "string[]",
-  "viewport?": viewportSchema,
-  "threshold?": "number",
-  "disableCSSInjection?": "boolean",
-  "interactions?": "object[]",
-});
-
-const createUrlAdapterOptionsSchema = type({
-  urls: "object[]",
-  include: "string|string[]?",
-  exclude: "string|string[]?",
-});
-
-// ============= Type Exports (inferred from schemas) =============
-
-export type Viewport = typeof viewportSchema.infer;
-export type InteractionAction = object; // Simplified type for interactions
-
-// ============= Type Definitions =============
-
-export interface UrlConfig {
-  id: string;
-  url: string;
-  title?: string;
-  screenshotTarget?: string;
-  elementsToMask?: string[];
-  viewport?: Viewport;
-  threshold?: number;
-  disableCSSInjection?: boolean;
-  interactions?: object[];
-}
-
-export interface CreateUrlAdapterOptions {
-  urls: UrlConfig[];
-  include?: string | string[];
-  exclude?: string | string[];
-}
-
-// Re-export types for compatibility
-export type { FilterOptions } from "@visnap/protocol";
-
-// ============= Validation Functions =============
-
-/**
- * Validates URL format
- */
-export function isValidUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Validates URL configuration using ArkType
- */
-export function validateUrlConfig(config: unknown): UrlConfig {
-  const result = urlConfigSchema(config);
-  if (result instanceof type.errors) {
-    throw new Error(`Invalid URL config: ${result.summary}`);
-  }
-
-  // Additional URL format validation
-  if (!isValidUrl(result.url)) {
-    throw new Error(`URL '${result.url}' is not a valid HTTP/HTTPS URL`);
-  }
-
-  return result as UrlConfig;
-}
-
-/**
- * Validates create URL adapter options
- */
-export function validateCreateUrlAdapterOptions(
-  opts: unknown
-): CreateUrlAdapterOptions {
-  const result = createUrlAdapterOptionsSchema(opts);
-  if (result instanceof type.errors) {
-    throw new Error(`Invalid URL adapter options: ${result.summary}`);
-  }
-
-  // Validate that at least one URL is provided
-  if (result.urls.length === 0) {
-    throw new Error("At least one URL must be provided");
-  }
-
-  // Validate each URL config
-  for (const urlConfig of result.urls as UrlConfig[]) {
-    validateUrlConfig(urlConfig);
-  }
-
-  return result as CreateUrlAdapterOptions;
-}
+// Re-export types from validation module
+export type {
+  UrlConfig,
+  CreateUrlAdapterOptions,
+  Viewport,
+  InteractionAction,
+} from "./validation";

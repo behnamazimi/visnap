@@ -1,3 +1,10 @@
+/**
+ * @fileoverview Browser context management for Playwright adapter
+ *
+ * Provides functions for creating browser contexts, navigating to URLs,
+ * and managing page lifecycle for the Playwright adapter.
+ */
+
 import type { Browser, Page, BrowserContext } from "playwright-core";
 
 import {

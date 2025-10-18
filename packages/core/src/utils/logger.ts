@@ -1,23 +1,49 @@
+/**
+ * @fileoverview Logging utilities
+ *
+ * Consistent logging interface with different log levels and styling.
+ * Supports quiet mode and color-coded messages for better readability.
+ */
+
 import chalk from "chalk";
 
 type Logger = {
+  /** Logs a plain message. */
   plain: (message: string, force?: boolean) => void;
+  /** Logs an informational message. */
   info: (message: string, force?: boolean) => void;
+  /** Logs a warning message. */
   warn: (message: string, force?: boolean) => void;
+  /** Logs a success message. */
   success: (message: string, force?: boolean) => void;
+  /** Logs an error message. */
   error: (message: string, force?: boolean) => void;
+  /** Logs a dimmed message. */
   dim: (message: string, force?: boolean) => void;
+  /** Logs a debug message with additional arguments. */
   debug: (message: string, ...args: unknown[]) => void;
 };
 
 let _isQuiet = false;
 
+/**
+ * Sets the quiet mode state for the logger.
+ * @param quiet - Whether to enable quiet mode
+ */
 export function setQuietMode(quiet: boolean): void {
   _isQuiet = quiet;
 }
 
+/**
+ * Internal function to check if quiet mode is enabled.
+ * @returns True if quiet mode is enabled
+ */
 const isQuietMode = () => _isQuiet;
 
+/**
+ * Checks if quiet mode is currently enabled.
+ * @returns True if quiet mode is enabled
+ */
 export function isQuiet(): boolean {
   return _isQuiet;
 }
