@@ -1,0 +1,87 @@
+---
+title: Reporters
+description: HTML and JSON output
+---
+
+Generate test reports in different formats for various use cases.
+
+## HTML Reporter
+
+Generate an interactive HTML report for visual review:
+
+```typescript
+reporter: {
+  html: true  // interactive HTML report
+}
+```
+
+Or specify a custom path:
+
+```typescript
+reporter: {
+  html: "./custom-reports/visual-report.html"  // custom path
+}
+```
+
+The HTML report includes:
+- Visual diff comparison
+- Side-by-side baseline vs current screenshots
+- Test results summary
+- Filtering and search capabilities
+
+## JSON Reporter
+
+Generate a machine-readable JSON report for CI/CD integration:
+
+```typescript
+reporter: {
+  json: true   // machine-readable JSON report
+}
+```
+
+Or specify a custom path:
+
+```typescript
+reporter: {
+  json: "./custom-reports/test-results.json"  // custom path
+}
+```
+
+The JSON report includes:
+- Test results data
+- Diff statistics
+- Error information
+- Metadata for programmatic processing
+
+## Both Reporters
+
+Enable both HTML and JSON reporting:
+
+```typescript
+reporter: {
+  html: true,  // interactive HTML report
+  json: true   // machine-readable JSON report
+}
+```
+
+Or with custom paths:
+
+```typescript
+reporter: {
+  html: "./reports/visual-report.html",  // custom HTML path
+  json: "./reports/test-results.json"    // custom JSON path
+}
+```
+
+## Report Location
+
+Reports are saved in your configured screenshot directory:
+
+```
+visnap/
+├── base/     # Baseline screenshots
+├── current/  # Current screenshots
+├── diff/     # Diff images
+└── report.html  # HTML report
+└── report.json  # JSON report
+```

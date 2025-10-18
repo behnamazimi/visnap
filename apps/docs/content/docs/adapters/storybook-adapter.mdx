@@ -3,7 +3,7 @@ title: Storybook Adapter
 description: Test your Storybook stories with ViSnap
 ---
 
-The Storybook adapter lets you test individual stories from your Storybook build. It's the most common way to use ViSnap.
+The Storybook adapter lets you test individual stories from your Storybook v8+ build. It's recommended way to use ViSnap.
 
 ## Setup
 
@@ -41,7 +41,7 @@ source: "https://storybook.example.com"
 
 ## Filtering Stories
 
-Use minimatch patterns to control which stories are tested:
+Use [minimatch](https://www.npmjs.com/package/minimatch) patterns to control which stories are tested:
 
 ```typescript
 // Test all stories
@@ -194,7 +194,7 @@ export const WithStickyHeader: Story = {
 };
 ```
 
-Or, if you’re using the [Playwright adapter](/docs/adapters/playwright), you can use the injectCSS option to hide or mask any elements you want with custom CSS.
+Or, if you're using the [Playwright adapter](/docs/03-adapters/playwright-adapter), you can use the injectCSS option to hide or mask any elements you want with custom CSS.
 
 ## Common Use Cases
 
@@ -245,11 +245,11 @@ export const LoadingState: Story = {
 };
 ```
 
-## Troubleshooting
+## Common Scenarios
 
 ### Story Not Found
 
-Make sure your Storybook build is up to date:
+If stories aren't being discovered, ensure your Storybook build is up to date:
 
 ```npm
 npm run build-storybook
@@ -257,7 +257,7 @@ npm run build-storybook
 
 ### Port Conflicts
 
-If port 4477 is in use, change it in your config:
+If port 4477 is already in use, you can change it in your config:
 
 ```typescript
 options: {
@@ -267,4 +267,4 @@ options: {
 
 ### Stories Not Loading
 
-Check that your `source` path is correct and contains the Storybook build files.
+If stories aren't loading, verify that your `source` path points to the correct Storybook build directory.

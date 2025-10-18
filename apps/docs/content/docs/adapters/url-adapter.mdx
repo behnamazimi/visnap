@@ -1,47 +1,9 @@
 ---
 title: URL Adapter
-description: Test any web page or route by specifying URLs
----
-
-Use the URL adapter to test arbitrary pages without Storybook.
-
-## Setup
-
-```typescript
-adapters: {
-  testCase: [{
-    name: '@visnap/url-adapter',
-    options: {
-      urls: [
-        { id: 'homepage', url: 'http://localhost:3000/' },
-        { id: 'about', url: 'http://localhost:3000/about' }
-      ],
-      include: '*',
-      exclude: '*admin*'
-    }
-  }]
-}
-```
-
-## Per-URL Viewports
-
-```typescript
-urls: [{ id: 'mobile-home', url: 'http://localhost:3000/', viewport: { width: 375, height: 667 } }]
-```
-
-## Next Steps
-
-<Cards>
-  <Card title="Playwright Adapter" href="/docs/adapters/playwright" description="Launch browsers and capture" />
-  <Card title="Advanced Usage" href="/docs/guides/advanced-usage" description="Filtering patterns and performance" />
-</Cards>
-
----
-title: URL Adapter
 description: Test any URL with ViSnap without requiring Storybook
 ---
 
-The URL adapter lets you test any web page or application without needing Storybook. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
+The URL adapter lets you test any web page or application. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
 
 ## Setup
 
@@ -289,13 +251,13 @@ Use the URL adapter when you need to test:
 - **Full page flows** - Multi-step processes
 - **Server-rendered pages** - SSR applications
 
-For component testing, use the [Storybook Adapter](/docs/adapters/storybook) instead.
+For component testing, use the [Storybook Adapter](/docs/03-adapters/storybook-adapter) instead.
 
-## Troubleshooting
+## Common Scenarios
 
 ### URL Not Loading
 
-Check that the URL is accessible:
+If URLs aren't loading, verify they're accessible:
 
 ```bash
 curl http://localhost:3000/
@@ -303,7 +265,7 @@ curl http://localhost:3000/
 
 ### Timeout Issues
 
-Increase navigation timeout in your browser adapter:
+If pages are timing out, you can increase the navigation timeout in your browser adapter:
 
 ```typescript
 navigation: {
@@ -313,15 +275,15 @@ navigation: {
 
 ### Screenshot Issues
 
-Verify your screenshot target exists on the page:
+If screenshots aren't capturing correctly, verify your screenshot target exists on the page:
 
 ```typescript
-screenshotTarget: "body" // make sure this element exists
+screenshotTarget: "body" // ensure this element exists
 ```
 
 ### Authentication
 
-For pages requiring login, use browser context with saved state:
+For pages requiring authentication, you can configure the browser adapter to use a saved login state:
 
 ```typescript
 // In your browser adapter config

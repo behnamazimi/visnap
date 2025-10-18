@@ -1,0 +1,50 @@
+---
+title: Runtime
+description: Concurrency, quiet mode
+---
+
+Control how tests execute with runtime configuration options.
+
+## Concurrency
+
+Control how many tests run in parallel. You can set a single numeric concurrency (applies to both capture and compare), or provide separate limits.
+
+```typescript
+runtime: {
+  // single number (applies to capture and compare)
+  maxConcurrency: 4,
+  // Or separate concurrency limits
+  // maxConcurrency: { capture: 4, compare: 4 },
+  quiet: false
+}
+```
+
+### Separate Concurrency Limits
+
+Fine-tune performance by setting different limits for capture and comparison:
+
+```typescript
+runtime: {
+  maxConcurrency: { 
+    capture: 4,    // 4 screenshots at once
+    compare: 2     // 2 comparisons at once
+  }
+}
+```
+
+## Quiet Mode
+
+Suppress output except errors:
+
+```typescript
+runtime: {
+  quiet: true
+}
+```
+
+## Performance Tips
+
+- **Higher concurrency** = faster execution but more memory usage
+- **Lower concurrency** = slower execution but more stable on resource-constrained systems
+- **Capture concurrency** affects browser resource usage
+- **Compare concurrency** affects CPU usage for image processing

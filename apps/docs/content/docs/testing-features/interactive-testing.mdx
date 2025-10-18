@@ -9,7 +9,7 @@ Use interactions to make components or pages reach a desired state before screen
 
 Interactions are defined at the test-case level, not as a single global list.
 
-- When using the [Storybook adapter](/docs/adapters/storybook), you can define interactions at the story level via `parameters.visualTesting.interactions`.
+- When using the [Storybook adapter](/docs/03-adapters/storybook-adapter), you can define interactions at the story level via `parameters.visualTesting.interactions`.
 
 ```typescript
 // Per-story example (with Storybook adapter)
@@ -50,26 +50,16 @@ export const FilledForm: Story = {
 // ...
 ```
 
-## Supported Actions (subset)
+## Supported Actions
 
 - click / dblclick
-- type / fill / press
+- type / fill / clear / press
 - hover / focus / blur
-- select / check / uncheck / setChecked
+- select / selectOption / check / uncheck / setChecked
 - setInputFiles
 - wait / waitForTimeout / waitForLoadState
 - dragAndDrop / scrollIntoView
 
-See the API Reference for the full protocol and options.
-
-```typescript
-// Config override example
-export default {
-  adapters: { /* ... */ },
-  comparison: { core: 'odiff', threshold: 0.1 },
-  viewport: { desktop: { width: 1920, height: 1080 } },
-};
-```
 
 ## Tips
 
@@ -138,6 +128,16 @@ interactions: [
 { type: 'hover', selector: '.tooltip-trigger' }
 ```
 
+**Focus element:**
+```typescript
+{ type: 'focus', selector: 'input[name="email"]' }
+```
+
+**Blur element:**
+```typescript
+{ type: 'blur', selector: 'input[name="email"]' }
+```
+
 **Drag and drop:**
 ```typescript
 { type: 'dragAndDrop', sourceSelector: '.draggable', targetSelector: '.drop-zone' }
@@ -160,6 +160,40 @@ interactions: [
 { type: 'press', selector: 'body', key: 'Escape' }
 ```
 
+### Selection Actions
+
+**Select single option:**
+```typescript
+{ type: 'select', selector: 'select[name="country"]', value: 'US' }
+```
+
+**Select multiple options:**
+```typescript
+{ type: 'selectOption', selector: 'select[name="hobbies"]', values: ['reading', 'gaming'] }
+```
+
+**Check checkbox:**
+```typescript
+{ type: 'check', selector: 'input[name="terms"]' }
+```
+
+**Uncheck checkbox:**
+```typescript
+{ type: 'uncheck', selector: 'input[name="newsletter"]' }
+```
+
+**Set checkbox state:**
+```typescript
+{ type: 'setChecked', selector: 'input[name="notifications"]', checked: true }
+```
+
+### File Actions
+
+**Upload files:**
+```typescript
+{ type: 'setInputFiles', selector: 'input[type="file"]', files: ['path/to/file.jpg'] }
+```
+
 ### Wait Actions
 
 **Wait for specific duration:**
@@ -172,7 +206,10 @@ interactions: [
 { type: 'wait', selector: '.loaded' }
 ```
 
-// Waiting for specific text can be implemented via adapter-specific helpers.
+**Wait for load state:**
+```typescript
+{ type: 'waitForLoadState', state: 'networkidle' }
+```
 
 ### Scroll Actions
 
@@ -227,45 +264,66 @@ interactions: [
 interactions: [
   { type: 'click', selector: 'button.settings' },
   { type: 'wait', selector: '.settings-modal' },
-  { type: 'click', selector: 'select.theme' },
-  { type: 'click', selector: 'option[value="dark"]' },
+  { type: 'select', selector: 'select.theme', value: 'dark' },
+  { type: 'check', selector: 'input[name="notifications"]' },
   { type: 'click', selector: 'button.save' },
   { type: 'wait', selector: '.success-message' },
 ]
 ```
 
-// URL adapter interactions are not yet supported (coming soon).
+### File Upload
+
+```typescript
+interactions: [
+  { type: 'click', selector: 'button.upload' },
+  { type: 'setInputFiles', selector: 'input[type="file"]', files: ['avatar.jpg'] },
+  { type: 'wait', selector: '.upload-success' }
+]
+```
+
+### Form with Validation
+
+```typescript
+interactions: [
+  { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+  { type: 'focus', selector: 'input[name="password"]' },
+  { type: 'fill', selector: 'input[name="password"]', text: 'password123' },
+  { type: 'blur', selector: 'input[name="password"]' },
+  { type: 'wait', selector: '.validation-success' },
+  { type: 'click', selector: 'button[type="submit"]' }
+]
+```
 
 ## Best Practices
 
 ### Wait for State Changes
 
-Always wait for the UI to update after interactions:
+Waiting for the UI to update after interactions helps ensure stable screenshots:
 
 ```typescript
-// Good: Wait for the result
+// Recommended: Wait for the result
 { type: 'click', selector: 'button.submit' },
 { type: 'wait', selector: '.result' }
 
-// Bad: No wait
+// Alternative: No wait (may cause timing issues)
 { type: 'click', selector: 'button.submit' }
 ```
 
 ### Use Specific Selectors
 
-Prefer specific selectors over generic ones:
+Specific selectors help avoid accidentally targeting the wrong element:
 
 ```typescript
-// Good: Specific selector
+// Recommended: Specific selector (targets the exact button you want)
 { type: 'click', selector: 'button[type="submit"]' }
 
-// Bad: Generic selector
+// Alternative: Generic selector (may target any button on the page)
 { type: 'click', selector: 'button' }
 ```
 
 ### Add Reasonable Delays
 
-Use timeouts for animations and transitions:
+Timeouts help handle animations and transitions. Consider that longer timeouts will increase test execution time:
 
 ```typescript
 { type: 'click', selector: 'button.animate' },
@@ -285,20 +343,20 @@ Test different interaction scenarios:
 { type: 'click', selector: 'button[type="submit"]' }
 ```
 
-## Troubleshooting
+## Common Scenarios
 
 ### Interactions Not Working
 
-Check that selectors exist on the page:
+If interactions aren't working as expected, verify that selectors exist on the page:
 
 ```typescript
-// Make sure the selector is correct
+// Check that the selector is correct
 { type: 'click', selector: 'button.primary' } // not 'button.primery'
 ```
 
 ### Timing Issues
 
-Add appropriate waits:
+If elements aren't ready when interactions run, consider adding waits:
 
 ```typescript
 { type: 'click', selector: 'button' },
@@ -307,7 +365,7 @@ Add appropriate waits:
 
 ### Element Not Found
 
-Use more specific selectors or wait for elements to appear:
+For dynamic content, you might need to wait for elements to appear or use more specific selectors:
 
 ```typescript
 { type: 'wait', selector: '.dynamic-content' },

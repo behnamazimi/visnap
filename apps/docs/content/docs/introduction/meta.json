@@ -1,11 +1,9 @@
 {
+  "title": "Introduction",
   "defaultOpen": true,
   "pages": [
-    "why",
+    "why-visnap",
     "getting-started",
-    "features",
-    "configs"
+    "how-it-works"
   ]
 }
-
-

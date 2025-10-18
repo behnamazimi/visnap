@@ -1,6 +1,6 @@
 ---
-title: API Reference
-description: Programmatic usage of ViSnap Core, Protocol types, and Reporter
+title: Programmatic API
+description: When to use, core functions, examples
 ---
 
 Use ViSnap programmatically or build custom tooling on top of its packages.
@@ -11,7 +11,7 @@ Use ViSnap programmatically or build custom tooling on top of its packages.
 - `@visnap/protocol`: shared TypeScript types and interfaces
 - `@visnap/reporter`: JSON and HTML reporters
 
-## Core API (summary)
+## Core API
 
 ```ts
 import { runVisualTests, updateBaseline, initializeProject } from '@visnap/core';
@@ -21,9 +21,9 @@ import { runVisualTests, updateBaseline, initializeProject } from '@visnap/core'
 - `updateBaseline(options): Promise<void>`
 - `initializeProject(options): Promise<InitResult>`
 
-See detailed examples in the Configuration page and package READMEs. Full, in-depth API docs will be expanded here.
+Full, in-depth API docs will be expanded here.
 
-## Protocol Types (summary)
+## Protocol Types
 
 ```ts
 import type { VisualTestingToolConfig, InteractionAction } from '@visnap/protocol';
@@ -32,7 +32,7 @@ import type { VisualTestingToolConfig, InteractionAction } from '@visnap/protoco
 - Configuration model: adapters, comparison, viewport, runtime, reporter
 - Interaction actions: `click`, `dblclick`, `type`, `fill`, `press`, `wait`, etc.
 
-## Reporters (summary)
+## Reporters
 
 ```ts
 import { JsonReporter, HtmlReporter } from '@visnap/reporter';
