@@ -9,7 +9,8 @@ import type { CliOptions } from "@visnap/protocol";
 import { type Command as CommanderCommand } from "commander";
 
 import { PresentationService } from "../services/presentation-service";
-import { TestService, resolveReporterConfig } from "../services/test-service";
+import { resolveReporterConfig } from "../services/reporter-config-resolver";
+import { TestService } from "../services/test-service";
 import { type Command } from "../types";
 import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
