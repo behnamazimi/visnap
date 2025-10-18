@@ -4,7 +4,7 @@ import { join } from "path";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import {
-  ensureVttDirectories,
+  ensureViSnapDirectories,
   getCurrentDir,
   getBaseDir,
   getDiffDir,
@@ -29,11 +29,11 @@ describe("fs utilities", () => {
     vi.clearAllMocks();
   });
 
-  describe("ensureVttDirectories", () => {
+  describe("ensureViSnapDirectories", () => {
     it("should create all directories when none exist", () => {
       mockExistsSync.mockReturnValue(false);
 
-      ensureVttDirectories();
+      ensureViSnapDirectories();
 
       expect(mockMkdirSync).toHaveBeenCalledWith(join(process.cwd(), "visnap"));
       expect(mockMkdirSync).toHaveBeenCalledWith(
@@ -49,12 +49,12 @@ describe("fs utilities", () => {
 
     it("should create only missing directories", () => {
       mockExistsSync
-        .mockReturnValueOnce(true) // vtt dir exists
+        .mockReturnValueOnce(true) // visnap dir exists
         .mockReturnValueOnce(false) // base dir doesn't exist
         .mockReturnValueOnce(true) // current dir exists
         .mockReturnValueOnce(false); // diff dir doesn't exist
 
-      ensureVttDirectories();
+      ensureViSnapDirectories();
 
       expect(mockMkdirSync).toHaveBeenCalledTimes(2);
       expect(mockMkdirSync).toHaveBeenCalledWith(
@@ -68,7 +68,7 @@ describe("fs utilities", () => {
     it("should use custom screenshot directory", () => {
       mockExistsSync.mockReturnValue(false);
 
-      ensureVttDirectories("custom-dir");
+      ensureViSnapDirectories("custom-dir");
 
       expect(mockMkdirSync).toHaveBeenCalledWith(
         join(process.cwd(), "custom-dir")

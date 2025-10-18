@@ -117,14 +117,14 @@ export function validateUrlConfig(config: unknown): UrlConfig {
 
 /**
  * Validates create URL adapter options
- * @param opts - Options to validate
+ * @param options - Options to validate
  * @returns Validated options
  * @throws {Error} If options are invalid
  */
 export function validateCreateUrlAdapterOptions(
-  opts: unknown
+  options: unknown
 ): CreateUrlAdapterOptions {
-  const result = createUrlAdapterOptionsSchema(opts);
+  const result = createUrlAdapterOptionsSchema(options);
   if (result instanceof type.errors) {
     throw new Error(`Invalid URL adapter options: ${result.summary}`);
   }

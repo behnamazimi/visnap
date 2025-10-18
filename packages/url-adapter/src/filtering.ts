@@ -14,7 +14,7 @@ import type { UrlConfig } from "./validation";
  * Creates a predicate function that filters URLs by include and exclude patterns.
  * Patterns support minimatch wildcards. Invalid patterns are ignored.
  *
- * @param opts - Filter options with include and exclude patterns
+ * @param options - Filter options with include and exclude patterns
  * @returns Predicate function that returns true if URL should be included
  *
  * @example
@@ -27,16 +27,16 @@ import type { UrlConfig } from "./validation";
  * const shouldInclude = filter({ id: "homepage", url: "https://example.com" });
  * ```
  */
-export function createUrlFilter(opts: FilterOptions) {
-  const includePatterns = Array.isArray(opts.include)
-    ? opts.include
-    : opts.include
-      ? [opts.include]
+export function createUrlFilter(options: FilterOptions) {
+  const includePatterns = Array.isArray(options.include)
+    ? options.include
+    : options.include
+      ? [options.include]
       : [];
-  const excludePatterns = Array.isArray(opts.exclude)
-    ? opts.exclude
-    : opts.exclude
-      ? [opts.exclude]
+  const excludePatterns = Array.isArray(options.exclude)
+    ? options.exclude
+    : options.exclude
+      ? [options.exclude]
       : [];
 
   return (urlConfig: UrlConfig) => {

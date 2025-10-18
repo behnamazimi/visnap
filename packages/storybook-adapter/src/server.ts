@@ -48,28 +48,30 @@ export function createServerManager(
     }
 
     const serverPort = port ?? DEFAULT_PORT;
-    server = http.createServer((req, res) =>
-      handler(req, res, { public: source, cleanUrls: false })
+    server = http.createServer((request, response) =>
+      handler(request, response, { public: source, cleanUrls: false })
     );
 
     await new Promise<void>((resolve, reject) => {
       let done = false;
-      const onError = (err: unknown) => {
+      const handleServerStartupError = (error: unknown) => {
         if (done) return;
         done = true;
-        reject(err instanceof Error ? err : new Error("Server start failed"));
+        reject(
+          error instanceof Error ? error : new Error("Server start failed")
+        );
       };
 
       const timeout = setTimeout(() => {
-        onError(new Error("Server start timed out"));
+        handleServerStartupError(new Error("Server start timed out"));
       }, SERVER_START_TIMEOUT_MS);
 
-      server!.once("error", onError);
+      server!.once("error", handleServerStartupError);
       server!.listen(serverPort, () => {
         if (done) return;
         done = true;
         clearTimeout(timeout);
-        server!.off("error", onError);
+        server!.off("error", handleServerStartupError);
         resolve();
       });
     });

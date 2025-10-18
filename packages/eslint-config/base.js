@@ -77,7 +77,7 @@ export const baseConfig = [
       "**/dist/**",
       "**/.turbo/**",
       "**/storybook-static/**",
-      "**/vtt/**",
+      "**/visnap/**",
       "**/visnap/**",
       "**/coverage/**",
       "**/.next/**",

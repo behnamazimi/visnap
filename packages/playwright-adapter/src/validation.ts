@@ -106,8 +106,8 @@ export function validatePerformanceOptions(
 /**
  * Validates playwright adapter options
  */
-export function validateOptions(opts: unknown): PlaywrightAdapterOptions {
-  const result = playwrightAdapterOptionsSchema(opts);
+export function validateOptions(options: unknown): PlaywrightAdapterOptions {
+  const result = playwrightAdapterOptionsSchema(options);
   if (result instanceof type.errors) {
     throw new Error(`Invalid playwright adapter options: ${result.summary}`);
   }

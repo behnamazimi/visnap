@@ -16,20 +16,20 @@ import { minimatch } from "minimatch";
  * Creates a predicate function that filters stories by include and exclude patterns
  * Patterns support minimatch wildcards. Invalid patterns are ignored.
  *
- * @param opts - Filter options with include and exclude patterns
+ * @param options - Filter options with include and exclude patterns
  * @returns Predicate function that returns true if story should be included
  *
  */
-export function createTestCaseFilter(opts: FilterOptions) {
-  const includePatterns = Array.isArray(opts.include)
-    ? opts.include
-    : opts.include
-      ? [opts.include]
+export function createTestCaseFilter(options: FilterOptions) {
+  const includePatterns = Array.isArray(options.include)
+    ? options.include
+    : options.include
+      ? [options.include]
       : [];
-  const excludePatterns = Array.isArray(opts.exclude)
-    ? opts.exclude
-    : opts.exclude
-      ? [opts.exclude]
+  const excludePatterns = Array.isArray(options.exclude)
+    ? options.exclude
+    : options.exclude
+      ? [options.exclude]
       : [];
 
   return (story: TestCaseMeta) => {
@@ -134,28 +134,31 @@ export function normalizeStories(
     include: options.include,
     exclude: options.exclude,
   });
-  const filtered = metas.filter(s => !s.visualTesting?.skip).filter(filter);
+  const filtered = metas
+    .filter(story => !story.visualTesting?.skip)
+    .filter(filter);
 
   const instances: TestCaseInstanceMeta[] = [];
-  for (const s of filtered) {
-    const cfg = s.visualTesting;
-    for (const vk of options.viewportKeys) {
+  for (const story of filtered) {
+    const visualConfig = story.visualTesting;
+    for (const viewportKey of options.viewportKeys) {
       // Use global viewport configuration as fallback if individual test case doesn't have viewport config
-      const viewportConfig = cfg?.viewport || options.globalViewport?.[vk];
+      const viewportConfig =
+        visualConfig?.viewport || options.globalViewport?.[viewportKey];
 
       instances.push({
-        id: s.id,
-        title: s.title,
+        id: story.id,
+        title: story.title,
         kind: "story",
-        caseId: s.id,
-        variantId: vk,
-        url: `${currentBaseUrl}/iframe.html?id=${encodeURIComponent(s.id)}`,
-        screenshotTarget: cfg?.screenshotTarget ?? "#storybook-root",
+        caseId: story.id,
+        variantId: viewportKey,
+        url: `${currentBaseUrl}/iframe.html?id=${encodeURIComponent(story.id)}`,
+        screenshotTarget: visualConfig?.screenshotTarget ?? "#storybook-root",
         viewport: viewportConfig,
-        threshold: cfg?.threshold,
-        disableCSSInjection: cfg?.disableCSSInjection,
-        interactions: cfg?.interactions,
-        elementsToMask: cfg?.elementsToMask,
+        threshold: visualConfig?.threshold,
+        disableCSSInjection: visualConfig?.disableCSSInjection,
+        interactions: visualConfig?.interactions,
+        elementsToMask: visualConfig?.elementsToMask,
       });
     }
   }
