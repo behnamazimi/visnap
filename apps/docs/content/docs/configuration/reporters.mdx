@@ -5,49 +5,57 @@ description: HTML and JSON output
 
 Generate test reports in different formats for various use cases.
 
-## HTML Reporter
+## Configuration
 
-Generate an interactive HTML report for visual review:
-
-```typescript
+```ts
+// visnap.config.ts|js
 reporter: {
-  html: true  // interactive HTML report
+  html: true,  // interactive HTML report (or a string path for custom location)
+  json: true   // machine-readable JSON report (or a string path for custom location)
 }
 ```
 
-Or specify a custom path:
+<ApiTable
+  title="Reporter Options"
+  caption="Controls the output formats and destinations for reports."
+  rows={ApiTable.defineRows([
+    {
+      name: "html",
+      type: "boolean | string",
+      default: "true",
+      description:
+        "Enable HTML report. Use a string to specify a custom output path.",
+      href: "#html",
+    },
+    {
+      name: "json",
+      type: "boolean | string",
+      default: "true",
+      description:
+        "Enable JSON report. Use a string to specify a custom output path.",
+      href: "#json",
+    },
+  ])}
+  anchorPrefix="reporter"
+/>
 
-```typescript
-reporter: {
-  html: "./custom-reports/visual-report.html"  // custom path
-}
-```
+## HTML
+
+Generate an interactive report suitable for visual review. When set to a string, the value is interpreted as the output path.
 
 The HTML report includes:
+
 - Visual diff comparison
 - Side-by-side baseline vs current screenshots
 - Test results summary
 - Filtering and search capabilities
 
-## JSON Reporter
+## JSON
 
-Generate a machine-readable JSON report for CI/CD integration:
-
-```typescript
-reporter: {
-  json: true   // machine-readable JSON report
-}
-```
-
-Or specify a custom path:
-
-```typescript
-reporter: {
-  json: "./custom-reports/test-results.json"  // custom path
-}
-```
+Generate a machine-readable report for CI/CD. When set to a string, the value is interpreted as the output path.
 
 The JSON report includes:
+
 - Test results data
 - Diff statistics
 - Error information
@@ -55,23 +63,7 @@ The JSON report includes:
 
 ## Both Reporters
 
-Enable both HTML and JSON reporting:
-
-```typescript
-reporter: {
-  html: true,  // interactive HTML report
-  json: true   // machine-readable JSON report
-}
-```
-
-Or with custom paths:
-
-```typescript
-reporter: {
-  html: "./reports/visual-report.html",  // custom HTML path
-  json: "./reports/test-results.json"    // custom JSON path
-}
-```
+You can enable both simultaneously by setting both options to true (or providing custom paths for each).
 
 ## Report Location
 

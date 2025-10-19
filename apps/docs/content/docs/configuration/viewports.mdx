@@ -5,39 +5,38 @@ description: Single and multi-viewport setup
 
 Test across different screen sizes to ensure your UI works on various devices.
 
-## Single Viewport
+## Configuration
 
-Test with one viewport size:
-
-```typescript
-viewport: {
-  desktop: { width: 1920, height: 1080 }
-}
-```
-
-## Multiple Viewports
-
-Test across multiple screen sizes:
-
-```typescript
+```ts
+// visnap.config.ts|js
 viewport: {
   desktop: { width: 1920, height: 1080 },
   tablet: { width: 768, height: 1024 },
-  mobile: { width: 375, height: 667 }
+  mobile: { width: 375, height: 667 },
 }
 ```
 
-## Custom Viewport Names
+<ApiTable
+  title="Viewport Map"
+  caption="Define one or more named viewport sizes. Keys are free-form strings."
+  rows={ApiTable.defineRows([
+    {
+      name: "viewport",
+      type: "Record<string, { width: number; height: number; deviceScaleFactor?: number }>",
+      description:
+        "A map of named viewports used across captures unless overridden per test.",
+    },
+  ])}
+  anchorPrefix="viewport"
+/>
 
-Use descriptive names for your viewports:
+## Single Viewport
 
-```typescript
-viewport: {
-  "large-desktop": { width: 2560, height: 1440 },
-  "small-mobile": { width: 320, height: 568 },
-  "landscape-tablet": { width: 1024, height: 768 }
-}
-```
+Test with one viewport size by providing a single key in the map.
+
+## Multiple Viewports
+
+Test across multiple screen sizes by defining multiple named entries.
 
 ## Per-Test Viewports
 

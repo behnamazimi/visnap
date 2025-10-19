@@ -1,14 +1,25 @@
 ---
 title: How It Works
-description: Understanding baselines, snapshots, diffs, and reports
+description: Understanding ViSnap's visual regression testing workflow
 ---
 
-ViSnap works by comparing snapshots of your UI to catch visual changes. Here's how it all comes together:
+ViSnap catches visual changes in your UI through a simple yet powerful workflow that compares screenshots over time.
 
-**Baselines** are your reference snapshots, the "correct" version of your UI that you want to maintain. When you run `visnap update`, it captures these baseline images and saves them for future comparisons.
+## The Testing Process
 
-**Snapshots** are fresh screenshots taken during testing. When you run `visnap test`, it captures new images of your current UI in the same conditions as your baselines.
+### 1. Establishing Baselines
+First, you create **baseline images** - these are your "source of truth" screenshots that represent the correct appearance of your UI. Running `visnap update` captures these reference images under controlled conditions.
 
-**Diffs** show you exactly what changed. ViSnap compares each new snapshot against its baseline and highlights any differences above your threshold, making it easy to spot unintended changes.
+### 2. Capturing Test Snapshots
+During testing, `visnap test` takes fresh screenshots of your current UI using the exact same conditions as your baselines. This ensures fair comparisons between what you expect and what actually renders.
 
-**Reports** give you a clear view of what happened. The HTML report shows side-by-side comparisons with highlighted differences, while the JSON report provides data for your CI pipeline to make decisions about deployments.
+### 3. Detecting Changes
+ViSnap automatically compares each new snapshot against its corresponding baseline. When differences exceed your configured threshold, it generates **diff images** that visually highlight exactly what changed - making it easy to spot both intended updates and unexpected regressions.
+
+## Results & Storage
+
+All images (baselines, current snapshots, and diffs) are saved to your filesystem according to your configuration settings. You can browse these files directly in your file explorer for detailed inspection.
+
+Beyond raw files, ViSnap provides two complementary reporting formats:
+- **[HTML Report](/docs/configuration/reporters#html-reporter)**: Interactive visual comparisons with side-by-side views and highlighted differences
+- **[JSON Report](/docs/configuration/reporters#json-reporter)**: Structured data perfect for CI/CD pipelines and automated decision-making

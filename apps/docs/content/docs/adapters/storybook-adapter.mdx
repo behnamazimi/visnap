@@ -5,74 +5,93 @@ description: Test your Storybook stories with ViSnap
 
 The Storybook adapter lets you test individual stories from your Storybook v8+ build. It's recommended way to use ViSnap.
 
-## Setup
+## Configuration
 
-Add the Storybook adapter to your configuration:
-
-```typescript
-testCase: [{
-  name: "@visnap/storybook-adapter",
-  options: {
-    source: "./storybook-static", // path to Storybook build
-    port: 4477,                   // port for local static server
-    include: "*",                 // which stories to test
-    exclude: "*-skip*"            // which stories to skip
-  }
-}]
+```ts
+// visnap.config.ts|js
+testCase: [
+  {
+    name: "@visnap/storybook-adapter",
+    options: {
+      source: "./storybook-static",
+      // port: 4477,
+      // include: "*",
+      // exclude: "*-skip*",
+      // discovery: { evalTimeoutMs: 10000, maxRetries: 2, retryDelayMs: 200 },
+    },
+  },
+];
 ```
+
+<ApiTable
+  title="Storybook Adapter Options"
+  caption="Options are provided under adapters.testCase[i].options."
+  sections={ApiTable.defineSections([
+    {
+      title: "General",
+      rows: ApiTable.defineRows([
+        {
+          name: "source",
+          type: "string",
+          description:
+            "Path or URL to your Storybook build. Must be non-empty.",
+          href: "#source-options",
+        },
+        {
+          name: "port",
+          type: "number (>0)",
+          description: "Port for local static server (when using local build).",
+          href: "#source-options",
+        },
+        {
+          name: "include",
+          type: "string | string[]",
+          description: "Minimatch patterns to include stories.",
+          href: "#filtering-stories",
+        },
+        {
+          name: "exclude",
+          type: "string | string[]",
+          description: "Minimatch patterns to exclude stories.",
+          href: "#filtering-stories",
+        },
+      ]),
+    },
+    {
+      title: "Discovery",
+      rows: ApiTable.defineRows([
+        {
+          name: "discovery.evalTimeoutMs",
+          type: "number (>0)",
+          description: "Timeout for evaluating story metadata.",
+        },
+        {
+          name: "discovery.maxRetries",
+          type: "number (>=0)",
+          description: "Number of retries for discovery.",
+        },
+        {
+          name: "discovery.retryDelayMs",
+          type: "number (>=0)",
+          description: "Delay between discovery retries.",
+        },
+      ]),
+    },
+  ])}
+  anchorPrefix="storybook"
+/>
 
 ## Source Options
 
-### Local Build Directory
-
-Point to your built Storybook:
-
-```typescript
-source: "./storybook-static"
-```
-
-### Remote Storybook
-
-Test a live Storybook instance:
-
-```typescript
-source: "https://storybook.example.com"
-```
+Use a local build directory (e.g., ./storybook-static) or a remote Storybook URL.
 
 ## Filtering Stories
 
-Use [minimatch](https://www.npmjs.com/package/minimatch) patterns to control which stories are tested:
-
-```typescript
-// Test all stories
-include: "*"
-
-// Test only button stories
-include: "button-*"
-
-// Test multiple patterns
-include: ["button-*", "input-*"]
-
-// Skip specific stories
-exclude: "*-skip*"
-
-// Skip multiple patterns
-exclude: ["*-skip*", "*admin*"]
-```
+Use minimatch patterns to control which stories are included or excluded.
 
 ## Custom Screenshot Targets
 
-Target a specific element in the story for the screenshot:
-
-```typescript
-export const ComponentOnly: Story = {
-  parameters: {
-    visualTesting: {
-      screenshotTarget: '.my-component'
-    }
-  }
-};
-```
+Target a specific element in the story by setting parameters.visualTesting.screenshotTarget.
 
 ## Story Configuration
 
@@ -80,22 +99,23 @@ Configure visual testing options directly in your stories:
 
 ```typescript
 export default {
-  title: 'Button',
+  title: "Button",
   component: Button,
   parameters: {
     visualTesting: {
-      skip: false,                    // Skip this story
-      screenshotTarget: '#storybook-root',     // Custom screenshot target
-      threshold: 0.05,               // Custom threshold for this story
-      browser: ['chromium', 'firefox'], // Specific browsers
+      skip: false, // Skip this story
+      screenshotTarget: "#storybook-root", // Custom screenshot target
+      threshold: 0.05, // Custom threshold for this story
+      browser: ["chromium", "firefox"], // Specific browsers
       viewport: { width: 1200, height: 800 }, // Custom viewport
-      disableCSSInjection: true,     // Disable global CSS injection
-      interactions: [                // Execute interactions before screenshot
-        { type: 'click', selector: 'button' },
-        { type: 'fill', selector: 'input', text: 'test' }
-      ]
-    }
-  }
+      disableCSSInjection: true, // Disable global CSS injection
+      interactions: [
+        // Execute interactions before screenshot
+        { type: "click", selector: "button" },
+        { type: "fill", selector: "input", text: "test" },
+      ],
+    },
+  },
 };
 ```
 
@@ -107,7 +127,7 @@ Skip this story entirely:
 
 ```typescript
 visualTesting: {
-  skip: true
+  skip: true;
 }
 ```
 
@@ -117,9 +137,9 @@ Specify which element to screenshot:
 
 ```typescript
 visualTesting: {
-  screenshotTarget: '#storybook-root' // default
+  screenshotTarget: "#storybook-root"; // default
   // or
-  screenshotTarget: '.my-component'
+  screenshotTarget: ".my-component";
 }
 ```
 
@@ -129,7 +149,7 @@ Override the global threshold for this story:
 
 ```typescript
 visualTesting: {
-  threshold: 0.05 // 5% difference threshold
+  threshold: 0.05; // 5% difference threshold
 }
 ```
 
@@ -139,9 +159,9 @@ Test only specific browsers:
 
 ```typescript
 visualTesting: {
-  browser: ['chromium'] // only test in Chromium
+  browser: ["chromium"]; // only test in Chromium
   // or
-  browser: ['chromium', 'firefox'] // test in both
+  browser: ["chromium", "firefox"]; // test in both
 }
 ```
 
@@ -161,7 +181,7 @@ Disable global CSS injection for this story:
 
 ```typescript
 visualTesting: {
-  disableCSSInjection: true
+  disableCSSInjection: true;
 }
 ```
 
@@ -172,11 +192,11 @@ Execute user interactions before taking the screenshot:
 ```typescript
 visualTesting: {
   interactions: [
-    { type: 'click', selector: 'button.primary' },
-    { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
-    { type: 'waitForTimeout', duration: 500 },
-    { type: 'hover', selector: '.tooltip-trigger' }
-  ]
+    { type: "click", selector: "button.primary" },
+    { type: "fill", selector: 'input[name="email"]', text: "test@example.com" },
+    { type: "waitForTimeout", duration: 500 },
+    { type: "hover", selector: ".tooltip-trigger" },
+  ];
 }
 ```
 
@@ -188,9 +208,9 @@ Overlay specific elements (without hiding them) to stabilize screenshots:
 export const WithStickyHeader: Story = {
   parameters: {
     visualTesting: {
-      elementsToMask: ['.sticky', '#ad-slot']
-    }
-  }
+      elementsToMask: [".sticky", "#ad-slot"],
+    },
+  },
 };
 ```
 
@@ -205,13 +225,21 @@ export const FilledForm: Story = {
   parameters: {
     visualTesting: {
       interactions: [
-        { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
-        { type: 'fill', selector: 'input[name="password"]', text: 'password123' },
-        { type: 'click', selector: 'button[type="submit"]' },
-        { type: 'waitForTimeout', duration: 1000 }
-      ]
-    }
-  }
+        {
+          type: "fill",
+          selector: 'input[name="email"]',
+          text: "test@example.com",
+        },
+        {
+          type: "fill",
+          selector: 'input[name="password"]',
+          text: "password123",
+        },
+        { type: "click", selector: 'button[type="submit"]' },
+        { type: "waitForTimeout", duration: 1000 },
+      ],
+    },
+  },
 };
 ```
 
@@ -221,11 +249,9 @@ export const FilledForm: Story = {
 export const HoverState: Story = {
   parameters: {
     visualTesting: {
-      interactions: [
-        { type: 'hover', selector: '.button' }
-      ]
-    }
-  }
+      interactions: [{ type: "hover", selector: ".button" }],
+    },
+  },
 };
 ```
 
@@ -236,16 +262,16 @@ export const LoadingState: Story = {
   parameters: {
     visualTesting: {
       interactions: [
-        { type: 'click', selector: 'button.load-data' },
-        { type: 'wait', selector: '.loading-spinner' },
-        { type: 'waitForTimeout', duration: 2000 }
-      ]
-    }
-  }
+        { type: "click", selector: "button.load-data" },
+        { type: "wait", selector: ".loading-spinner" },
+        { type: "waitForTimeout", duration: 2000 },
+      ],
+    },
+  },
 };
 ```
 
-## Common Scenarios
+## Troubleshooting
 
 ### Story Not Found
 
@@ -261,7 +287,7 @@ If port 4477 is already in use, you can change it in your config:
 
 ```typescript
 options: {
-  port: 4478 // use different port
+  port: 4478; // use different port
 }
 ```
 
