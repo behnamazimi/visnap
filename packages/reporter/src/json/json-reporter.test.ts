@@ -1,8 +1,12 @@
 import { writeFileSync, mkdirSync } from "fs";
 
-import type { TestResult } from "@visnap/protocol";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+import {
+  createMockTestResult,
+  captureWrittenJson,
+  isRecentTimestamp,
+} from "../__mocks__";
 import type { JsonReporterOptions } from "../types";
 
 import { JsonReporter } from "./json-reporter";
@@ -18,37 +22,10 @@ const mockMkdirSync = vi.mocked(mkdirSync);
 
 describe("JsonReporter", () => {
   let reporter: JsonReporter;
-  let mockTestResult: TestResult;
 
   beforeEach(() => {
     reporter = new JsonReporter();
     vi.clearAllMocks();
-
-    mockTestResult = {
-      success: true,
-      exitCode: 0,
-      outcome: {
-        total: 0,
-        passed: 0,
-        failedDiffs: 0,
-        failedMissingCurrent: 0,
-        failedMissingBase: 0,
-        failedErrors: 0,
-        captureFailures: 0,
-        testCases: [],
-        durations: {
-          totalDurationMs: 1000,
-          totalCaptureDurationMs: 800,
-          totalComparisonDurationMs: 200,
-        },
-      },
-      failures: [],
-      captureFailures: [],
-      config: {
-        screenshotDir: "/test/screenshots",
-        comparison: { core: "odiff", threshold: 0.1 },
-      },
-    };
   });
 
   afterEach(() => {
@@ -57,6 +34,7 @@ describe("JsonReporter", () => {
 
   describe("generate", () => {
     it("should generate a JSON report with default options", async () => {
+      const mockTestResult = createMockTestResult();
       const options: JsonReporterOptions = {
         screenshotDir: "/test/screenshots",
       };
@@ -74,6 +52,7 @@ describe("JsonReporter", () => {
     });
 
     it("should generate a JSON report with custom output path", async () => {
+      const mockTestResult = createMockTestResult();
       const options: JsonReporterOptions = {
         screenshotDir: "/test/screenshots",
         outputPath: "/custom/path/report.json",
@@ -92,14 +71,14 @@ describe("JsonReporter", () => {
     });
 
     it("should format JSON with pretty printing by default", async () => {
+      const mockTestResult = createMockTestResult();
       const options: JsonReporterOptions = {
         screenshotDir: "/test/screenshots",
       };
 
       await reporter.generate(mockTestResult, options);
 
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const parsed = JSON.parse(writtenContent);
+      const parsed = captureWrittenJson(mockWriteFileSync);
       expect(parsed).toEqual({
         success: true,
         outcome: mockTestResult.outcome,
@@ -108,9 +87,11 @@ describe("JsonReporter", () => {
         config: mockTestResult.config,
         timestamp: expect.any(String),
       });
+      expect(isRecentTimestamp(parsed.timestamp)).toBe(true);
     });
 
     it("should format JSON without pretty printing when pretty is false", async () => {
+      const mockTestResult = createMockTestResult();
       const options: JsonReporterOptions = {
         screenshotDir: "/test/screenshots",
         pretty: false,
@@ -125,8 +106,7 @@ describe("JsonReporter", () => {
     });
 
     it("should handle test result with failures", async () => {
-      const testResultWithFailures: TestResult = {
-        ...mockTestResult,
+      const testResultWithFailures = createMockTestResult({
         success: false,
         failures: [
           {
@@ -141,7 +121,7 @@ describe("JsonReporter", () => {
             error: "Screenshot failed",
           },
         ],
-      };
+      });
 
       const options: JsonReporterOptions = {
         screenshotDir: "/test/screenshots",
@@ -149,8 +129,7 @@ describe("JsonReporter", () => {
 
       await reporter.generate(testResultWithFailures, options);
 
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const parsed = JSON.parse(writtenContent);
+      const parsed = captureWrittenJson(mockWriteFileSync);
       expect(parsed.success).toBe(false);
       expect(parsed.failures).toEqual([
         {
@@ -168,22 +147,15 @@ describe("JsonReporter", () => {
     });
 
     it("should include timestamp in the report", async () => {
+      const mockTestResult = createMockTestResult();
       const options: JsonReporterOptions = {
         screenshotDir: "/test/screenshots",
       };
 
-      const beforeTime = new Date().toISOString();
       await reporter.generate(mockTestResult, options);
-      const afterTime = new Date().toISOString();
 
-      const writtenContent = mockWriteFileSync.mock.calls[0][1] as string;
-      const parsed = JSON.parse(writtenContent);
-      const reportTime = new Date(parsed.timestamp).getTime();
-      const beforeTimeMs = new Date(beforeTime).getTime();
-      const afterTimeMs = new Date(afterTime).getTime();
-
-      expect(reportTime).toBeGreaterThanOrEqual(beforeTimeMs);
-      expect(reportTime).toBeLessThanOrEqual(afterTimeMs);
+      const parsed = captureWrittenJson(mockWriteFileSync);
+      expect(isRecentTimestamp(parsed.timestamp)).toBe(true);
     });
   });
 });

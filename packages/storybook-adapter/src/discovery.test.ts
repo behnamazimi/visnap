@@ -1,6 +1,12 @@
 import type { PageWithEvaluate } from "@visnap/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+import { createMockStories } from "./__mocks__/mock-factories";
+import {
+  createMockPageContext,
+  setupStorybookWindow,
+  createMockStorybook,
+} from "./__mocks__/test-utils";
 import { discoverCasesFromBrowser } from "./discovery";
 
 // Mock the utils module
@@ -20,10 +26,7 @@ describe("discovery", () => {
     vi.clearAllMocks();
 
     mockEvaluate = vi.fn();
-    mockPageCtx = {
-      evaluate: mockEvaluate,
-      close: vi.fn(),
-    } as any;
+    mockPageCtx = createMockPageContext({ evaluate: mockEvaluate });
   });
 
   describe("discoverCasesFromBrowser", () => {
@@ -36,141 +39,124 @@ describe("discovery", () => {
     });
 
     it("should discover stories successfully", async () => {
-      const mockStories = {
-        "button-primary": { id: "button-primary", title: "Primary Button" },
-        "button-secondary": {
-          id: "button-secondary",
-          title: "Secondary Button",
-        },
-      };
-
-      // Mock window.__STORYBOOK_PREVIEW__
-      const mockStorybook = {
+      const mockStories = createMockStories();
+      const mockStorybook = createMockStorybook({
         ready: vi.fn().mockResolvedValue(undefined),
         extract: vi.fn().mockResolvedValue(mockStories),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        // Mock the browser environment
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
       });
 
-      const result = await discoverCasesFromBrowser(mockPageCtx);
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
 
-      expect(result).toEqual(mockStories);
-      expect(mockStorybook.ready).toHaveBeenCalled();
-      expect(mockStorybook.extract).toHaveBeenCalled();
+      try {
+        const result = await discoverCasesFromBrowser(mockPageCtx);
+        expect(result).toEqual(mockStories);
+        expect(mockStorybook.ready).toHaveBeenCalled();
+        expect(mockStorybook.extract).toHaveBeenCalled();
+      } finally {
+        cleanup();
+      }
     });
 
     it("should handle storybook without ready method", async () => {
-      const mockStories = {
-        "button-primary": { id: "button-primary", title: "Primary Button" },
-      };
-
-      const mockStorybook = {
+      const mockStories = createMockStories();
+      const mockStorybook = createMockStorybook({
+        ready: undefined,
         extract: vi.fn().mockResolvedValue(mockStories),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
       });
 
-      const result = await discoverCasesFromBrowser(mockPageCtx);
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
 
-      expect(result).toEqual(mockStories);
-      expect(mockStorybook.extract).toHaveBeenCalled();
+      try {
+        const result = await discoverCasesFromBrowser(mockPageCtx);
+        expect(result).toEqual(mockStories);
+        expect(mockStorybook.extract).toHaveBeenCalled();
+      } finally {
+        cleanup();
+      }
     });
 
     it("should throw error if storybook preview not found", async () => {
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {} as any;
-        return fn();
-      });
+      const cleanup = setupStorybookWindow(undefined);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
-        "Storybook preview object not found on window"
-      );
+      try {
+        await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+          "Storybook preview object not found on window"
+        );
+      } finally {
+        cleanup();
+      }
     });
 
     it("should throw error if extract method is not available", async () => {
-      const mockStorybook = {
+      const mockStorybook = createMockStorybook({
         ready: vi.fn().mockResolvedValue(undefined),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
+        extract: undefined,
       });
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
-        "Storybook extract() is unavailable"
-      );
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
+
+      try {
+        await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+          "Storybook extract() is unavailable"
+        );
+      } finally {
+        cleanup();
+      }
     });
 
     it("should handle ready method rejection", async () => {
-      const mockStorybook = {
+      const mockStorybook = createMockStorybook({
         ready: vi.fn().mockRejectedValue(new Error("Ready failed")),
         extract: vi.fn().mockResolvedValue({}),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
       });
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
-        "Ready failed"
-      );
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
+
+      try {
+        await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+          "Ready failed"
+        );
+      } finally {
+        cleanup();
+      }
     });
 
     it("should handle extract method rejection", async () => {
-      const mockStorybook = {
+      const mockStorybook = createMockStorybook({
         ready: vi.fn().mockResolvedValue(undefined),
         extract: vi.fn().mockRejectedValue(new Error("Extract failed")),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
       });
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
-        "Extract failed"
-      );
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
+
+      try {
+        await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+          "Extract failed"
+        );
+      } finally {
+        cleanup();
+      }
     });
 
     it("should retry on failure with exponential backoff", async () => {
-      const mockStories = {
-        "button-primary": { id: "button-primary", title: "Primary Button" },
-      };
-
-      const mockStorybook = {
+      const mockStories = createMockStories();
+      const mockStorybook = createMockStorybook({
         ready: vi.fn().mockResolvedValue(undefined),
         extract: vi
           .fn()
           .mockRejectedValueOnce(new Error("First attempt failed"))
           .mockRejectedValueOnce(new Error("Second attempt failed"))
           .mockResolvedValue(mockStories),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
       });
+
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
 
       // Mock setTimeout to make tests faster
       const originalSetTimeout = global.setTimeout;
@@ -179,28 +165,27 @@ describe("discovery", () => {
         return 1 as any;
       }) as any;
 
-      const result = await discoverCasesFromBrowser(mockPageCtx);
+      try {
+        const result = await discoverCasesFromBrowser(mockPageCtx);
 
-      expect(result).toEqual(mockStories);
-      expect(mockStorybook.extract).toHaveBeenCalledTimes(3);
-      expect(global.setTimeout).toHaveBeenCalledTimes(2); // Two retries
-
-      // Restore original setTimeout
-      global.setTimeout = originalSetTimeout;
+        expect(result).toEqual(mockStories);
+        expect(mockStorybook.extract).toHaveBeenCalledTimes(3);
+        expect(global.setTimeout).toHaveBeenCalledTimes(2); // Two retries
+      } finally {
+        // Restore original setTimeout
+        global.setTimeout = originalSetTimeout;
+        cleanup();
+      }
     });
 
     it("should fail after max retries", async () => {
-      const mockStorybook = {
+      const mockStorybook = createMockStorybook({
         ready: vi.fn().mockResolvedValue(undefined),
         extract: vi.fn().mockRejectedValue(new Error("Always fails")),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
       });
+
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
 
       // Mock setTimeout to make tests faster
       const originalSetTimeout = global.setTimeout;
@@ -209,36 +194,67 @@ describe("discovery", () => {
         return 1 as any;
       }) as any;
 
-      await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
-        "Always fails"
-      );
-      expect(mockStorybook.extract).toHaveBeenCalledTimes(3); // Initial + 2 retries
+      try {
+        await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+          "Always fails"
+        );
+        expect(mockStorybook.extract).toHaveBeenCalledTimes(3); // Initial + 2 retries
+      } finally {
+        // Restore original setTimeout
+        global.setTimeout = originalSetTimeout;
+        cleanup();
+      }
+    });
 
-      // Restore original setTimeout
-      global.setTimeout = originalSetTimeout;
+    it("should handle non-Error exception in retry logic", async () => {
+      const mockStorybook = createMockStorybook({
+        ready: vi.fn().mockResolvedValue(undefined),
+        extract: vi.fn().mockRejectedValue("string error"), // Non-Error exception
+      });
+
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
+
+      // Mock setTimeout to make tests faster
+      const originalSetTimeout = global.setTimeout;
+      global.setTimeout = vi.fn((fn: () => void) => {
+        fn();
+        return 1 as any;
+      }) as any;
+
+      try {
+        await expect(discoverCasesFromBrowser(mockPageCtx)).rejects.toThrow(
+          "string error"
+        );
+        expect(mockStorybook.extract).toHaveBeenCalledTimes(3); // Initial + 2 retries
+      } finally {
+        // Restore original setTimeout
+        global.setTimeout = originalSetTimeout;
+        cleanup();
+      }
     });
 
     it("should apply timeout to evaluation", async () => {
-      const mockStories = { test: { id: "test" } };
-      const mockStorybook = {
+      const mockStories = createMockStories();
+      const mockStorybook = createMockStorybook({
         ready: vi.fn().mockResolvedValue(undefined),
         extract: vi.fn().mockResolvedValue(mockStories),
-      };
-
-      mockEvaluate.mockImplementation((fn: () => any) => {
-        global.window = {
-          __STORYBOOK_PREVIEW__: mockStorybook,
-        } as any;
-        return fn();
       });
 
-      await discoverCasesFromBrowser(mockPageCtx);
+      const cleanup = setupStorybookWindow(mockStorybook);
+      mockEvaluate.mockImplementation((fn: () => any) => fn());
 
-      expect(mockWithTimeout).toHaveBeenCalledWith(
-        expect.any(Promise),
-        15000,
-        "Story discovery timed out"
-      );
+      try {
+        await discoverCasesFromBrowser(mockPageCtx);
+
+        expect(mockWithTimeout).toHaveBeenCalledWith(
+          expect.any(Promise),
+          15000,
+          "Story discovery timed out"
+        );
+      } finally {
+        cleanup();
+      }
     });
   });
 });

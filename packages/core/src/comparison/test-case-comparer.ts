@@ -8,6 +8,7 @@ import type {
   VisualTestingToolConfig,
   ComparisonCore,
 } from "@visnap/protocol";
+import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 
 import { createComparisonEngine } from "./utils";
 
@@ -48,7 +49,7 @@ export interface CompareResult {
 }
 
 /**
- * Compares test case screenshots with support for per-story configuration.
+ * Compares test case screenshots with support for per-test-case configuration.
  * @param storage - Storage adapter for accessing image files
  * @param config - Visual testing tool configuration
  * @param testCases - Array of test case instances to compare
@@ -69,7 +70,7 @@ export const compareTestCases = async (
   // Map filename -> threshold (supports per-instance override)
   const idToThreshold = new Map<string, number>();
   for (const testCase of testCases) {
-    const file = `${testCase.caseId}-${testCase.variantId}.png`;
+    const file = `${testCase.caseId}-${testCase.variantId}${SNAPSHOT_EXTENSION}`;
     const maybeThreshold = (testCase as unknown as { threshold?: number })
       .threshold;
     if (typeof maybeThreshold === "number") {
@@ -80,7 +81,9 @@ export const compareTestCases = async (
   // Only compare files that correspond to the test cases that were actually run
   const expectedFiles = new Set<string>();
   for (const testCase of testCases) {
-    expectedFiles.add(`${testCase.caseId}-${testCase.variantId}.png`);
+    expectedFiles.add(
+      `${testCase.caseId}-${testCase.variantId}${SNAPSHOT_EXTENSION}`
+    );
   }
 
   // Get files that exist in current and base directories

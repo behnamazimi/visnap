@@ -81,7 +81,7 @@ describe("browser-context", () => {
     });
 
     it("should fallback to timeout when network idle fails", async () => {
-      mockPage.waitForLoadState.mockRejectedValue(
+      (mockPage.waitForLoadState as any).mockRejectedValue(
         new Error("Network idle failed")
       );
 
@@ -94,7 +94,7 @@ describe("browser-context", () => {
     });
 
     it("should use calculated timeout for fallback", async () => {
-      mockPage.waitForLoadState.mockRejectedValue(
+      (mockPage.waitForLoadState as any).mockRejectedValue(
         new Error("Network idle failed")
       );
 
@@ -257,7 +257,9 @@ describe("browser-context", () => {
 
     it("should handle CSS injection errors gracefully", async () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      mockPage.addStyleTag.mockRejectedValue(new Error("CSS injection failed"));
+      (mockPage.addStyleTag as any).mockRejectedValue(
+        new Error("CSS injection failed")
+      );
 
       const cssString = "invalid css {";
 
@@ -307,6 +309,109 @@ describe("browser-context", () => {
 
       expect(mockPage.addStyleTag).toHaveBeenCalledWith({
         content: cssString,
+      });
+    });
+  });
+
+  describe("resource blocking", () => {
+    it("should not set up resource blocking when blockResources is empty", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          blockResources: [],
+        },
+      };
+
+      await createBrowserContext(mockBrowser, options);
+
+      expect(mockBrowser.newContext).toHaveBeenCalledWith({
+        colorScheme: "light",
+        reducedMotion: "reduce",
+      });
+    });
+
+    it("should not set up resource blocking when blockResources is undefined", async () => {
+      const options: PlaywrightAdapterOptions = {};
+
+      await createBrowserContext(mockBrowser, options);
+
+      expect(mockBrowser.newContext).toHaveBeenCalledWith({
+        colorScheme: "light",
+        reducedMotion: "reduce",
+      });
+    });
+
+    it("should set up resource blocking with single pattern", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          blockResources: [".map"],
+        },
+      };
+
+      await createBrowserContext(mockBrowser, options);
+
+      expect(mockBrowser.newContext).toHaveBeenCalledWith({
+        colorScheme: "light",
+        reducedMotion: "reduce",
+      });
+    });
+
+    it("should set up resource blocking with multiple patterns", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          blockResources: [".map", ".mp4", "fonts.gstatic.com", "/analytics"],
+        },
+      };
+
+      await createBrowserContext(mockBrowser, options);
+
+      expect(mockBrowser.newContext).toHaveBeenCalledWith({
+        colorScheme: "light",
+        reducedMotion: "reduce",
+      });
+    });
+
+    it("should handle deviceScaleFactor in context creation", async () => {
+      const options: PlaywrightAdapterOptions = {
+        context: {
+          colorScheme: "dark",
+        },
+      };
+
+      await createBrowserContext(mockBrowser, options, 2);
+
+      expect(mockBrowser.newContext).toHaveBeenCalledWith({
+        colorScheme: "dark",
+        reducedMotion: "reduce",
+        deviceScaleFactor: 2,
+      });
+    });
+
+    it("should handle deviceScaleFactor without context options", async () => {
+      const options: PlaywrightAdapterOptions = {};
+
+      await createBrowserContext(mockBrowser, options, 1.5);
+
+      expect(mockBrowser.newContext).toHaveBeenCalledWith({
+        colorScheme: "light",
+        reducedMotion: "reduce",
+        deviceScaleFactor: 1.5,
+      });
+    });
+
+    it("should handle storageStatePath in context creation", async () => {
+      const options: PlaywrightAdapterOptions = {
+        context: {
+          storageStatePath: "/path/to/storage.json",
+        },
+      };
+
+      await createBrowserContext(mockBrowser, options);
+
+      expect(mockBrowser.newContext).toHaveBeenCalledWith({
+        colorScheme: "light",
+        reducedMotion: "reduce",
+        storageState: "/path/to/storage.json",
+        storageStatePath: "/path/to/storage.json",
       });
     });
   });

@@ -255,6 +255,132 @@ describe("createAdapter", () => {
 
       expect(mockContext.close).toHaveBeenCalled();
     });
+
+    it("should reuse context when reuseContext is enabled", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          reuseContext: true,
+        },
+      };
+      const adapter = createAdapter(options);
+      await adapter.init({ browser: "firefox" });
+
+      const screenshotOptions: ScreenshotOptions = {
+        id: "test-case-1",
+        url: "https://example.com",
+      };
+
+      // First capture
+      await adapter.capture(screenshotOptions);
+
+      const screenshotOptions2: ScreenshotOptions = {
+        id: "test-case-2",
+        url: "https://example.com/page2",
+      };
+
+      // Second capture - should reuse context
+      await adapter.capture(screenshotOptions2);
+
+      const { createBrowserContext } = await import("./browser-context.js");
+      expect(createBrowserContext).toHaveBeenCalledTimes(1);
+      expect(mockContext.close).not.toHaveBeenCalled();
+    });
+
+    it("should clear storage between captures when reusing context", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          reuseContext: true,
+        },
+      };
+      const adapter = createAdapter(options);
+      await adapter.init({ browser: "firefox" });
+
+      const screenshotOptions: ScreenshotOptions = {
+        id: "test-case-1",
+        url: "https://example.com",
+      };
+
+      await adapter.capture(screenshotOptions);
+
+      // Verify storage clearing was attempted
+      expect(mockPage.evaluate).toHaveBeenCalledWith(expect.any(Function));
+      expect(mockContext.clearCookies).toHaveBeenCalled();
+    });
+
+    it("should handle deviceScaleFactor in context creation", async () => {
+      const adapter = createAdapter();
+      await adapter.init({ browser: "firefox" });
+
+      const screenshotOptions: ScreenshotOptions = {
+        id: "test-case",
+        url: "https://example.com",
+        viewport: {
+          width: 1920,
+          height: 1080,
+          deviceScaleFactor: 2,
+        },
+      };
+
+      await adapter.capture(screenshotOptions);
+
+      const { createBrowserContext } = await import("./browser-context.js");
+      expect(createBrowserContext).toHaveBeenCalledWith(mockBrowser, {}, 2);
+    });
+
+    it("should handle deviceScaleFactor when reusing context", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          reuseContext: true,
+        },
+      };
+      const adapter = createAdapter(options);
+      await adapter.init({ browser: "firefox" });
+
+      const screenshotOptions: ScreenshotOptions = {
+        id: "test-case",
+        url: "https://example.com",
+        viewport: {
+          width: 1920,
+          height: 1080,
+          deviceScaleFactor: 1.5,
+        },
+      };
+
+      await adapter.capture(screenshotOptions);
+
+      const { createBrowserContext } = await import("./browser-context.js");
+      expect(createBrowserContext).toHaveBeenCalledWith(
+        mockBrowser,
+        options,
+        1.5
+      );
+    });
+
+    it("should handle storage clearing errors gracefully", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          reuseContext: true,
+        },
+      };
+      const adapter = createAdapter(options);
+      await adapter.init({ browser: "firefox" });
+
+      // Mock storage clearing to fail
+      (mockPage.evaluate as any).mockRejectedValue(
+        new Error("Storage clear failed")
+      );
+      (mockContext.clearCookies as any).mockRejectedValue(
+        new Error("Cookie clear failed")
+      );
+
+      const screenshotOptions: ScreenshotOptions = {
+        id: "test-case",
+        url: "https://example.com",
+      };
+
+      // Should not throw even if storage clearing fails
+      await expect(adapter.capture(screenshotOptions)).resolves.toBeDefined();
+    });
   });
 
   describe("dispose method", () => {
@@ -284,6 +410,27 @@ describe("createAdapter", () => {
       // Should not throw
       await expect(adapter.dispose()).resolves.toBeUndefined();
     });
+
+    it("should close shared context on dispose when reusing context", async () => {
+      const options: PlaywrightAdapterOptions = {
+        performance: {
+          reuseContext: true,
+        },
+      };
+      const adapter = createAdapter(options);
+      await adapter.init({ browser: "firefox" });
+
+      // Trigger context creation
+      const screenshotOptions: ScreenshotOptions = {
+        id: "test-case",
+        url: "https://example.com",
+      };
+      await adapter.capture(screenshotOptions);
+
+      await adapter.dispose();
+
+      expect(mockContext.close).toHaveBeenCalled();
+    });
   });
 
   describe("error handling", () => {
@@ -309,7 +456,9 @@ describe("createAdapter", () => {
     });
 
     it("should handle page creation failure", async () => {
-      mockBrowser.newPage.mockRejectedValue(new Error("Page creation failed"));
+      (mockBrowser.newPage as any).mockRejectedValue(
+        new Error("Page creation failed")
+      );
 
       const adapter = createAdapter();
       await adapter.init({ browser: "firefox" });

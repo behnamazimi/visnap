@@ -5,6 +5,7 @@
  * and URL configurations with comprehensive error handling.
  */
 
+import type { InteractionAction } from "@visnap/protocol";
 import { type } from "arktype";
 
 // ============= Schema Definitions =============
@@ -29,14 +30,13 @@ const urlConfigSchema = type({
 
 const createUrlAdapterOptionsSchema = type({
   urls: "object[]",
-  include: "string|string[]?",
-  exclude: "string|string[]?",
+  "include?": "string|string[]|undefined",
+  "exclude?": "string|string[]|undefined",
 });
 
 // ============= Type Exports (inferred from schemas) =============
 
 export type Viewport = typeof viewportSchema.infer;
-export type InteractionAction = object; // Simplified type for interactions
 
 // ============= Type Definitions =============
 
@@ -61,7 +61,7 @@ export interface UrlConfig {
   viewport?: Viewport;
   threshold?: number;
   disableCSSInjection?: boolean;
-  interactions?: object[];
+  interactions?: InteractionAction[];
 }
 
 /**

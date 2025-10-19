@@ -1,6 +1,7 @@
 import { unlink } from "fs/promises";
 
 import type { StorageAdapter, StorageKind } from "@visnap/protocol";
+import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 
 import log from "@/utils/logger";
 
@@ -16,7 +17,7 @@ export async function writeScreenshotToFile(
 ): Promise<string> {
   // Sanitize ID for security
   const safeId = id.replace(/[^a-zA-Z0-9\-_]/g, "_");
-  const filename = `${safeId}.png`;
+  const filename = `${safeId}${SNAPSHOT_EXTENSION}`;
 
   try {
     const path = await storage.write(kind, filename, buffer);

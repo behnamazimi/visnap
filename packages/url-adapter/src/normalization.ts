@@ -11,6 +11,7 @@ import {
   type ViewportMap,
   type FilterOptions,
   type Viewport,
+  type InteractionAction,
 } from "@visnap/protocol";
 
 import type { UrlConfig } from "./validation";
@@ -49,9 +50,8 @@ function createSafeViewport(
   return {
     width: vp.width,
     height: vp.height,
-    ...(vp.deviceScaleFactor !== undefined && {
-      deviceScaleFactor: vp.deviceScaleFactor as number,
-    }),
+    deviceScaleFactor:
+      vp.deviceScaleFactor !== undefined ? (vp.deviceScaleFactor as number) : 1,
   };
 }
 
@@ -88,7 +88,7 @@ export function normalizeUrls(
     for (const viewportKey of options.viewportKeys) {
       const viewport = createSafeViewport(
         urlConfig.viewport || options.globalViewport?.[viewportKey],
-        { width: 1920, height: 1080 },
+        { width: 1920, height: 1080, deviceScaleFactor: 1 },
         `URL '${urlConfig.id}' viewport`
       );
 
@@ -108,7 +108,7 @@ export function normalizeUrls(
         viewport,
         threshold: urlConfig.threshold,
         disableCSSInjection: urlConfig.disableCSSInjection ?? false,
-        interactions: urlConfig.interactions as any,
+        interactions: urlConfig.interactions as InteractionAction[],
         elementsToMask: urlConfig.elementsToMask,
 
         // Visual testing config
@@ -118,7 +118,7 @@ export function normalizeUrls(
           threshold: urlConfig.threshold,
           viewport,
           disableCSSInjection: urlConfig.disableCSSInjection ?? false,
-          interactions: urlConfig.interactions as any,
+          interactions: urlConfig.interactions as InteractionAction[],
           elementsToMask: urlConfig.elementsToMask,
         },
       };

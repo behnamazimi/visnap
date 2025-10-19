@@ -28,6 +28,11 @@ vi.mock("./browser-context.js", () => ({
   navigateToUrl: vi.fn(),
   handleWaitFor: vi.fn(),
   injectGlobalCSS: vi.fn(),
+  NO_ANIMATIONS_CSS: `*, *::before, *::after {
+  transition: none !important;
+  animation: none !important;
+  caret-color: transparent !important;
+}`,
 }));
 
 // Mock the interaction-executor module
@@ -42,6 +47,9 @@ describe("screenshot-capture", () => {
 
   describe("captureElementScreenshot", () => {
     it("should capture screenshot of element with default selector", async () => {
+      // Mock locator to return undefined so it falls back to element
+      (mockPage.locator as any).mockReturnValue(undefined);
+
       const buffer = await captureElementScreenshot(
         mockPage,
         "story-root",
@@ -59,6 +67,9 @@ describe("screenshot-capture", () => {
     });
 
     it("should capture screenshot of element with custom selector", async () => {
+      // Mock locator to return undefined so it falls back to element
+      (mockPage.locator as any).mockReturnValue(undefined);
+
       const buffer = await captureElementScreenshot(
         mockPage,
         ".my-component",
@@ -76,7 +87,7 @@ describe("screenshot-capture", () => {
     });
 
     it("should throw error when element is not found", async () => {
-      mockPage.waitForSelector.mockResolvedValue(null);
+      (mockPage.waitForSelector as any).mockResolvedValue(null);
 
       await expect(
         captureElementScreenshot(mockPage, ".not-found", "test-case-3")
@@ -187,7 +198,7 @@ describe("screenshot-capture", () => {
     });
 
     it("should close page even if capture fails", async () => {
-      mockPage.waitForSelector.mockRejectedValue(
+      (mockPage.waitForSelector as any).mockRejectedValue(
         new Error("Element not found")
       );
 
@@ -527,6 +538,163 @@ describe("screenshot-capture", () => {
         screenshotOptionsWithInteractions.interactions,
         screenshotOptionsWithInteractions.id
       );
+    });
+
+    it("should disable animations when disableAnimations is enabled", async () => {
+      const optionsWithAnimations: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        performance: {
+          disableAnimations: true,
+        },
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithAnimations,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(mockPage.emulateMedia).toHaveBeenCalledWith({
+        reducedMotion: "reduce",
+      });
+      const { injectGlobalCSS } = await import("./browser-context.js");
+      expect(injectGlobalCSS).toHaveBeenCalledWith(
+        mockPage,
+        expect.stringContaining("animation: none !important")
+      );
+    });
+
+    it("should not disable animations when disableAnimations is false", async () => {
+      const optionsWithoutAnimations: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        performance: {
+          disableAnimations: false,
+        },
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithoutAnimations,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(mockPage.emulateMedia).not.toHaveBeenCalled();
+    });
+
+    it("should not disable animations when disableAnimations is undefined", async () => {
+      const optionsWithoutAnimations: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        performance: {
+          disableAnimations: undefined,
+        },
+      };
+
+      await performScreenshotCapture(
+        mockContext,
+        optionsWithoutAnimations,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(mockPage.emulateMedia).not.toHaveBeenCalled();
+    });
+
+    it("should handle emulateMedia errors gracefully", async () => {
+      const optionsWithAnimations: PlaywrightAdapterOptions = {
+        ...mockOptions,
+        performance: {
+          disableAnimations: true,
+        },
+      };
+
+      (mockPage.emulateMedia as any).mockRejectedValue(
+        new Error("emulateMedia failed")
+      );
+
+      // Should not throw even if emulateMedia fails
+      await expect(
+        performScreenshotCapture(
+          mockContext,
+          optionsWithAnimations,
+          mockScreenshotOptions,
+          30000
+        )
+      ).resolves.toBeDefined();
+    });
+
+    it("should use locator for screenshot when available", async () => {
+      const mockLocator = {
+        screenshot: vi.fn().mockResolvedValue(new Uint8Array([5, 6, 7, 8])),
+      };
+      mockPage.locator = vi.fn().mockReturnValue(mockLocator);
+
+      const result = await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(mockPage.locator).toHaveBeenCalledWith("#storybook-root");
+      expect(mockLocator.screenshot).toHaveBeenCalledWith({ type: "png" });
+      expect(result.buffer).toEqual(new Uint8Array([5, 6, 7, 8]));
+    });
+
+    it("should fallback to element handle when locator is not available", async () => {
+      // Mock page without locator method
+      const pageWithoutLocator = {
+        ...mockPage,
+        locator: undefined,
+      };
+      (mockContext.newPage as any).mockResolvedValue(pageWithoutLocator);
+
+      const result = await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(mockElement.screenshot).toHaveBeenCalledWith({ type: "png" });
+      expect(result.buffer).toEqual(new Uint8Array([1, 2, 3, 4]));
+    });
+
+    it("should fallback to element handle when locator returns undefined", async () => {
+      // Mock locator to return undefined
+      const mockLocator = vi.fn().mockReturnValue(undefined);
+      mockPage.locator = mockLocator;
+
+      const result = await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(mockElement.screenshot).toHaveBeenCalledWith({ type: "png" });
+      expect(result.buffer).toEqual(new Uint8Array([1, 2, 3, 4]));
+    });
+
+    it("should handle locator screenshot errors and fallback to element", async () => {
+      const mockLocator = {
+        screenshot: vi
+          .fn()
+          .mockRejectedValue(new Error("Locator screenshot failed")),
+      };
+      (mockPage.locator as any).mockReturnValue(mockLocator);
+
+      const result = await performScreenshotCapture(
+        mockContext,
+        mockOptions,
+        mockScreenshotOptions,
+        30000
+      );
+
+      expect(mockPage.locator).toHaveBeenCalledWith("#storybook-root");
+      expect(mockElement.screenshot).toHaveBeenCalledWith({ type: "png" });
+      expect(result.buffer).toEqual(new Uint8Array([1, 2, 3, 4]));
     });
   });
 });

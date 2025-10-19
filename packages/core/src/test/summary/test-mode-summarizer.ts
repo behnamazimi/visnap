@@ -12,6 +12,7 @@ import type {
   TestDurations,
   BrowserName,
 } from "@visnap/protocol";
+import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 
 import { compareTestCases } from "@/comparison/compare";
 import log from "@/utils/logger";
@@ -65,9 +66,15 @@ export async function summarizeTestMode(
   let totalComparisonDurationMs = 0;
 
   // Create a map of comparison results by ID for quick lookup
-  // Strip .png extension from comparison result IDs to match capture result IDs
+  // Strip snapshot extension from comparison result IDs to match capture result IDs
   const comparisonResultsMap = new Map(
-    results.map(r => [r.id.replace(/\.png$/, ""), r])
+    results.map(r => [
+      r.id.replace(
+        new RegExp(`${SNAPSHOT_EXTENSION.replace(".", "\\.")}$`),
+        ""
+      ),
+      r,
+    ])
   );
 
   // Create a map of test cases by ID for metadata lookup
@@ -113,7 +120,8 @@ export async function summarizeTestMode(
     testCases.push({
       id: captureResult.id,
       captureFilename:
-        captureResult.captureFilename || `${captureResult.id}.png`,
+        captureResult.captureFilename ||
+        `${captureResult.id}${SNAPSHOT_EXTENSION}`,
       captureDurationMs,
       comparisonDurationMs: comparisonDurationMs || undefined,
       totalDurationMs,
