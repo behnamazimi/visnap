@@ -20,4 +20,3 @@ export async function loadStorageAdapter(
     screenshotDir: config.screenshotDir ?? DEFAULT_SCREENSHOT_DIR,
   });
 }
-

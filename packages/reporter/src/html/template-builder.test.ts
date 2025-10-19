@@ -2,7 +2,12 @@ import { readFileSync } from "fs";
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-import type { ReportData, ProcessedTestCase } from "../types";
+import {
+  createMockReportData,
+  createMockProcessedTestCase,
+  extractDataFromHtml,
+  mockFileSystem,
+} from "../__mocks__";
 
 import { TemplateBuilder } from "./template-builder";
 
@@ -15,93 +20,14 @@ const mockReadFileSync = vi.mocked(readFileSync);
 
 describe("TemplateBuilder", () => {
   let templateBuilder: TemplateBuilder;
-  let mockReportData: ReportData;
-  let mockProcessedTestCases: ProcessedTestCase[];
 
   beforeEach(() => {
     templateBuilder = new TemplateBuilder();
     vi.clearAllMocks();
 
-    mockReportData = {
-      success: true,
-      outcome: {
-        total: 0,
-        passed: 0,
-        failedDiffs: 0,
-        failedMissingCurrent: 0,
-        failedMissingBase: 0,
-        failedErrors: 0,
-        captureFailures: 0,
-        testCases: [],
-        durations: {
-          totalDurationMs: 1000,
-          totalCaptureDurationMs: 800,
-          totalComparisonDurationMs: 200,
-        },
-      },
-      failures: [],
-      captureFailures: [],
-      timestamp: "2024-01-01T00:00:00.000Z",
-      config: {
-        screenshotDir: "/test/screenshots",
-        comparison: { core: "odiff", threshold: 0.1 },
-      },
-    };
-
-    mockProcessedTestCases = [
-      {
-        id: "test-1",
-        status: "passed",
-        browser: "chrome",
-        viewport: "1920x1080",
-        captureFilename: "test-1.png",
-        captureDurationMs: 1000,
-        totalDurationMs: 1000,
-        baseImage: "./base/test-1.png",
-        currentImage: "./current/test-1.png",
-        diffImage: undefined,
-      },
-      {
-        id: "test-2",
-        status: "failed",
-        browser: "firefox",
-        viewport: "1366x768",
-        captureFilename: "test-2.png",
-        captureDurationMs: 2000,
-        totalDurationMs: 2000,
-        reason: "pixel-diff",
-        baseImage: "./base/test-2.png",
-        currentImage: "./current/test-2.png",
-        diffImage: "./diff/test-2.png",
-      },
-    ];
-
-    // Mock file contents
-    mockReadFileSync.mockImplementation((path: any) => {
-      if (path.includes("template.html")) {
-        return `<!DOCTYPE html>
-<html>
-<head>
-  <title>{{TITLE}}</title>
-  <style>{{STYLES}}</style>
-</head>
-<body>
-  <div id="app" x-data="app()">
-    <h1>{{TITLE}}</h1>
-    <div id="data">{{DATA}}</div>
-  </div>
-  <script>{{SCRIPT}}</script>
-</body>
-</html>`;
-      }
-      if (path.includes("styles.css")) {
-        return `body { font-family: Arial, sans-serif; }`;
-      }
-      if (path.includes("alpine-app.js")) {
-        return `function app() { return { init() { console.log('App initialized'); } }; }`;
-      }
-      throw new Error("File not found");
-    });
+    // Setup mock filesystem
+    const fs = mockFileSystem();
+    mockReadFileSync.mockImplementation(fs.readFileSync as any);
   });
 
   afterEach(() => {
@@ -110,6 +36,11 @@ describe("TemplateBuilder", () => {
 
   describe("build", () => {
     it("should build HTML with default title", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
+
       const result = templateBuilder.build(
         mockReportData,
         mockProcessedTestCases
@@ -121,7 +52,12 @@ describe("TemplateBuilder", () => {
     });
 
     it("should build HTML with custom title", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
       const customTitle = "My Custom Test Report";
+
       const result = templateBuilder.build(
         mockReportData,
         mockProcessedTestCases,
@@ -133,6 +69,11 @@ describe("TemplateBuilder", () => {
     });
 
     it("should inject styles into the template", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
+
       const result = templateBuilder.build(
         mockReportData,
         mockProcessedTestCases
@@ -144,6 +85,11 @@ describe("TemplateBuilder", () => {
     });
 
     it("should inject script into the template", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
+
       const result = templateBuilder.build(
         mockReportData,
         mockProcessedTestCases
@@ -155,6 +101,16 @@ describe("TemplateBuilder", () => {
     });
 
     it("should inject enriched data into the template", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1", status: "passed" }),
+        createMockProcessedTestCase({
+          id: "test-2",
+          status: "failed",
+          reason: "pixel-diff",
+        }),
+      ];
+
       const result = templateBuilder.build(
         mockReportData,
         mockProcessedTestCases
@@ -162,11 +118,7 @@ describe("TemplateBuilder", () => {
 
       expect(result).toContain(`<div id="data">`);
 
-      // Extract the JSON data from the HTML
-      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
-      expect(dataMatch).toBeTruthy();
-
-      const injectedData = JSON.parse(dataMatch![1]);
+      const injectedData = extractDataFromHtml(result);
       expect(injectedData).toEqual({
         ...mockReportData,
         outcome: {
@@ -177,22 +129,26 @@ describe("TemplateBuilder", () => {
     });
 
     it("should handle empty test cases array", () => {
+      const mockReportData = createMockReportData();
+
       const result = templateBuilder.build(mockReportData, []);
 
-      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
-      const injectedData = JSON.parse(dataMatch![1]);
-
+      const injectedData = extractDataFromHtml(result);
       expect(injectedData.outcome.testCases).toEqual([]);
     });
 
     it("should preserve all original report data properties", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
+
       const result = templateBuilder.build(
         mockReportData,
         mockProcessedTestCases
       );
 
-      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
-      const injectedData = JSON.parse(dataMatch![1]);
+      const injectedData = extractDataFromHtml(result);
 
       expect(injectedData.success).toBe(mockReportData.success);
       expect(injectedData.outcome).toEqual({
@@ -208,7 +164,12 @@ describe("TemplateBuilder", () => {
     });
 
     it("should replace all title placeholders", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
       const customTitle = "Test Report";
+
       const result = templateBuilder.build(
         mockReportData,
         mockProcessedTestCases,
@@ -221,6 +182,11 @@ describe("TemplateBuilder", () => {
     });
 
     it("should handle missing template file", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
+
       mockReadFileSync.mockImplementation((path: any) => {
         if (path.includes("template.html")) {
           throw new Error("File not found");
@@ -234,6 +200,11 @@ describe("TemplateBuilder", () => {
     });
 
     it("should handle missing styles file", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
+
       mockReadFileSync.mockImplementation((path: any) => {
         if (path.includes("styles.css")) {
           throw new Error("File not found");
@@ -247,6 +218,11 @@ describe("TemplateBuilder", () => {
     });
 
     it("should handle missing script file", () => {
+      const mockReportData = createMockReportData();
+      const mockProcessedTestCases = [
+        createMockProcessedTestCase({ id: "test-1" }),
+      ];
+
       mockReadFileSync.mockImplementation((path: any) => {
         if (path.includes("alpine-app.js")) {
           throw new Error("File not found");
@@ -260,26 +236,21 @@ describe("TemplateBuilder", () => {
     });
 
     it("should handle complex test case data", () => {
-      const complexTestCases: ProcessedTestCase[] = [
-        {
+      const mockReportData = createMockReportData();
+      const complexTestCases = [
+        createMockProcessedTestCase({
           id: "complex-test-1",
           status: "failed",
-          browser: "chrome",
-          viewport: "1920x1080",
           captureFilename: "complex-test-1.png",
           captureDurationMs: 5000,
           totalDurationMs: 5000,
           reason: "pixel-diff",
-          baseImage: "./base/complex-test-1.png",
-          currentImage: "./current/complex-test-1.png",
-          diffImage: "./diff/complex-test-1.png",
-        },
+        }),
       ];
 
       const result = templateBuilder.build(mockReportData, complexTestCases);
 
-      const dataMatch = result.match(/<div id="data">(.*?)<\/div>/s);
-      const injectedData = JSON.parse(dataMatch![1]);
+      const injectedData = extractDataFromHtml(result);
 
       expect(injectedData.outcome.testCases).toEqual(complexTestCases);
     });

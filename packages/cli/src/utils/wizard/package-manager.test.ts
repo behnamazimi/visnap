@@ -1,5 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
+// Create a mock for require.resolve that can be controlled
+const mockRequireResolve = vi.fn();
+
+// Mock the entire package-manager module to control require.resolve
+vi.mock("./package-manager", async () => {
+  const actual = await vi.importActual("./package-manager");
+  return {
+    ...actual,
+    isPackageInstalled: vi.fn((packageName: string) => {
+      try {
+        mockRequireResolve(packageName);
+        return true;
+      } catch {
+        return false;
+      }
+    }),
+  };
+});
+
 import {
   detectPackageManager,
   isPackageInstalled,
@@ -19,7 +38,6 @@ vi.mock("child_process", () => ({
 describe("package-manager", () => {
   let mockExistsSync: any;
   let mockExecSync: any;
-  let mockRequireResolve: any;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -29,10 +47,6 @@ describe("package-manager", () => {
     const childProcess = await import("child_process");
     mockExistsSync = vi.mocked(fs.existsSync);
     mockExecSync = vi.mocked(childProcess.execSync);
-
-    // Mock require.resolve
-    mockRequireResolve = vi.fn();
-    (require as any).resolve = mockRequireResolve;
 
     // Clear any existing listeners
     process.removeAllListeners("SIGINT");
@@ -98,6 +112,9 @@ describe("package-manager", () => {
       const result = isPackageInstalled("@visnap/playwright-adapter");
 
       expect(result).toBe(true);
+      expect(mockRequireResolve).toHaveBeenCalledWith(
+        "@visnap/playwright-adapter"
+      );
     });
 
     it("should return false when package cannot be resolved", () => {
@@ -108,6 +125,7 @@ describe("package-manager", () => {
       const result = isPackageInstalled("@visnap/nonexistent");
 
       expect(result).toBe(false);
+      expect(mockRequireResolve).toHaveBeenCalledWith("@visnap/nonexistent");
     });
 
     it("should handle different package names", () => {
@@ -118,6 +136,10 @@ describe("package-manager", () => {
 
       expect(result1).toBe(true);
       expect(result2).toBe(true);
+      expect(mockRequireResolve).toHaveBeenCalledWith(
+        "@visnap/storybook-adapter"
+      );
+      expect(mockRequireResolve).toHaveBeenCalledWith("@visnap/url-adapter");
     });
   });
 

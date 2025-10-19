@@ -1,5 +1,6 @@
-import type { TestCaseDetail } from "@visnap/protocol";
 import { describe, it, expect, beforeEach } from "vitest";
+
+import { createMockTestCaseDetail } from "../__mocks__";
 
 import { ImageHandler } from "./image-handler";
 
@@ -12,15 +13,10 @@ describe("ImageHandler", () => {
 
   describe("getRelativeImagePaths", () => {
     it("should generate correct image paths for a test case", async () => {
-      const testCase: TestCaseDetail = {
+      const testCase = createMockTestCaseDetail({
         id: "test-1",
-        status: "passed",
-        browser: "chrome",
-        viewport: "1920x1080",
         captureFilename: "test-1.png",
-        captureDurationMs: 1000,
-        totalDurationMs: 1000,
-      };
+      });
 
       const result = await imageHandler.getRelativeImagePaths(
         testCase,
@@ -35,16 +31,12 @@ describe("ImageHandler", () => {
     });
 
     it("should include diff image path for failed pixel-diff test cases", async () => {
-      const testCase: TestCaseDetail = {
+      const testCase = createMockTestCaseDetail({
         id: "test-1",
         status: "failed",
-        browser: "chrome",
-        viewport: "1920x1080",
         captureFilename: "test-1.png",
-        captureDurationMs: 1000,
-        totalDurationMs: 1000,
         reason: "pixel-diff",
-      };
+      });
 
       const result = await imageHandler.getRelativeImagePaths(
         testCase,
@@ -59,16 +51,12 @@ describe("ImageHandler", () => {
     });
 
     it("should not include diff image path for failed test cases without pixel-diff reason", async () => {
-      const testCase: TestCaseDetail = {
+      const testCase = createMockTestCaseDetail({
         id: "test-1",
         status: "failed",
-        browser: "chrome",
-        viewport: "1920x1080",
         captureFilename: "test-1.png",
-        captureDurationMs: 1000,
-        totalDurationMs: 1000,
         reason: "timeout",
-      };
+      });
 
       const result = await imageHandler.getRelativeImagePaths(
         testCase,
@@ -83,15 +71,10 @@ describe("ImageHandler", () => {
     });
 
     it("should handle different capture filenames", async () => {
-      const testCase: TestCaseDetail = {
+      const testCase = createMockTestCaseDetail({
         id: "test-1",
-        status: "passed",
-        browser: "chrome",
-        viewport: "1920x1080",
         captureFilename: "my-special-test-screenshot.jpg",
-        captureDurationMs: 1000,
-        totalDurationMs: 1000,
-      };
+      });
 
       const result = await imageHandler.getRelativeImagePaths(
         testCase,
@@ -108,35 +91,29 @@ describe("ImageHandler", () => {
 
   describe("processTestCases", () => {
     it("should process multiple test cases with correct image paths", () => {
-      const testCases: TestCaseDetail[] = [
-        {
+      const testCases = [
+        createMockTestCaseDetail({
           id: "test-1",
           status: "passed",
           browser: "chrome",
           viewport: "1920x1080",
           captureFilename: "test-1.png",
-          captureDurationMs: 1000,
-          totalDurationMs: 1000,
-        },
-        {
+        }),
+        createMockTestCaseDetail({
           id: "test-2",
           status: "failed",
           browser: "firefox",
           viewport: "1366x768",
           captureFilename: "test-2.png",
-          captureDurationMs: 2000,
-          totalDurationMs: 2000,
           reason: "pixel-diff",
-        },
-        {
+        }),
+        createMockTestCaseDetail({
           id: "test-3",
           status: "capture-failed",
           browser: "safari",
           viewport: "1024x768",
           captureFilename: "test-3.png",
-          captureDurationMs: 0,
-          totalDurationMs: 0,
-        },
+        }),
       ];
 
       const result = imageHandler.processTestCases(testCases);
@@ -174,36 +151,24 @@ describe("ImageHandler", () => {
     });
 
     it("should only add diff image for failed test cases", () => {
-      const testCases: TestCaseDetail[] = [
-        {
+      const testCases = [
+        createMockTestCaseDetail({
           id: "test-1",
           status: "passed",
-          browser: "chrome",
-          viewport: "1920x1080",
           captureFilename: "test-1.png",
-          captureDurationMs: 1000,
-          totalDurationMs: 1000,
-        },
-        {
+        }),
+        createMockTestCaseDetail({
           id: "test-2",
           status: "failed",
-          browser: "chrome",
-          viewport: "1920x1080",
           captureFilename: "test-2.png",
-          captureDurationMs: 1000,
-          totalDurationMs: 1000,
           reason: "timeout", // Not pixel-diff
-        },
-        {
+        }),
+        createMockTestCaseDetail({
           id: "test-3",
           status: "failed",
-          browser: "chrome",
-          viewport: "1920x1080",
           captureFilename: "test-3.png",
-          captureDurationMs: 1000,
-          totalDurationMs: 1000,
           reason: "pixel-diff",
-        },
+        }),
       ];
 
       const result = imageHandler.processTestCases(testCases);
@@ -214,16 +179,14 @@ describe("ImageHandler", () => {
     });
 
     it("should preserve all original test case properties", () => {
-      const testCase: TestCaseDetail = {
+      const testCase = createMockTestCaseDetail({
         id: "test-1",
         status: "passed",
-        browser: "chrome",
-        viewport: "1920x1080",
         captureFilename: "test-1.png",
         captureDurationMs: 1500,
         totalDurationMs: 1500,
         reason: "success",
-      };
+      });
 
       const result = imageHandler.processTestCases([testCase]);
 

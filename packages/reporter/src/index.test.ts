@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 
+import { createMockReportData } from "./__mocks__";
+
 import { JsonReporter, HtmlReporter } from "./index";
 import type {
   ReporterOptions,
@@ -65,32 +67,13 @@ describe("Reporter Package Exports", () => {
     });
 
     it("should export ReportData interface", () => {
-      const reportData: ReportData = {
-        success: true,
-        outcome: {
-          testCases: [],
-          total: 0,
-          passed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-        },
-        failures: [],
-        captureFailures: [],
-        timestamp: "2024-01-01T00:00:00.000Z",
-        config: {
-          screenshotDir: "/test/screenshots",
-          comparison: { core: "odiff", threshold: 0.1 },
-        },
-      };
+      const reportData: ReportData = createMockReportData();
 
       expect(reportData.success).toBe(true);
       expect(reportData.outcome).toBeDefined();
       expect(reportData.failures).toEqual([]);
       expect(reportData.captureFailures).toEqual([]);
-      expect(reportData.timestamp).toBe("2024-01-01T00:00:00.000Z");
+      expect(reportData.timestamp).toBeDefined();
       expect(reportData.config).toBeDefined();
     });
 
@@ -124,28 +107,15 @@ describe("Reporter Package Exports", () => {
     });
 
     it("should allow optional properties in ReportData", () => {
-      const minimalReportData: ReportData = {
-        success: true,
-        outcome: {
-          testCases: [],
-          total: 0,
-          passed: 0,
-          failedDiffs: 0,
-          failedMissingCurrent: 0,
-          failedMissingBase: 0,
-          failedErrors: 0,
-          captureFailures: 0,
-        },
-        failures: [],
-        captureFailures: [],
-        timestamp: "2024-01-01T00:00:00.000Z",
-      };
+      const minimalReportData: ReportData = createMockReportData({
+        config: undefined,
+      });
 
       expect(minimalReportData.success).toBe(true);
       expect(minimalReportData.outcome).toBeDefined();
       expect(minimalReportData.failures).toEqual([]);
       expect(minimalReportData.captureFailures).toEqual([]);
-      expect(minimalReportData.timestamp).toBe("2024-01-01T00:00:00.000Z");
+      expect(minimalReportData.timestamp).toBeDefined();
       expect(minimalReportData.config).toBeUndefined();
     });
   });
