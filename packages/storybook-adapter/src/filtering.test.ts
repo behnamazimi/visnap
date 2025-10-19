@@ -1,23 +1,20 @@
-import type { TestCaseMeta, ViewportMap } from "@visnap/protocol";
+// import type { TestCaseMeta, ViewportMap } from "@visnap/protocol";
 import { describe, it, expect } from "vitest";
 
+import {
+  createMockStory,
+  createMockViewportMap,
+} from "./__mocks__/mock-factories";
 import { createTestCaseFilter, normalizeStories } from "./filtering";
 
 describe("filtering", () => {
   describe("createTestCaseFilter", () => {
-    const createMockStory = (id: string): TestCaseMeta => ({
-      id,
-      title: `Story ${id}`,
-      kind: "story",
-      visualTesting: {},
-    });
-
     it("should include all stories when no patterns provided", () => {
       const filter = createTestCaseFilter({});
       const stories = [
-        createMockStory("button-primary"),
-        createMockStory("input-text"),
-        createMockStory("modal-dialog"),
+        createMockStory({ id: "button-primary" }),
+        createMockStory({ id: "input-text" }),
+        createMockStory({ id: "modal-dialog" }),
       ];
 
       stories.forEach(story => {
@@ -30,10 +27,10 @@ describe("filtering", () => {
         include: ["button*", "input*"],
       });
 
-      expect(filter(createMockStory("button-primary"))).toBe(true);
-      expect(filter(createMockStory("button-secondary"))).toBe(true);
-      expect(filter(createMockStory("input-text"))).toBe(true);
-      expect(filter(createMockStory("modal-dialog"))).toBe(false);
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-secondary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "input-text" }))).toBe(true);
+      expect(filter(createMockStory({ id: "modal-dialog" }))).toBe(false);
     });
 
     it("should filter by exclude patterns", () => {
@@ -41,10 +38,10 @@ describe("filtering", () => {
         exclude: ["*test*", "*spec*"],
       });
 
-      expect(filter(createMockStory("button-primary"))).toBe(true);
-      expect(filter(createMockStory("button-test"))).toBe(false);
-      expect(filter(createMockStory("test-button"))).toBe(false);
-      expect(filter(createMockStory("input-spec"))).toBe(false);
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-test" }))).toBe(false);
+      expect(filter(createMockStory({ id: "test-button" }))).toBe(false);
+      expect(filter(createMockStory({ id: "input-spec" }))).toBe(false);
     });
 
     it("should combine include and exclude patterns", () => {
@@ -53,10 +50,10 @@ describe("filtering", () => {
         exclude: ["*test*"],
       });
 
-      expect(filter(createMockStory("button-primary"))).toBe(true);
-      expect(filter(createMockStory("input-text"))).toBe(true);
-      expect(filter(createMockStory("button-test"))).toBe(false);
-      expect(filter(createMockStory("modal-dialog"))).toBe(false);
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "input-text" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-test" }))).toBe(false);
+      expect(filter(createMockStory({ id: "modal-dialog" }))).toBe(false);
     });
 
     it("should handle array patterns", () => {
@@ -65,10 +62,28 @@ describe("filtering", () => {
         exclude: ["*test*", "*spec*"],
       });
 
-      expect(filter(createMockStory("button-primary"))).toBe(true);
-      expect(filter(createMockStory("input-text"))).toBe(true);
-      expect(filter(createMockStory("button-test"))).toBe(false);
-      expect(filter(createMockStory("input-spec"))).toBe(false);
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "input-text" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-test" }))).toBe(false);
+      expect(filter(createMockStory({ id: "input-spec" }))).toBe(false);
+    });
+
+    it("should handle single string include pattern", () => {
+      const filter = createTestCaseFilter({
+        include: "button*",
+      });
+
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "input-text" }))).toBe(false);
+    });
+
+    it("should handle single string exclude pattern", () => {
+      const filter = createTestCaseFilter({
+        exclude: "*test*",
+      });
+
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-test" }))).toBe(false);
     });
 
     it("should handle complex minimatch patterns", () => {
@@ -77,13 +92,13 @@ describe("filtering", () => {
         exclude: ["*-test", "*-spec"],
       });
 
-      expect(filter(createMockStory("button-primary"))).toBe(true);
-      expect(filter(createMockStory("button-secondary"))).toBe(true);
-      expect(filter(createMockStory("input-text"))).toBe(true);
-      expect(filter(createMockStory("input-email"))).toBe(true);
-      expect(filter(createMockStory("button-test"))).toBe(false);
-      expect(filter(createMockStory("input-spec"))).toBe(false);
-      expect(filter(createMockStory("modal-dialog"))).toBe(false);
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-secondary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "input-text" }))).toBe(true);
+      expect(filter(createMockStory({ id: "input-email" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-test" }))).toBe(false);
+      expect(filter(createMockStory({ id: "input-spec" }))).toBe(false);
+      expect(filter(createMockStory({ id: "modal-dialog" }))).toBe(false);
     });
 
     it("should handle empty include patterns", () => {
@@ -92,8 +107,8 @@ describe("filtering", () => {
         exclude: ["*test*"],
       });
 
-      expect(filter(createMockStory("button-primary"))).toBe(true);
-      expect(filter(createMockStory("button-test"))).toBe(false);
+      expect(filter(createMockStory({ id: "button-primary" }))).toBe(true);
+      expect(filter(createMockStory({ id: "button-test" }))).toBe(false);
     });
   });
 
@@ -160,10 +175,7 @@ describe("filtering", () => {
     const defaultOptions = {
       baseUrl: "http://localhost:4477",
       viewportKeys: ["default", "mobile"],
-      globalViewport: {
-        default: { width: 1024, height: 768 },
-        mobile: { width: 375, height: 667 },
-      } as ViewportMap,
+      globalViewport: createMockViewportMap(),
     };
 
     it("should normalize stories and create instances", () => {

@@ -1,5 +1,9 @@
+import { existsSync } from "node:fs";
+import http from "node:http";
+
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+import { createMockServer } from "./__mocks__/test-utils";
 import { createServerManager } from "./server";
 
 // Mock dependencies
@@ -16,9 +20,6 @@ vi.mock("node:http", () => ({
 vi.mock("serve-handler", () => ({
   default: vi.fn(),
 }));
-
-import { existsSync } from "node:fs";
-import http from "node:http";
 // import handler from "serve-handler";
 
 const mockExistsSync = vi.mocked(existsSync);
@@ -31,14 +32,8 @@ describe("server", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Create a mock server
-    mockServer = {
-      once: vi.fn(),
-      listen: vi.fn(),
-      close: vi.fn(),
-      off: vi.fn(),
-    };
-
+    // Create a mock server using the utility
+    mockServer = createMockServer();
     mockCreateServer.mockReturnValue(mockServer);
   });
 
@@ -235,6 +230,25 @@ describe("server", () => {
         await manager.stop();
 
         expect(mockServer.close).toHaveBeenCalledTimes(1);
+      });
+
+      it("should create server with serve-handler callback", async () => {
+        mockExistsSync.mockReturnValue(true);
+        mockServer.listen.mockImplementation(
+          (_port: any, callback: () => void) => {
+            callback();
+          }
+        );
+
+        const manager = createServerManager("/path/to/storybook");
+
+        await manager.ensureStarted();
+
+        expect(mockCreateServer).toHaveBeenCalledWith(expect.any(Function));
+
+        // Verify the handler function is properly set up
+        const handlerCall = mockCreateServer.mock.calls[0][0];
+        expect(typeof handlerCall).toBe("function");
       });
     });
   });

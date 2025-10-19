@@ -1,5 +1,3 @@
-import { createAdapter } from "./index";
-
 import type { PageWithEvaluate, ViewportMap } from "@visnap/protocol";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -16,9 +14,20 @@ vi.mock("./filtering.js", () => ({
   normalizeStories: vi.fn(),
 }));
 
+import {
+  createMockStorybookAdapterOptions,
+  createMockStories,
+  createMockTestCaseInstance,
+} from "./__mocks__/mock-factories";
+import {
+  createMockPageContext,
+  createMockServerManager,
+} from "./__mocks__/test-utils";
 import { discoverCasesFromBrowser } from "./discovery";
 import { normalizeStories } from "./filtering";
 import { createServerManager } from "./server";
+
+import { createAdapter } from "./index";
 
 const mockCreateServerManager = vi.mocked(createServerManager);
 const mockDiscoverCasesFromBrowser = vi.mocked(discoverCasesFromBrowser);
@@ -31,18 +40,10 @@ describe("createAdapter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockServerManager = {
-      ensureStarted: vi.fn(),
-      getBaseUrl: vi.fn(),
-      stop: vi.fn(),
-    };
-
+    mockServerManager = createMockServerManager();
     mockCreateServerManager.mockReturnValue(mockServerManager);
 
-    mockPageCtx = {
-      evaluate: vi.fn(),
-      close: vi.fn(),
-    } as any;
+    mockPageCtx = createMockPageContext();
   });
 
   describe("validation", () => {
@@ -79,10 +80,12 @@ describe("createAdapter", () => {
 
   describe("adapter creation", () => {
     it("should create server manager with correct parameters", () => {
-      createAdapter({
+      const options = createMockStorybookAdapterOptions({
         source: "/path/to/storybook",
         port: 3000,
       });
+
+      createAdapter(options);
 
       expect(mockCreateServerManager).toHaveBeenCalledWith(
         "/path/to/storybook",
@@ -91,9 +94,11 @@ describe("createAdapter", () => {
     });
 
     it("should create server manager without port", () => {
-      createAdapter({
+      const options = createMockStorybookAdapterOptions({
         source: "/path/to/storybook",
       });
+
+      createAdapter(options);
 
       expect(mockCreateServerManager).toHaveBeenCalledWith(
         "/path/to/storybook",
@@ -102,9 +107,8 @@ describe("createAdapter", () => {
     });
 
     it("should return adapter with correct name", () => {
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       expect(adapter.name).toBe("storybook");
     });
@@ -112,11 +116,8 @@ describe("createAdapter", () => {
 
   describe("start method", () => {
     it("should start server and return baseUrl", async () => {
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
-
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       const result = await adapter.start!();
 
@@ -131,9 +132,8 @@ describe("createAdapter", () => {
 
   describe("listCases method", () => {
     it("should throw error when page context is not provided", async () => {
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       await expect(adapter.listCases()).rejects.toThrow(
         "Page context is required for storybook adapter"
@@ -141,31 +141,17 @@ describe("createAdapter", () => {
     });
 
     it("should discover and normalize stories", async () => {
-      const mockStories = {
-        "button-primary": { id: "button-primary", title: "Primary Button" },
-      };
+      const mockStories = createMockStories();
+      const mockInstances = [createMockTestCaseInstance()];
 
-      const mockInstances: any[] = [
-        {
-          id: "button-primary",
-          title: "Primary Button",
-          caseId: "button-primary",
-          variantId: "default",
-          url: "http://localhost:4477/iframe.html?id=button-primary",
-          screenshotTarget: "#storybook-root",
-          viewport: { width: 1024, height: 768 },
-        },
-      ];
-
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
+      const options = createMockStorybookAdapterOptions({
         include: ["button*"],
         exclude: ["*test*"],
       });
+      const adapter = createAdapter(options);
 
       const result = await adapter.listCases(mockPageCtx);
 
@@ -187,9 +173,8 @@ describe("createAdapter", () => {
     it("should throw error when adapter not started", async () => {
       mockServerManager.getBaseUrl.mockReturnValue(undefined);
 
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       await expect(adapter.listCases(mockPageCtx)).rejects.toThrow(
         "Adapter not started. Call start() before listCases()."
@@ -197,10 +182,9 @@ describe("createAdapter", () => {
     });
 
     it("should handle viewport configuration", async () => {
-      const mockStories = {};
-      const mockInstances: any[] = [];
+      const mockStories = createMockStories();
+      const mockInstances = [createMockTestCaseInstance()];
 
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
@@ -209,9 +193,8 @@ describe("createAdapter", () => {
         desktop: { width: 1920, height: 1080 },
       };
 
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       await adapter.listCases(mockPageCtx, { viewport: viewportConfig });
 
@@ -225,16 +208,14 @@ describe("createAdapter", () => {
     });
 
     it("should handle empty viewport configuration", async () => {
-      const mockStories = {};
-      const mockInstances: any[] = [];
+      const mockStories = createMockStories();
+      const mockInstances = [createMockTestCaseInstance()];
 
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       await adapter.listCases(mockPageCtx, { viewport: {} });
 
@@ -248,14 +229,12 @@ describe("createAdapter", () => {
     });
 
     it("should close page context even if discovery fails", async () => {
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockRejectedValue(
         new Error("Discovery failed")
       );
 
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       await expect(adapter.listCases(mockPageCtx)).rejects.toThrow(
         "Discovery failed"
@@ -264,20 +243,15 @@ describe("createAdapter", () => {
     });
 
     it("should close page context even if page context has no close method", async () => {
-      const pageCtxWithoutClose = {
-        evaluate: vi.fn(),
-      } as any;
+      const pageCtxWithoutClose = createMockPageContext({ close: undefined });
+      const mockStories = createMockStories();
+      const mockInstances = [createMockTestCaseInstance()];
 
-      const mockStories = {};
-      const mockInstances: any[] = [];
-
-      mockServerManager.getBaseUrl.mockReturnValue("http://localhost:4477");
       mockDiscoverCasesFromBrowser.mockResolvedValue(mockStories);
       mockNormalizeStories.mockReturnValue(mockInstances);
 
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       await adapter.listCases(pageCtxWithoutClose);
 
@@ -291,9 +265,8 @@ describe("createAdapter", () => {
 
   describe("stop method", () => {
     it("should stop server manager", async () => {
-      const adapter = createAdapter({
-        source: "/path/to/storybook",
-      });
+      const options = createMockStorybookAdapterOptions();
+      const adapter = createAdapter(options);
 
       await adapter.stop!();
 
@@ -303,9 +276,10 @@ describe("createAdapter", () => {
 
   describe("integration", () => {
     it("should work with URL source", () => {
-      const adapter = createAdapter({
+      const options = createMockStorybookAdapterOptions({
         source: "https://storybook.example.com",
       });
+      const adapter = createAdapter(options);
 
       expect(mockCreateServerManager).toHaveBeenCalledWith(
         "https://storybook.example.com",
@@ -315,12 +289,13 @@ describe("createAdapter", () => {
     });
 
     it("should work with all options", () => {
-      const adapter = createAdapter({
+      const options = createMockStorybookAdapterOptions({
         source: "/path/to/storybook",
         port: 3000,
         include: ["button*", "input*"],
         exclude: ["*test*"],
       });
+      const adapter = createAdapter(options);
 
       expect(mockCreateServerManager).toHaveBeenCalledWith(
         "/path/to/storybook",
