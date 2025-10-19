@@ -1,16 +1,20 @@
 import { describe, it, expect, vi } from "vitest";
 
+import {
+  createTestAdapterOptions,
+  createTestUrlConfig,
+} from "./__mocks__/url-test-helpers";
 import type { CreateUrlAdapterOptions } from "./filtering";
 
 import { createAdapter } from "./index";
 
 describe("createAdapter", () => {
-  const validOptions: CreateUrlAdapterOptions = {
+  const validOptions = createTestAdapterOptions({
     urls: [
-      { id: "homepage", url: "http://localhost:3000/" },
-      { id: "about", url: "http://localhost:3000/about" },
+      createTestUrlConfig({ id: "homepage", url: "http://localhost:3000/" }),
+      createTestUrlConfig({ id: "about", url: "http://localhost:3000/about" }),
     ],
-  };
+  });
 
   it("should create adapter with valid options", () => {
     const adapter = createAdapter(validOptions);
@@ -35,9 +39,9 @@ describe("createAdapter", () => {
   });
 
   it("should throw error for invalid URL configs", () => {
-    const invalidOptions: CreateUrlAdapterOptions = {
-      urls: [{ id: "", url: "not-a-url" }],
-    };
+    const invalidOptions = createTestAdapterOptions({
+      urls: [createTestUrlConfig({ id: "", url: "not-a-url" })],
+    });
 
     expect(() => createAdapter(invalidOptions)).toThrow(
       "Invalid URL config: id must be non-empty"
@@ -109,19 +113,21 @@ describe("createAdapter", () => {
   });
 
   it("should handle per-URL configuration", async () => {
-    const adapter = createAdapter({
-      urls: [
-        {
-          id: "homepage",
-          url: "http://localhost:3000/",
-          title: "Home Page",
-          screenshotTarget: "body",
-          threshold: 0.05,
-          interactions: [{ type: "click", selector: "button" }],
-          elementsToMask: [".sticky", "#ads"],
-        },
-      ],
-    });
+    const adapter = createAdapter(
+      createTestAdapterOptions({
+        urls: [
+          createTestUrlConfig({
+            id: "homepage",
+            url: "http://localhost:3000/",
+            title: "Home Page",
+            screenshotTarget: "body",
+            threshold: 0.05,
+            interactions: [{ type: "click", selector: "button" }],
+            elementsToMask: [".sticky", "#ads"],
+          }),
+        ],
+      })
+    );
 
     const cases = await adapter.listCases();
     expect(cases[0]).toMatchObject({
@@ -141,10 +147,12 @@ describe("createAdapter", () => {
   it("should warn when no URLs match patterns", async () => {
     const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    const adapter = createAdapter({
-      urls: validOptions.urls,
-      include: ["nonexistent"],
-    });
+    const adapter = createAdapter(
+      createTestAdapterOptions({
+        urls: validOptions.urls,
+        include: ["nonexistent"],
+      })
+    );
 
     await adapter.listCases();
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -152,5 +160,79 @@ describe("createAdapter", () => {
     );
 
     consoleSpy.mockRestore();
+  });
+
+  describe("viewport edge cases", () => {
+    it("should handle empty viewport array", async () => {
+      const adapter = createAdapter(validOptions);
+      const cases = await adapter.listCases(undefined, {
+        viewport: {},
+      });
+
+      expect(cases).toHaveLength(2);
+      expect(cases[0].variantId).toBe("default");
+      expect(cases[0].viewport).toEqual({
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+      });
+    });
+
+    it("should handle undefined viewport option", async () => {
+      const adapter = createAdapter(validOptions);
+      const cases = await adapter.listCases(undefined, undefined);
+
+      expect(cases).toHaveLength(2);
+      expect(cases[0].variantId).toBe("default");
+      expect(cases[0].viewport).toEqual({
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+      });
+    });
+
+    it("should sort viewport keys deterministically", async () => {
+      const adapter = createAdapter(validOptions);
+      const cases = await adapter.listCases(undefined, {
+        viewport: {
+          "z-viewport": { width: 800, height: 600 },
+          "a-viewport": { width: 1200, height: 800 },
+          "m-viewport": { width: 1000, height: 700 },
+        },
+      });
+
+      expect(cases).toHaveLength(6); // 2 URLs × 3 viewports
+      const viewportIds = cases.map(c => c.variantId);
+      expect(viewportIds).toEqual([
+        "a-viewport",
+        "m-viewport",
+        "z-viewport",
+        "a-viewport",
+        "m-viewport",
+        "z-viewport",
+      ]);
+    });
+
+    it("should handle special characters in viewport keys", async () => {
+      const adapter = createAdapter(validOptions);
+      const cases = await adapter.listCases(undefined, {
+        viewport: {
+          "desktop-1920x1080": { width: 1920, height: 1080 },
+          "mobile-375x667": { width: 375, height: 667 },
+          "tablet-768x1024": { width: 768, height: 1024 },
+        },
+      });
+
+      expect(cases).toHaveLength(6);
+      const viewportIds = cases.map(c => c.variantId);
+      expect(viewportIds).toEqual([
+        "desktop-1920x1080",
+        "mobile-375x667",
+        "tablet-768x1024",
+        "desktop-1920x1080",
+        "mobile-375x667",
+        "tablet-768x1024",
+      ]);
+    });
   });
 });

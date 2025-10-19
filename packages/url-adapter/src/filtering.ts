@@ -67,5 +67,4 @@ export type {
   UrlConfig,
   CreateUrlAdapterOptions,
   Viewport,
-  InteractionAction,
 } from "./validation";
