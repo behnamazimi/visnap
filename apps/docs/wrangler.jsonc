@@ -23,5 +23,9 @@
       //   "binding": "NEXT_INC_CACHE_R2_BUCKET",
       //   "bucket_name": "visnap-docs-r2"
       // }
-    ]
+    ],
+    "vars": {
+      "NEXT_PUBLIC_POSTHOG_KEY": "",
+      "NEXT_PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com"
+    }
   }
