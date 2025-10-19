@@ -3,11 +3,12 @@ title: How It Works
 description: Understanding baselines, snapshots, diffs, and reports
 ---
 
-# TBD
+ViSnap works by comparing snapshots of your UI to catch visual changes. Here's how it all comes together:
 
-This section will explain the core concepts of how ViSnap works:
+**Baselines** are your reference snapshots, the "correct" version of your UI that you want to maintain. When you run `visnap update`, it captures these baseline images and saves them for future comparisons.
 
-- **Baselines** - How baseline screenshots are created and stored
-- **Snapshots** - How current screenshots are captured
-- **Diffs** - How differences are detected and highlighted
-- **Reports** - How results are presented and interpreted
+**Snapshots** are fresh screenshots taken during testing. When you run `visnap test`, it captures new images of your current UI in the same conditions as your baselines.
+
+**Diffs** show you exactly what changed. ViSnap compares each new snapshot against its baseline and highlights any differences above your threshold, making it easy to spot unintended changes.
+
+**Reports** give you a clear view of what happened. The HTML report shows side-by-side comparisons with highlighted differences, while the JSON report provides data for your CI pipeline to make decisions about deployments.

@@ -3,7 +3,7 @@
   "defaultOpen": true,
   "pages": [
     "interactive-testing",
-    "element-masking",
-    "css-injection"
+    "css-injection",
+    "element-masking"
   ]
 }

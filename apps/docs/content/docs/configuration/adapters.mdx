@@ -3,11 +3,17 @@ title: Adapters
 description: What are adapters? Browser vs Test Source adapters, and overview of existing adapters
 ---
 
-# TBD
 
-This section will explain the adapter concept:
+## What are adapters?
+Adapters are the building blocks that make ViSnap flexible and work with different tools and environments.
 
-- **What are adapters?** - Overview of the adapter pattern in ViSnap
-- **Browser Adapters** - Control which browser engine to use for taking screenshots
-- **Test Source Adapters** - Define where your test cases come from
-- **Overview of existing adapters** - Current adapters and their purposes
+Think of them as plugins that tell ViSnap how to interact with different parts of your testing setup. They handle the details so you don't have to worry about the specifics or complexity of different tools.
+
+### Browser adapters
+
+Determine which browser engine is used to capture screenshots. Currently, there’s only one available: the [Playwright adapter](/docs/adapters/playwright-adapter), which supports testing across Chromium, Firefox, and WebKit.
+
+### Test source adapters
+
+Determine where your test cases come from. Currently, there are two available: the [Storybook adapter](/docs/adapters/storybook-adapter), which discovers and tests your existing Storybook stories, and the [URL adapter](/docs/adapters/url-adapter), which lets you test any web page directly. You can even use multiple adapters together.
+
