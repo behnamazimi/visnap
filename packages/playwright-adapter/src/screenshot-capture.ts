@@ -49,10 +49,16 @@ export async function captureElementScreenshot(
   ).locator?.bind(page);
   if (typeof maybeLocator === "function") {
     const locator = maybeLocator(selector);
-    const buf = (await locator.screenshot({
-      type: "png",
-    })) as unknown as Uint8Array;
-    return buf;
+    if (locator && typeof locator.screenshot === "function") {
+      try {
+        const buf = (await locator.screenshot({
+          type: "png",
+        })) as unknown as Uint8Array;
+        return buf;
+      } catch {
+        // Fall back to element handle if locator fails
+      }
+    }
   }
   return (await storyElement.screenshot({
     type: "png",

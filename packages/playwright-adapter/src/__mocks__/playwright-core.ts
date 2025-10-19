@@ -4,73 +4,25 @@
 
 import { vi, beforeEach } from "vitest";
 
-export const chromium = {
-  launch: vi.fn(),
-} as any;
+import { defaultMocks, setupDefaultMocks } from "./mock-playwright";
 
-export const firefox = {
-  launch: vi.fn(),
-} as any;
+// Export browser types for compatibility
+export const chromium = defaultMocks.browserType;
+export const firefox = defaultMocks.browserType;
+export const webkit = defaultMocks.browserType;
 
-export const webkit = {
-  launch: vi.fn(),
-} as any;
-
-// Mock browser instance
-export const mockBrowser = {
-  newPage: vi.fn(),
-  newContext: vi.fn(),
-  close: vi.fn(),
-} as any;
-
-// Mock page instance
-export const mockPage = {
-  setDefaultTimeout: vi.fn(),
-  setViewportSize: vi.fn(),
-  goto: vi.fn(),
-  waitForLoadState: vi.fn(),
-  waitForTimeout: vi.fn(),
-  waitForSelector: vi.fn(),
-  addStyleTag: vi.fn(),
-  close: vi.fn(),
-} as any;
-
-// Mock context instance
-export const mockContext = {
-  newPage: vi.fn(),
-  close: vi.fn(),
-} as any;
-
-// Mock element instance
-export const mockElement = {
-  screenshot: vi.fn(),
-} as any;
+// Export mock instances for compatibility
+export const mockBrowser = defaultMocks.browser;
+export const mockPage = defaultMocks.page;
+export const mockContext = defaultMocks.context;
+export const mockElement = defaultMocks.element;
+export const mockLocator = defaultMocks.locator;
 
 // Setup default mock implementations
 beforeEach(() => {
   // Reset all mocks
   vi.clearAllMocks();
 
-  // Setup default mock implementations
-  chromium.launch.mockResolvedValue(mockBrowser);
-  firefox.launch.mockResolvedValue(mockBrowser);
-  webkit.launch.mockResolvedValue(mockBrowser);
-
-  mockBrowser.newPage.mockResolvedValue(mockPage);
-  mockBrowser.newContext.mockResolvedValue(mockContext);
-  mockBrowser.close.mockResolvedValue(undefined);
-
-  mockContext.newPage.mockResolvedValue(mockPage);
-  mockContext.close.mockResolvedValue(undefined);
-
-  mockPage.setDefaultTimeout.mockResolvedValue(undefined);
-  mockPage.setViewportSize.mockResolvedValue(undefined);
-  mockPage.goto.mockResolvedValue(undefined);
-  mockPage.waitForLoadState.mockResolvedValue(undefined);
-  mockPage.waitForTimeout.mockResolvedValue(undefined);
-  mockPage.waitForSelector.mockResolvedValue(mockElement);
-  mockPage.addStyleTag.mockResolvedValue(undefined);
-  mockPage.close.mockResolvedValue(undefined);
-
-  mockElement.screenshot.mockResolvedValue(new Uint8Array([1, 2, 3, 4]));
+  // Setup default mock implementations using the centralized setup
+  setupDefaultMocks();
 });
