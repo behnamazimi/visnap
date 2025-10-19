@@ -9,6 +9,7 @@ import { access, mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { join, resolve } from "path";
 
 import type { StorageAdapter, StorageKind } from "@visnap/protocol";
+import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 
 /**
  * Error thrown when filesystem storage operations fail
@@ -223,7 +224,7 @@ export class FsStorageAdapter implements StorageAdapter {
     try {
       await this.ensureDir(dir);
       const files = await readdir(dir);
-      return files.filter(file => file.endsWith(".png"));
+      return files.filter(file => file.endsWith(SNAPSHOT_EXTENSION));
     } catch {
       return [];
     }

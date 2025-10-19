@@ -10,6 +10,7 @@ import type {
   TestDurations,
   BrowserName,
 } from "@visnap/protocol";
+import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 
 import { roundToTwoDecimals } from "@/utils/math";
 import { formatViewport } from "@/utils/viewport-formatting";
@@ -61,7 +62,8 @@ export function summarizeUpdateMode(
     testCases.push({
       id: captureResult.id,
       captureFilename:
-        captureResult.captureFilename || `${captureResult.id}.png`,
+        captureResult.captureFilename ||
+        `${captureResult.id}${SNAPSHOT_EXTENSION}`,
       captureDurationMs: roundToTwoDecimals(captureDurationMs),
       totalDurationMs: roundToTwoDecimals(captureDurationMs), // No comparison in update mode
       status,

@@ -8,6 +8,7 @@ import type {
   ScreenshotResult,
   BrowserName,
 } from "@visnap/protocol";
+import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 
 import { DEFAULT_CAPTURE_TIMEOUT_MS } from "@/constants";
 import { createConcurrencyPool } from "@/lib/pool";
@@ -63,7 +64,7 @@ export async function executeCapture(
       _index: number
     ) => {
       const id = `${variant.caseId}-${variant.variantId}`;
-      const captureFilename = `${id}.png`;
+      const captureFilename = `${id}${SNAPSHOT_EXTENSION}`;
       const browserInfo = variant.browser ? ` (${variant.browser})` : "";
       log.dim(`Taking screenshot for: ${id}${browserInfo}`);
 

@@ -1,4 +1,5 @@
 import { log } from "@visnap/core";
+import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 import chalk from "chalk";
 import { table } from "table";
 
@@ -84,9 +85,9 @@ export function formatNextSteps(summary: TestSummary): void {
  * Format file paths for diff viewing
  */
 export function formatDiffPaths(screenshotDir: string, testId: string): void {
-  const basePath = `${screenshotDir}/base/${testId}.png`;
-  const currentPath = `${screenshotDir}/current/${testId}.png`;
-  const diffPath = `${screenshotDir}/diff/${testId}.png`;
+  const basePath = `${screenshotDir}/base/${testId}${SNAPSHOT_EXTENSION}`;
+  const currentPath = `${screenshotDir}/current/${testId}${SNAPSHOT_EXTENSION}`;
+  const diffPath = `${screenshotDir}/diff/${testId}${SNAPSHOT_EXTENSION}`;
 
   log.plain("\n📁 Diff Files:");
   log.plain(`Base:    ${chalk.gray(basePath)}`);
