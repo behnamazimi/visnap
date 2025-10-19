@@ -1,52 +1,71 @@
 ---
 title: Comparison
-description: Threshold, engines (odiff/pixelmatch), diff colors
+description: Configure engines (odiff/pixelmatch), threshold sensitivity, and diff colors.
 ---
 
-ViSnap supports comparison with [odiff](https://github.com/dmtrKovalenko/odiff) and [pixelmatch](https://github.com/mapbox/pixelmatch) in its core.
-
-## Choosing a Core
-
-- `odiff`: fast, robust defaults; recommended for most projects
-- `pixelmatch`: traditional per-pixel comparison; use if you need its behavior
+ViSnap compares images using either [odiff](https://github.com/dmtrKovalenko/odiff) or [pixelmatch](https://github.com/mapbox/pixelmatch). Use the table below to review available options and defaults.
 
 ## Configuration
 
-```typescript
+```ts
+// visnap.config.ts|js
 comparison: {
   core: 'odiff',        // or 'pixelmatch'
-  threshold: 0.1,       // 0.0–1.0, higher = less strict
-  diffColor: '#00ff00', // optional
+  threshold: 0.1,       // 0.0–1.0; higher = less strict
+  diffColor: '#00ff00', // optional highlight color
 }
 ```
+
+<ApiTable
+  title="API Table"
+  rows={ApiTable.defineRows([
+    {
+      name: 'core',
+      type: '"odiff" | "pixelmatch"',
+      default: '"odiff"',
+      description: (
+        <>
+          Comparison engine. <code>odiff</code> is fast and robust; <code>pixelmatch</code> provides traditional per-pixel comparison.
+        </>
+      ),
+    },
+    {
+      name: 'threshold',
+      type: 'number (0.0–1.0)',
+      default: '0.1',
+      description: 'How different pixels must be to count as a change; higher is less strict.',
+    },
+    {
+      name: 'diffColor',
+      type: 'string (CSS color)',
+      description: 'Color used to highlight differences in the diff image, e.g., #00ff00.',
+    },
+  ])}
+  anchorPrefix="comparison"
+/>
+
+## Engines
+
+- odiff (default): fast, robust defaults; recommended for most projects
+- pixelmatch: classic per‑pixel comparison; choose when you need its specific behavior
+
+## 
 
 ## Threshold
 
-How different pixels need to be to count as a change (0.0 to 1.0).
+Controls how different pixels must be to count as a change. Range: 0.0–1.0.
 
-```typescript
-threshold: 0.1 // 10% difference threshold
-```
+- 0.0 — No differences allowed (very strict)
+- 1.0 — All differences ignored (very loose)
+- 0.1 — Recommended starting point (10% difference)
 
-- `0.0` = No differences allowed (very strict)
-- `1.0` = All differences ignored (very loose)
-- `0.1` = 10% difference threshold (recommended starting point)
+## Diff Color
 
-## Diff Colors
+Customize the highlight color used in generated diff images. Example: "#ff0000" for red, "#00ff00" for green.
 
-Customize the color used to highlight differences in diff images:
+## Best Practices
 
-```typescript
-comparison: {
-  core: 'odiff',
-  threshold: 0.1,
-  diffColor: '#ff0000' // Red differences
-}
-```
-
-## Tips
-
-- Consider starting with `odiff` + 0.1 threshold, then adjust gradually if you notice flakiness
-- You might want to combine with CSS injection to reduce animation noise or mask elements
-- Higher thresholds work well for components with subtle animations or dynamic content
-- Lower thresholds are better for precise UI elements like icons or text
+- Start with odiff + 0.1 threshold; tune gradually based on noise and flakiness.
+- Use CSS injection to disable animations/transitions during capture.
+- Increase threshold for components with subtle animations or dynamic content.
+- Decrease threshold for precise UI (icons, typography, fine lines).
