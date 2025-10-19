@@ -5,34 +5,113 @@ description: Test any URL with ViSnap without requiring Storybook
 
 The URL adapter lets you test any web page or application. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
 
-## Setup
+## Configuration
 
-Add the URL adapter to your configuration:
-
-```typescript
-testCase: [{
-  name: "@visnap/url-adapter",
-  options: {
-    urls: [
-      { id: "homepage", url: "http://localhost:3000/" },
-      { id: "about", url: "http://localhost:3000/about" },
-      { id: "pricing", url: "http://localhost:3000/pricing" }
-    ]
-  }
-}]
+```ts
+// visnap.config.ts|js
+testCase: [
+  {
+    name: "@visnap/url-adapter",
+    options: {
+      urls: [
+        { id: "homepage", url: "http://localhost:3000/" },
+        { id: "about", url: "http://localhost:3000/about" },
+        { id: "pricing", url: "http://localhost:3000/pricing" },
+      ],
+      // include: ["*"], // minimatch patterns
+      // exclude: ["*admin*"]
+    },
+  },
+];
 ```
 
-## Basic URL Configuration
+<ApiTable
+  title="URL Adapter Options"
+  caption="Options are provided under adapters.testCase[i].options."
+  rows={ApiTable.defineRows([
+    {
+      name: "urls",
+      type: "Array<UrlConfig>",
+      description: "Array of URLs to test (at least one required).",
+      href: "#url-configuration",
+    },
+    {
+      name: "include",
+      type: "string | string[]",
+      description: "Minimatch patterns to include specific URLs by id.",
+      href: "#pattern-filtering",
+    },
+    {
+      name: "exclude",
+      type: "string | string[]",
+      description: "Minimatch patterns to exclude URLs by id.",
+      href: "#pattern-filtering",
+    },
+  ])}
+  anchorPrefix="url-adapter"
+/>
 
-Each URL needs an `id` and `url`:
+## URL Configuration
 
-```typescript
-urls: [
-  { id: "homepage", url: "http://localhost:3000/" },
-  { id: "about-page", url: "http://localhost:3000/about" },
-  { id: "contact", url: "http://localhost:3000/contact" }
-]
-```
+Each URL requires an id and url. Optional fields allow per-URL overrides and interactions.
+
+<ApiTable
+  title="UrlConfig"
+  rows={ApiTable.defineRows([
+    {
+      name: "id",
+      type: "string",
+      description: "Unique identifier used for filtering and reporting.",
+    },
+    {
+      name: "url",
+      type: "string",
+      description: "Absolute HTTP/HTTPS URL to test.",
+    },
+    {
+      name: "title",
+      type: "string",
+      description: "Optional display name for reports.",
+      href: "#title",
+    },
+    {
+      name: "screenshotTarget",
+      type: "string",
+      description: "CSS selector of the element to capture (default: body).",
+      href: "#screenshottarget",
+    },
+    {
+      name: "elementsToMask",
+      type: "string[]",
+      description: "CSS selectors to mask before capture.",
+    },
+    {
+      name: "viewport",
+      type: "{ width: number; height: number; deviceScaleFactor?: number }",
+      description: "Override global viewport for this URL.",
+      href: "#viewport",
+    },
+    {
+      name: "threshold",
+      type: "number",
+      description: "Override global comparison threshold for this URL.",
+      href: "#threshold",
+    },
+    {
+      name: "disableCSSInjection",
+      type: "boolean",
+      description: "Skip global CSS injection for this URL.",
+      href: "#disablecssinjection",
+    },
+    {
+      name: "interactions",
+      type: "InteractionAction[]",
+      description: "Actions to perform before capture.",
+      href: "#interactions",
+    },
+  ])}
+  anchorPrefix="url-config"
+/>
 
 ## Advanced URL Options
 
@@ -51,10 +130,10 @@ urls: [
     elementsToMask: [".sticky-header", "#ad-slot"],
     interactions: [
       { type: "click", selector: "button.cta" },
-      { type: "waitForTimeout", duration: 500 }
-    ]
-  }
-]
+      { type: "waitForTimeout", duration: 500 },
+    ],
+  },
+];
 ```
 
 ## URL-Specific Settings
@@ -72,10 +151,10 @@ Display name for the URL in reports:
 Custom viewport for this URL:
 
 ```typescript
-{ 
-  id: "mobile-homepage", 
-  url: "http://localhost:3000/", 
-  viewport: { width: 375, height: 667 } 
+{
+  id: "mobile-homepage",
+  url: "http://localhost:3000/",
+  viewport: { width: 375, height: 667 }
 }
 ```
 
@@ -84,9 +163,9 @@ Custom viewport for this URL:
 Custom threshold for this URL:
 
 ```typescript
-{ 
-  id: "precise-page", 
-  url: "http://localhost:3000/precise", 
+{
+  id: "precise-page",
+  url: "http://localhost:3000/precise",
   threshold: 0.01 // 1% threshold
 }
 ```
@@ -96,10 +175,10 @@ Custom threshold for this URL:
 Specify which element to screenshot:
 
 ```typescript
-{ 
-  id: "hero-section", 
-  url: "http://localhost:3000/", 
-  screenshotTarget: ".hero" 
+{
+  id: "hero-section",
+  url: "http://localhost:3000/",
+  screenshotTarget: ".hero"
 }
 ```
 
@@ -133,20 +212,7 @@ Disable the global CSS injection (configured in your browser adapter) for this s
 
 ## Pattern Filtering
 
-Filter URLs using minimatch patterns:
-
-```typescript
-options: {
-  urls: [
-    { id: "homepage", url: "http://localhost:3000/" },
-    { id: "about-page", url: "http://localhost:3000/about" },
-    { id: "pricing-page", url: "http://localhost:3000/pricing" },
-    { id: "admin-dashboard", url: "http://localhost:3000/admin" }
-  ],
-  include: ["*page*"], // Only test pages with "page" in the ID
-  exclude: ["*admin*"] // Exclude admin pages
-}
-```
+Use include/exclude to select URLs by id using minimatch patterns.
 
 ## Common Use Cases
 
@@ -159,8 +225,8 @@ urls: [
   { id: "homepage", url: "https://mycompany.com/" },
   { id: "features", url: "https://mycompany.com/features" },
   { id: "pricing", url: "https://mycompany.com/pricing" },
-  { id: "contact", url: "https://mycompany.com/contact" }
-]
+  { id: "contact", url: "https://mycompany.com/contact" },
+];
 ```
 
 ### Application Testing
@@ -171,8 +237,8 @@ Test different parts of your application:
 urls: [
   { id: "login", url: "http://localhost:3000/login" },
   { id: "dashboard", url: "http://localhost:3000/dashboard" },
-  { id: "settings", url: "http://localhost:3000/settings" }
-]
+  { id: "settings", url: "http://localhost:3000/settings" },
+];
 ```
 
 ### Mobile-First Testing
@@ -181,21 +247,19 @@ Test mobile-specific views:
 
 ```typescript
 urls: [
-  { 
-    id: "mobile-homepage", 
-    url: "http://localhost:3000/", 
+  {
+    id: "mobile-homepage",
+    url: "http://localhost:3000/",
     viewport: { width: 375, height: 667 },
-    title: "Homepage (Mobile)"
+    title: "Homepage (Mobile)",
   },
-  { 
-    id: "mobile-menu", 
-    url: "http://localhost:3000/", 
+  {
+    id: "mobile-menu",
+    url: "http://localhost:3000/",
     viewport: { width: 375, height: 667 },
-    interactions: [
-      { type: "click", selector: ".menu-toggle" }
-    ]
-  }
-]
+    interactions: [{ type: "click", selector: ".menu-toggle" }],
+  },
+];
 ```
 
 ### Interactive Pages
@@ -210,10 +274,10 @@ urls: [
     interactions: [
       { type: "fill", selector: "input[type='search']", text: "test query" },
       { type: "click", selector: "button[type='submit']" },
-      { type: "waitForSelector", selector: ".search-results" }
-    ]
-  }
-]
+      { type: "waitForSelector", selector: ".search-results" },
+    ],
+  },
+];
 ```
 
 ## Mixed Testing
@@ -226,19 +290,19 @@ testCase: [
     name: "@visnap/storybook-adapter",
     options: {
       source: "./storybook-static",
-      include: "*"
-    }
+      include: "*",
+    },
   },
   {
     name: "@visnap/url-adapter",
     options: {
       urls: [
         { id: "homepage", url: "http://localhost:3000/" },
-        { id: "about", url: "http://localhost:3000/about" }
-      ]
-    }
-  }
-]
+        { id: "about", url: "http://localhost:3000/about" },
+      ],
+    },
+  },
+];
 ```
 
 ## When to Use URL Adapter
@@ -269,7 +333,7 @@ If pages are timing out, you can increase the navigation timeout in your browser
 
 ```typescript
 navigation: {
-  timeoutMs: 60000 // 60 seconds
+  timeoutMs: 60000; // 60 seconds
 }
 ```
 
@@ -278,7 +342,7 @@ navigation: {
 If screenshots aren't capturing correctly, verify your screenshot target exists on the page:
 
 ```typescript
-screenshotTarget: "body" // ensure this element exists
+screenshotTarget: "body"; // ensure this element exists
 ```
 
 ### Authentication
@@ -288,6 +352,6 @@ For pages requiring authentication, you can configure the browser adapter to use
 ```typescript
 // In your browser adapter config
 context: {
-  storageStatePath: './auth.json' // saved login state
+  storageStatePath: "./auth.json"; // saved login state
 }
 ```

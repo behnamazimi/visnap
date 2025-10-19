@@ -3,11 +3,51 @@ title: Adapters
 description: What are adapters? Browser vs Test Source adapters, and overview of existing adapters
 ---
 
-
 ## What are adapters?
+
 Adapters are the building blocks that make ViSnap flexible and work with different tools and environments.
 
 Think of them as plugins that tell ViSnap how to interact with different parts of your testing setup. They handle the details so you don't have to worry about the specifics or complexity of different tools.
+
+## Configuration
+
+```ts
+// visnap.config.ts|js
+adapters: {
+	browser: {
+		name: "@visnap/playwright-adapter",
+		options: { /* adapter-specific options */ },
+	},
+	testCase: [
+		{
+			name: "@visnap/storybook-adapter",
+			options: { source: "./storybook-static", include: "*" },
+		},
+		// { name: "@visnap/url-adapter", options: { url: "https://example.com" } },
+	],
+}
+```
+
+<ApiTable
+  title="Adapter Configuration"
+  rows={ApiTable.defineRows([
+    {
+      name: "adapters.browser",
+      type: "{ name: string; options?: object }",
+      description:
+        "Browser adapter used to run and capture in a specific browser engine.",
+      href: "#browser-adapters",
+    },
+    {
+      name: "adapters.testCase",
+      type: "Array<{ name: string; options?: object }>",
+      description:
+        "One or more test source adapters that discover and provide test cases.",
+      href: "#test-source-adapters",
+    },
+  ])}
+  anchorPrefix="adapters"
+/>
 
 ### Browser adapters
 
@@ -16,4 +56,3 @@ Determine which browser engine is used to capture screenshots. Currently, thereâ
 ### Test source adapters
 
 Determine where your test cases come from. Currently, there are two available: the [Storybook adapter](/docs/adapters/storybook-adapter), which discovers and tests your existing Storybook stories, and the [URL adapter](/docs/adapters/url-adapter), which lets you test any web page directly. You can even use multiple adapters together.
-

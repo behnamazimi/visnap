@@ -17,7 +17,8 @@ const config: VisualTestingToolConfig = {
   },
   screenshotDir: "visnap",
   // ... other options
-};
+    const config: VisualTestingToolConfig = {
+    // visnap.config.ts
 
 export default config;
 ```
@@ -29,12 +30,13 @@ export default config;
 Create `visnap.config.ts` for full type safety:
 
 ```typescript
-import { type VisualTestingToolConfig } from '@visnap/protocol';
+import { type VisualTestingToolConfig } from "@visnap/protocol";
 
 const config: VisualTestingToolConfig = {
   // your configuration
 };
-
+// visnap.config.ts
+import { type VisualTestingToolConfig } from "@visnap/protocol";
 export default config;
 ```
 
@@ -42,13 +44,14 @@ export default config;
 
 Create `visnap.config.js` for JavaScript projects:
 
-```javascript
+````javascript
 const config = {
   // your configuration
 };
 
 module.exports = config;
-```
+    // visnap.config.js
+    const config = {
 
 ## Environment Variables
 
@@ -57,11 +60,13 @@ You can override configuration values using environment variables, which is help
 ```bash
 VISNAP_SCREENSHOT_DIR=./screenshots
 VISNAP_THRESHOLD=0.05
-```
+````
 
 ## Complete Example
 
-Here's a full configuration that works with Storybook v8+ and Playwright:
+    // .env or shell
+    VISNAP_SCREENSHOT_DIR=./screenshots
+    VISNAP_THRESHOLD=0.05
 
 ```typescript
 import { type VisualTestingToolConfig } from '@visnap/protocol';
@@ -69,7 +74,8 @@ import { type VisualTestingToolConfig } from '@visnap/protocol';
 const config: VisualTestingToolConfig = {
   adapters: {
     browser: {
-      name: "@visnap/playwright-adapter",
+    // visnap.config.ts
+    import { type VisualTestingToolConfig } from '@visnap/protocol';
       options: {
         launch: { browser: 'chromium', headless: true },
         context: { colorScheme: 'light', reducedMotion: 'reduce' },
@@ -112,6 +118,19 @@ export default config;
 ViSnap uses the filesystem to store screenshot files. Screenshots are organized in the following directory structure:
 
 ```
+    <ApiTable
+      title="Top-level Configuration"
+      caption="Primary keys available in visnap.config."
+      rows={ApiTable.defineRows([
+        { name: 'adapters', type: '{ browser: { name: string; options?: object }; testCase: Array<{ name: string; options?: object }>; }', description: 'Configure browser and test source adapters.' },
+        { name: 'screenshotDir', type: 'string', description: 'Directory where screenshots and reports are written (default: "visnap").' },
+        { name: 'viewport', type: 'Record<string, { width: number; height: number; deviceScaleFactor?: number }>', description: 'Named viewport sizes used across captures.' },
+        { name: 'runtime', type: '{ maxConcurrency?: number | { capture?: number; compare?: number }; quiet?: boolean }', description: 'Execution controls for parallelism and logging.' },
+        { name: 'comparison', type: '{ core: string; threshold: number; diffColor?: string }', description: 'Comparison engine and sensitivity settings.' },
+        { name: 'reporter', type: '{ html?: boolean | string; json?: boolean | string }', description: 'Output formats and optional custom paths for reports.' },
+      ])}
+      anchorPrefix="config"
+    />
 visnap/
 ├── base/     # Baseline screenshots (from visnap update)
 ├── current/  # Current screenshots (from visnap test)

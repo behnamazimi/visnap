@@ -5,52 +5,116 @@ description: Configure browser automation for capturing screenshots
 
 Use the [Playwright](https://playwright.dev/) adapter to launch Chromium, Firefox, or WebKit and capture screenshots.
 
-## Basic Configuration
+## Configuration
 
-```typescript
+```ts
+// visnap.config.ts|js
 adapters: {
   browser: {
     name: "@visnap/playwright-adapter",
     options: {
       launch: { browser: 'chromium', headless: true },
-      context: {
-        colorScheme: 'light',
-        reducedMotion: 'reduce'
-      }
+      context: { colorScheme: 'light', reducedMotion: 'reduce' },
+      // navigation: { baseUrl: 'http://localhost:3000', waitUntil: 'load', timeoutMs: 30000 },
+      // injectCSS: '* { animation: none !important; transition: none !important; }',
+      // performance: { blockResources: ['.map'], reuseContext: true, disableAnimations: true },
     }
   }
 }
 ```
 
+<ApiTable
+  title="Playwright Adapter Options"
+  caption="Options are provided under adapters.browser.options."
+  rows={ApiTable.defineRows([
+    {
+      name: "launch.browser",
+      type: '"chromium" | "firefox" | "webkit" | string',
+      description: "Select browser engine or custom channel.",
+      href: "#launch-configuration",
+    },
+    {
+      name: "launch.headless",
+      type: "boolean",
+      default: "true",
+      description: "Run in headless mode for speed and stability.",
+      href: "#launch-configuration",
+    },
+    {
+      name: "launch.channel",
+      type: "string",
+      description: 'Browser channel (e.g., "chrome").',
+      href: "#launch-configuration",
+    },
+    {
+      name: "context.colorScheme",
+      type: '"light" | "dark"',
+      description: "Emulate light or dark color scheme.",
+      href: "#context-configuration",
+    },
+    {
+      name: "context.reducedMotion",
+      type: '"reduce" | "no-preference"',
+      description: "Emulate reduced motion preference.",
+      href: "#context-configuration",
+    },
+    {
+      name: "context.storageStatePath",
+      type: "string",
+      description: "Path to saved storage state for authenticated sessions.",
+      href: "#context-configuration",
+    },
+    {
+      name: "navigation.baseUrl",
+      type: "string",
+      description: "Base URL used to resolve relative paths.",
+      href: "#navigation-settings",
+    },
+    {
+      name: "navigation.waitUntil",
+      type: '"load" | "domcontentloaded" | "networkidle"',
+      description: "When a page is considered loaded.",
+      href: "#navigation-settings",
+    },
+    {
+      name: "navigation.timeoutMs",
+      type: "number (>0)",
+      description: "Navigation timeout in milliseconds.",
+      href: "#navigation-settings",
+    },
+    {
+      name: "injectCSS",
+      type: "string",
+      description: "Custom CSS to inject for stabilizing screenshots.",
+      href: "#css-injection",
+    },
+    {
+      name: "performance.blockResources",
+      type: "string[]",
+      description: "Block resources by substring/host/extension.",
+      href: "#adapter-performance-options",
+    },
+    {
+      name: "performance.reuseContext",
+      type: "boolean",
+      description: "Reuse a single BrowserContext across captures.",
+      href: "#adapter-performance-options",
+    },
+    {
+      name: "performance.disableAnimations",
+      type: "boolean",
+      description: "Disable animations via emulateMedia + CSS.",
+      href: "#adapter-performance-options",
+    },
+  ])}
+  anchorPrefix="playwright"
+/>
+
 ## Browser Options
 
-### Single Browser
+### Browser Selection
 
-Test with one browser:
-
-```typescript
-options: { browser: 'chromium' } // or 'firefox', 'webkit'
-```
-
-### Multiple Browsers
-
-Test across all browsers:
-
-```typescript
-options: { browser: ["chromium", "firefox", "webkit"] }
-```
-
-Or configure each browser with custom options:
-
-```typescript
-options: { 
-  browser: [
-    { name: "chromium", options: { headless: false } },
-    { name: "firefox", options: { headless: true } },
-    { name: "webkit", options: { headless: true } }
-  ]
-}
-```
+Choose a single browser (chromium, firefox, webkit) or plug in a custom string channel. Configure the channel via launch.channel when needed.
 
 ### Browser-Specific Settings
 
@@ -64,65 +128,27 @@ options: {
       name: "chromium",
       options: {
         // ... launch/context/navigation ...
-      }
-    }
-  ]
+      },
+    },
+  ];
 }
 ```
 
 ## Launch Configuration
 
-Control how browsers start:
-
-```typescript
-launch: {
-  browser: 'chromium',
-  channel: 'chrome',     // use Chrome instead of Chromium
-  headless: true,
-  args: ['--no-sandbox'] // additional browser arguments
-}
-```
+Control how browsers start (browser, channel, headless, args via channel-level configuration when applicable).
 
 ## Context Configuration
 
-Set browser context options:
-
-```typescript
-context: {
-  colorScheme: 'light',      // or 'dark'
-  reducedMotion: 'reduce',   // or 'no-preference'
-  storageStatePath: './auth.json', // saved login state
-  locale: 'en-US',          // browser locale
-  timezoneId: 'America/New_York'
-}
-```
+Set color scheme, reduced motion, and optionally a storageStatePath for persisted auth sessions.
 
 ## Navigation Settings
 
-Control page loading behavior:
-
-```typescript
-navigation: {
-  baseUrl: 'http://localhost:3000', // base URL for relative paths
-  waitUntil: 'load',                // when to consider page loaded
-  timeoutMs: 30000                  // navigation timeout
-}
-```
+Control page loading behavior: baseUrl, waitUntil, timeoutMs.
 
 ## CSS Injection
 
-Disable animations and hide elements for stable screenshots:
-
-```typescript
-injectCSS: `
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-  .loader { display: none !important; }
-  .cookie-banner { display: none !important; }
-`
-```
+Disable animations or hide dynamic elements by injecting custom CSS.
 
 ## Performance Tips
 
@@ -130,47 +156,23 @@ injectCSS: `
 
 Headless mode offers faster execution and is suitable for most testing scenarios. Use headed mode when you need to visually debug interactions:
 
-```typescript
-launch: { headless: true } // Faster execution
-// or
-launch: { headless: false } // For debugging
-```
+Use headless: true for speed; set false only when debugging interactions.
 
 ### Memory Issues
 
 For large test suites, you might want to reduce concurrency to avoid memory issues:
 
-```typescript
-runtime: {
-  maxConcurrency: 2 // Lower concurrency uses less memory
-}
-```
+Lower runtime.maxConcurrency to reduce memory usage for large test suites.
 
 ### Adapter Performance Options
 
 You can tune Playwright-specific performance behavior from the adapter options. These are adapter-only and do not affect other adapters.
 
-```typescript
-adapters: {
-  browser: {
-    name: "@visnap/playwright-adapter",
-    options: {
-      // ... launch/context/navigation ...
-      performance: {
-        // Block heavy/irrelevant resources via routing (substrings/hostnames/extensions)
-        blockResources: [".map", ".mp4", "fonts.gstatic.com", "/analytics"],
-        // Reuse a single BrowserContext across captures (storage cleared between runs)
-        reuseContext: true,
-        // Disable animations via emulateMedia + CSS for more stable screenshots
-        disableAnimations: true,
-      }
-    }
-  }
-}
-```
+These adapter-only options do not affect other adapters. Use blockResources, reuseContext, and disableAnimations to tune capture performance.
 
 Note: The capture code uses `page.locator(selector).screenshot()` when available for stability; otherwise it falls back to the element handle's `screenshot()`.
 
 Note:
+
 - Device scale factor should be set on the viewport (e.g. `{ width, height, deviceScaleFactor }`) rather than adapter performance.
 - You can also inject your own CSS (see above) to hide dynamic elements.

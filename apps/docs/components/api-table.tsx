@@ -10,6 +10,9 @@ type ApiRowBase = {
   description?: React.ReactNode;
   // Mark item as deprecated, optionally with reason
   deprecated?: boolean | string;
+  // Optional: explicit href to link the name to (e.g., '#section-id')
+  // When not provided, the name renders as plain text without a link
+  href?: string;
 };
 
 // Discriminated union enforcing required/default combos:
@@ -93,6 +96,7 @@ function slugify(input: string): string {
     .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2');
 
   return withWordBoundaries
+    .replace(/[._/]+/g, '-')
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9\s-]/g, '') // remove punctuation
@@ -139,11 +143,15 @@ const Cell = ({ children }: { children: React.ReactNode }) => (
   </td>
 );
 
-const NameCell = ({ href, selfId, children }: { href: string; selfId?: string; children: React.ReactNode }) => (
+const NameCell = ({ href, selfId, children }: { href?: string; selfId?: string; children: React.ReactNode }) => (
   <td className="align-top text-sm font-medium text-foreground px-3 py-2 border-b border-border">
-    <a href={href} id={selfId} className="hover:underline decoration-border/80 underline-offset-4">
-      {children}
-    </a>
+    {href ? (
+      <a href={href} id={selfId} className="hover:underline decoration-border/80 underline-offset-4">
+        {children}
+      </a>
+    ) : (
+      <span id={selfId}>{children}</span>
+    )}
   </td>
 );
 
@@ -206,13 +214,12 @@ function SectionBlock({
         </tr>
       )}
       {section.rows.map(row => {
+        // Only generate self-id for anchor positioning if no explicit href provided
         const base = slugify(row.name);
-        const generated = anchorPrefix && usePrefixInAnchor ? `${slugify(anchorPrefix)}-${base}` : base;
-        const href = `#${generated}`;
-        const selfId = generated;
+        const selfId = anchorPrefix && usePrefixInAnchor ? `${slugify(anchorPrefix)}-${base}` : base;
         return (
           <tr key={row.name} className="even:bg-background odd:bg-background">
-            <NameCell href={href} selfId={selfId}>{row.name}</NameCell>
+            <NameCell href={row.href} selfId={selfId}>{row.name}</NameCell>
             <Cell>
               <code className="text-[13px] whitespace-pre-wrap">
                 {row.type}
