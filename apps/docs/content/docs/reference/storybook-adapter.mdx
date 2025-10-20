@@ -1,0 +1,228 @@
+---
+title: Storybook Adapter
+description: Test your Storybook stories with ViSnap
+---
+
+The Storybook adapter lets you test individual stories from your Storybook v8+ build. It's the recommended way to use ViSnap for component testing.
+
+## Configuration
+
+```ts
+// visnap.config.ts|js
+testCase: [
+  {
+    name: "@visnap/storybook-adapter",
+    options: {
+      source: "./storybook-static",
+      // port: 4477,
+      // include: "*",
+      // exclude: "*-skip*",
+      // discovery: { evalTimeoutMs: 10000, maxRetries: 2, retryDelayMs: 200 },
+    },
+  },
+];
+```
+
+## Options
+
+Options are provided under `adapters.testCase[i].options`.
+
+### `source`
+
+**Type:** `string`  
+**Required:** Yes
+
+Path or URL to your Storybook build. Use a local directory like `"./storybook-static"` or a remote URL.
+
+### `port`
+
+**Type:** `number (>0)`  
+**Required:** No
+
+Port for the local static server when using a local build directory.
+
+### `include`
+
+**Type:** `string | string[]`  
+**Required:** No
+
+Patterns to include specific stories. Use wildcards like `"*Button*"` to test only stories with "Button" in the name.
+
+### `exclude`
+
+**Type:** `string | string[]`  
+**Required:** No
+
+Patterns to exclude stories from testing. Use `"*-skip*"` to skip stories with "skip" in their name.
+
+### Discovery Options
+
+### `discovery.evalTimeoutMs`
+
+**Type:** `number (>0)`  
+**Required:** No
+
+How long to wait when evaluating story metadata. Increase if stories are slow to load.
+
+### `discovery.maxRetries`
+
+**Type:** `number (>=0)`  
+**Required:** No
+
+Number of times to retry if story discovery fails.
+
+### `discovery.retryDelayMs`
+
+**Type:** `number (>=0)`  
+**Required:** No
+
+Wait time between discovery retries.
+
+## Story Configuration
+
+Configure visual testing options directly in your stories:
+
+```typescript
+export default {
+  title: "Button",
+  component: Button,
+  parameters: {
+    visualTesting: {
+      skip: false, // Skip this story
+      screenshotTarget: "#storybook-root", // Custom screenshot target
+      threshold: 0.05, // Custom threshold for this story
+      browser: ["chromium", "firefox"], // Specific browsers
+      viewport: { width: 1200, height: 800 }, // Custom viewport
+      disableCSSInjection: true, // Disable global CSS injection
+      interactions: [
+        // Execute interactions before screenshot
+        { type: "click", selector: "button" },
+        { type: "fill", selector: "input", text: "test" },
+      ],
+    },
+  },
+};
+```
+
+### Story Parameters
+
+#### `skip`
+
+Skip this story entirely:
+
+```typescript
+visualTesting: {
+  skip: true
+}
+```
+
+#### `screenshotTarget`
+
+Specify which element to screenshot (default: `"#storybook-root"`):
+
+```typescript
+visualTesting: {
+  screenshotTarget: ".my-component"
+}
+```
+
+#### `threshold`
+
+Override the global threshold for this story:
+
+```typescript
+visualTesting: {
+  threshold: 0.05 // 5% difference threshold
+}
+```
+
+#### `browser`
+
+Test only specific browsers:
+
+```typescript
+visualTesting: {
+  browser: ["chromium", "firefox"] // test in both browsers
+}
+```
+
+#### `viewport`
+
+Use a custom viewport for this story:
+
+```typescript
+visualTesting: {
+  viewport: { width: 1200, height: 800 }
+}
+```
+
+#### `disableCSSInjection`
+
+Disable global CSS injection for this story:
+
+```typescript
+visualTesting: {
+  disableCSSInjection: true
+}
+```
+
+#### `interactions`
+
+Execute user interactions before taking the screenshot:
+
+```typescript
+visualTesting: {
+  interactions: [
+    { type: "click", selector: "button.primary" },
+    { type: "fill", selector: 'input[name="email"]', text: "test@example.com" },
+    { type: "waitForTimeout", duration: 500 },
+    { type: "hover", selector: ".tooltip-trigger" },
+  ]
+}
+```
+
+#### `elementsToMask`
+
+**Type:** `string[]`  
+**Required:** No
+
+Overlay specific elements with solid colors to hide dynamic content and stabilize tests.
+
+```typescript
+visualTesting: {
+  elementsToMask: [".timestamp", "#ad-slot", ".user-avatar"]
+}
+```
+
+See [Screenshot Stabilization](/docs/guides/screenshot-stabilization) for detailed examples and best practices.
+
+## Common Use Cases
+
+### Form Testing
+
+Test form interactions by filling fields and submitting:
+
+```typescript
+visualTesting: {
+  interactions: [
+    { type: "fill", selector: 'input[name="email"]', text: "test@example.com" },
+    { type: "click", selector: 'button[type="submit"]' },
+    { type: "waitForTimeout", duration: 1000 },
+  ]
+}
+```
+
+### State Testing
+
+Test different component states like hover or loading:
+
+```typescript
+visualTesting: {
+  interactions: [
+    { type: "hover", selector: ".button" },
+    { type: "click", selector: "button.load-data" },
+    { type: "wait", selector: ".loading-spinner" },
+  ]
+}
+```
+

@@ -1,0 +1,163 @@
+---
+title: Storybook Setup
+description: Test your Storybook components with ViSnap
+---
+
+If you're using Storybook, this is the easiest way to get started with ViSnap. It automatically finds all your stories and tests them as they actually render.
+
+## What You Need
+
+- Storybook v8 or later
+- A built Storybook (run `npm run build-storybook`)
+
+## Get Started
+
+1. **Install ViSnap:**
+```bash
+npm install -D visnap
+```
+
+2. **Create your config:**
+```bash
+npx visnap init
+```
+
+3. **Configure the Storybook adapter in `visnap.config.ts`:**
+```typescript
+// visnap.config.ts
+import { type VisualTestingToolConfig } from '@visnap/protocol';
+
+const config: VisualTestingToolConfig = {
+  adapters: {
+    browser: {
+      name: "@visnap/playwright-adapter",
+      options: {
+        launch: { browser: 'chromium', headless: true },
+        context: { colorScheme: 'light', reducedMotion: 'reduce' },
+      }
+    },
+    testCase: [
+      {
+        name: "@visnap/storybook-adapter",
+        options: {
+          source: "./storybook-static", // Your Storybook build
+          include: "*", // Test all stories
+        }
+      }
+    ]
+  }
+};
+
+export default config;
+```
+
+4. **Build Storybook:**
+```bash
+npm run build-storybook
+```
+
+5. **Take your first screenshots:**
+```bash
+npx visnap update
+```
+
+6. **Test for changes:**
+```bash
+npx visnap test
+```
+
+7. **Open report:**
+```bash
+npx visnap open
+```
+
+## Configuration Options
+
+### Source Options
+
+**Local build directory:**
+```typescript
+options: {
+  source: "./storybook-static", // Local build
+}
+```
+
+**Remote Storybook URL:**
+```typescript
+options: {
+  source: "https://your-storybook.com", // Remote URL
+}
+```
+
+**Custom port for local server:**
+```typescript
+options: {
+  source: "./storybook-static",
+  port: 4478, // Custom port (default: 4477)
+}
+```
+
+### Filtering Stories
+
+Use patterns to include or exclude specific stories:
+
+```typescript
+options: {
+  source: "./storybook-static",
+  include: ["Button/*", "Card/*"], // Only Button and Card stories
+  exclude: ["*-skip*", "*-test*"], // Exclude stories with -skip or -test in name
+}
+```
+
+## Story-Level Configuration
+
+Configure visual testing options directly in your stories using `parameters.visualTesting`:
+
+```typescript
+export const MyStory: Story = {
+  // ...
+  parameters: {
+    visualTesting: {
+      skip: false,                    // Skip this story
+      threshold: 0.05,               // Custom threshold (0.0-1.0)
+      viewport: { width: 1200, height: 800 }, // Custom viewport
+      browser: ["chromium", "firefox"],       // Specific browsers
+      screenshotTarget: "#storybook-root",    // Custom screenshot target
+      elementsToMask: [".sticky", "#ad-slot"], // Mask dynamic elements
+      disableCSSInjection: true,     // Disable global CSS injection
+      interactions: [                // Execute before screenshot
+        // See Interactive Testing guide for examples
+      ],
+    },
+  },
+};
+```
+
+**Common options:**
+- `skip: true` - Skip this story entirely
+- `threshold: 0.01` - More strict comparison (1% difference)
+- `viewport: { width: 375, height: 667 }` - Mobile viewport
+- `browser: ["chromium"]` - Test only specific browsers
+- `screenshotTarget` - Custom screenshot target
+- `elementsToMask: [".dynamic"]` - Hide elements that change frequently
+- `disableCSSInjection` - Disable global CSS injection from visnap.config
+- `interactions: [...]` - Execute actions before screenshot
+
+## Troubleshooting
+
+**Stories not found?** Make sure your Storybook build is up to date:
+```bash
+npm run build-storybook
+```
+
+**Port conflicts?** Change the port in your config:
+```typescript
+options: { port: 4478 }
+```
+
+## Next Steps
+
+- [Interactive Testing](/docs/guides/interactive-testing) - Test user interactions
+- [Screenshot Stabilization](/docs/guides/screenshot-stabilization) - Make tests more stable
+- [CI Integration](/docs/guides/ci-integration) - Run tests in your pipeline
+- [Configuration Reference](/docs/reference/configuration) - All configuration options

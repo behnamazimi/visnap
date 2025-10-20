@@ -1,0 +1,10 @@
+{
+  "title": "Concepts",
+  "defaultOpen": true,
+  "pages": [
+    "why-visnap",
+    "how-it-works",
+    "adapters-overview",
+    "comparison-engines"
+  ]
+}

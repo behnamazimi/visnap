@@ -1,0 +1,56 @@
+---
+title: Adapters Overview
+description: How ViSnap works with different tools and environments
+---
+
+## What are adapters?
+
+Think of adapters as plugins that tell ViSnap how to work with your specific setup. They handle the messy details so you don't have to worry about browser differences or how to find your test cases.
+
+## Two types you need
+
+### Browser Adapters
+**What they do:** Take screenshots  
+**Current option:** [Playwright adapter](/docs/reference/playwright-adapter) (works with Chromium, Firefox, WebKit)
+
+### Test Source Adapters  
+**What they do:** Find what to test  
+**Current options:**
+- [Storybook adapter](/docs/reference/storybook-adapter) - Tests your component stories
+- [URL adapter](/docs/reference/url-adapter) - Tests any website
+
+You can mix and match these. For example, test both your Storybook components and your live website in the same run.
+
+## How it works
+
+1. **Test source adapter** finds your stories or URLs
+2. **Browser adapter** takes screenshots of each one  
+3. **ViSnap** compares them against your baselines
+
+This split means you can swap out pieces as needed. Want to test with a different browser? Just change the browser adapter. Want to test different content? Change the test source adapter.
+
+## Quick setup
+
+```ts
+// visnap.config.ts
+adapters: {
+  browser: {
+    name: "@visnap/playwright-adapter",
+    options: { /* browser settings */ },
+  },
+  testCase: [
+    {
+      name: "@visnap/storybook-adapter", 
+      options: { source: "./storybook-static" },
+    },
+  ],
+}
+```
+
+## Common combinations
+
+- **Component library** → Storybook + Playwright
+- **Marketing site** → URL + Playwright  
+- **Everything** → Both test adapters + Playwright
+
+See [Configuration](/docs/reference/configuration) for all the details.

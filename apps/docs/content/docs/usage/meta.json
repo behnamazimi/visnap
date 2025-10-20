@@ -1,9 +1,0 @@
-{
-  "title": "Usage",
-  "defaultOpen": true,
-  "pages": [
-    "cli-commands",
-    "workflows",
-    "programmatic-api"
-  ]
-}

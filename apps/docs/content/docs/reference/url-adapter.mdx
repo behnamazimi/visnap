@@ -1,0 +1,212 @@
+---
+title: URL Adapter
+description: Test any URL with ViSnap without requiring Storybook
+---
+
+The URL adapter lets you test any web page or application. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
+
+## Configuration
+
+```ts
+// visnap.config.ts|js
+testCase: [
+  {
+    name: "@visnap/url-adapter",
+    options: {
+      urls: [
+        { id: "homepage", url: "http://localhost:3000/" },
+        { id: "about", url: "http://localhost:3000/about" },
+        { id: "pricing", url: "http://localhost:3000/pricing" },
+      ],
+      // include: ["*"], // include patterns
+      // exclude: ["*admin*"] // exclude patterns
+    },
+  },
+];
+```
+
+## Options
+
+Options are provided under `adapters.testCase[i].options`.
+
+### `urls`
+
+**Type:** `Array<UrlConfig>`  
+**Required:** Yes
+
+Array of URLs to test. Each URL needs an `id` and `url` field.
+
+### `include`
+
+**Type:** `string | string[]`  
+**Required:** No
+
+Patterns to include specific URLs by their id. Use wildcards like `"*homepage*"` to test only URLs with "homepage" in their id.
+
+### `exclude`
+
+**Type:** `string | string[]`  
+**Required:** No
+
+Patterns to exclude URLs from testing. Use `"*admin*"` to skip URLs with "admin" in their id.
+
+## URL Configuration
+
+Each URL requires an `id` and `url`. Optional fields allow per-URL customization:
+
+```typescript
+urls: [
+  {
+    id: "homepage",
+    url: "http://localhost:3000/",
+    title: "Homepage", // display name
+    viewport: { width: 1200, height: 800 },
+    threshold: 0.05,
+    screenshotTarget: "body",
+    elementsToMask: [".sticky-header", "#ad-slot"],
+    interactions: [
+      { type: "click", selector: "button.cta" },
+      { type: "waitForTimeout", duration: 500 },
+    ],
+  },
+];
+```
+
+### Required Fields
+
+#### `id`
+
+**Type:** `string`  
+**Required:** Yes
+
+Unique identifier used for filtering and reporting.
+
+#### `url`
+
+**Type:** `string`  
+**Required:** Yes
+
+Absolute HTTP/HTTPS URL to test.
+
+### Optional Fields
+
+#### `title`
+
+**Type:** `string`  
+**Required:** No
+
+Display name for the URL in reports.
+
+#### `screenshotTarget`
+
+**Type:** `string`  
+**Required:** No
+
+CSS selector of the element to capture (default: `"body"`).
+
+#### `viewport`
+
+**Type:** `{ width: number; height: number; deviceScaleFactor?: number }`  
+**Required:** No
+
+Override global viewport for this URL.
+
+#### `threshold`
+
+**Type:** `number`  
+**Required:** No
+
+Override global comparison threshold for this URL.
+
+#### `disableCSSInjection`
+
+**Type:** `boolean`  
+**Required:** No
+
+Skip global CSS injection for this URL.
+
+#### `interactions`
+
+**Type:** `InteractionAction[]`  
+**Required:** No
+
+Actions to perform before taking the screenshot.
+
+#### `elementsToMask`
+
+**Type:** `string[]`  
+**Required:** No
+
+Overlay specific elements with solid colors to hide dynamic content and stabilize tests.
+
+See [Screenshot Stabilization](/docs/guides/screenshot-stabilization) for detailed examples and best practices.
+
+## Common Use Cases
+
+### Marketing Sites
+
+Test multiple pages of your marketing website:
+
+```typescript
+urls: [
+  { id: "homepage", url: "https://mycompany.com/" },
+  { id: "features", url: "https://mycompany.com/features" },
+  { id: "pricing", url: "https://mycompany.com/pricing" },
+];
+```
+
+### Application Pages
+
+Test different parts of your application:
+
+```typescript
+urls: [
+  { id: "login", url: "http://localhost:3000/login" },
+  { id: "dashboard", url: "http://localhost:3000/dashboard" },
+  { id: "settings", url: "http://localhost:3000/settings" },
+];
+```
+
+### Mobile Testing
+
+Test mobile-specific views with custom viewports:
+
+```typescript
+urls: [
+  {
+    id: "mobile-homepage",
+    url: "http://localhost:3000/",
+    viewport: { width: 375, height: 667 },
+    title: "Homepage (Mobile)",
+  },
+];
+```
+
+### Interactive Pages
+
+Test pages with user interactions:
+
+```typescript
+urls: [
+  {
+    id: "search-results",
+    url: "http://localhost:3000/search",
+    interactions: [
+      { type: "fill", selector: 'input[type="search"]', text: "test query" },
+      { type: "click", selector: 'button[type="submit"]' },
+    ],
+  },
+];
+```
+
+## When to Use URL Adapter
+
+Use the URL adapter for:
+- **Marketing websites** - Landing pages, product pages
+- **Applications without Storybook** - Legacy apps, non-React apps
+- **External websites** - Third-party integrations
+- **Full page flows** - Multi-step processes
+- **Server-rendered pages** - SSR applications
+
+For component testing, use the [Storybook Adapter](/docs/reference/storybook-adapter) instead.
+

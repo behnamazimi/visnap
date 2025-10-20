@@ -1,5 +1,12 @@
 {
   "title": "Guides",
   "defaultOpen": true,
-  "pages": []
+  "pages": [
+    "storybook-setup",
+    "url-testing",
+    "interactive-testing",
+    "screenshot-stabilization",
+    "ci-integration",
+    "workflows"
+  ]
 }

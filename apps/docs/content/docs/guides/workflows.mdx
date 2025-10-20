@@ -1,0 +1,85 @@
+---
+title: Workflows
+description: Setup workflow, development workflow, filtering
+---
+
+ViSnap integrates into your development process in several ways, from initial setup to daily development and CI/CD pipelines. Here are the common workflows teams use:
+
+## Local Development
+
+### Setup Workflow
+
+1. **Initialize ViSnap:**
+   ```bash
+   npx visnap init
+   ```
+
+2. **Configure your adapters** (Storybook or URLs) and browser settings
+
+3. **Create baseline screenshots:**
+   ```bash
+   npx visnap update
+   ```
+
+### Development Workflow
+
+1. **Make UI changes** to your components or pages
+
+2. **Run visual tests:**
+   ```bash
+   npx visnap test
+   ```
+
+3. **Review results** in the generated HTML report:
+   ```bash
+   npx visnap open
+   ```
+
+4. **Update baselines** for intentional changes:
+   ```bash
+   npx visnap update
+   ```
+
+5. **Commit your changes** knowing your UI is consistent
+
+### Filtering
+
+Focus on what matters by filtering test cases:
+
+**Command-line filtering:**
+```bash
+npx visnap test --include "Button/*" --exclude "*-skip*"
+```
+
+**Configuration filtering:**
+```typescript
+// In your visnap.config.ts
+options: {
+  include: ["Button/*", "Card/*"],
+  exclude: ["*-skip*", "*-test*"]
+}
+```
+
+## CI/CD Pipelines
+
+### Docker Workflow
+
+Use Docker for consistent testing across different environments:
+
+```bash
+# Run tests in Docker
+npx visnap test --docker
+
+# Update baselines in Docker
+npx visnap update --docker
+```
+
+This ensures reproducible results across different machines and environments.
+
+### Best Practices
+
+- **Use Docker in CI** to ensure consistent results
+- **Cache dependencies** to speed up CI runs
+- **Upload test artifacts** for review
+- **Set appropriate timeouts** for visual tests
+- **Handle failures gracefully** with proper error reporting
