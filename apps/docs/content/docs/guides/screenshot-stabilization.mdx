@@ -1,0 +1,212 @@
+---
+title: Screenshot Stabilization
+description: Make your visual tests more stable and reliable
+---
+
+Visual tests can be flaky due to dynamic content, animations, and elements that change between test runs. This guide shows you how to stabilize your screenshots for more reliable testing.
+
+## Why Stabilization Matters
+
+Screenshots can fail due to:
+- **Animations** - Elements still moving when screenshots are taken
+- **Dynamic content** - Timestamps, user data, random content
+- **Loading states** - Spinners, placeholders that appear inconsistently
+- **Third-party content** - Ads, widgets that load at different times
+
+Stabilization techniques help create consistent, reliable visual tests.
+
+## CSS Injection
+
+CSS injection lets you modify how your UI appears during screenshot capture by injecting custom CSS globally.
+
+### Disabling Animations
+
+Prevent flaky tests from animations:
+
+```typescript
+// visnap.config.ts
+adapters: {
+  browser: {
+    name: "@visnap/playwright-adapter",
+    options: {
+      injectCSS: `
+        * { 
+          animation: none !important; 
+          transition: none !important; 
+        }
+      `
+    }
+  }
+}
+```
+
+### Hiding Dynamic Content
+
+Hide elements that change between test runs:
+
+```typescript
+injectCSS: `
+  .timestamp { display: none !important; }
+  .user-avatar { background: #ccc !important; }
+  .loading-spinner { opacity: 0 !important; }
+  .ad-slot { visibility: hidden !important; }
+`
+```
+
+### Per-Test Override
+
+Individual tests can disable CSS injection:
+
+```typescript
+// In your story or URL config
+{
+  disableCSSInjection: true
+}
+```
+
+## Element Masking
+
+Element masking overlays specific elements with solid colors before taking screenshots, hiding dynamic content without affecting the rest of your UI.
+
+### When to Use Masking
+
+Mask elements that:
+- Change between test runs (timestamps, user data)
+- Load at different times (ads, third-party widgets)
+- Contain random content (recommendations, "related items")
+- Show loading states inconsistently
+
+### Configuration
+
+**Storybook:**
+```typescript
+export const MyStory: Story = {
+  parameters: {
+    visualTesting: {
+      elementsToMask: [".timestamp", "#ad-slot", ".user-avatar"]
+    }
+  }
+};
+```
+
+**URL Adapter:**
+```typescript
+{
+  id: "homepage",
+  url: "http://localhost:3000/",
+  elementsToMask: [".sticky-header", "#ad-banner", ".timestamp"]
+}
+```
+
+### Selector Tips
+
+Use specific selectors to avoid masking unintended elements:
+
+```typescript
+// Good: Specific selectors
+elementsToMask: [
+  ".timestamp",           // All timestamp elements
+  "#ad-slot",            // Specific ad container
+  ".user-avatar img"     // Avatar images only
+]
+
+// Avoid: Too broad
+elementsToMask: [
+  "div",                 // Would mask all divs
+  ".content"             // Might mask important content
+]
+```
+
+## Best Practices
+
+### Choose the Right Technique
+
+**Use CSS Injection when:**
+- You want to disable animations globally
+- You need to hide many different types of elements
+- You want to modify element styling (colors, visibility)
+
+**Use Element Masking when:**
+- You want to hide specific dynamic elements
+- You need per-test control over what's hidden
+- You want to preserve the layout while hiding content
+
+### Combine Techniques
+
+You can use both techniques together:
+
+```typescript
+// Global CSS injection for animations
+injectCSS: `* { animation: none !important; }`
+
+// Per-test masking for specific elements
+elementsToMask: [".timestamp", "#ad-slot"]
+```
+
+### Test Your Stabilization
+
+After adding stabilization, run your tests multiple times to ensure they're stable:
+
+```bash
+npx visnap test
+npx visnap test
+npx visnap test
+```
+
+### Common Patterns
+
+**E-commerce sites:**
+```typescript
+elementsToMask: [
+  ".price",              // Dynamic pricing
+  ".inventory-count",    // Stock levels
+  ".user-reviews"        // User-generated content
+]
+```
+
+**Dashboards:**
+```typescript
+elementsToMask: [
+  ".last-updated",       // Timestamps
+  ".user-profile",       // User-specific data
+  ".chart-legend"        // Dynamic chart data
+]
+```
+
+**Marketing pages:**
+```typescript
+injectCSS: `
+  .countdown-timer { display: none !important; }
+  .social-proof { opacity: 0 !important; }
+`
+```
+
+## Troubleshooting
+
+### CSS Not Applied
+
+If your CSS injection isn't working:
+- Check for syntax errors in your CSS
+- Verify the selectors are correct
+- Make sure `disableCSSInjection` isn't set to `true`
+
+### Elements Not Masked
+
+If element masking isn't working:
+- Verify selectors exist on the page
+- Check for typos in CSS selectors
+- Ensure elements are visible when the page loads
+
+### Still Getting Flaky Tests
+
+If tests are still unstable:
+- Add more specific selectors
+- Increase wait times in interactions
+- Consider if the content is truly dynamic or just slow to load
+
+## Next Steps
+
+- [Interactive Testing](/docs/guides/interactive-testing) - Test user interactions
+- [Storybook Setup](/docs/guides/storybook-setup) - Test your components
+- [URL Testing](/docs/guides/url-testing) - Test any website
+- [Configuration Reference](/docs/reference/configuration) - All configuration options

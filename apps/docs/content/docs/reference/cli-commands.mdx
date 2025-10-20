@@ -3,19 +3,19 @@ title: CLI Commands
 description: All ViSnap CLI commands and options
 ---
 
-ViSnap provides a simple command-line interface for running visual tests. All commands work with your `visnap.config.ts` file.
+ViSnap provides a command-line interface for running visual tests. All commands work with your `visnap.config.ts` file.
 
 ## Installation
 
 Install globally:
 
-```npm
+```bash
 npm install -g visnap
 ```
 
 Or use with npx (no installation needed):
 
-```npm
+```bash
 npx visnap [command]
 ```
 
@@ -32,19 +32,19 @@ All commands support these options:
 
 ### `init`
 
-Initialize a new ViSnap project with a configuration file.
+Initialize a new ViSnap project with a configuration file:
 
-```npm
+```bash
 npx visnap init
 ```
 
-This command will help you set up the basic configuration using an interactive CLI wizard, and will create the `visnap.config` file in your project root.
+Creates a `visnap.config` file using an interactive CLI wizard.
 
 ### `update`
 
-Capture baseline screenshots for all test cases and save them to `visnap/base/`.
+Capture baseline screenshots for all test cases:
 
-```npm 
+```bash
 npx visnap update [options]
 ```
 
@@ -53,51 +53,47 @@ npx visnap update [options]
 
 ### `test`
 
-Capture current screenshots and compare them with baseline images.
+Capture current screenshots and compare them with baseline images:
 
-```npm
+```bash
 npx visnap test [options]
 ```
 
 **Options:**
-- `--jsonReport [path]` - Output JSON report (optionally provide a path to write to file; omit for stdout)
-- `--htmlReport [path]` - Generate HTML report (optionally provide a path to write to file;)
+- `--jsonReport [path]` - Output JSON report (omit path for stdout)
+- `--htmlReport [path]` - Generate HTML report (omit path for default location)
 - `--docker` - Run inside Docker container
-
 
 ### `validate`
 
-Validate your configuration file and check dependencies.
+Validate your configuration file and check dependencies:
 
-```npm
-npx visnap validate 
+```bash
+npx visnap validate
 ```
 
 ### `list`
 
-List all discovered test cases without running tests.
+List all discovered test cases without running tests:
 
-```npm
+```bash
 npx visnap list
 ```
 
 ### `open`
 
-Open HTML report in browser or screenshot directory in Finder if the HTML report is not generated.
+Open HTML report in browser or screenshot directory:
 
-```npm
-npx visnap open 
+```bash
+npx visnap open
 ```
 
-## Configuration File
+## Configuration
 
 ViSnap looks for configuration in this order:
-
 1. `--config` option
 2. `visnap.config.ts`
 3. `visnap.config.js`
-
-## Environment Variables
 
 Override configuration with environment variables:
 
@@ -111,23 +107,23 @@ visnap test
 
 ### Command Not Found
 
-If you see "command not found", ViSnap may not be installed:
+Install ViSnap globally:
 
-```npm
+```bash
 npm install -g visnap
 ```
 
 ### Permission Errors
 
-On Linux/macOS, you might need to install Playwright browsers:
+Install Playwright browsers:
 
-```npm
+```bash
 npx playwright install
 ```
 
 ### Docker Issues
 
-If using the `--docker` flag, ensure Docker is running:
+Ensure Docker is running:
 
 ```bash
 docker --version

@@ -1,9 +1,0 @@
-{
-  "title": "Adapters",
-  "defaultOpen": true,
-  "pages": [
-    "storybook-adapter",
-    "url-adapter",
-    "playwright-adapter"
-  ]
-}

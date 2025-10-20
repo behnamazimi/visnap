@@ -1,0 +1,290 @@
+---
+title: CI Integration
+description: Run ViSnap tests in your CI/CD pipeline with Docker
+---
+
+ViSnap works great in CI/CD pipelines, providing consistent visual testing across different environments. This guide shows you how to integrate ViSnap with popular CI platforms.
+
+## Docker Setup
+
+ViSnap supports Docker for consistent testing environments. Use the `--docker` flag to run tests in a containerized environment:
+
+```bash
+# Run tests inside Docker
+npx visnap test --docker
+
+# Update baselines inside Docker
+npx visnap update --docker
+```
+
+### Using the Official Image
+
+You can also use the ViSnap Docker image directly:
+
+```bash
+# Run tests using the image directly
+docker run --rm -v $(pwd):/workspace -w /workspace visnap/visnap:latest test
+
+# Update baselines using the image directly
+docker run --rm -v $(pwd):/workspace -w /workspace visnap/visnap:latest update
+```
+
+## GitHub Actions
+
+Create a `.github/workflows/visual-tests.yml` file:
+
+```yaml
+name: Visual Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build Storybook (if using Storybook adapter)
+        run: npm run build-storybook
+        
+      - name: Run visual tests
+        run: npx visnap test --docker
+        
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-test-results
+          path: visnap/
+```
+
+### Advanced GitHub Actions
+
+For more control, you can use the Docker image directly:
+
+```yaml
+name: Visual Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  visual-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build Storybook
+        run: npm run build-storybook
+        
+      - name: Run visual tests with Docker
+        run: |
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            visnap/visnap:latest \
+            test
+            
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-test-results
+          path: visnap/
+```
+
+## GitLab CI
+
+Create a `.gitlab-ci.yml` file:
+
+```yaml
+stages:
+  - test
+
+visual-tests:
+  stage: test
+  image: node:18
+  services:
+    - docker:dind
+  before_script:
+    - npm ci
+    - npm run build-storybook
+  script:
+    - npx visnap test --docker
+  artifacts:
+    when: always
+    paths:
+      - visnap/
+  only:
+    - main
+    - develop
+    - merge_requests
+```
+
+## Jenkins
+
+Create a Jenkinsfile:
+
+```groovy
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+        
+        stage('Build Storybook') {
+            steps {
+                sh 'npm run build-storybook'
+            }
+        }
+        
+        stage('Visual Tests') {
+            steps {
+                sh 'npx visnap test --docker'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'visnap/**', fingerprint: true
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: 'visnap',
+                        reportFiles: 'report.html',
+                        reportName: 'Visual Test Report'
+                    ])
+                }
+            }
+        }
+    }
+}
+```
+
+## Best Practices
+
+### Use Docker for Consistency
+
+Always use the `--docker` flag in CI to ensure consistent results across different environments.
+
+### Cache Dependencies
+
+Cache your npm dependencies to speed up CI runs:
+
+```yaml
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: '18'
+    cache: 'npm'
+```
+
+### Build Before Testing
+
+Make sure to build your Storybook or application before running visual tests:
+
+```yaml
+- name: Build Storybook
+  run: npm run build-storybook
+```
+
+### Upload Artifacts
+
+Always upload test results as artifacts so you can review them later:
+
+```yaml
+- name: Upload test results
+  uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: visual-test-results
+    path: visnap/
+```
+
+### Handle Failures Gracefully
+
+Use `if: always()` to upload artifacts even when tests fail, so you can debug issues.
+
+### Set Appropriate Timeouts
+
+Visual tests can take time, especially with multiple viewports and browsers. Set appropriate timeouts:
+
+```yaml
+- name: Run visual tests
+  run: npx visnap test --docker
+  timeout-minutes: 30
+```
+
+## Troubleshooting
+
+### Docker Not Available
+
+If Docker isn't available in your CI environment, you can install it:
+
+```yaml
+- name: Install Docker
+  run: |
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
+```
+
+### Permission Issues
+
+On some CI systems, you might need to add your user to the docker group:
+
+```yaml
+- name: Add user to docker group
+  run: sudo usermod -aG docker $USER
+```
+
+### Port Conflicts
+
+Ensure ports used by your application are available in the CI environment. You can check what ports are in use:
+
+```bash
+netstat -tulpn | grep LISTEN
+```
+
+## Next Steps
+
+- Learn about [Interactive Testing](/docs/guides/interactive-testing) for more advanced test scenarios
+- Explore [Configuration Reference](/docs/reference/configuration) for all available options
+- Check out [Storybook Setup](/docs/guides/storybook-setup) for component testing workflows

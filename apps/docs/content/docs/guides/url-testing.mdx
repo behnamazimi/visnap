@@ -1,0 +1,142 @@
+---
+title: URL Testing
+description: Test any web page or application with ViSnap
+---
+
+The URL adapter lets you test any web page or application without requiring Storybook. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
+
+## What You Need
+
+- A running web application or accessible URLs
+- ViSnap installed in your project
+
+## Get Started
+
+1. **Install ViSnap:**
+```bash
+npm install -D visnap
+```
+
+2. **Initialize configuration:**
+```bash
+npx visnap init
+```
+
+3. **Configure the URL adapter in `visnap.config.ts`:**
+```typescript
+// visnap.config.ts
+import { type VisualTestingToolConfig } from '@visnap/protocol';
+
+const config: VisualTestingToolConfig = {
+  adapters: {
+    browser: {
+      name: "@visnap/playwright-adapter",
+      options: {
+        launch: { browser: 'chromium', headless: true },
+        context: { colorScheme: 'light', reducedMotion: 'reduce' },
+      }
+    },
+    testCase: [
+      {
+        name: "@visnap/url-adapter",
+        options: {
+          urls: [
+            { id: "homepage", url: "http://localhost:3000/" },
+            { id: "about", url: "http://localhost:3000/about" },
+            { id: "pricing", url: "http://localhost:3000/pricing" },
+          ],
+        }
+      }
+    ]
+  }
+};
+
+export default config;
+```
+
+4. **Start your application:**
+```bash
+npm start
+# or
+npm run dev
+```
+
+5. **Create baseline screenshots:**
+```bash
+npx visnap update
+```
+
+6. **Run visual tests:**
+```bash
+npx visnap test
+```
+
+7. **Open report:**
+```bash
+npx visnap open
+```
+
+## URL-Level Options
+
+Each URL requires an `id` and `url`. Optional fields allow per-URL customization:
+
+```typescript
+{
+  id: "homepage",
+  url: "http://localhost:3000/",
+  title: "Homepage",                    // Display name for reports
+  viewport: { width: 1200, height: 800 }, // Custom viewport
+  threshold: 0.05,                     // Custom threshold (0.0-1.0)
+  screenshotTarget: "body",            // Custom screenshot target
+  elementsToMask: [".sticky", "#ad"],  // Mask dynamic elements
+  disableCSSInjection: true,           // Disable global CSS injection
+  interactions: [                      // Execute before screenshot
+    // See Interactive Testing guide for examples
+  ],
+}
+```
+
+**Common options:**
+- `title: "Display Name"` - Custom name in reports
+- `viewport: { width: 375, height: 667 }` - Mobile viewport
+- `threshold: 0.01` - More strict comparison (1% difference)
+- `screenshotTarget: ".hero"` - Screenshot specific element
+- `elementsToMask: [".dynamic"]` - Hide elements that change frequently
+- `disableCSSInjection: true` - Disable global CSS injection
+- `interactions: [...]` - Execute actions before screenshot
+
+
+## Pattern Filtering
+
+Use include/exclude to select URLs by id using [minimatch patterns](https://www.npmjs.com/package/minimatch):
+
+```typescript
+options: {
+  urls: [
+    { id: "homepage", url: "http://localhost:3000/" },
+    { id: "about", url: "http://localhost:3000/about" },
+    { id: "pricing", url: "http://localhost:3000/pricing" },
+    { id: "admin-dashboard", url: "http://localhost:3000/admin" },
+  ],
+  include: ["homepage", "about", "pricing"], // Only test these
+  exclude: ["*admin*"], // Exclude admin pages
+}
+```
+
+## Troubleshooting
+
+**URL not loading?** Make sure your app is running and accessible:
+```bash
+curl http://localhost:3000/
+```
+
+**Screenshots not working?** Check your screenshot target exists:
+```typescript
+screenshotTarget: "body" // ensure this element exists
+```
+
+## Next Steps
+
+- [Interactive Testing](/docs/guides/interactive-testing) - Test hover states and forms
+- [Screenshot Stabilization](/docs/guides/screenshot-stabilization) - Make tests more stable
+- [CI Integration](/docs/guides/ci-integration) - Run tests in your pipeline

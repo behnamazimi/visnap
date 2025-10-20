@@ -1,0 +1,166 @@
+---
+title: Playwright Adapter
+description: Configure browser automation for capturing screenshots
+---
+
+Use the [Playwright](https://playwright.dev/) adapter to launch Chromium, Firefox, or WebKit and capture screenshots.
+
+## Configuration
+
+```ts
+// visnap.config.ts|js
+adapters: {
+  browser: {
+    name: "@visnap/playwright-adapter",
+    options: {
+      launch: { browser: 'chromium', headless: true },
+      context: { colorScheme: 'light', reducedMotion: 'reduce' },
+      // navigation: { baseUrl: 'http://localhost:3000', waitUntil: 'load', timeoutMs: 30000 },
+      // injectCSS: '* { animation: none !important; transition: none !important; }',
+      // performance: { blockResources: ['.map'], reuseContext: true, disableAnimations: true },
+    }
+  }
+}
+```
+
+## Options
+
+Options are provided under `adapters.browser.options`.
+
+### `launch.browser`
+
+**Type:** `"chromium" | "firefox" | "webkit" | string`  
+**Required:** No
+
+Choose which browser to use for testing. Use `chromium` for fastest execution, `firefox` for cross-browser testing, or `webkit` for Safari compatibility.
+
+### `launch.headless`
+
+**Type:** `boolean`  
+**Default:** `true`  
+**Required:** No
+
+Headless mode runs faster and more reliably. Set to `false` only when you need to see the browser for debugging.
+
+### `launch.channel`
+
+**Type:** `string`  
+**Required:** No
+
+Use a specific browser channel like `"chrome"` or `"msedge"` instead of the default browser.
+
+### `context.colorScheme`
+
+**Type:** `"light" | "dark"`  
+**Required:** No
+
+Test your app in light or dark mode. Useful for components that change appearance based on user preferences.
+
+### `context.reducedMotion`
+
+**Type:** `"reduce" | "no-preference"`  
+**Required:** No
+
+Test accessibility features by emulating users who prefer reduced motion.
+
+### `context.storageStatePath`
+
+**Type:** `string`  
+**Required:** No
+
+Path to a saved login session. Use this to test authenticated pages without logging in each time.
+
+### `navigation.baseUrl`
+
+**Type:** `string`  
+**Required:** No
+
+Base URL for resolving relative paths in your test cases. Useful when testing multiple environments.
+
+### `navigation.waitUntil`
+
+**Type:** `"load" | "domcontentloaded" | "networkidle"`  
+**Required:** No
+
+When to consider a page fully loaded. Use `networkidle` for pages with lots of dynamic content.
+
+### `navigation.timeoutMs`
+
+**Type:** `number (>0)`  
+**Required:** No
+
+How long to wait for page navigation before timing out. Increase for slow-loading pages.
+
+### `injectCSS`
+
+**Type:** `string`  
+**Required:** No
+
+Custom CSS to inject for stabilizing screenshots. See [Screenshot Stabilization](/docs/guides/screenshot-stabilization) for examples.
+
+### `performance.blockResources`
+
+**Type:** `string[]`  
+**Required:** No
+
+Block specific resources to speed up testing. Use patterns like `['.map', 'analytics']` to block source maps or tracking scripts.
+
+### `performance.reuseContext`
+
+**Type:** `boolean`  
+**Required:** No
+
+Reuse browser sessions between tests for faster execution. May cause issues with tests that modify global state.
+
+### `performance.disableAnimations`
+
+**Type:** `boolean`  
+**Required:** No
+
+Disable CSS animations and transitions to prevent flaky tests from moving elements.
+
+## Performance Optimization
+
+### Browser Selection
+
+Choose the right browser for your needs:
+- **Chromium** - Fastest execution, best for most testing
+- **Firefox** - Cross-browser compatibility testing
+- **WebKit** - Safari compatibility testing
+
+### Memory Management
+
+For large test suites, consider these optimizations:
+- Use `performance.reuseContext: true` to reuse browser sessions
+- Block unnecessary resources with `performance.blockResources`
+- Lower `runtime.maxConcurrency` in your global config
+
+### Screenshot Stabilization
+
+Prevent flaky tests with these techniques:
+
+**Disable animations globally:**
+```typescript
+injectCSS: `
+  * { 
+    animation: none !important; 
+    transition: none !important; 
+  }
+`
+```
+
+**Hide dynamic content:**
+```typescript
+injectCSS: `
+  .timestamp { display: none !important; }
+  .user-avatar { background: #ccc !important; }
+  .loading-spinner { opacity: 0 !important; }
+`
+```
+
+For detailed stabilization techniques, see [Screenshot Stabilization](/docs/guides/screenshot-stabilization).
+
+
+
+
+<br/>

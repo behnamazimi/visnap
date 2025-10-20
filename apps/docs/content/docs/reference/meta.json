@@ -1,0 +1,12 @@
+{
+  "title": "Reference",
+  "defaultOpen": true,
+  "pages": [
+    "configuration",
+    "cli-commands",
+    "programmatic-api",
+    "playwright-adapter",
+    "storybook-adapter",
+    "url-adapter"
+  ]
+}

@@ -1,9 +1,0 @@
-{
-  "title": "Testing Features",
-  "defaultOpen": true,
-  "pages": [
-    "interactive-testing",
-    "css-injection",
-    "element-masking"
-  ]
-}

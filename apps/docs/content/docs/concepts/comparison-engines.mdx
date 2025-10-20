@@ -1,0 +1,81 @@
+---
+title: Comparison Engines
+description: Understanding how ViSnap detects visual differences
+---
+
+ViSnap compares images using either [odiff](https://github.com/dmtrKovalenko/odiff) or [pixelmatch](https://github.com/mapbox/pixelmatch) to detect visual changes in your UI.
+
+## How Visual Comparison Works
+
+When ViSnap runs tests, it:
+
+1. **Captures** a fresh screenshot of your current UI
+2. **Compares** it against the baseline image using your chosen engine
+3. **Calculates** the difference percentage based on your threshold
+4. **Generates** a diff image highlighting changes (if any)
+
+The comparison engine determines how this process works and how sensitive it is to changes.
+
+## Available Engines
+
+### odiff (Default)
+
+**Best for:** Most projects, especially those with dynamic content
+
+- **Fast and robust** with smart defaults
+- **Handles anti-aliasing** and sub-pixel rendering differences well
+- **Less sensitive** to minor rendering variations
+- **Recommended** for most use cases
+
+### pixelmatch
+
+**Best for:** When you need precise per-pixel control
+
+- **Classic per-pixel comparison** approach
+- **More sensitive** to tiny changes
+- **Predictable behavior** - every pixel difference counts
+- **Use when** you need exact pixel-perfect comparisons
+
+## Threshold Sensitivity
+
+The threshold controls how different pixels must be to count as a change:
+
+- **0.0** — No differences allowed (very strict)
+- **0.1** — Recommended starting point (10% difference)
+- **1.0** — All differences ignored (very loose)
+
+## Choosing the Right Engine
+
+### Use odiff when:
+- You have components with subtle animations
+- You're testing across different browsers
+- You want fewer false positives
+- You're getting started with visual testing
+
+### Use pixelmatch when:
+- You need pixel-perfect accuracy
+- You're testing icons or precise UI elements
+- You want to catch the smallest changes
+- You have a stable, controlled testing environment
+
+## Best Practices
+
+- **Start with odiff + 0.1 threshold** - tune gradually based on noise and flakiness
+- **Use CSS injection** to disable animations/transitions during capture
+- **Increase threshold** for components with subtle animations or dynamic content
+- **Decrease threshold** for precise UI (icons, typography, fine lines)
+- **Test across browsers** to find the right balance for your project
+
+## Configuration
+
+Configure your comparison engine in `visnap.config.ts`:
+
+```ts
+comparison: {
+  core: 'odiff',        // or 'pixelmatch'
+  threshold: 0.1,       // 0.0–1.0; higher = less strict
+  diffColor: '#00ff00', // optional highlight color
+}
+```
+
+See the [Configuration Reference](/docs/reference/configuration) for all available options.

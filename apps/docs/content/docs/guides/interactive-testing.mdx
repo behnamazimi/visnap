@@ -1,0 +1,203 @@
+---
+title: Interactive Testing
+description: Test hover states, form interactions, and dynamic UI with user interactions
+---
+
+Use interactions to make components or pages reach a desired state before capturing screenshots. This lets you test dynamic UI elements like hover states, form submissions, modal openings, and loading states.
+
+## How It Works
+
+1. **Load** the target page/test case
+2. **Execute** configured interactions (clicks, fills, hovers, etc.)
+3. **Wait** for UI to stabilize
+4. **Capture** the screenshot
+
+## Configuration
+
+Interactions are defined at the test-case level:
+
+### Storybook Adapter
+
+Define interactions at the story level:
+
+```typescript
+export const FilledForm: Story = {
+  parameters: {
+    visualTesting: {
+      interactions: [
+        { type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' },
+        { type: 'press', selector: 'input[name="email"]', key: 'Enter' },
+        { type: 'wait', selector: '.loaded' },
+        { type: 'waitForTimeout', duration: 500 },
+      ]
+    }
+  }
+};
+```
+
+### URL Adapter
+
+Define interactions in your `visnap.config.ts`:
+
+```typescript
+{
+  name: "@visnap/url-adapter",
+  options: {
+    urls: [
+      {
+        id: "homepage",
+        url: "https://www.example.com/",
+        interactions: [
+          { type: "fill", selector: 'input[name="email"]', text: "test@example.com" },
+          { type: "press", selector: 'input[name="email"]', key: "Enter" },
+        ],
+      },
+    ],
+  },
+}
+```
+
+## Available Interactions
+
+### Click Actions
+
+```typescript
+{ type: 'click', selector: 'button.primary' }           // Basic click
+{ type: 'click', selector: 'button', button: 'right' }  // Right-click
+{ type: 'dblclick', selector: 'button' }                // Double-click
+```
+
+### Input Actions
+
+```typescript
+{ type: 'fill', selector: 'input[name="email"]', text: 'test@example.com' }  // Fill input
+{ type: 'type', selector: 'input[name="search"]', text: 'search query' }     // Type slowly
+{ type: 'clear', selector: 'input[name="email"]' }                           // Clear input
+```
+
+### Mouse Actions
+
+```typescript
+{ type: 'hover', selector: '.tooltip-trigger' }                              // Hover
+{ type: 'focus', selector: 'input[name="email"]' }                           // Focus
+{ type: 'blur', selector: 'input[name="email"]' }                            // Blur
+{ type: 'dragAndDrop', sourceSelector: '.draggable', targetSelector: '.drop-zone' } // Drag & drop
+```
+
+### Keyboard Actions
+
+```typescript
+{ type: 'press', selector: 'body', key: 'Enter' }  // Press Enter
+{ type: 'press', selector: 'body', key: 'Tab' }    // Press Tab
+{ type: 'press', selector: 'body', key: 'Escape' } // Press Escape
+```
+
+### Selection Actions
+
+```typescript
+{ type: 'select', selector: 'select[name="country"]', value: 'US' }                    // Select option
+{ type: 'selectOption', selector: 'select[name="hobbies"]', values: ['reading', 'gaming'] } // Multiple select
+{ type: 'check', selector: 'input[name="terms"]' }                                      // Check checkbox
+{ type: 'uncheck', selector: 'input[name="newsletter"]' }                               // Uncheck checkbox
+{ type: 'setChecked', selector: 'input[name="notifications"]', checked: true }         // Set checkbox state
+```
+
+### File Actions
+
+```typescript
+{ type: 'setInputFiles', selector: 'input[type="file"]', files: ['path/to/file.jpg'] } // Upload files
+```
+
+### Wait Actions
+
+```typescript
+{ type: 'waitForTimeout', duration: 1000 }                    // Wait for duration
+{ type: 'wait', selector: '.loaded' }                         // Wait for element
+{ type: 'waitForLoadState', state: 'networkidle' }            // Wait for load state
+{ type: 'scrollIntoView', selector: '.scrollable' }           // Scroll to element
+```
+
+## Best Practices
+
+### Wait for State Changes
+
+Always wait for UI updates after interactions:
+
+```typescript
+// Good: Wait for the result
+{ type: 'click', selector: 'button.submit' },
+{ type: 'wait', selector: '.result' }
+
+// Bad: No wait (may cause timing issues)
+{ type: 'click', selector: 'button.submit' }
+```
+
+### Use Specific Selectors
+
+Specific selectors help avoid targeting the wrong element:
+
+```typescript
+// Good: Specific selector
+{ type: 'click', selector: 'button[type="submit"]' }
+
+// Bad: Generic selector (may target any button)
+{ type: 'click', selector: 'button' }
+```
+
+### Add Reasonable Delays
+
+Timeouts help handle animations and transitions:
+
+```typescript
+{ type: 'click', selector: 'button.animate' },
+{ type: 'waitForTimeout', duration: 500 } // Wait for animation
+```
+
+### Test Edge Cases
+
+Test different interaction scenarios:
+
+```typescript
+// Test empty form submission
+{ type: 'click', selector: 'button[type="submit"]' }
+
+// Test form with invalid data
+{ type: 'fill', selector: 'input[name="email"]', text: 'invalid-email' },
+{ type: 'click', selector: 'button[type="submit"]' }
+```
+
+## Troubleshooting
+
+### Interactions Not Working
+
+Verify that selectors exist on the page:
+
+```typescript
+// Check that the selector is correct
+{ type: 'click', selector: 'button.primary' } // not 'button.primery'
+```
+
+### Timing Issues
+
+Add waits if elements aren't ready when interactions run:
+
+```typescript
+{ type: 'click', selector: 'button' },
+{ type: 'waitForTimeout', duration: 1000 } // Wait for state change
+```
+
+### Element Not Found
+
+For dynamic content, wait for elements to appear:
+
+```typescript
+{ type: 'wait', selector: '.dynamic-content' },
+{ type: 'click', selector: '.dynamic-content button' }
+```
+
+## Next Steps
+
+- [Screenshot Stabilization](/docs/guides/screenshot-stabilization) - Make tests more stable
+- [Storybook Setup](/docs/guides/storybook-setup) - Test your components
+- [URL Testing](/docs/guides/url-testing) - Test any website
+- [Configuration Reference](/docs/reference/configuration) - All configuration options
