@@ -33,7 +33,7 @@
     "inquirer": "^12.9.6",
     "inquirer-checkbox-autocomplete-prompt": "^0.2.0",
     "open": "^10.0.2",
-    "ora": "^8.0.1",
+    "ora": "^9.0.0",
     "table": "^6.8.2"
   },
   "devDependencies": {
