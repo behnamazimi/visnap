@@ -63,7 +63,7 @@ describe("createAdapter", () => {
 
     expect(cases).toHaveLength(2);
     expect(cases[0]).toMatchObject({
-      id: "homepage",
+      id: "homepage-default",
       title: "homepage",
       kind: "url",
       caseId: "homepage",
@@ -98,7 +98,7 @@ describe("createAdapter", () => {
 
     const cases = await adapter.listCases();
     expect(cases).toHaveLength(1);
-    expect(cases[0].id).toBe("homepage");
+    expect(cases[0].id).toBe("homepage-default");
   });
 
   it("should apply exclude filtering", async () => {
@@ -109,7 +109,7 @@ describe("createAdapter", () => {
 
     const cases = await adapter.listCases();
     expect(cases).toHaveLength(1);
-    expect(cases[0].id).toBe("homepage");
+    expect(cases[0].id).toBe("homepage-default");
   });
 
   it("should handle per-URL configuration", async () => {
@@ -160,6 +160,23 @@ describe("createAdapter", () => {
     );
 
     consoleSpy.mockRestore();
+  });
+
+  it("should throw error for duplicate URL IDs", async () => {
+    const duplicateOptions = createTestAdapterOptions({
+      urls: [
+        createTestUrlConfig({ id: "duplicate", url: "http://localhost:3000/" }),
+        createTestUrlConfig({
+          id: "duplicate",
+          url: "http://localhost:3000/about",
+        }),
+      ],
+    });
+
+    const adapter = createAdapter(duplicateOptions);
+    await expect(adapter.listCases()).rejects.toThrow(
+      "Duplicate test case IDs found: duplicate"
+    );
   });
 
   describe("viewport edge cases", () => {

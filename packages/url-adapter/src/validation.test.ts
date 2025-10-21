@@ -1,6 +1,7 @@
 import type { InteractionAction } from "@visnap/protocol";
 import { describe, it, expect } from "vitest";
 
+import { createMockTestCaseInstance } from "./__mocks__/url-mock-factories";
 import {
   createTestUrlConfig,
   createTestAdapterOptions,
@@ -10,6 +11,7 @@ import {
   isValidUrl,
   validateUrlConfig,
   validateCreateUrlAdapterOptions,
+  validateUniqueTestCaseIds,
 } from "./validation";
 
 describe("isValidUrl", () => {
@@ -290,5 +292,48 @@ describe("validateCreateUrlAdapterOptions", () => {
     const result = validateCreateUrlAdapterOptions(options);
     expect(result.include).toEqual(["homepage", "about*"]);
     expect(result.exclude).toEqual(["admin*", "*test*"]);
+  });
+});
+
+describe("validateUniqueTestCaseIds", () => {
+  it("should pass with unique IDs", () => {
+    const testCases = [
+      createMockTestCaseInstance({ id: "homepage" }),
+      createMockTestCaseInstance({ id: "about" }),
+    ];
+    expect(() => validateUniqueTestCaseIds(testCases)).not.toThrow();
+  });
+
+  it("should throw on duplicate IDs", () => {
+    const testCases = [
+      createMockTestCaseInstance({ id: "homepage" }),
+      createMockTestCaseInstance({ id: "homepage" }),
+    ];
+    expectToThrowWithMessage(
+      () => validateUniqueTestCaseIds(testCases),
+      "Duplicate test case IDs found: homepage"
+    );
+  });
+
+  it("should list all duplicates", () => {
+    const testCases = [
+      createMockTestCaseInstance({ id: "page1" }),
+      createMockTestCaseInstance({ id: "page1" }),
+      createMockTestCaseInstance({ id: "page2" }),
+      createMockTestCaseInstance({ id: "page2" }),
+    ];
+    expectToThrowWithMessage(
+      () => validateUniqueTestCaseIds(testCases),
+      "Duplicate test case IDs found: page1, page2"
+    );
+  });
+
+  it("should handle empty array", () => {
+    expect(() => validateUniqueTestCaseIds([])).not.toThrow();
+  });
+
+  it("should handle single test case", () => {
+    const testCases = [createMockTestCaseInstance({ id: "single" })];
+    expect(() => validateUniqueTestCaseIds(testCases)).not.toThrow();
   });
 });
