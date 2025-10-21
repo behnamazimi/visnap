@@ -58,5 +58,25 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/behnamazimi/visnap.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://visnap.dev",
+  "bugs": {
+    "url": "https://github.com/behnamazimi/visnap/issues"
+  },
+  "keywords": [
+    "visual-testing",
+    "screenshot",
+    "regression-testing",
+    "storybook",
+    "playwright",
+    "cli",
+    "testing-tool"
+  ],
+  "license": "MIT",
+  "author": "visnap contributors"
 }

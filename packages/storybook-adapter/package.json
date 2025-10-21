@@ -47,5 +47,23 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/behnamazimi/visnap.git",
+    "directory": "packages/storybook-adapter"
+  },
+  "homepage": "https://visnap.dev",
+  "bugs": {
+    "url": "https://github.com/behnamazimi/visnap/issues"
+  },
+  "keywords": [
+    "visual-testing",
+    "storybook",
+    "component-testing",
+    "adapter",
+    "testing"
+  ],
+  "license": "MIT",
+  "author": "visnap contributors"
 }

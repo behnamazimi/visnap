@@ -48,5 +48,23 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/behnamazimi/visnap.git",
+    "directory": "packages/playwright-adapter"
+  },
+  "homepage": "https://visnap.dev",
+  "bugs": {
+    "url": "https://github.com/behnamazimi/visnap/issues"
+  },
+  "keywords": [
+    "visual-testing",
+    "playwright",
+    "browser-automation",
+    "adapter",
+    "testing"
+  ],
+  "license": "MIT",
+  "author": "visnap contributors"
 }

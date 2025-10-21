@@ -5,7 +5,7 @@
  * and URL configurations with comprehensive error handling.
  */
 
-import type { InteractionAction } from "@visnap/protocol";
+import type { InteractionAction, TestCaseInstanceMeta } from "@visnap/protocol";
 import { type } from "arktype";
 
 // ============= Schema Definitions =============
@@ -140,4 +140,24 @@ export function validateCreateUrlAdapterOptions(
   }
 
   return result as CreateUrlAdapterOptions;
+}
+
+/**
+ * Validates that all test case IDs are unique
+ * @param testCases - Array of test case instances to validate
+ * @throws {Error} If duplicate IDs are found
+ */
+export function validateUniqueTestCaseIds(
+  testCases: TestCaseInstanceMeta[]
+): void {
+  const ids = testCases.map(tc => tc.id);
+  const uniqueIds = new Set(ids);
+
+  if (ids.length !== uniqueIds.size) {
+    const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+    throw new Error(
+      `Duplicate test case IDs found: ${[...new Set(duplicates)].join(", ")}. ` +
+        `Each URL config must have a unique 'id' field.`
+    );
+  }
 }

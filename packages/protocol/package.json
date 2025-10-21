@@ -35,5 +35,23 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/behnamazimi/visnap.git",
+    "directory": "packages/protocol"
+  },
+  "homepage": "https://visnap.dev",
+  "bugs": {
+    "url": "https://github.com/behnamazimi/visnap/issues"
+  },
+  "keywords": [
+    "visual-testing",
+    "types",
+    "protocol",
+    "interfaces",
+    "shared-types"
+  ],
+  "license": "MIT",
+  "author": "visnap contributors"
 }

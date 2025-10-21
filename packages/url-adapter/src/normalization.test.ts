@@ -21,7 +21,7 @@ describe("normalizeUrls", () => {
 
     expect(result).toHaveLength(2);
     expect(result[0]).toMatchObject({
-      id: "homepage",
+      id: "homepage-default",
       title: "homepage",
       kind: "url",
       caseId: "homepage",
@@ -42,10 +42,10 @@ describe("normalizeUrls", () => {
     expect(result).toHaveLength(4);
 
     const homepageDesktop = result.find(
-      r => r.id === "homepage" && r.variantId === "desktop"
+      r => r.id === "homepage-desktop" && r.variantId === "desktop"
     );
     const homepageMobile = result.find(
-      r => r.id === "homepage" && r.variantId === "mobile"
+      r => r.id === "homepage-mobile" && r.variantId === "mobile"
     );
 
     expect(homepageDesktop?.viewport).toEqual({

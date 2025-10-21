@@ -15,6 +15,7 @@ import {
 } from "@visnap/protocol";
 
 import type { UrlConfig } from "./validation";
+import { validateUniqueTestCaseIds } from "./validation";
 
 /**
  * Creates a safe viewport with basic validation and fallbacks
@@ -94,7 +95,7 @@ export function normalizeUrls(
 
       const testCase: TestCaseInstanceMeta = {
         // Base meta fields
-        id: urlConfig.id,
+        id: generateTestId(urlConfig, viewportKey),
         title: urlConfig.title || urlConfig.id,
         kind: "url",
         parameters: {},
@@ -126,6 +127,9 @@ export function normalizeUrls(
       results.push(testCase);
     }
   }
+
+  // Validate uniqueness before returning
+  validateUniqueTestCaseIds(results);
 
   return results;
 }
