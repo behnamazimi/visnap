@@ -21,7 +21,7 @@
     "@types/node": "^22.0.0",
     "@visnap/eslint-config": "*",
     "tsup": "^8.3.5",
-    "typescript": "5.9.2"
+    "typescript": "5.9.3"
   },
   "exports": {
     ".": {
