@@ -3,12 +3,12 @@ title: Programmatic API
 description: When to use, core functions, examples
 ---
 
-Use ViSnap programmatically or build custom tooling on top of its packages.
+Use ViSnap programmatically or build custom tooling on top of its packages. This is useful when you need to integrate visual testing into custom workflows, build custom reporters, or create automated testing pipelines.
 
 ## Packages
 
-- `@visnap/core`: high-level APIs (`runVisualTests`, `updateBaseline`, `initializeProject`) and utilities
-- `@visnap/protocol`: shared TypeScript types and interfaces
+- `@visnap/core`: High-level APIs (`runVisualTests`, `updateBaseline`, `initializeProject`) and utilities
+- `@visnap/protocol`: Shared TypeScript types and interfaces
 - `@visnap/reporter`: JSON and HTML reporters
 
 ## Core API
@@ -17,11 +17,46 @@ Use ViSnap programmatically or build custom tooling on top of its packages.
 import { runVisualTests, updateBaseline, initializeProject } from '@visnap/core';
 ```
 
-- `runVisualTests(options): Promise<TestResult>`
-- `updateBaseline(options): Promise<void>`
-- `initializeProject(options): Promise<InitResult>`
+### `runVisualTests(options): Promise<TestResult>`
 
-Full, in-depth API docs will be expanded here.
+Runs visual tests against your current codebase and compares with baseline screenshots.
+
+```ts
+import { runVisualTests } from '@visnap/core';
+
+const result = await runVisualTests({
+  configPath: './visnap.config.ts',
+  // ... other options
+});
+
+console.log(`Tests completed: ${result.passed}/${result.total}`);
+```
+
+### `updateBaseline(options): Promise<void>`
+
+Updates baseline screenshots with current UI state.
+
+```ts
+import { updateBaseline } from '@visnap/core';
+
+await updateBaseline({
+  configPath: './visnap.config.ts',
+  // ... other options
+});
+```
+
+### `initializeProject(options): Promise<InitResult>`
+
+Initializes a new ViSnap project with configuration.
+
+```ts
+import { initializeProject } from '@visnap/core';
+
+const result = await initializeProject({
+  projectPath: './my-project',
+  adapters: ['storybook', 'url']
+});
+```
 
 ## Protocol Types
 
