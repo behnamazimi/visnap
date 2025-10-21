@@ -1,0 +1,51 @@
+name: Feature Request
+description: Suggest an idea for ViSnap
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem & Solution
+      description: What problem does this solve and how should it work?
+      placeholder: |
+        Problem: What issue are you trying to solve?
+        Solution: How should this feature work?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What category does this feature fall under?
+      options:
+        - CLI improvements
+        - Browser adapter enhancements
+        - Storybook adapter improvements
+        - URL adapter features
+        - Reporting enhancements
+        - Configuration options
+        - Performance improvements
+        - Developer experience
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: How would you use this feature?
+      placeholder: Describe your specific use case and workflow...
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I understand this is a feature request and may not be implemented
+          required: true
