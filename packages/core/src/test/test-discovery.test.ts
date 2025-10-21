@@ -393,10 +393,12 @@ describe("test-discovery", () => {
       );
 
       expect(result).toHaveLength(2);
-      expect(result[0].caseId).toBe("playwright-input");
-      expect(result[0].id).toBe("playwright-input");
-      expect(result[1].caseId).toBe("storybook-button");
-      expect(result[1].id).toBe("storybook-button");
+      expect(result[0].caseId).toBe("button");
+      expect(result[0].id).toBe("button");
+      expect(result[0].kind).toBe("storybook");
+      expect(result[1].caseId).toBe("input");
+      expect(result[1].id).toBe("input");
+      expect(result[1].kind).toBe("playwright");
     });
 
     it("should handle adapter errors gracefully", async () => {
@@ -431,7 +433,8 @@ describe("test-discovery", () => {
       );
 
       expect(result).toHaveLength(1);
-      expect(result[0].caseId).toBe("storybook-button");
+      expect(result[0].caseId).toBe("button");
+      expect(result[0].kind).toBe("storybook");
     });
 
     it("should handle browser adapter without openPage method", async () => {
@@ -529,8 +532,10 @@ describe("test-discovery", () => {
       );
 
       expect(result).toHaveLength(2);
-      expect(result[0].caseId).toBe("playwright-button");
-      expect(result[1].caseId).toBe("storybook-input");
+      expect(result[0].caseId).toBe("button");
+      expect(result[0].kind).toBe("playwright");
+      expect(result[1].caseId).toBe("input");
+      expect(result[1].kind).toBe("storybook");
     });
   });
 });

@@ -14,6 +14,7 @@ import { TestService } from "../services/test-service";
 import { type Command } from "../types";
 import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
+import { selectTestCasesInteractively } from "../utils/interactive-selector";
 
 /**
  * Options for the test command.
@@ -27,6 +28,8 @@ interface TestCommandOptions extends CliOptions {
   docker?: boolean;
   /** Path to configuration file */
   config?: string;
+  /** Whether to select test cases interactively */
+  interactive?: boolean;
 }
 
 /**
@@ -39,6 +42,35 @@ const testHandler = async (options: TestCommandOptions): Promise<void> => {
   const presentationService = new PresentationService();
 
   try {
+    // Handle interactive mode
+    if (options.interactive) {
+      presentationService.startLoading(
+        "Discovering test cases for selection..."
+      );
+
+      const cliOptions: CliOptions & { configPath?: string } = {
+        include: options.include,
+        exclude: options.exclude,
+        ...(options.config ? { configPath: options.config } : {}),
+      };
+
+      const selectedTestCases = await selectTestCasesInteractively({
+        cliOptions,
+        message: "Select test cases to test",
+      });
+
+      presentationService.stopLoading();
+
+      if (selectedTestCases.length === 0) {
+        presentationService.displayInfo("No test cases selected. Exiting.");
+        exit(0);
+        return;
+      }
+
+      // Set the selected test cases as include patterns
+      options.include = selectedTestCases;
+    }
+
     if (options.docker) {
       presentationService.startLoading("Starting Docker container...");
       const result = await testService.executeTests(options);
@@ -113,6 +145,7 @@ export const command: Command<TestCommandOptions> = {
         "Generate HTML report. Use --htmlReport=false to disable, --htmlReport or --htmlReport=path for custom location"
       )
       .option("--docker", "Run inside Docker")
+      .option("-i, --interactive", "Select test cases interactively")
       .option(
         "--include <pattern>",
         "Include test cases matching pattern (can be used multiple times)"

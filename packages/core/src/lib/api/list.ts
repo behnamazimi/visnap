@@ -7,10 +7,12 @@ import type {
 import {
   loadBrowserAdapter,
   loadAllTestCaseAdapters,
+  BrowserAdapterPool,
 } from "@/browser/adapter-loader";
 import { parseBrowsersFromConfig } from "@/browser/browser-config";
 import { resolveEffectiveConfig } from "@/lib/config";
 import { discoverCasesFromAllAdapters } from "@/test/test-discovery";
+import log from "@/utils/logger";
 
 export interface ListResult {
   testCases: (TestCaseInstanceMeta & { browser: BrowserName })[];
@@ -37,18 +39,51 @@ async function listTestCasesInternal(
 ): Promise<ListResult> {
   const effectiveConfig = await resolveEffectiveConfig(options, cliOptions);
 
-  const browserAdapter = await loadBrowserAdapter(effectiveConfig.adapters);
   const testCaseAdapters = await loadAllTestCaseAdapters(
     effectiveConfig.adapters
   );
   const browsers = parseBrowsersFromConfig(effectiveConfig.adapters);
 
-  const testCases = await discoverCasesFromAllAdapters(
-    testCaseAdapters,
-    browserAdapter,
-    effectiveConfig.viewport,
-    browsers
-  );
+  // Use browser adapter pool for proper resource management
+  const browserAdapterPool = new BrowserAdapterPool();
+
+  const getBrowserAdapter = async (
+    browserName: BrowserName,
+    browserOptions?: Record<string, unknown>
+  ) => {
+    return browserAdapterPool.getAdapter(browserName, browserOptions, () =>
+      loadBrowserAdapter(effectiveConfig.adapters)
+    );
+  };
+
+  let testCases: (TestCaseInstanceMeta & { browser: BrowserName })[] = [];
+
+  try {
+    // Get initialized browser adapter from pool
+    const browserAdapter = await getBrowserAdapter(
+      browsers[0].name,
+      browsers[0].options
+    );
+
+    testCases = await discoverCasesFromAllAdapters(
+      testCaseAdapters,
+      browserAdapter,
+      effectiveConfig.viewport,
+      browsers
+    );
+  } finally {
+    // Ensure proper cleanup
+    await browserAdapterPool.disposeAll();
+
+    // Clean up test case adapters
+    for (const adapter of testCaseAdapters) {
+      try {
+        await adapter.stop?.();
+      } catch (error) {
+        log.warn(`Error stopping test case adapter ${adapter.name}: ${error}`);
+      }
+    }
+  }
 
   // Extract unique browsers and viewports
   const uniqueBrowsers = new Set<string>();

@@ -52,11 +52,17 @@ export const resolveEffectiveConfig = async (
   if (cliOptions && (cliOptions.include || cliOptions.exclude)) {
     // Override the test case adapter options with CLI options for all adapters
     for (const adapter of merged.adapters.testCase) {
-      adapter.options = {
-        ...adapter.options,
-        include: cliOptions.include,
-        exclude: cliOptions.exclude,
-      } as Record<string, unknown>;
+      const newOptions: Record<string, unknown> = { ...adapter.options };
+
+      // Only set include/exclude if they have actual values
+      if (cliOptions.include !== undefined) {
+        newOptions.include = cliOptions.include;
+      }
+      if (cliOptions.exclude !== undefined) {
+        newOptions.exclude = cliOptions.exclude;
+      }
+
+      adapter.options = newOptions;
     }
   }
 

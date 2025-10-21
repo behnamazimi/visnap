@@ -113,6 +113,24 @@ export class TestService {
       "test",
       // forward config if present
       ...(options.config ? ["--config", options.config] : []),
+      // Forward include patterns if present
+      ...(options.include
+        ? [
+            "--include",
+            ...(Array.isArray(options.include)
+              ? options.include
+              : [options.include]),
+          ]
+        : []),
+      // Forward exclude patterns if present
+      ...(options.exclude
+        ? [
+            "--exclude",
+            ...(Array.isArray(options.exclude)
+              ? options.exclude
+              : [options.exclude]),
+          ]
+        : []),
       // Forward jsonReport flag if present
       ...(options.jsonReport
         ? [
