@@ -60,7 +60,14 @@ export function validateOptions(
     );
   }
 
-  return result;
+  // Clean up undefined values for include/exclude to avoid issues
+  const cleanedResult = {
+    ...result,
+    include: result.include === undefined ? undefined : result.include,
+    exclude: result.exclude === undefined ? undefined : result.exclude,
+  };
+
+  return cleanedResult;
 }
 
 // ============= Schema Exports =============

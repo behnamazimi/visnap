@@ -13,6 +13,7 @@ import { type Command as CommanderCommand } from "commander";
 import { type Command } from "../types";
 import { ErrorHandler } from "../utils/error-handler";
 import { exit } from "../utils/exit";
+import { selectTestCasesInteractively } from "../utils/interactive-selector";
 import { createSpinner, shouldUseSpinner } from "../utils/spinner";
 
 interface UpdateCommandOptions
@@ -20,6 +21,7 @@ interface UpdateCommandOptions
     CliOptions {
   docker?: boolean;
   config?: string;
+  interactive?: boolean;
 }
 
 const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
@@ -27,6 +29,39 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
   const spinner = useSpinner ? createSpinner() : null;
 
   try {
+    // Handle interactive mode
+    if (options.interactive) {
+      if (useSpinner) {
+        spinner!.start("Discovering test cases for selection...");
+      } else {
+        log.info("Discovering test cases for selection...");
+      }
+
+      const cliOptions: CliOptions & { configPath?: string } = {
+        include: options.include,
+        exclude: options.exclude,
+        ...(options.config ? { configPath: options.config } : {}),
+      };
+
+      const selectedTestCases = await selectTestCasesInteractively({
+        cliOptions,
+        message: "Select test cases to update",
+      });
+
+      if (useSpinner) {
+        spinner!.stop();
+      }
+
+      if (selectedTestCases.length === 0) {
+        log.info("No test cases selected. Exiting.");
+        exit(0);
+        return;
+      }
+
+      // Set the selected test cases as include patterns
+      options.include = selectedTestCases;
+    }
+
     if (options.docker) {
       if (useSpinner) {
         spinner!.start("Starting Docker container...");
@@ -37,6 +72,24 @@ const updateHandler = async (options: UpdateCommandOptions): Promise<void> => {
       const args: string[] = [
         "update",
         ...(options.config ? ["--config", options.config] : []),
+        // Forward include patterns if present
+        ...(options.include
+          ? [
+              "--include",
+              ...(Array.isArray(options.include)
+                ? options.include
+                : [options.include]),
+            ]
+          : []),
+        // Forward exclude patterns if present
+        ...(options.exclude
+          ? [
+              "--exclude",
+              ...(Array.isArray(options.exclude)
+                ? options.exclude
+                : [options.exclude]),
+            ]
+          : []),
       ];
       const status = await runInDocker({ image, args });
       if (useSpinner) {
@@ -115,6 +168,7 @@ export const command: Command<UpdateCommandOptions> = {
     return cmd
       .option("--config <path>", "Path to configuration file")
       .option("--docker", "Run inside Docker")
+      .option("-i, --interactive", "Select test cases interactively")
       .option(
         "--include <pattern>",
         "Include test cases matching pattern (can be used multiple times)"

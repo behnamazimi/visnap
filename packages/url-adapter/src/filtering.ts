@@ -29,13 +29,13 @@ import type { UrlConfig } from "./validation";
  */
 export function createUrlFilter(options: FilterOptions) {
   const includePatterns = Array.isArray(options.include)
-    ? options.include
-    : options.include
+    ? options.include.filter(pattern => pattern != null && pattern !== "")
+    : options.include && options.include !== ""
       ? [options.include]
       : [];
   const excludePatterns = Array.isArray(options.exclude)
-    ? options.exclude
-    : options.exclude
+    ? options.exclude.filter(pattern => pattern != null && pattern !== "")
+    : options.exclude && options.exclude !== ""
       ? [options.exclude]
       : [];
 

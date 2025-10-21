@@ -14,6 +14,7 @@ import {
 import {
   loadBrowserAdapter,
   loadAllTestCaseAdapters,
+  BrowserAdapterPool,
 } from "@/browser/adapter-loader";
 import { parseBrowsersFromConfig } from "@/browser/browser-config";
 import { resolveEffectiveConfig } from "@/lib/config";
@@ -23,6 +24,7 @@ import { discoverCasesFromAllAdapters } from "@/test/test-discovery";
 vi.mock("@/browser/adapter-loader", () => ({
   loadBrowserAdapter: vi.fn(),
   loadAllTestCaseAdapters: vi.fn(),
+  BrowserAdapterPool: vi.fn(),
 }));
 
 vi.mock("@/browser/browser-config", () => ({
@@ -45,9 +47,22 @@ describe("list API", () => {
   const mockDiscoverCasesFromAllAdapters = vi.mocked(
     discoverCasesFromAllAdapters
   );
+  const MockBrowserAdapterPool = vi.mocked(BrowserAdapterPool);
+
+  let mockPoolInstance: {
+    getAdapter: ReturnType<typeof vi.fn>;
+    disposeAll: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock BrowserAdapterPool for all tests
+    mockPoolInstance = {
+      getAdapter: vi.fn().mockResolvedValue(createMockBrowserAdapter()),
+      disposeAll: vi.fn().mockResolvedValue(undefined),
+    };
+    MockBrowserAdapterPool.mockImplementation(() => mockPoolInstance as any);
   });
 
   describe("listTestCases", () => {
@@ -67,6 +82,9 @@ describe("list API", () => {
       mockParseBrowsersFromConfig.mockReturnValue(mockBrowsers);
       mockDiscoverCasesFromAllAdapters.mockResolvedValue(mockTestCases);
 
+      // Make sure the pool returns the expected adapter
+      mockPoolInstance.getAdapter.mockResolvedValue(mockBrowserAdapter);
+
       const result = await listTestCases();
 
       expect(result).toEqual({
@@ -79,7 +97,6 @@ describe("list API", () => {
       });
 
       expect(mockResolveEffectiveConfig).toHaveBeenCalledWith({}, undefined);
-      expect(mockLoadBrowserAdapter).toHaveBeenCalledWith(mockConfig.adapters);
       expect(mockLoadAllTestCaseAdapters).toHaveBeenCalledWith(
         mockConfig.adapters
       );
@@ -92,6 +109,14 @@ describe("list API", () => {
         mockConfig.viewport,
         mockBrowsers
       );
+      // Verify BrowserAdapterPool was used
+      expect(MockBrowserAdapterPool).toHaveBeenCalledTimes(1);
+      expect(mockPoolInstance.getAdapter).toHaveBeenCalledWith(
+        "chromium",
+        undefined,
+        expect.any(Function)
+      );
+      expect(mockPoolInstance.disposeAll).toHaveBeenCalledTimes(1);
     });
 
     it("should list test cases with custom options", async () => {
@@ -369,6 +394,139 @@ describe("list API", () => {
       expect(mockResolveEffectiveConfig).toHaveBeenCalledWith(
         customOptions,
         cliOptions
+      );
+    });
+  });
+
+  describe("Resource Management", () => {
+    it("should use BrowserAdapterPool for proper resource management", async () => {
+      const mockConfig = createMockConfig();
+      const mockBrowserAdapter = createMockBrowserAdapter();
+      const mockTestCaseAdapters = [createMockTestCaseAdapter()];
+      const mockBrowsers = [{ name: "chromium" as const }];
+      const mockTestCases = [
+        createMockTestCase({ caseId: "button", variantId: "default" }),
+      ];
+
+      mockResolveEffectiveConfig.mockResolvedValue(mockConfig);
+      mockLoadBrowserAdapter.mockResolvedValue(mockBrowserAdapter);
+      mockLoadAllTestCaseAdapters.mockResolvedValue(mockTestCaseAdapters);
+      mockParseBrowsersFromConfig.mockReturnValue(mockBrowsers);
+      mockDiscoverCasesFromAllAdapters.mockResolvedValue(mockTestCases);
+      mockPoolInstance.getAdapter.mockResolvedValue(mockBrowserAdapter);
+
+      await listTestCases();
+
+      // Verify BrowserAdapterPool was instantiated
+      expect(MockBrowserAdapterPool).toHaveBeenCalledTimes(1);
+
+      // Verify getAdapter was called with correct parameters
+      expect(mockPoolInstance.getAdapter).toHaveBeenCalledWith(
+        "chromium",
+        undefined,
+        expect.any(Function)
+      );
+
+      // Verify disposeAll was called for cleanup
+      expect(mockPoolInstance.disposeAll).toHaveBeenCalledTimes(1);
+    });
+
+    it("should call disposeAll even when discovery fails", async () => {
+      const mockConfig = createMockConfig();
+      const mockBrowserAdapter = createMockBrowserAdapter();
+      const mockTestCaseAdapters = [createMockTestCaseAdapter()];
+      const mockBrowsers = [{ name: "chromium" as const }];
+      const discoveryError = new Error("Discovery failed");
+
+      mockResolveEffectiveConfig.mockResolvedValue(mockConfig);
+      mockLoadBrowserAdapter.mockResolvedValue(mockBrowserAdapter);
+      mockLoadAllTestCaseAdapters.mockResolvedValue(mockTestCaseAdapters);
+      mockParseBrowsersFromConfig.mockReturnValue(mockBrowsers);
+      mockDiscoverCasesFromAllAdapters.mockRejectedValue(discoveryError);
+      mockPoolInstance.getAdapter.mockResolvedValue(mockBrowserAdapter);
+
+      await expect(listTestCases()).rejects.toThrow("Discovery failed");
+
+      // Verify disposeAll was still called for cleanup even on error
+      expect(mockPoolInstance.disposeAll).toHaveBeenCalledTimes(1);
+    });
+
+    it("should call disposeAll even when getAdapter fails", async () => {
+      const mockConfig = createMockConfig();
+      const mockTestCaseAdapters = [createMockTestCaseAdapter()];
+      const mockBrowsers = [{ name: "chromium" as const }];
+      const adapterError = new Error("Adapter failed");
+
+      mockResolveEffectiveConfig.mockResolvedValue(mockConfig);
+      mockLoadAllTestCaseAdapters.mockResolvedValue(mockTestCaseAdapters);
+      mockParseBrowsersFromConfig.mockReturnValue(mockBrowsers);
+      mockPoolInstance.getAdapter.mockRejectedValue(adapterError);
+
+      await expect(listTestCases()).rejects.toThrow("Adapter failed");
+
+      // Verify disposeAll was still called for cleanup even on error
+      expect(mockPoolInstance.disposeAll).toHaveBeenCalledTimes(1);
+    });
+
+    it("should handle disposeAll errors gracefully", async () => {
+      const mockConfig = createMockConfig();
+      const mockBrowserAdapter = createMockBrowserAdapter();
+      const mockTestCaseAdapters = [createMockTestCaseAdapter()];
+      const mockBrowsers = [{ name: "chromium" as const }];
+      const mockTestCases = [
+        createMockTestCase({ caseId: "button", variantId: "default" }),
+      ];
+
+      mockResolveEffectiveConfig.mockResolvedValue(mockConfig);
+      mockLoadBrowserAdapter.mockResolvedValue(mockBrowserAdapter);
+      mockLoadAllTestCaseAdapters.mockResolvedValue(mockTestCaseAdapters);
+      mockParseBrowsersFromConfig.mockReturnValue(mockBrowsers);
+      mockDiscoverCasesFromAllAdapters.mockResolvedValue(mockTestCases);
+      mockPoolInstance.getAdapter.mockResolvedValue(mockBrowserAdapter);
+      mockPoolInstance.disposeAll.mockRejectedValue(
+        new Error("Dispose failed")
+      );
+
+      // Should throw when disposeAll fails
+      await expect(listTestCases()).rejects.toThrow("Dispose failed");
+
+      // Verify disposeAll was attempted
+      expect(mockPoolInstance.disposeAll).toHaveBeenCalledTimes(1);
+    });
+
+    it("should pass correct browser options to getAdapter", async () => {
+      const mockConfig = createMockConfig({
+        adapters: {
+          browser: {
+            name: "@visnap/playwright-adapter",
+            options: { headless: false },
+          },
+          testCase: [{ name: "@visnap/storybook-adapter" }],
+        },
+      });
+      const mockBrowserAdapter = createMockBrowserAdapter();
+      const mockTestCaseAdapters = [createMockTestCaseAdapter()];
+      const mockBrowsers = [
+        { name: "chromium" as const, options: { headless: false } },
+      ];
+      const mockTestCases = [
+        createMockTestCase({ caseId: "button", variantId: "default" }),
+      ];
+
+      mockResolveEffectiveConfig.mockResolvedValue(mockConfig);
+      mockLoadBrowserAdapter.mockResolvedValue(mockBrowserAdapter);
+      mockLoadAllTestCaseAdapters.mockResolvedValue(mockTestCaseAdapters);
+      mockParseBrowsersFromConfig.mockReturnValue(mockBrowsers);
+      mockDiscoverCasesFromAllAdapters.mockResolvedValue(mockTestCases);
+      mockPoolInstance.getAdapter.mockResolvedValue(mockBrowserAdapter);
+
+      await listTestCases();
+
+      // Verify getAdapter was called with browser options
+      expect(mockPoolInstance.getAdapter).toHaveBeenCalledWith(
+        "chromium",
+        { headless: false },
+        expect.any(Function)
       );
     });
   });

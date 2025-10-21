@@ -151,8 +151,9 @@ export async function discoverCasesFromAllAdapters(
         // Add adapter prefix to case IDs to avoid conflicts
         const prefixedCases = expandedCases.map(case_ => ({
           ...case_,
-          caseId: `${adapter.name}-${case_.caseId}`,
-          id: `${adapter.name}-${case_.caseId}`,
+          kind: adapter.name,
+          caseId: case_.caseId,
+          id: case_.caseId,
         }));
 
         allCases.push(...prefixedCases);
