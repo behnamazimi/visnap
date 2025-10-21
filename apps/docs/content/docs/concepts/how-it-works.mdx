@@ -8,7 +8,7 @@ ViSnap catches visual changes in your UI through a simple yet powerful workflow 
 ## The Testing Process
 
 ### 1. Establishing Baselines
-First, you create **baseline images** - these are your "source of truth" screenshots that represent the correct appearance of your UI. Running `visnap update` captures these reference images under controlled conditions.
+First, you create **baseline screenshots** - these are your "source of truth" screenshots that represent the correct appearance of your UI. Running `visnap update` captures these baseline screenshots under controlled conditions.
 
 ### 2. Capturing Test Snapshots
 During testing, `visnap test` takes fresh screenshots of your current UI using the exact same conditions as your baselines. This ensures fair comparisons between what you expect and what actually renders.
@@ -18,8 +18,14 @@ ViSnap automatically compares each new snapshot against its corresponding baseli
 
 ## Results & Storage
 
-All images (baselines, current snapshots, and diffs) are saved to your filesystem according to your configuration settings. You can browse these files directly in your file explorer for detailed inspection.
+All images (baseline screenshots, current snapshots, and diffs) are saved to your filesystem according to your configuration settings. You can browse these files directly in your file explorer for detailed inspection.
 
 Beyond raw files, ViSnap provides two complementary reporting formats:
 - **[HTML Report](/docs/reference/configuration#html-reporter)**: Interactive visual comparisons with side-by-side views and highlighted differences
 - **[JSON Report](/docs/reference/configuration#json-reporter)**: Structured data perfect for CI/CD pipelines and automated decision-making
+
+## Next Steps
+
+- [Getting Started](/docs/getting-started) - Set up ViSnap for your project
+- [Adapters Overview](/docs/concepts/adapters-overview) - Learn about browser and test source adapters
+- [Comparison Engines](/docs/concepts/comparison-engines) - Understand how visual differences are detected

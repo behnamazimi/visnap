@@ -46,17 +46,17 @@ The threshold controls how different pixels must be to count as a change:
 
 ## Choosing the Right Engine
 
-### Use odiff when:
-- You have components with subtle animations
-- You're testing across different browsers
-- You want fewer false positives
-- You're getting started with visual testing
+### When to choose odiff:
+- Components with subtle animations or transitions
+- Cross-browser testing scenarios
+- Reducing false positives from rendering differences
+- Getting started with visual testing
 
-### Use pixelmatch when:
-- You need pixel-perfect accuracy
-- You're testing icons or precise UI elements
-- You want to catch the smallest changes
-- You have a stable, controlled testing environment
+### When to choose pixelmatch:
+- Pixel-perfect accuracy requirements
+- Testing icons or precise UI elements
+- Catching the smallest visual changes
+- Stable, controlled testing environments
 
 ## Best Practices
 
@@ -79,3 +79,9 @@ comparison: {
 ```
 
 See the [Configuration Reference](/docs/reference/configuration) for all available options.
+
+## Next Steps
+
+- [Screenshot Stabilization](/docs/guides/screenshot-stabilization) - Make your tests more stable
+- [Configuration Reference](/docs/reference/configuration) - Configure comparison settings
+- [Getting Started](/docs/getting-started) - Set up ViSnap for your project

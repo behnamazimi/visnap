@@ -201,30 +201,11 @@ pipeline {
 
 ## Best Practices
 
-### Use Docker for Consistency
+### Docker for Consistency
 
-Always use the `--docker` flag in CI to ensure consistent results across different environments.
+Always use the `--docker` flag in CI to ensure consistent results across different environments. This prevents issues where tests pass locally but fail in CI due to different browser versions or system configurations.
 
-### Cache Dependencies
-
-Cache your npm dependencies to speed up CI runs:
-
-```yaml
-- name: Setup Node.js
-  uses: actions/setup-node@v4
-  with:
-    node-version: '18'
-    cache: 'npm'
-```
-
-### Build Before Testing
-
-Make sure to build your Storybook or application before running visual tests:
-
-```yaml
-- name: Build Storybook
-  run: npm run build-storybook
-```
+Visual tests need the built assets to capture screenshots, so this step is essential.
 
 ### Upload Artifacts
 
@@ -239,49 +220,13 @@ Always upload test results as artifacts so you can review them later:
     path: visnap/
 ```
 
+This lets you download and review the HTML report even when tests fail.
+
 ### Handle Failures Gracefully
 
-Use `if: always()` to upload artifacts even when tests fail, so you can debug issues.
+Upload artifacts even when tests fail, so you can debug issues. Without this, you won't be able to see what went wrong.
 
-### Set Appropriate Timeouts
 
-Visual tests can take time, especially with multiple viewports and browsers. Set appropriate timeouts:
-
-```yaml
-- name: Run visual tests
-  run: npx visnap test --docker
-  timeout-minutes: 30
-```
-
-## Troubleshooting
-
-### Docker Not Available
-
-If Docker isn't available in your CI environment, you can install it:
-
-```yaml
-- name: Install Docker
-  run: |
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sh get-docker.sh
-```
-
-### Permission Issues
-
-On some CI systems, you might need to add your user to the docker group:
-
-```yaml
-- name: Add user to docker group
-  run: sudo usermod -aG docker $USER
-```
-
-### Port Conflicts
-
-Ensure ports used by your application are available in the CI environment. You can check what ports are in use:
-
-```bash
-netstat -tulpn | grep LISTEN
-```
 
 ## Next Steps
 

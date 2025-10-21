@@ -55,3 +55,4 @@ export const loadConfigFile = async (
     throw new ConfigError(`Failed to validate config file: ${error}`);
   }
 };
+

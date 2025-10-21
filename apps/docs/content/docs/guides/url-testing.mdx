@@ -3,14 +3,14 @@ title: URL Testing
 description: Test any web page or application with ViSnap
 ---
 
-The URL adapter lets you test any web page or application without requiring Storybook. Perfect for testing marketing sites, landing pages, or applications that don't use Storybook.
+Test any web page or application directly with the URL adapter - no Storybook required. This approach is perfect for testing marketing sites, landing pages, or web apps that don't use Storybook.
 
-## What You Need
+## Prerequisites
 
 - A running web application or accessible URLs
 - ViSnap installed in your project
 
-## Get Started
+## Installation
 
 1. **Install ViSnap:**
 ```bash
@@ -29,6 +29,7 @@ import { type VisualTestingToolConfig } from '@visnap/protocol';
 
 const config: VisualTestingToolConfig = {
   adapters: {
+    // Browser settings - how screenshots are captured
     browser: {
       name: "@visnap/playwright-adapter",
       options: {
@@ -36,6 +37,7 @@ const config: VisualTestingToolConfig = {
         context: { colorScheme: 'light', reducedMotion: 'reduce' },
       }
     },
+    // Test source - what URLs to test
     testCase: [
       {
         name: "@visnap/url-adapter",

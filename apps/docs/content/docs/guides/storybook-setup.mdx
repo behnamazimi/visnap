@@ -3,14 +3,14 @@ title: Storybook Setup
 description: Test your Storybook components with ViSnap
 ---
 
-If you're using Storybook, this is the easiest way to get started with ViSnap. It automatically finds all your stories and tests them as they actually render.
+Storybook integration makes it easy to test your component library with ViSnap. It automatically discovers all your stories and tests them exactly as they render in Storybook, giving you comprehensive visual coverage of your components.
 
-## What You Need
+## Prerequisites
 
 - Storybook v8 or later
 - A built Storybook (run `npm run build-storybook`)
 
-## Get Started
+## Installation
 
 1. **Install ViSnap:**
 ```bash
@@ -29,6 +29,7 @@ import { type VisualTestingToolConfig } from '@visnap/protocol';
 
 const config: VisualTestingToolConfig = {
   adapters: {
+    // Browser settings - how screenshots are captured
     browser: {
       name: "@visnap/playwright-adapter",
       options: {
@@ -36,12 +37,13 @@ const config: VisualTestingToolConfig = {
         context: { colorScheme: 'light', reducedMotion: 'reduce' },
       }
     },
+    // Test source - what to test
     testCase: [
       {
         name: "@visnap/storybook-adapter",
         options: {
-          source: "./storybook-static", // Your Storybook build
-          include: "*", // Test all stories
+          source: "./storybook-static", // Path to your Storybook build
+          include: "*", // Test all stories (use minimatch patterns to filter)
         }
       }
     ]
@@ -56,7 +58,7 @@ export default config;
 npm run build-storybook
 ```
 
-5. **Take your first screenshots:**
+5. **Take your first baseline screenshots:**
 ```bash
 npx visnap update
 ```

@@ -3,7 +3,7 @@ title: Workflows
 description: Setup workflow, development workflow, filtering
 ---
 
-ViSnap integrates into your development process in several ways, from initial setup to daily development and CI/CD pipelines. Here are the common workflows teams use:
+ViSnap integrates into your development process in several ways, from initial setup to daily development and CI/CD pipelines. Here are the common workflows teams use, with real-world examples to help you choose the right approach for your project.
 
 ## Local Development
 
@@ -20,6 +20,8 @@ ViSnap integrates into your development process in several ways, from initial se
    ```bash
    npx visnap update
    ```
+
+This creates your "source of truth" screenshots that represent the correct appearance of your UI. You'll commit these baseline screenshots to your repository so your team has a shared reference.
 
 ### Development Workflow
 
@@ -41,6 +43,8 @@ ViSnap integrates into your development process in several ways, from initial se
    ```
 
 5. **Commit your changes** knowing your UI is consistent
+
+**Example scenario:** You're updating a button component's hover state. After making the change, run `visnap test` to see if any other components were affected. If the change looks good, update the baselines with `visnap update` and commit both your code changes and the new baseline screenshots.
 
 ### Filtering
 
@@ -83,3 +87,10 @@ This ensures reproducible results across different machines and environments.
 - **Upload test artifacts** for review
 - **Set appropriate timeouts** for visual tests
 - **Handle failures gracefully** with proper error reporting
+
+## Next Steps
+
+- [Interactive Testing](/docs/guides/interactive-testing) - Test hover states and forms
+- [Screenshot Stabilization](/docs/guides/screenshot-stabilization) - Make tests more stable
+- [CI Integration](/docs/guides/ci-integration) - Run tests in your pipeline
+- [Configuration Reference](/docs/reference/configuration) - All configuration options

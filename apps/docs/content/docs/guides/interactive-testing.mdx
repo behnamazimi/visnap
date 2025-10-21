@@ -3,7 +3,7 @@ title: Interactive Testing
 description: Test hover states, form interactions, and dynamic UI with user interactions
 ---
 
-Use interactions to make components or pages reach a desired state before capturing screenshots. This lets you test dynamic UI elements like hover states, form submissions, modal openings, and loading states.
+Interactions let you test dynamic UI elements by performing actions before capturing screenshots. This is essential for testing hover states, form submissions, modal openings, and loading states that only appear after user interaction.
 
 ## How It Works
 
@@ -124,23 +124,24 @@ Define interactions in your `visnap.config.ts`:
 Always wait for UI updates after interactions:
 
 ```typescript
-// Good: Wait for the result
+// Wait for the result after clicking
 { type: 'click', selector: 'button.submit' },
 { type: 'wait', selector: '.result' }
 
-// Bad: No wait (may cause timing issues)
+// Without waiting, the screenshot might capture before the result appears
 { type: 'click', selector: 'button.submit' }
 ```
+Note: Try to keep wait times as short as possible—long delays will slow down the snapshot capture.
 
 ### Use Specific Selectors
 
 Specific selectors help avoid targeting the wrong element:
 
 ```typescript
-// Good: Specific selector
+// Specific selector targets the exact element
 { type: 'click', selector: 'button[type="submit"]' }
 
-// Bad: Generic selector (may target any button)
+// Generic selector might target the wrong button
 { type: 'click', selector: 'button' }
 ```
 

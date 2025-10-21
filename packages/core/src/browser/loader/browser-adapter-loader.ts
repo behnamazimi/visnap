@@ -63,3 +63,4 @@ export async function loadBrowserAdapter(
     throw new Error(formatAdapterError(moduleName, "browser", errorMessage));
   }
 }
+
