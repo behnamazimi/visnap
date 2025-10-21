@@ -43,7 +43,7 @@
     "@visnap/eslint-config": "*",
     "msw": "^2.6.6",
     "tsup": "^8.3.5",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "vitest": "^2.1.8"
   },
   "exports": {
