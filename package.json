@@ -27,5 +27,24 @@
   "workspaces": [
     "packages/*",
     "apps/*"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/behnamazimi/visnap.git"
+  },
+  "homepage": "https://visnap.dev",
+  "bugs": {
+    "url": "https://github.com/behnamazimi/visnap/issues"
+  },
+  "keywords": [
+    "visual-testing",
+    "screenshot",
+    "regression-testing",
+    "storybook",
+    "playwright",
+    "testing-tool",
+    "monorepo"
+  ],
+  "license": "MIT",
+  "author": "visnap contributors"
 }
