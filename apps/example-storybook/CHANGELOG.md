@@ -1,5 +1,13 @@
 # example-storybook-v8
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [5fa5f36]
+  - @visnap/playwright-adapter@0.4.0
+  - @visnap/storybook-adapter@0.4.0
+
 ## 0.0.4
 
 ### Patch Changes
