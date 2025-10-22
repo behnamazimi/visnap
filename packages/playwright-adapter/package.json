@@ -1,6 +1,6 @@
 {
   "name": "@visnap/playwright-adapter",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Playwright browser adapter for visnap",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -24,7 +24,7 @@
     "playwright-core": ">=1.40.0"
   },
   "dependencies": {
-    "@visnap/protocol": "^0.4.0",
+    "@visnap/protocol": "^0.4.1",
     "arktype": "^2.0.0"
   },
   "devDependencies": {
