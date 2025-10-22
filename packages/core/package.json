@@ -41,7 +41,7 @@
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/ui": "^3.2.4",
     "@visnap/eslint-config": "*",
-    "msw": "^2.6.6",
+    "msw": "^2.11.6",
     "tsup": "^8.3.5",
     "typescript": "5.9.3",
     "vitest": "^2.1.8"
