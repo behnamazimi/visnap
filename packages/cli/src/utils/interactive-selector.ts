@@ -2,18 +2,13 @@
  * @fileoverview Interactive test case selection utility
  *
  * Provides interactive multi-select functionality for choosing test cases
- * using inquirer-checkbox-autocomplete-prompt with built-in search capabilities.
+ * using inquirer-checkbox-plus-plus with built-in search capabilities.
  */
 
 import { listTestCasesCli, log } from "@visnap/core";
 import type { CliOptions } from "@visnap/protocol";
 import fuzzy from "fuzzy";
-import inquirer from "inquirer";
-// @ts-expect-error - No type definitions available for inquirer-checkbox-autocomplete-prompt
-import CheckboxAutocompletePrompt from "inquirer-checkbox-autocomplete-prompt";
-
-// Register the checkbox-autocomplete prompt
-inquirer.registerPrompt("checkbox-autocomplete", CheckboxAutocompletePrompt);
+import checkboxPlus from "inquirer-checkbox-plus-plus";
 
 export interface InteractiveSelectorOptions {
   /** CLI options for filtering test cases */
@@ -31,7 +26,6 @@ export async function selectTestCasesInteractively(
   options: InteractiveSelectorOptions = {}
 ): Promise<string[]> {
   const { cliOptions = {}, message = "Select test cases to run" } = options;
-
   try {
     // Discover test cases
     const result = await listTestCasesCli({}, cliOptions);
@@ -65,56 +59,45 @@ export async function selectTestCasesInteractively(
       log.plain(`• Viewports: ${result.summary.viewports.join(", ")}`);
     }
 
-    // Use checkbox-autocomplete with built-in search functionality
-    const answers = await inquirer.prompt([
-      {
-        type: "checkbox-autocomplete",
-        name: "selectedTestCases",
-        message: `${message} (type to search, use arrow keys, space to select, enter to confirm):`,
-        choices: allTestCaseIds,
-        pageSize: 15,
-        searchable: true,
-        validate: (input: string[]) => {
-          if (input.length === 0) {
-            return "Please select at least one test case or press Ctrl+C to cancel";
-          }
-          return true;
-        },
-        asyncSource: (_answersSoFar: any, input: string) => {
-          input = input || "";
-
-          return new Promise(resolve => {
-            // Add "Select all" option if no search input
-            if (!input.trim()) {
-              const selectAllChoice = {
-                name: "Run all test cases",
-                value: "__RUN_ALL__",
-                short: "Run all",
-              };
-              const choices = allTestCaseIds.map(id => ({
-                name: id,
-                value: id,
-                short: id,
-              }));
-              resolve([selectAllChoice, ...choices]);
-              return;
-            }
-
-            // Use fuzzy search to filter test case IDs
-            const fuzzyResult = fuzzy.filter(input, allTestCaseIds);
-            const data = fuzzyResult.map(element => ({
-              name: element.original,
-              value: element.original,
-              short: element.original,
-            }));
-
-            resolve(data);
-          });
-        },
+    // Use checkbox-plus-plus with built-in search functionality
+    const selectedIds = await checkboxPlus({
+      message: `${message} (type to search, use arrow keys, space to select, enter to confirm):`,
+      pageSize: 10,
+      searchable: true,
+      highlight: false,
+      validate: (input: string[]) => {
+        if (input.length === 0) {
+          return "Please select at least one test case or press Ctrl+C to cancel";
+        }
+        return true;
       },
-    ] as any);
+      source: async (_answersSoFar: any, input: string) => {
+        input = input || "";
 
-    const selectedIds = answers.selectedTestCases as string[];
+        // Add "Select all" option if no search input
+        if (!input.trim()) {
+          const selectAllChoice = {
+            name: "Run all test cases",
+            value: "__RUN_ALL__",
+            short: "Run all",
+          };
+          const choices = allTestCaseIds.map(id => ({
+            name: id,
+            value: id,
+            short: id,
+          }));
+          return [selectAllChoice, ...choices];
+        }
+
+        // Use fuzzy search to filter test case IDs
+        const fuzzyResult = fuzzy.filter(input, allTestCaseIds);
+        return fuzzyResult.map(element => ({
+          name: element.original,
+          value: element.original,
+          short: element.original,
+        }));
+      },
+    });
 
     if (selectedIds.length === 0) {
       log.info("No test cases selected");
