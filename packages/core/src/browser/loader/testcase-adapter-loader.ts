@@ -2,6 +2,8 @@
  * @fileoverview Test case adapter loading utilities
  */
 
+import { createRequire } from "module";
+
 import type {
   TestCaseAdapter,
   VisualTestingToolConfig,
@@ -27,7 +29,7 @@ function formatAdapterError(
     errorMessage.includes("Cannot resolve module") ||
     errorMessage.includes("Module not found")
   ) {
-    return `${baseMessage}. Please ensure the adapter is installed: npm install ${moduleName}`;
+    return `${baseMessage}. Please ensure the adapter is installed locally in your project: npm install -D ${moduleName}. You can also run 'npx visnap init' to set up all required packages automatically.`;
   }
 
   return `${baseMessage}: ${errorMessage}. Please verify the adapter is properly installed and exports a createAdapter function.`;
@@ -52,7 +54,27 @@ export async function loadAllTestCaseAdapters(
 
   for (const adapterConfig of testCaseAdapters) {
     try {
-      const mod = await import(adapterConfig.name);
+      // Resolve adapter module from user's project directory (CWD)
+      // This ensures adapters can be found whether visnap runs from global, local, or npx
+      let modulePath: string;
+      try {
+        // First try to resolve from the current working directory
+        const projectRequire = createRequire(process.cwd() + "/package.json");
+        modulePath = projectRequire.resolve(adapterConfig.name);
+      } catch {
+        // If that fails, try to resolve from the global require context
+        // This handles cases where we're running from npx cache but need to find local modules
+        try {
+          modulePath = require.resolve(adapterConfig.name, {
+            paths: [process.cwd()],
+          });
+        } catch {
+          // Fall back to the original import behavior
+          modulePath = adapterConfig.name;
+        }
+      }
+      console.log("testcase adapter modulePath", modulePath);
+      const mod = await import(modulePath);
 
       if (typeof mod?.createAdapter !== "function") {
         throw new Error(

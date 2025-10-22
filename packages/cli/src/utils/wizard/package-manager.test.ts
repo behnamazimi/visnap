@@ -159,7 +159,7 @@ describe("package-manager", () => {
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
-        "npm install @visnap/playwright-adapter @visnap/storybook-adapter",
+        "npm install -D @visnap/playwright-adapter @visnap/storybook-adapter",
         { stdio: "pipe" }
       );
     });
@@ -176,7 +176,7 @@ describe("package-manager", () => {
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
-        "yarn add @visnap/playwright-adapter",
+        "yarn add -D @visnap/playwright-adapter",
         { stdio: "pipe" }
       );
     });
@@ -193,7 +193,7 @@ describe("package-manager", () => {
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
-        "pnpm add @visnap/playwright-adapter",
+        "pnpm add -D @visnap/playwright-adapter",
         { stdio: "pipe" }
       );
     });
@@ -226,7 +226,7 @@ describe("package-manager", () => {
 
       await installPackages(packages, packageManager);
 
-      expect(mockExecSync).toHaveBeenCalledWith("npm install ", {
+      expect(mockExecSync).toHaveBeenCalledWith("npm install -D ", {
         stdio: "pipe",
       });
     });
@@ -243,7 +243,7 @@ describe("package-manager", () => {
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
-        "npm install @visnap/playwright-adapter",
+        "npm install -D @visnap/playwright-adapter",
         { stdio: "pipe" }
       );
     });

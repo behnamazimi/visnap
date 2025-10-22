@@ -36,8 +36,8 @@ const main = async (): Promise<void> => {
       .name("visnap")
       .description("Visual Testing Tool - CLI for visual regression testing")
       .version(pkg.version, "-v, --version", "Show version information")
-      .option("--config <path>", "Path to configuration file")
-      .option("--quiet", "Suppress output except errors")
+      .option("-c, --config <path>", "Path to configuration file")
+      .option("-q, --quiet", "Suppress output except errors")
       .hook("preAction", (thisCommand, _actionCommand) => {
         // Apply global options
         const globalOptions = thisCommand.opts() as CliOptions;

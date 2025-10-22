@@ -1,7 +1,7 @@
 # ViSnap
 
-[![npm version](https://img.shields.io/npm/v/@visnap/cli.svg)](https://www.npmjs.com/package/@visnap/cli)
-[![npm downloads](https://img.shields.io/npm/dm/@visnap/cli.svg)](https://www.npmjs.com/package/@visnap/cli)
+[![npm version](https://img.shields.io/npm/v/visnap.svg)](https://www.npmjs.com/package/visnap)
+[![npm downloads](https://img.shields.io/npm/dm/visnap.svg)](https://www.npmjs.com/package/visnap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
@@ -31,14 +31,17 @@ A visual regression testing tool that captures and compares screenshots of your 
 ## Quick Start
 
 ```bash
-# Install globally
-npm install -g visnap
-
-# Or use with npx (no installation needed)
+# Start with init - it sets up everything you need
 npx visnap init
+
+# Take baseline screenshots
 npx visnap update
+
+# Test for visual changes
 npx visnap test
 ```
+
+The init command will install visnap and required adapters locally in your project for the best experience.
 
 ## Documentation
 

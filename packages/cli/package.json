@@ -1,5 +1,5 @@
 {
-  "name": "@visnap/cli",
+  "name": "visnap",
   "version": "0.4.0",
   "description": "Visual Testing Tool - CLI for visual regression testing",
   "type": "module",
@@ -7,7 +7,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "visnap": "./dist/index.js"
+    "visnap": "./dist/index.cjs"
   },
   "files": [
     "dist",

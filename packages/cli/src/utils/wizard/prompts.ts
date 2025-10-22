@@ -4,7 +4,10 @@
 
 import { existsSync } from "fs";
 
-import inquirer from "inquirer";
+import inquirerImport from "inquirer";
+
+// Handle both ESM and CommonJS inquirer imports
+const inquirer = (inquirerImport as any).default || inquirerImport;
 
 export interface AdapterSelection {
   configType: "ts" | "js";
@@ -96,8 +99,8 @@ export async function runConfigWizardPrompts(): Promise<AdapterSelection> {
           { name: "WebKit", value: "webkit" },
         ],
         default: ["chromium"],
-        validate: input =>
-          input.length > 0 || "Please select at least one browser",
+        validate: (input: string[]) =>
+          input.length > 0 ? true : "Please select at least one browser",
       },
     ]);
     selection.browsers = browserAnswers.browsers as string[];

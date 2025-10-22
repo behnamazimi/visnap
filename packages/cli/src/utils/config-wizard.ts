@@ -23,6 +23,11 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
   // Install missing packages
   const packagesToInstall: string[] = [];
 
+  // Always include visnap for local installation
+  if (!isPackageInstalled("visnap")) {
+    packagesToInstall.push("visnap");
+  }
+
   if (
     selection.browserAdapter === "playwright" &&
     !isPackageInstalled("@visnap/playwright-adapter")
@@ -49,7 +54,7 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
       {
         type: "confirm",
         name: "install",
-        message: `Install missing packages: ${packagesToInstall.join(", ")}?`,
+        message: `Install missing packages locally in your project: ${packagesToInstall.join(", ")}?`,
         default: true,
       },
     ]);
@@ -57,10 +62,13 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
     if (installAnswer.install) {
       try {
         await installPackages(packagesToInstall, packageManager);
+        log.info(
+          "Packages installed successfully! This ensures visnap can find all required adapters."
+        );
       } catch (error) {
         log.warn(`Failed to install packages automatically: ${error}`);
         log.plain(
-          `Please install them manually: ${packageManager.installCommand} ${packagesToInstall.join(" ")}`
+          `Please install them manually: ${packageManager.installCommand} -D ${packagesToInstall.join(" ")}`
         );
       }
     }

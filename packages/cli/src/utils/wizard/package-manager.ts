@@ -37,7 +37,7 @@ export function isPackageInstalled(packageName: string): boolean {
 }
 
 /**
- * Install missing packages
+ * Install missing packages as dev dependencies
  */
 export async function installPackages(
   packages: string[],
@@ -46,14 +46,17 @@ export async function installPackages(
   const spinner = createSpinner();
 
   try {
-    spinner.start(`Installing ${packages.join(", ")}...`);
+    spinner.start(`Installing ${packages.join(", ")} as dev dependencies...`);
 
     const { execSync } = await import("child_process");
-    const command = `${packageManager.installCommand} ${packages.join(" ")}`;
+
+    const command = `${packageManager.installCommand} -D ${packages.join(" ")}`;
 
     execSync(command, { stdio: "pipe" });
 
-    spinner.succeed(`Successfully installed ${packages.join(", ")}`);
+    spinner.succeed(
+      `Successfully installed ${packages.join(", ")} as dev dependencies`
+    );
   } catch (error) {
     spinner.fail("Failed to install packages");
     throw error;
