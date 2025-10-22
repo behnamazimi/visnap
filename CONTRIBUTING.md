@@ -74,7 +74,7 @@ This is a monorepo with the following packages:
 - `@visnap/playwright-adapter` - Playwright browser integration
 - `@visnap/storybook-adapter` - Storybook integration
 - `@visnap/core` - Core functionality
-- `@visnap/cli` - Command-line interface
+- `visnap` - Command-line interface
 
 All packages share the same version number (fixed versioning).
 

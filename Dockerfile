@@ -9,7 +9,7 @@ ENV VISNAP_VERSION=${VERSION#v}
 
 # Install visnap CLI and all adapters at the release version
 RUN npm install -g \
-  @visnap/cli@${VISNAP_VERSION} \
+  visnap@${VISNAP_VERSION} \
   @visnap/playwright-adapter@${VISNAP_VERSION} \
   @visnap/storybook-adapter@${VISNAP_VERSION} \
   @visnap/url-adapter@${VISNAP_VERSION}

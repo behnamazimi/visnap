@@ -1,4 +1,4 @@
-# @visnap/cli
+# visnap
 
 Command-line interface for ViSnap visual regression testing.
 

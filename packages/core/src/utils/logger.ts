@@ -5,7 +5,10 @@
  * Supports quiet mode and color-coded messages for better readability.
  */
 
-import chalk from "chalk";
+import chalkImport from "chalk";
+
+// Handle both ESM and CommonJS chalk imports
+const chalk = (chalkImport as any).default || chalkImport;
 
 type Logger = {
   /** Logs a plain message. */
