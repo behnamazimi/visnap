@@ -1,5 +1,12 @@
 # @visnap/playwright-adapter
 
+## 0.4.1
+
+### Patch Changes
+
+- d5665ea: Fix bugs
+  - @visnap/protocol@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

@@ -1,6 +1,6 @@
 {
   "name": "@visnap/url-adapter",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "URL test-case adapter for visnap",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -20,7 +20,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@visnap/protocol": "^0.4.0",
+    "@visnap/protocol": "^0.4.1",
     "arktype": "^2.0.0",
     "minimatch": "^10.0.1"
   },

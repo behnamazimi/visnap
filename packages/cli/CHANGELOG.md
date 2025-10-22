@@ -1,5 +1,14 @@
 # visnap
 
+## 0.4.1
+
+### Patch Changes
+
+- d5665ea: Fix bugs
+- Updated dependencies [d5665ea]
+  - @visnap/reporter@0.4.1
+  - @visnap/core@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

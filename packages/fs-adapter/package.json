@@ -1,6 +1,6 @@
 {
   "name": "@visnap/fs-adapter",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Filesystem storage adapter for visnap visual testing",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -35,7 +35,7 @@
   "author": "visnap",
   "license": "MIT",
   "dependencies": {
-    "@visnap/protocol": "^0.4.0"
+    "@visnap/protocol": "^0.4.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
