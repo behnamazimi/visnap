@@ -35,7 +35,7 @@
   "author": "visnap",
   "license": "MIT",
   "dependencies": {
-    "@visnap/protocol": "^0.4.2"
+    "@visnap/protocol": "*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
