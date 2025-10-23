@@ -1,5 +1,11 @@
 # @visnap/protocol
 
+## 0.4.2
+
+### Patch Changes
+
+- 8644f47: Fix npx visnap init
+
 ## 0.4.1
 
 ## 0.4.0

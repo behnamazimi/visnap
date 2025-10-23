@@ -1,6 +1,6 @@
 {
   "name": "@visnap/reporter",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Visual Testing Tool - HTML and JSON reporters for test results",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -27,7 +27,7 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
-    "@visnap/protocol": "^0.4.1"
+    "@visnap/protocol": "^0.4.2"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

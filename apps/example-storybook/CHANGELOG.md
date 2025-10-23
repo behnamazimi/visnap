@@ -1,5 +1,11 @@
 # example-storybook-v8
 
+## 0.0.6
+
+### Patch Changes
+
+- 8644f47: Fix npx visnap init
+
 ## 0.0.5
 
 ### Patch Changes

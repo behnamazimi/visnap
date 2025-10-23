@@ -1,7 +1,7 @@
 {
   "name": "example-storybook-v8",
   "private": true,
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,13 +24,13 @@
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.2.2",
     "@visnap/eslint-config": "*",
-    "@visnap/playwright-adapter": "^0.4.1",
-    "@visnap/storybook-adapter": "^0.4.1",
+    "@visnap/playwright-adapter": "^0.4.2",
+    "@visnap/storybook-adapter": "^0.4.2",
     "@vitejs/plugin-react": "^5.0.4",
     "globals": "^16.4.0",
     "storybook": "^9.1.10",
     "typescript": "~5.9.3",
-    "visnap": "^0.4.1",
+    "visnap": "^0.4.2",
     "vite": "^7.1.7"
   },
   "engines": {
