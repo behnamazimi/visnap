@@ -5,6 +5,8 @@
     "concepts",
     "guides",
     "reference",
-    "contributing"
+    "contributing",
+    "[GitHub](https://github.com/behnamazimi/visnap)",
+    "[NPM](https://www.npmjs.com/package/@visnap/cli)"
   ]
 }
