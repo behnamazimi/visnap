@@ -10,7 +10,10 @@ import { existsSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import { initializeProject, generateConfigContent, log } from "@visnap/core";
-import inquirer from "inquirer";
+import inquirerImport from "inquirer";
+
+// Handle both ESM and CommonJS inquirer imports
+const inquirer = (inquirerImport as any).default || inquirerImport;
 
 import { type Command } from "../types";
 import {
@@ -58,7 +61,7 @@ const promptUser = async (): Promise<InitOptions> => {
         { name: "JavaScript (visnap.config.js)", value: "js" },
       ],
       default: "ts",
-      when: answers => answers.setupType === "quick",
+      when: (answers: any) => answers.setupType === "quick",
     },
   ]);
 

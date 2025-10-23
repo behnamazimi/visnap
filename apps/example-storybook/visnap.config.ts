@@ -18,7 +18,7 @@ const config: VisualTestingToolConfig = {
         // { name: "webkit", options: { headless: true } }
         // ],
 
-        // injectCSS: "button { display: none !important; }"
+        // injectCSS: "* { animation: none !important; transition: none !important; }"
       },
     },
     testCase: [
@@ -26,23 +26,14 @@ const config: VisualTestingToolConfig = {
         name: "@visnap/storybook-adapter",
         options: {
           source: "./storybook-static",
-          port: 4477,
           include: "*",
           // exclude: "*page*",
         },
       },
-      // {
-      //   name: "@visnap/url-adapter",
-      //   options: {
-      //     urls: [{ id: "homepage", url: "https://www.example.com/" }],
-      //     include: "*",
-      //     // exclude: "*admin*",
-      //   },
-      // },
     ],
   },
   comparison: {
-    core: "odiff",
+    core: "odiff", // or "pixelmatch"
     threshold: 0.1,
     diffColor: "#00ff00",
   },
