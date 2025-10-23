@@ -31,7 +31,7 @@
     "@types/node": "^22.0.0",
     "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^3.2.4",
-    "@vitest/ui": "^3.2.4",
+    "@vitest/ui": "^4.0.1",
     "tsup": "^8.3.5",
     "typescript": "5.9.3",
     "vitest": "^3.2.4"
