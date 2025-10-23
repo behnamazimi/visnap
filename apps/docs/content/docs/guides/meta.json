@@ -1,6 +1,7 @@
 {
   "title": "Guides",
   "defaultOpen": true,
+  "icon": "Compass",
   "pages": [
     "storybook-setup",
     "url-testing",

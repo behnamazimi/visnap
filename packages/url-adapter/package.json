@@ -20,7 +20,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@visnap/protocol": "^0.4.2",
+    "@visnap/protocol": "*",
     "arktype": "^2.0.0",
     "minimatch": "^10.0.1"
   },

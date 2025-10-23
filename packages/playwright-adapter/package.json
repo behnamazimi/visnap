@@ -24,7 +24,7 @@
     "playwright-core": ">=1.40.0"
   },
   "dependencies": {
-    "@visnap/protocol": "^0.4.2",
+    "@visnap/protocol": "*",
     "arktype": "^2.0.0"
   },
   "devDependencies": {

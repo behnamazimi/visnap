@@ -20,8 +20,8 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@visnap/fs-adapter": "^0.4.2",
-    "@visnap/protocol": "^0.4.2",
+    "@visnap/fs-adapter": "*",
+    "@visnap/protocol": "*",
     "arktype": "^2.0.0",
     "bundle-require": "^4.0.2",
     "chalk": "^5.6.2",

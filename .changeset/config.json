@@ -19,6 +19,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@visnap/docs"
+    "@visnap/docs",
+    "@examples/*"
   ]
 }
