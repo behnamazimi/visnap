@@ -1,6 +1,6 @@
-# Example Storybook App
+# Storybook Example
 
-Example Storybook setup demonstrating ViSnap.
+Storybook setup demonstrating ViSnap visual testing capabilities.
 
 ## What it demonstrates
 

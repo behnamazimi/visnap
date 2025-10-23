@@ -1,0 +1,22 @@
+{
+  "name": "@examples/url",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "npx visnap test",
+    "update": "npx visnap update"
+  },
+  "devDependencies": {
+    "@visnap/playwright-adapter": "*",
+    "@visnap/url-adapter": "*",
+    "visnap": "*",
+    "vite": "^7.1.7"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
