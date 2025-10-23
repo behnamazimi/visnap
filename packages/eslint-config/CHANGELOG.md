@@ -1,5 +1,11 @@
 # @visnap/eslint-config
 
+## 0.5.0
+
+### Minor Changes
+
+- af1490c: Update docker file
+
 ## 0.4.1
 
 ### Patch Changes
