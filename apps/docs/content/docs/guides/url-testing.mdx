@@ -13,12 +13,12 @@ Test any web page or application directly with the URL adapter - no Storybook re
 ## Installation
 
 1. **Install ViSnap:**
-```bash
+```npm
 npm install -D visnap
 ```
 
 2. **Initialize configuration:**
-```bash
+```npm
 npx visnap init
 ```
 
@@ -57,24 +57,22 @@ export default config;
 ```
 
 4. **Start your application:**
-```bash
-npm start
-# or
-npm run dev
-```
+
+Before running visual tests, ensure the URLs you want to test are accessible.
+
 
 5. **Create baseline screenshots:**
-```bash
+```npm
 npx visnap update
 ```
 
 6. **Run visual tests:**
-```bash
+```npm
 npx visnap test
 ```
 
 7. **Open report:**
-```bash
+```npm
 npx visnap open
 ```
 
@@ -128,7 +126,7 @@ options: {
 ## Troubleshooting
 
 **URL not loading?** Make sure your app is running and accessible:
-```bash
+```npm
 curl http://localhost:3000/
 ```
 
