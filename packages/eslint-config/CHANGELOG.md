@@ -1,5 +1,11 @@
 # @visnap/eslint-config
 
+## 0.4.1
+
+### Patch Changes
+
+- 8644f47: Fix npx visnap init
+
 ## 0.4.0
 
 ### Minor Changes

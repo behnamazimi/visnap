@@ -1,5 +1,13 @@
 # @visnap/reporter
 
+## 0.4.2
+
+### Patch Changes
+
+- 8644f47: Fix npx visnap init
+- Updated dependencies [8644f47]
+  - @visnap/protocol@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes
