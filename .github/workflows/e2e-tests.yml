@@ -1,0 +1,49 @@
+name: E2E Tests
+
+on:
+  pull_request:
+    branches: [main, changeset-release/**]
+  push:
+    branches: [main, changeset-release/**]
+
+jobs:
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        
+      - name: Build packages from source
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace \
+            node:20-alpine sh -c "
+            npm ci && 
+            cd packages/protocol && npm run build && cd ../.. &&
+            cd packages/core && npm run build && cd ../.. &&
+            cd packages/fs-adapter && npm run build && cd ../.. &&
+            cd packages/reporter && npm run build && cd ../.. &&
+            cd packages/playwright-adapter && npm run build && cd ../.. &&
+            cd packages/storybook-adapter && npm run build && cd ../.. &&
+            cd packages/url-adapter && npm run build && cd ../.. &&
+            cd packages/cli && npm run build && cd ../.. &&
+            npm run build-storybook -w example-storybook-v8 &&
+            npm install -w example-storybook-v8
+          "
+        
+      - name: Run e2e tests with Playwright
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace -w /workspace/apps/example-storybook \
+            mcr.microsoft.com/playwright:v1.56.1-noble sh -c "
+            npm run test:e2e
+          "
+        
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visnap-e2e-reports
+          path: |
+            apps/example-storybook/visnap/
+          retention-days: 7

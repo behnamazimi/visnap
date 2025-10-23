@@ -11,6 +11,7 @@
     "lint": "turbo run lint -- --fix",
     "lint:ci": "turbo run lint",
     "test": "turbo run test -- --run",
+    "test:e2e": "npm run test:e2e -w example-storybook-v8",
     "version": "changeset version",
     "release": "turbo run build --filter='@visnap/*' --filter='!@visnap/docs' && changeset publish --access public"
   },
