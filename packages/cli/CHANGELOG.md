@@ -1,5 +1,27 @@
 # visnap
 
+## 0.5.1
+
+### Patch Changes
+
+- fix: include CLI package in release build process
+  - Add 'visnap' filter to release script to ensure CLI package is built before publishing
+  - This fixes the issue where published package only contained README and package.json
+  - @visnap/core@0.5.1
+  - @visnap/reporter@0.5.1
+
+## 0.5.0
+
+### Minor Changes
+
+- af1490c: Update docker file
+
+### Patch Changes
+
+- Updated dependencies [af1490c]
+  - @visnap/core@0.5.0
+  - @visnap/reporter@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@visnap/fs-adapter",
-  "version": "0.4.2",
+  "version": "0.5.1",
   "description": "Filesystem storage adapter for visnap visual testing",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "@visnap/eslint-config": "^0.4.1",
+    "@visnap/eslint-config": "^0.5.0",
     "eslint": "^9.38.0",
     "tsup": "^8.0.0",
     "typescript": "5.9.3",

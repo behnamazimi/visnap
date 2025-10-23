@@ -12,7 +12,7 @@
     "lint:ci": "turbo run lint",
     "test": "turbo run test --filter=!@examples/* -- --run",
     "version": "changeset version",
-    "release": "turbo run build --filter='@visnap/*' --filter='!@visnap/docs' && changeset publish --access public"
+    "release": "turbo run build --filter='@visnap/*' --filter='!@visnap/docs' --filter='visnap' && changeset publish --access public"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
@@ -47,5 +47,6 @@
     "monorepo"
   ],
   "license": "MIT",
-  "author": "visnap contributors"
+  "author": "visnap contributors",
+  "version": "0.0.1"
 }

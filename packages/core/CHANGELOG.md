@@ -1,5 +1,24 @@
 # @visnap/core
 
+## 0.5.1
+
+### Patch Changes
+
+- @visnap/protocol@0.5.1
+- @visnap/fs-adapter@0.5.1
+
+## 0.5.0
+
+### Minor Changes
+
+- af1490c: Update docker file
+
+### Patch Changes
+
+- Updated dependencies [af1490c]
+  - @visnap/fs-adapter@0.5.0
+  - @visnap/protocol@0.5.0
+
 ## 0.4.2
 
 ### Patch Changes

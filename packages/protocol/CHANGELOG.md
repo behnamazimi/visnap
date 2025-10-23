@@ -1,5 +1,13 @@
 # @visnap/protocol
 
+## 0.5.1
+
+## 0.5.0
+
+### Minor Changes
+
+- af1490c: Update docker file
+
 ## 0.4.2
 
 ### Patch Changes

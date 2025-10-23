@@ -46,7 +46,7 @@ describe("constants", () => {
 
   describe("docker configuration", () => {
     it("should have correct default docker image", () => {
-      expect(DEFAULT_DOCKER_IMAGE).toBe("visnap:latest");
+      expect(DEFAULT_DOCKER_IMAGE).toBe("visnap/visnap:latest");
     });
   });
 });
