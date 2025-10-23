@@ -43,6 +43,19 @@ export function generateConfigObject(options: ConfigTemplateOptions): string {
     browser: {
       name: "${adapters.browser}",
       options: {
+        // Option 1: Single browser (string)
+        browser: "chromium",
+
+        // Option 2: Multiple browsers as simple array
+        // browser: ["chromium", "firefox", "webkit"],
+
+        // Option 3: Multiple browsers with detailed configuration
+        // browser: [
+        // { name: "chromium", options: { headless: false } },
+        // { name: "firefox", options: { headless: true } },
+        // { name: "webkit", options: { headless: true } }
+        // ],
+
         // injectCSS: "* { animation: none !important; transition: none !important; }"
       },
     },
@@ -65,12 +78,16 @@ export function generateConfigObject(options: ConfigTemplateOptions): string {
   // Global viewport configuration that applies to all test cases unless overridden
   viewport: {
     desktop: { width: ${viewport.desktop?.width || 1920}, height: ${viewport.desktop?.height || 1080} },
-    tablet: { width: ${viewport.tablet?.width || 768}, height: ${viewport.tablet?.height || 1024} },
-    mobile: { width: ${viewport.mobile?.width || 375}, height: ${viewport.mobile?.height || 667} },
+    // tablet: { width: ${viewport.tablet?.width || 768}, height: ${viewport.tablet?.height || 1024} },
+    // mobile: { width: ${viewport.mobile?.width || 375}, height: ${viewport.mobile?.height || 667} },
+  },
+  runtime: {
+    maxConcurrency: 4,
+    quiet: false,
   },
   reporter: {
     html: ${reporter.html},
-    json: ${reporter.json}
+    json: ${reporter.json},
   }
 }`;
 }

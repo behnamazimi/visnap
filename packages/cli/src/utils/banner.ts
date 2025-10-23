@@ -5,7 +5,7 @@
  * Includes fallback handling for environments where figlet may not be available.
  */
 
-import { getPackageInfo, log } from "@visnap/core";
+import { log } from "@visnap/core";
 import figlet from "figlet";
 
 /**
@@ -19,7 +19,9 @@ export async function displayBanner(): Promise<void> {
   }
 
   try {
-    const pkg = await getPackageInfo();
+    const pkg = await import("../../package.json", {
+      assert: { type: "json" },
+    });
 
     // Generate ASCII art
     const banner = figlet.textSync("visnap", {
@@ -30,11 +32,13 @@ export async function displayBanner(): Promise<void> {
 
     // Display banner with version
     log.plain("\n" + banner);
-    log.plain(`Version: ${pkg.version}`);
-    log.plain(`${pkg.description}\n`);
+    log.plain(`Version: ${pkg.default.version}`);
+    log.plain(`${pkg.default.description}\n`);
   } catch {
     // Fallback to simple text if figlet fails
-    const pkg = await getPackageInfo();
-    log.plain(`\n🚀 visnap - ${pkg.description}\n`);
+    const pkg = await import("../../package.json", {
+      assert: { type: "json" },
+    });
+    log.plain(`\n🚀 visnap - ${pkg.default.description}\n`);
   }
 }

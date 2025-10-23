@@ -10,7 +10,7 @@
     "visnap": "./dist/index.cjs"
   },
   "files": [
-    "dist",
+    "dist/**/*",
     "README.md"
   ],
   "scripts": {

@@ -1,5 +1,8 @@
 import { log } from "@visnap/core";
-import inquirer from "inquirer";
+import inquirerImport from "inquirer";
+
+// Handle both ESM and CommonJS inquirer imports
+const inquirer = (inquirerImport as any).default || inquirerImport;
 
 import {
   detectPackageManager,
@@ -24,27 +27,27 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
   const packagesToInstall: string[] = [];
 
   // Always include visnap for local installation
-  if (!isPackageInstalled("visnap")) {
+  if (!(await isPackageInstalled("visnap"))) {
     packagesToInstall.push("visnap");
   }
 
   if (
     selection.browserAdapter === "playwright" &&
-    !isPackageInstalled("@visnap/playwright-adapter")
+    !(await isPackageInstalled("@visnap/playwright-adapter"))
   ) {
     packagesToInstall.push("@visnap/playwright-adapter");
   }
 
   if (
     selection.testCaseAdapter === "storybook" &&
-    !isPackageInstalled("@visnap/storybook-adapter")
+    !(await isPackageInstalled("@visnap/storybook-adapter"))
   ) {
     packagesToInstall.push("@visnap/storybook-adapter");
   }
 
   if (
     selection.testCaseAdapter === "url" &&
-    !isPackageInstalled("@visnap/url-adapter")
+    !(await isPackageInstalled("@visnap/url-adapter"))
   ) {
     packagesToInstall.push("@visnap/url-adapter");
   }

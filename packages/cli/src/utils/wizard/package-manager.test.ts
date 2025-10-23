@@ -154,13 +154,21 @@ describe("package-manager", () => {
         installCommand: "npm install",
       };
 
+      // Mock package.json exists in current directory
+      mockExistsSync.mockImplementation((path: string) => {
+        return path.endsWith("package.json");
+      });
+
       mockExecSync.mockReturnValue(Buffer.from("Success"));
 
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
         "npm install -D @visnap/playwright-adapter @visnap/storybook-adapter",
-        { stdio: "pipe" }
+        {
+          stdio: "pipe",
+          cwd: process.cwd(),
+        }
       );
     });
 
@@ -171,13 +179,21 @@ describe("package-manager", () => {
         installCommand: "yarn add",
       };
 
+      // Mock package.json exists in current directory
+      mockExistsSync.mockImplementation((path: string) => {
+        return path.endsWith("package.json");
+      });
+
       mockExecSync.mockReturnValue(Buffer.from("Success"));
 
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
         "yarn add -D @visnap/playwright-adapter",
-        { stdio: "pipe" }
+        {
+          stdio: "pipe",
+          cwd: process.cwd(),
+        }
       );
     });
 
@@ -188,13 +204,21 @@ describe("package-manager", () => {
         installCommand: "pnpm add",
       };
 
+      // Mock package.json exists in current directory
+      mockExistsSync.mockImplementation((path: string) => {
+        return path.endsWith("package.json");
+      });
+
       mockExecSync.mockReturnValue(Buffer.from("Success"));
 
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
         "pnpm add -D @visnap/playwright-adapter",
-        { stdio: "pipe" }
+        {
+          stdio: "pipe",
+          cwd: process.cwd(),
+        }
       );
     });
 
@@ -222,12 +246,18 @@ describe("package-manager", () => {
         installCommand: "npm install",
       };
 
+      // Mock package.json exists in current directory
+      mockExistsSync.mockImplementation((path: string) => {
+        return path.endsWith("package.json");
+      });
+
       mockExecSync.mockReturnValue(Buffer.from("Success"));
 
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith("npm install -D ", {
         stdio: "pipe",
+        cwd: process.cwd(),
       });
     });
 
@@ -238,13 +268,50 @@ describe("package-manager", () => {
         installCommand: "npm install",
       };
 
+      // Mock package.json exists in current directory
+      mockExistsSync.mockImplementation((path: string) => {
+        return path.endsWith("package.json");
+      });
+
       mockExecSync.mockReturnValue(Buffer.from("Success"));
 
       await installPackages(packages, packageManager);
 
       expect(mockExecSync).toHaveBeenCalledWith(
         "npm install -D @visnap/playwright-adapter",
-        { stdio: "pipe" }
+        {
+          stdio: "pipe",
+          cwd: process.cwd(),
+        }
+      );
+    });
+
+    it("should fall back to workspace root when current directory has no package.json", async () => {
+      const packages = ["@visnap/playwright-adapter"];
+      const packageManager = {
+        name: "npm" as const,
+        installCommand: "npm install",
+      };
+
+      // Mock that current directory doesn't have package.json but workspace root does
+      mockExistsSync.mockImplementation((path: string) => {
+        if (path.endsWith("package.json")) {
+          // Only return true for workspace root package.json
+          return path.includes("/workspace/") || path.includes("\\workspace\\");
+        }
+        return false;
+      });
+
+      mockExecSync.mockReturnValue(Buffer.from("Success"));
+
+      await installPackages(packages, packageManager);
+
+      expect(mockExecSync).toHaveBeenCalledWith(
+        "npm install -D @visnap/playwright-adapter",
+        {
+          stdio: "pipe",
+          cwd: process.cwd(), // Should still use current directory as fallback
+        }
       );
     });
   });
