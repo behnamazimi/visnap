@@ -133,7 +133,9 @@ const initHandler = async (_options: void): Promise<void> => {
     const scriptResult = addVisualTestScriptsToProject();
 
     if (scriptResult.success && scriptResult.added.length > 0) {
-      log.success(`Added ${scriptResult.added.length} visual testing script(s) to package.json`);
+      log.success(
+        `Added ${scriptResult.added.length} visual testing script(s) to package.json`
+      );
     }
 
     log.plain("\n🎉 You can now customize the configuration file as needed.");
