@@ -1,6 +1,6 @@
 {
-  "name": "@visnap/cli",
-  "version": "0.4.0",
+  "name": "visnap",
+  "version": "0.6.0",
   "description": "Visual Testing Tool - CLI for visual regression testing",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -24,8 +24,8 @@
   },
   "dependencies": {
     "@types/inquirer": "^9.0.9",
-    "@visnap/core": "^0.4.0",
-    "@visnap/reporter": "^0.4.0",
+    "@visnap/core": "*",
+    "@visnap/reporter": "*",
     "chalk": "^5.6.2",
     "commander": "^14.0.0",
     "figlet": "^1.7.0",
@@ -41,7 +41,7 @@
     "default-browser": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.9.1",
     "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",

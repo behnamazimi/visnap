@@ -1,6 +1,7 @@
 {
   "title": "Concepts",
   "defaultOpen": true,
+  "icon": "Lightbulb",
   "pages": [
     "why-visnap",
     "how-it-works",

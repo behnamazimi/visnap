@@ -4,15 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --filter=!example-storybook-v8",
+    "dev": "turbo run dev --filter=!storybook-example --filter=!url-example",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\" --ignore-path .prettierignore",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\" --ignore-path .prettierignore",
     "check-types": "turbo run check-types",
     "lint": "turbo run lint -- --fix",
     "lint:ci": "turbo run lint",
-    "test": "turbo run test -- --run",
+    "test": "turbo run test --filter=!@examples/* -- --run",
     "version": "changeset version",
-    "release": "turbo run build --filter='@visnap/*' --filter='!@visnap/docs' && changeset publish --access public"
+    "release": "turbo run build --filter='@visnap/*' --filter='!@visnap/docs' --filter='visnap' && changeset publish --access public"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
@@ -26,7 +26,8 @@
   "packageManager": "npm@10.9.2",
   "workspaces": [
     "packages/*",
-    "apps/*"
+    "apps/*",
+    "examples/*"
   ],
   "repository": {
     "type": "git",
@@ -46,5 +47,6 @@
     "monorepo"
   ],
   "license": "MIT",
-  "author": "visnap contributors"
+  "author": "visnap contributors",
+  "version": "0.0.1"
 }

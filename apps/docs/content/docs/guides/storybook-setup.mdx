@@ -8,17 +8,17 @@ Storybook integration makes it easy to test your component library with ViSnap. 
 ## Prerequisites
 
 - Storybook v8 or later
-- A built Storybook (run `npm run build-storybook`)
+- A built Storybook
 
 ## Installation
 
 1. **Install ViSnap:**
-```bash
+```npm
 npm install -D visnap
 ```
 
 2. **Create your config:**
-```bash
+```npm
 npx visnap init
 ```
 
@@ -54,22 +54,22 @@ export default config;
 ```
 
 4. **Build Storybook:**
-```bash
+```npm
 npm run build-storybook
 ```
 
 5. **Take your first baseline screenshots:**
-```bash
+```npm
 npx visnap update
 ```
 
 6. **Test for changes:**
-```bash
+```npm
 npx visnap test
 ```
 
 7. **Open report:**
-```bash
+```npm
 npx visnap open
 ```
 
@@ -148,7 +148,7 @@ export const MyStory: Story = {
 ## Troubleshooting
 
 **Stories not found?** Make sure your Storybook build is up to date:
-```bash
+```npm
 npm run build-storybook
 ```
 

@@ -9,13 +9,13 @@ ViSnap provides a command-line interface for running visual tests. All commands 
 
 Install globally:
 
-```bash
+```npm
 npm install -g visnap
 ```
 
 Or use with npx (no installation needed):
 
-```bash
+```npm
 npx visnap [command]
 ```
 
@@ -34,7 +34,7 @@ All commands support these options:
 
 Initialize a new ViSnap project with a configuration file:
 
-```bash
+```npm
 npx visnap init
 ```
 
@@ -44,7 +44,7 @@ Creates a `visnap.config` file using an interactive CLI wizard.
 
 Capture baseline screenshots for all test cases:
 
-```bash
+```npm
 npx visnap update [options]
 ```
 
@@ -58,7 +58,7 @@ npx visnap update [options]
 
 Capture current screenshots and compare them with baseline screenshots:
 
-```bash
+```npm
 npx visnap test [options]
 ```
 
@@ -74,7 +74,7 @@ npx visnap test [options]
 
 Validate your configuration file and check dependencies:
 
-```bash
+```npm
 npx visnap validate
 ```
 
@@ -82,7 +82,7 @@ npx visnap validate
 
 List all discovered test cases without running tests:
 
-```bash
+```npm
 npx visnap list
 ```
 
@@ -90,7 +90,7 @@ npx visnap list
 
 Open HTML report in browser or screenshot directory:
 
-```bash
+```npm
 npx visnap open
 ```
 
@@ -103,7 +103,7 @@ ViSnap looks for configuration in this order:
 
 Override configuration with environment variables:
 
-```bash
+```npm
 VISNAP_SCREENSHOT_DIR=./screenshots
 VISNAP_THRESHOLD=0.05
 visnap test
@@ -115,7 +115,7 @@ visnap test
 
 Install ViSnap globally:
 
-```bash
+```npm
 npm install -g visnap
 ```
 
@@ -123,7 +123,7 @@ npm install -g visnap
 
 Install Playwright browsers:
 
-```bash
+```npm
 npx playwright install
 ```
 
@@ -131,7 +131,7 @@ npx playwright install
 
 Ensure Docker is running:
 
-```bash
+```npm
 docker --version
 ```
 

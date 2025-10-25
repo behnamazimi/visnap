@@ -1,6 +1,6 @@
 {
   "name": "@visnap/core",
-  "version": "0.4.0",
+  "version": "0.6.0",
   "description": "Visual Testing Tool - Core library for visual regression testing",
   "type": "module",
   "main": "./dist/core.cjs",
@@ -20,11 +20,12 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@visnap/fs-adapter": "^0.4.0",
-    "@visnap/protocol": "^0.4.0",
+    "@visnap/fs-adapter": "*",
+    "@visnap/protocol": "*",
     "arktype": "^2.0.0",
     "bundle-require": "^4.0.2",
     "chalk": "^5.6.2",
+    "esbuild": "^0.25.0",
     "lodash": "^4.17.21",
     "minimatch": "^10.0.1",
     "odiff-bin": "^4.0.0",
@@ -34,7 +35,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.20",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.9.1",
     "@types/pixelmatch": "^5.2.4",
     "@types/pngjs": "^6.0.4",
     "@types/serve-handler": "^6.1.4",

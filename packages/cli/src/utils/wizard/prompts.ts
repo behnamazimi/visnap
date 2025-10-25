@@ -2,9 +2,10 @@
  * @fileoverview Interactive prompt definitions for configuration wizard
  */
 
-import { existsSync } from "fs";
+import inquirerImport from "inquirer";
 
-import inquirer from "inquirer";
+// Handle both ESM and CommonJS inquirer imports
+const inquirer = (inquirerImport as any).default || inquirerImport;
 
 export interface AdapterSelection {
   configType: "ts" | "js";
@@ -96,8 +97,8 @@ export async function runConfigWizardPrompts(): Promise<AdapterSelection> {
           { name: "WebKit", value: "webkit" },
         ],
         default: ["chromium"],
-        validate: input =>
-          input.length > 0 || "Please select at least one browser",
+        validate: (input: string[]) =>
+          input.length > 0 ? true : "Please select at least one browser",
       },
     ]);
     selection.browsers = browserAnswers.browsers as string[];
@@ -113,9 +114,7 @@ export async function runConfigWizardPrompts(): Promise<AdapterSelection> {
         default: "./storybook-static",
         validate: (input: string) => {
           if (!input.trim()) return "Source is required";
-          if (input.startsWith("http")) return true; // URL
-          if (existsSync(input)) return true; // Existing directory
-          return "Directory does not exist. You can create it later.";
+          return true;
         },
       },
       {

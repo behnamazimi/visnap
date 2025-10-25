@@ -9,10 +9,12 @@ ViSnap works great in CI/CD pipelines, providing consistent visual testing acros
 
 ViSnap supports Docker for consistent testing environments. Use the `--docker` flag to run tests in a containerized environment:
 
-```bash
+```npm
 # Run tests inside Docker
 npx visnap test --docker
+```
 
+```npm
 # Update baselines inside Docker
 npx visnap update --docker
 ```
@@ -148,55 +150,6 @@ visual-tests:
     - main
     - develop
     - merge_requests
-```
-
-## Jenkins
-
-Create a Jenkinsfile:
-
-```groovy
-pipeline {
-    agent any
-    
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm ci'
-            }
-        }
-        
-        stage('Build Storybook') {
-            steps {
-                sh 'npm run build-storybook'
-            }
-        }
-        
-        stage('Visual Tests') {
-            steps {
-                sh 'npx visnap test --docker'
-            }
-            post {
-                always {
-                    archiveArtifacts artifacts: 'visnap/**', fingerprint: true
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'visnap',
-                        reportFiles: 'report.html',
-                        reportName: 'Visual Test Report'
-                    ])
-                }
-            }
-        }
-    }
-}
 ```
 
 ## Best Practices

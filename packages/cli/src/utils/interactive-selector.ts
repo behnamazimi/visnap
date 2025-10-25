@@ -61,7 +61,7 @@ export async function selectTestCasesInteractively(
 
     // Use checkbox-plus-plus with built-in search functionality
     const selectedIds = await checkboxPlus({
-      message: `${message} (type to search, use arrow keys, space to select, enter to confirm):`,
+      message: `${message}:`,
       pageSize: 10,
       searchable: true,
       highlight: false,

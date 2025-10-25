@@ -6,7 +6,10 @@
  */
 
 import { getErrorMessage, log } from "@visnap/core";
-import chalk from "chalk";
+import chalkImport from "chalk";
+
+// Handle both ESM and CommonJS chalk imports
+const chalk = (chalkImport as any).default || chalkImport;
 
 import { exit } from "./exit";
 

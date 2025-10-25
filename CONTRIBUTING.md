@@ -44,11 +44,19 @@ When making changes that should be released, you need to create a changeset:
    ```
 
 2. **Follow the prompts** to:
-   - Select which packages are affected
+   - Select which packages are affected (usually all packages)
    - Choose the type of change (patch, minor, major)
-   - Write a description of the changes
+   - Write a clear description of the changes
 
 3. **Include the changeset file** in your PR
+
+**When to create a changeset:**
+- ✅ Bug fixes, new features, breaking changes
+- ❌ Internal refactoring, documentation updates, tests
+
+**Write clear descriptions:**
+- ✅ "Fix CLI command failing on Windows"
+- ❌ "Fix bugs"
 
 ### Pull Request Process
 
@@ -74,7 +82,7 @@ This is a monorepo with the following packages:
 - `@visnap/playwright-adapter` - Playwright browser integration
 - `@visnap/storybook-adapter` - Storybook integration
 - `@visnap/core` - Core functionality
-- `@visnap/cli` - Command-line interface
+- `visnap` - Command-line interface
 
 All packages share the same version number (fixed versioning).
 

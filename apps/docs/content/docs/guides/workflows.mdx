@@ -10,14 +10,14 @@ ViSnap integrates into your development process in several ways, from initial se
 ### Setup Workflow
 
 1. **Initialize ViSnap:**
-   ```bash
+   ```npm
    npx visnap init
    ```
 
 2. **Configure your adapters** (Storybook or URLs) and browser settings
 
 3. **Create baseline screenshots:**
-   ```bash
+   ```npm
    npx visnap update
    ```
 
@@ -28,17 +28,17 @@ This creates your "source of truth" screenshots that represent the correct appea
 1. **Make UI changes** to your components or pages
 
 2. **Run visual tests:**
-   ```bash
+   ```npm
    npx visnap test
    ```
 
 3. **Review results** in the generated HTML report:
-   ```bash
+   ```npm
    npx visnap open
    ```
 
 4. **Update baselines** for intentional changes:
-   ```bash
+   ```npm
    npx visnap update
    ```
 
@@ -51,7 +51,7 @@ This creates your "source of truth" screenshots that represent the correct appea
 Focus on what matters by filtering test cases:
 
 **Command-line filtering:**
-```bash
+```npm
 npx visnap test --include "Button/*" --exclude "*-skip*"
 ```
 
@@ -70,10 +70,12 @@ options: {
 
 Use Docker for consistent testing across different environments:
 
-```bash
+```npm
 # Run tests in Docker
 npx visnap test --docker
+```
 
+```npm
 # Update baselines in Docker
 npx visnap update --docker
 ```

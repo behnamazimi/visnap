@@ -27,4 +27,4 @@ export const CONFIG_FILE_EXTENSIONS = {
   javascript: ".js",
 } as const;
 
-export const DEFAULT_DOCKER_IMAGE = "visnap:latest";
+export const DEFAULT_DOCKER_IMAGE = "visnap/visnap:latest";

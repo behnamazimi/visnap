@@ -6,7 +6,7 @@
  * handling and graceful shutdown for the CLI application.
  */
 
-import { getPackageInfo, setQuietMode } from "@visnap/core";
+import { setQuietMode } from "@visnap/core";
 import type { CliOptions } from "@visnap/protocol";
 import { Command } from "commander";
 
@@ -29,15 +29,17 @@ const main = async (): Promise<void> => {
     const program = new Command();
 
     // Get package info for version
-    const pkg = await getPackageInfo();
+    const pkg = await import("../package.json", {
+      assert: { type: "json" },
+    });
 
     // Configure the main program with global options
     program
       .name("visnap")
       .description("Visual Testing Tool - CLI for visual regression testing")
-      .version(pkg.version, "-v, --version", "Show version information")
-      .option("--config <path>", "Path to configuration file")
-      .option("--quiet", "Suppress output except errors")
+      .version(pkg.default.version, "-v, --version", "Show version information")
+      .option("-c, --config <path>", "Path to configuration file")
+      .option("-q, --quiet", "Suppress output except errors")
       .hook("preAction", (thisCommand, _actionCommand) => {
         // Apply global options
         const globalOptions = thisCommand.opts() as CliOptions;

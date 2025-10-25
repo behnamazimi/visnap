@@ -1,5 +1,23 @@
 # @visnap/eslint-config
 
+## 0.6.0
+
+### Minor Changes
+
+- 5bdc5b5: Fix package-bundling and a few CLI bugs
+
+## 0.5.0
+
+### Minor Changes
+
+- af1490c: Update docker file
+
+## 0.4.1
+
+### Patch Changes
+
+- 8644f47: Fix npx visnap init
+
 ## 0.4.0
 
 ### Minor Changes

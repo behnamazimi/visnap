@@ -2,7 +2,43 @@
  * @fileoverview Browser adapter loading utilities
  */
 
+import { createRequire } from "module";
+
 import type { BrowserAdapter, VisualTestingToolConfig } from "@visnap/protocol";
+
+import log from "@/utils/logger";
+
+/**
+ * Resolves and imports adapter module with environment-agnostic strategy.
+ * Always prioritizes local project installation over global installations.
+ * @param adapterName - Name of the adapter to resolve
+ * @returns Promise resolving to the imported module
+ */
+async function resolveAndImportAdapter(adapterName: string): Promise<any> {
+  // Strategy 1: Try to resolve from project's node_modules (local installation)
+  // This should work in all environments when packages are properly installed locally
+  try {
+    const projectRequire = createRequire(process.cwd() + "/package.json");
+    const modulePath = projectRequire.resolve(adapterName);
+    return await import(modulePath);
+  } catch {
+    // Continue to next strategy
+  }
+
+  // Strategy 2: Try to resolve from current working directory
+  try {
+    const projectRequire = createRequire(process.cwd() + "/package.json");
+    const modulePath = projectRequire.resolve(adapterName, {
+      paths: [process.cwd()],
+    });
+    return await import(modulePath);
+  } catch {
+    // Continue to next strategy
+  }
+
+  // Strategy 3: Fall back to direct import (let Node.js handle resolution)
+  return await import(adapterName);
+}
 
 /**
  * Formats error messages for adapter loading failures.
@@ -22,7 +58,7 @@ function formatAdapterError(
     errorMessage.includes("Cannot resolve module") ||
     errorMessage.includes("Module not found")
   ) {
-    return `${baseMessage}. Please ensure the adapter is installed: npm install ${moduleName}`;
+    return `${baseMessage}. Please ensure the adapter is installed locally in your project: npm install -D ${moduleName}. You can also run 'npx visnap init' to set up all required packages automatically.`;
   }
 
   return `${baseMessage}: ${errorMessage}. Please verify the adapter is properly installed and exports a createAdapter function.`;
@@ -47,7 +83,10 @@ export async function loadBrowserAdapter(
     | undefined;
 
   try {
-    const mod = await import(moduleName);
+    // Use improved adapter resolution and import strategy
+    log.debug(`Loading browser adapter '${moduleName}'...`);
+
+    const mod = await resolveAndImportAdapter(moduleName);
 
     // Check if the module exports createAdapter function
     if (typeof mod?.createAdapter !== "function") {

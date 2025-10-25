@@ -9,7 +9,7 @@
       "@visnap/storybook-adapter",
       "@visnap/url-adapter",
       "@visnap/core",
-      "@visnap/cli",
+      "visnap",
       "@visnap/reporter",
       "@visnap/fs-adapter"
     ]
@@ -19,6 +19,7 @@
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@visnap/docs"
+    "@visnap/docs",
+    "@examples/*"
   ]
 }

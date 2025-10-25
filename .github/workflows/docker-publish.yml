@@ -23,7 +23,7 @@ jobs:
       - name: Get published version from npm
         id: get-version
         run: |
-          VERSION=$(npm view @visnap/cli version)
+          VERSION=$(npm view visnap version)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Published version: $VERSION"
 

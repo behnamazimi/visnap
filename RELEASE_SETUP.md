@@ -52,10 +52,70 @@ The release process will automatically work once the secret is added and permiss
 
 ## How It Works
 
-1. **Developer creates changeset** → Commits and pushes to main
-2. **Release workflow triggers** → Creates "Version Packages" PR automatically
-3. **Maintainer reviews** → Merges the version PR
-4. **Publish workflow triggers** → Builds and publishes to npm
+### The Accumulation Process
+
+Changesets work by accumulating multiple changes into a single release:
+
+1. **Changesets accumulate** in the `.changeset/` folder as developers create them
+2. **GitHub Action creates/updates** ONE "Version Packages" PR that includes ALL pending changesets
+3. **Multiple changesets → ONE version bump → ONE release** when the PR is merged
+
+### Detailed Workflow
+
+```
+Developer A: Creates changeset for bug fix (patch)
+    ↓
+Developer B: Creates changeset for new feature (minor)  
+    ↓
+Developer C: Creates changeset for another fix (patch)
+    ↓
+GitHub Action: Updates "Version Packages" PR
+    ↓
+PR shows: 0.5.1 → 0.6.0 (minor bump, because minor > patch)
+    ↓
+Maintainer: Reviews and merges the PR
+    ↓
+Release: v0.6.0 published with all 3 changes in changelog
+```
+
+### Version Bump Behavior
+
+**Key Rule:** The version bump uses the **highest bump type** among all pending changesets.
+
+Examples:
+- 3 patch changesets → 0.5.1 → 0.5.2 (patch bump)
+- 2 patch + 1 minor changeset → 0.5.1 → 0.6.0 (minor bump)
+- 1 patch + 1 minor + 1 major → 0.5.1 → 1.0.0 (major bump)
+
+**Fixed Versioning:** All packages always get the same version number due to the `fixed` configuration in `.changeset/config.json`.
+
+### Release Strategies
+
+You can choose how to handle the "Version Packages" PR:
+
+**Frequent Releases (Immediate):**
+- Merge the PR as soon as it's created
+- Users get fixes faster
+- More npm noise, version numbers increment quickly
+
+**Milestone Releases (Batched):**
+- Hold the PR until you have multiple changes ready
+- More meaningful version numbers and release notes
+- Users wait longer for fixes
+
+**Hybrid Approach:**
+- Patch releases → frequent (bug fixes)
+- Minor releases → batched (new features)  
+- Major releases → planned carefully (breaking changes)
+
+### Quick Reference
+
+| Action | Result |
+|--------|--------|
+| Create changeset | File added to `.changeset/` folder |
+| Push to main | "Version Packages" PR created/updated |
+| Multiple changesets pushed | Same PR updated (accumulates changes) |
+| Merge "Version Packages" PR | ONE release, ONE version bump for all packages |
 
 ## Manual Release (Emergency)
 
