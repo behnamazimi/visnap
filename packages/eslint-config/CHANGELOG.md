@@ -1,5 +1,11 @@
 # @visnap/eslint-config
 
+## 0.6.0
+
+### Minor Changes
+
+- 5bdc5b5: Fix package-bundling and a few CLI bugs
+
 ## 0.5.0
 
 ### Minor Changes
