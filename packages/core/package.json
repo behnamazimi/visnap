@@ -39,7 +39,7 @@
     "@types/pixelmatch": "^5.2.4",
     "@types/pngjs": "^6.0.4",
     "@types/serve-handler": "^6.1.4",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.3",
     "@vitest/ui": "^3.2.4",
     "@visnap/eslint-config": "*",
     "msw": "^2.6.6",
