@@ -14,7 +14,7 @@ This monorepo contains several packages that work together to provide visual reg
 ### Core Packages
 - **`@visnap/protocol`** - Shared types and interfaces used across all packages
 - **`@visnap/core`** - Main orchestration engine that manages test execution and coordinates between adapters
-- **`visnap`** - Command-line interface for end users
+- **`@visnap/cli`** - Command-line interface for end users
 - **`@visnap/reporter`** - Generates HTML and JSON reports from test results
 
 ### Adapters
@@ -43,7 +43,7 @@ npx visnap update
 npx visnap test
 ```
 
-The init command installs visnap and required adapters locally in your project.
+The init command installs @visnap/cli and required adapters locally in your project.
 
 ## Development
 
