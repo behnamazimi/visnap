@@ -2,8 +2,6 @@
  * @fileoverview Interactive prompt definitions for configuration wizard
  */
 
-import { existsSync } from "fs";
-
 import inquirerImport from "inquirer";
 
 // Handle both ESM and CommonJS inquirer imports
@@ -116,9 +114,7 @@ export async function runConfigWizardPrompts(): Promise<AdapterSelection> {
         default: "./storybook-static",
         validate: (input: string) => {
           if (!input.trim()) return "Source is required";
-          if (input.startsWith("http")) return true; // URL
-          if (existsSync(input)) return true; // Existing directory
-          return "Directory does not exist. You can create it later.";
+          return true;
         },
       },
       {
