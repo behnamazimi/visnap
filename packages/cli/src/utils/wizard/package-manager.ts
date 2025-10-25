@@ -75,7 +75,7 @@ export async function isPackageInstalled(
 /**
  * Find the workspace root by looking for package.json with workspaces field
  */
-function findWorkspaceRoot(currentDir: string): string | null {
+export function findWorkspaceRoot(currentDir: string): string | null {
   let dir = currentDir;
 
   while (dir !== "/" && dir !== ".") {

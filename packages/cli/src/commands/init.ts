@@ -21,6 +21,7 @@ import {
   generateConfigFromSelection,
 } from "../utils/config-wizard";
 import { ErrorHandler } from "../utils/error-handler";
+import { addVisualTestScriptsToProject } from "../utils/package-script-manager";
 
 /**
  * Options for the init command.
@@ -127,11 +128,23 @@ const initHandler = async (_options: void): Promise<void> => {
     if (userOptions.wizard) {
       log.plain("   • Interactive wizard configuration applied");
     }
+
+    // Add visual testing scripts to package.json
+    const scriptResult = addVisualTestScriptsToProject();
+
+    if (scriptResult.success && scriptResult.added.length > 0) {
+      log.success(`Added ${scriptResult.added.length} visual testing script(s) to package.json`);
+    }
+
     log.plain("\n🎉 You can now customize the configuration file as needed.");
     log.plain("\nNext steps:");
     log.plain("  1. Run 'visnap validate' to check your configuration");
     log.plain("  2. Run 'visnap update' to create baseline screenshots");
     log.plain("  3. Run 'visnap test' to run visual tests");
+    log.plain("\n💡 You can also use npm scripts:");
+    log.plain("   • npm run visnap:test - Run visual tests");
+    log.plain("   • npm run visnap:update - Update baseline screenshots");
+    log.plain("   • npm run visnap:open - Open test results");
   } catch (error) {
     ErrorHandler.handle(error, {
       command: "init",
