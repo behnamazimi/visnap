@@ -2,9 +2,7 @@ name: Lint
 
 on:
   pull_request:
-    branches: [main, changeset-release/**]
-  push:
-    branches: [main, changeset-release/**]
+    types: [opened, synchronize, reopened]
 
 jobs:
   lint:
