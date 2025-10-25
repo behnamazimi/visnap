@@ -14,31 +14,31 @@ vi.mock("@visnap/core", () => ({
   DEFAULT_DOCKER_IMAGE: "visnap/test:latest",
 }));
 
+const mockJsonReporterGenerate = vi.fn();
+const mockHtmlReporterGenerate = vi.fn();
+
 vi.mock("@visnap/reporter", () => ({
-  JsonReporter: vi.fn(),
-  HtmlReporter: vi.fn(),
+  JsonReporter: class {
+    generate = mockJsonReporterGenerate;
+  },
+  HtmlReporter: class {
+    generate = mockHtmlReporterGenerate;
+  },
 }));
 
 describe("TestService", () => {
   let testService: TestService;
   let mockRunVisualTestsCli: any;
   let mockRunInDocker: any;
-  let mockJsonReporter: any;
-  let mockHtmlReporter: any;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     testService = new TestService();
 
     // Get the mocked functions
     const core = await import("@visnap/core");
-    const reporter = await import("@visnap/reporter");
     mockRunVisualTestsCli = vi.mocked(core.runVisualTestsCli);
     mockRunInDocker = vi.mocked(core.runInDocker);
-    mockJsonReporter = { generate: vi.fn() };
-    mockHtmlReporter = { generate: vi.fn() };
-    vi.mocked(reporter.JsonReporter).mockImplementation(() => mockJsonReporter);
-    vi.mocked(reporter.HtmlReporter).mockImplementation(() => mockHtmlReporter);
   });
 
   describe("executeTests", () => {
@@ -114,14 +114,14 @@ describe("TestService", () => {
       );
 
       // Should generate JSON report
-      expect(mockJsonReporter.generate).toHaveBeenCalledWith(testResult, {
+      expect(mockJsonReporterGenerate).toHaveBeenCalledWith(testResult, {
         outputPath: "./custom-visnap/report.json",
         screenshotDir: "./custom-visnap",
         pretty: true,
       });
 
       // Should generate HTML report
-      expect(mockHtmlReporter.generate).toHaveBeenCalledWith(testResult, {
+      expect(mockHtmlReporterGenerate).toHaveBeenCalledWith(testResult, {
         outputPath: "./custom-visnap/report.html",
         screenshotDir: "./custom-visnap",
         title: "VISNAP Test Report",
@@ -141,8 +141,8 @@ describe("TestService", () => {
 
       await testService.executeTests(options);
 
-      expect(mockJsonReporter.generate).not.toHaveBeenCalled();
-      expect(mockHtmlReporter.generate).not.toHaveBeenCalled();
+      expect(mockJsonReporterGenerate).not.toHaveBeenCalled();
+      expect(mockHtmlReporterGenerate).not.toHaveBeenCalled();
     });
 
     it("should use custom report paths when provided", async () => {
@@ -156,14 +156,14 @@ describe("TestService", () => {
 
       await testService.executeTests(options);
 
-      expect(mockJsonReporter.generate).toHaveBeenCalledWith(
+      expect(mockJsonReporterGenerate).toHaveBeenCalledWith(
         testResult,
         expect.objectContaining({
           outputPath: "/custom/json-report.json",
         })
       );
 
-      expect(mockHtmlReporter.generate).toHaveBeenCalledWith(
+      expect(mockHtmlReporterGenerate).toHaveBeenCalledWith(
         testResult,
         expect.objectContaining({
           outputPath: "/custom/html-report.html",
@@ -187,14 +187,14 @@ describe("TestService", () => {
 
       await testService.executeTests(options);
 
-      expect(mockJsonReporter.generate).toHaveBeenCalledWith(
+      expect(mockJsonReporterGenerate).toHaveBeenCalledWith(
         testResult,
         expect.objectContaining({
           screenshotDir: "./visnap",
         })
       );
 
-      expect(mockHtmlReporter.generate).toHaveBeenCalledWith(
+      expect(mockHtmlReporterGenerate).toHaveBeenCalledWith(
         testResult,
         expect.objectContaining({
           screenshotDir: "./visnap",

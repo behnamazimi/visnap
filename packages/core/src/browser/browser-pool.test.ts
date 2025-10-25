@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { BrowserAdapter } from "@visnap/protocol";
+import { describe, it, expect, beforeEach } from "vitest";
 
 import { BrowserAdapterPool } from "./browser-pool";
 
@@ -6,27 +7,38 @@ import { createMockBrowserAdapter } from "@/__mocks__/mock-adapters";
 
 describe("browser-pool", () => {
   let pool: BrowserAdapterPool;
-  let mockLoadBrowserAdapter: ReturnType<typeof vi.fn>;
+  let loadAdapterCalls: number;
+  let adapterQueue: Array<BrowserAdapter | Error>;
+  const loadAdapterImpl = async (): Promise<BrowserAdapter> => {
+    const item = adapterQueue.length ? adapterQueue.shift()! : undefined;
+    if (item instanceof Error) throw item;
+    if (!item) throw new Error("No adapter queued");
+    return item as BrowserAdapter;
+  };
 
   beforeEach(() => {
     pool = new BrowserAdapterPool();
-    mockLoadBrowserAdapter = vi.fn();
+    adapterQueue = [];
+    loadAdapterCalls = 0;
   });
 
   describe("BrowserAdapterPool", () => {
     describe("getAdapter", () => {
       it("should create and return adapter for new browser", async () => {
         const mockAdapter = createMockBrowserAdapter();
-        mockLoadBrowserAdapter.mockResolvedValue(mockAdapter);
+        adapterQueue.push(mockAdapter);
 
         const result = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(result).toBe(mockAdapter);
-        expect(mockLoadBrowserAdapter).toHaveBeenCalledTimes(1);
+        expect(loadAdapterCalls).toBe(1);
         expect(mockAdapter.init).toHaveBeenCalledWith({
           browser: "chromium",
         });
@@ -35,12 +47,15 @@ describe("browser-pool", () => {
       it("should create adapter with browser options", async () => {
         const mockAdapter = createMockBrowserAdapter();
         const browserOptions = { headless: true, args: ["--no-sandbox"] };
-        mockLoadBrowserAdapter.mockResolvedValue(mockAdapter);
+        adapterQueue.push(mockAdapter);
 
         const result = await pool.getAdapter(
           "chromium",
           browserOptions,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(result).toBe(mockAdapter);
@@ -52,57 +67,70 @@ describe("browser-pool", () => {
 
       it("should return existing adapter for same browser", async () => {
         const mockAdapter = createMockBrowserAdapter();
-        mockLoadBrowserAdapter.mockResolvedValue(mockAdapter);
+        adapterQueue.push(mockAdapter, mockAdapter);
 
         // First call
         const result1 = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
         // Second call
         const result2 = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(result1).toBe(result2);
-        expect(mockLoadBrowserAdapter).toHaveBeenCalledTimes(1);
+        expect(loadAdapterCalls).toBe(1);
         expect(mockAdapter.init).toHaveBeenCalledTimes(1);
       });
 
       it("should create separate adapters for different browsers", async () => {
         const mockAdapter1 = createMockBrowserAdapter();
         const mockAdapter2 = createMockBrowserAdapter();
-        mockLoadBrowserAdapter
-          .mockResolvedValueOnce(mockAdapter1)
-          .mockResolvedValueOnce(mockAdapter2);
+        adapterQueue.push(mockAdapter1, mockAdapter2);
 
         const result1 = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
         const result2 = await pool.getAdapter(
           "firefox",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(result1).toBe(mockAdapter1);
         expect(result2).toBe(mockAdapter2);
-        expect(mockLoadBrowserAdapter).toHaveBeenCalledTimes(2);
+        expect(loadAdapterCalls).toBe(2);
         expect(mockAdapter1.init).toHaveBeenCalledWith({ browser: "chromium" });
         expect(mockAdapter2.init).toHaveBeenCalledWith({ browser: "firefox" });
       });
 
       it("should handle adapter creation errors", async () => {
         const error = new Error("Failed to create adapter");
-        mockLoadBrowserAdapter.mockRejectedValue(error);
+        adapterQueue.push(error);
 
         await expect(
-          pool.getAdapter("chromium", undefined, mockLoadBrowserAdapter)
+          pool.getAdapter("chromium", undefined, async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          })
         ).rejects.toThrow("Failed to create adapter");
       });
 
@@ -110,10 +138,13 @@ describe("browser-pool", () => {
         const mockAdapter = createMockBrowserAdapter();
         const error = new Error("Failed to initialize adapter");
         (mockAdapter.init as any).mockRejectedValue(error);
-        mockLoadBrowserAdapter.mockResolvedValue(mockAdapter);
+        adapterQueue.push(mockAdapter);
 
         await expect(
-          pool.getAdapter("chromium", undefined, mockLoadBrowserAdapter)
+          pool.getAdapter("chromium", undefined, async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          })
         ).rejects.toThrow("Failed to initialize adapter");
       });
 
@@ -121,19 +152,23 @@ describe("browser-pool", () => {
         const mockAdapter1 = createMockBrowserAdapter();
         const mockAdapter2 = createMockBrowserAdapter();
         const browserOptions = { headless: true };
-        mockLoadBrowserAdapter
-          .mockResolvedValueOnce(mockAdapter1)
-          .mockResolvedValueOnce(mockAdapter2);
+        adapterQueue.push(mockAdapter1, mockAdapter2);
 
         const result1 = await pool.getAdapter(
           "chromium",
           browserOptions,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
         const result2 = await pool.getAdapter(
           "firefox",
           browserOptions,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(result1).toBe(mockAdapter1);
@@ -153,13 +188,17 @@ describe("browser-pool", () => {
       it("should dispose all adapters", async () => {
         const mockAdapter1 = createMockBrowserAdapter();
         const mockAdapter2 = createMockBrowserAdapter();
-        mockLoadBrowserAdapter
-          .mockResolvedValueOnce(mockAdapter1)
-          .mockResolvedValueOnce(mockAdapter2);
 
         // Create adapters
-        await pool.getAdapter("chromium", undefined, mockLoadBrowserAdapter);
-        await pool.getAdapter("firefox", undefined, mockLoadBrowserAdapter);
+        adapterQueue.push(mockAdapter1, mockAdapter2);
+        await pool.getAdapter("chromium", undefined, async () => {
+          loadAdapterCalls++;
+          return loadAdapterImpl();
+        });
+        await pool.getAdapter("firefox", undefined, async () => {
+          loadAdapterCalls++;
+          return loadAdapterImpl();
+        });
 
         // Dispose all
         await pool.disposeAll();
@@ -170,23 +209,29 @@ describe("browser-pool", () => {
 
       it("should clear adapters after disposal", async () => {
         const mockAdapter = createMockBrowserAdapter();
-        mockLoadBrowserAdapter.mockResolvedValue(mockAdapter);
+        adapterQueue.push(mockAdapter);
 
-        await pool.getAdapter("chromium", undefined, mockLoadBrowserAdapter);
+        await pool.getAdapter("chromium", undefined, async () => {
+          loadAdapterCalls++;
+          return loadAdapterImpl();
+        });
         await pool.disposeAll();
 
         // Should create new adapter on next call
         const newMockAdapter = createMockBrowserAdapter();
-        mockLoadBrowserAdapter.mockResolvedValue(newMockAdapter);
+        adapterQueue.push(newMockAdapter);
 
         const result = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(result).toBe(newMockAdapter);
-        expect(mockLoadBrowserAdapter).toHaveBeenCalledTimes(2);
+        expect(loadAdapterCalls).toBe(2);
       });
 
       it("should handle disposal errors gracefully", async () => {
@@ -194,12 +239,16 @@ describe("browser-pool", () => {
         const mockAdapter2 = createMockBrowserAdapter();
         const error = new Error("Disposal failed");
         (mockAdapter1.dispose as any).mockRejectedValue(error);
-        mockLoadBrowserAdapter
-          .mockResolvedValueOnce(mockAdapter1)
-          .mockResolvedValueOnce(mockAdapter2);
+        adapterQueue.push(mockAdapter1, mockAdapter2);
 
-        await pool.getAdapter("chromium", undefined, mockLoadBrowserAdapter);
-        await pool.getAdapter("firefox", undefined, mockLoadBrowserAdapter);
+        await pool.getAdapter("chromium", undefined, async () => {
+          loadAdapterCalls++;
+          return loadAdapterImpl();
+        });
+        await pool.getAdapter("firefox", undefined, async () => {
+          loadAdapterCalls++;
+          return loadAdapterImpl();
+        });
 
         // Should not throw even if one adapter fails
         await expect(pool.disposeAll()).resolves.toBeUndefined();
@@ -214,9 +263,12 @@ describe("browser-pool", () => {
 
       it("should handle multiple disposal calls", async () => {
         const mockAdapter = createMockBrowserAdapter();
-        mockLoadBrowserAdapter.mockResolvedValue(mockAdapter);
+        adapterQueue.push(mockAdapter);
 
-        await pool.getAdapter("chromium", undefined, mockLoadBrowserAdapter);
+        await pool.getAdapter("chromium", undefined, async () => {
+          loadAdapterCalls++;
+          return loadAdapterImpl();
+        });
         await pool.disposeAll();
         await pool.disposeAll(); // Second call
 
@@ -228,20 +280,24 @@ describe("browser-pool", () => {
       it("should handle complex workflow", async () => {
         const mockAdapter1 = createMockBrowserAdapter();
         const mockAdapter2 = createMockBrowserAdapter();
-        mockLoadBrowserAdapter
-          .mockResolvedValueOnce(mockAdapter1)
-          .mockResolvedValueOnce(mockAdapter2);
+        adapterQueue.push(mockAdapter1, mockAdapter2);
 
         // Get adapters
         const chromiumAdapter = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
         const firefoxAdapter = await pool.getAdapter(
           "firefox",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(chromiumAdapter).toBe(mockAdapter1);
@@ -251,12 +307,18 @@ describe("browser-pool", () => {
         const chromiumAdapter2 = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
         const firefoxAdapter2 = await pool.getAdapter(
           "firefox",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(chromiumAdapter2).toBe(chromiumAdapter);
@@ -271,24 +333,30 @@ describe("browser-pool", () => {
 
       it("should handle adapter reuse after disposal", async () => {
         const mockAdapter = createMockBrowserAdapter();
-        mockLoadBrowserAdapter.mockResolvedValue(mockAdapter);
+        adapterQueue.push(mockAdapter);
 
         // First use
-        await pool.getAdapter("chromium", undefined, mockLoadBrowserAdapter);
+        await pool.getAdapter("chromium", undefined, async () => {
+          loadAdapterCalls++;
+          return loadAdapterImpl();
+        });
         await pool.disposeAll();
 
         // Second use - should create new adapter
         const newMockAdapter = createMockBrowserAdapter();
-        mockLoadBrowserAdapter.mockResolvedValue(newMockAdapter);
+        adapterQueue.push(newMockAdapter);
 
         const result = await pool.getAdapter(
           "chromium",
           undefined,
-          mockLoadBrowserAdapter
+          async () => {
+            loadAdapterCalls++;
+            return loadAdapterImpl();
+          }
         );
 
         expect(result).toBe(newMockAdapter);
-        expect(mockLoadBrowserAdapter).toHaveBeenCalledTimes(2);
+        expect(loadAdapterCalls).toBe(2);
       });
     });
   });

@@ -23,7 +23,7 @@ const createMockStorage = (): StorageAdapter => ({
   }),
   write: vi.fn().mockResolvedValue(""),
   exists: vi.fn().mockResolvedValue(true),
-  read: vi.fn().mockResolvedValue(new Uint8Array()),
+  read: vi.fn().mockResolvedValue(Buffer.from("mock-png-data")),
   cleanup: vi.fn().mockResolvedValue(undefined),
 });
 
@@ -37,25 +37,30 @@ vi.mock("pixelmatch", () => ({
   default: vi.fn(),
 }));
 
-vi.mock("pngjs", () => ({
-  PNG: Object.assign(
-    vi.fn().mockImplementation(() => ({
-      data: new Uint8Array(40000),
-      width: 100,
-      height: 100,
-    })),
-    {
-      sync: {
-        read: vi.fn().mockReturnValue({
-          data: new Uint8Array(40000),
-          width: 100,
-          height: 100,
-        }),
-        write: vi.fn().mockReturnValue(Buffer.from("mock-png-data")),
-      },
-    }
-  ),
-}));
+vi.mock("pngjs", () => {
+  const mockBitblt = vi.fn();
+  const mockSyncRead = vi.fn().mockImplementation(() => ({
+    data: new Uint8Array(40000),
+    width: 100,
+    height: 100,
+  }));
+  return {
+    PNG: Object.assign(
+      vi.fn().mockImplementation((options?: { width?: number; height?: number }) => ({
+        data: new Uint8Array((options?.width || 100) * (options?.height || 100) * 4),
+        width: options?.width || 100,
+        height: options?.height || 100,
+      })),
+      {
+        bitblt: mockBitblt,
+        sync: {
+          read: mockSyncRead,
+          write: vi.fn().mockReturnValue(Buffer.from("mock-png-data")),
+        },
+      }
+    ),
+  };
+});
 
 vi.mock("@/utils/error-handler", () => ({
   getErrorMessage: vi.fn(),
@@ -74,7 +79,25 @@ describe("compare", () => {
   const mockGetErrorMessage = vi.mocked(getErrorMessage);
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
+    // Setup getErrorMessage to return the error message
+    mockGetErrorMessage.mockImplementation((error: unknown) => {
+      if (error instanceof Error) return error.message;
+      return String(error);
+    });
+    // Ensure PNG mocks are properly set up
+    const mockPNGSyncRead = (PNG as any).sync.read;
+    const mockPNGBitblt = (PNG as any).bitblt;
+    if (mockPNGSyncRead) {
+      mockPNGSyncRead.mockImplementation(() => ({
+        data: new Uint8Array(40000),
+        width: 100,
+        height: 100,
+      }));
+    }
+    if (mockPNGBitblt) {
+      mockPNGBitblt.mockImplementation(() => {});
+    }
   });
 
   describe("compareDirectories with odiff", () => {
@@ -258,7 +281,8 @@ describe("compare", () => {
       );
 
       // Mock PNG data is handled by global mock
-      mockPixelmatch.mockReturnValue(50); // 50 mismatched pixels
+      // Ensure pixelmatch returns 50 mismatched pixels
+      mockPixelmatch.mockImplementation(() => 50);
 
       const result = await compareDirectories(mockStorage, {
         comparisonCore: "pixelmatch",
@@ -281,7 +305,8 @@ describe("compare", () => {
       );
 
       // Mock PNG data is handled by global mock
-      mockPixelmatch.mockReturnValue(0); // No mismatched pixels
+      // Ensure pixelmatch returns 0 mismatched pixels
+      mockPixelmatch.mockImplementation(() => 0);
 
       const result = await compareDirectories(mockStorage, {
         comparisonCore: "pixelmatch",
