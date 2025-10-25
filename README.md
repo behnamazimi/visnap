@@ -5,30 +5,32 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
-A visual regression testing tool that captures and compares screenshots of your UI components. ViSnap helps you catch unwanted visual changes before they reach users by taking screenshots, comparing them to a saved baseline, and highlighting differences.
+A visual regression testing tool organized as a monorepo. ViSnap captures and compares screenshots of UI components to help catch unwanted visual changes before they reach users.
 
-<table align="center">
-  <tr>
-    <td align="center">
-      <img src="./html-report.png" alt="ViSnap HTML Report Screenshot" width="600" />
-    </td>
-  </tr>
-</table>
+## Workspace Structure
 
-## Features
+This monorepo contains several packages that work together to provide visual regression testing:
 
-- **Simple CLI** - Run from the command line with a guided experience
-- **Storybook Integration** - Test individual stories with precision
-- **URL Testing** - Test any web page or application without Storybook
-- **Multi-Browser Support** - Test across Chromium, Firefox, and WebKit
-- **Interactive Testing** - Execute 20+ user interactions before capturing screenshots
-- **Docker Support** - Run tests in isolated containers for consistent results
-- **CSS Injection** - Disable animations and hide elements for stable screenshots
-- **Dual Comparison Engines** - Choose between `odiff` and `pixelmatch` for image comparison
-- **Flexible Filtering** - Run specific stories or exclude unwanted ones
-- **Rich Reporting** - Generate both JSON and interactive HTML reports
+### Core Packages
+- **`@visnap/protocol`** - Shared types and interfaces used across all packages
+- **`@visnap/core`** - Main orchestration engine that manages test execution and coordinates between adapters
+- **`visnap`** - Command-line interface for end users
+- **`@visnap/reporter`** - Generates HTML and JSON reports from test results
 
-## Quick Start
+### Adapters
+- **`@visnap/storybook-adapter`** - Tests individual Storybook components and stories
+- **`@visnap/url-adapter`** - Tests any web page or application by URL
+- **`@visnap/playwright-adapter`** - Browser automation layer using Playwright
+- **`@visnap/fs-adapter`** - Filesystem storage for screenshots and test data
+
+### Apps & Examples
+- **`apps/docs`** - Documentation site at [visnap.dev](https://visnap.dev)
+- **`examples/*`** - Example projects showing ViSnap integration
+
+### Shared Configuration
+- **`packages/eslint-config`** - Shared ESLint configuration for all packages
+
+## Getting Started
 
 ```bash
 # Start with init - it sets up everything you need
@@ -41,12 +43,12 @@ npx visnap update
 npx visnap test
 ```
 
-The init command will install visnap and required adapters locally in your project for the best experience.
+The init command installs visnap and required adapters locally in your project.
+
+## Development
+
+To contribute to this project, see [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
 
 ## Documentation
 
 📚 **[Full Documentation](https://visnap.dev)** - Complete guides, API reference, and examples
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
