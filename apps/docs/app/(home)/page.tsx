@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Github, BookOpen, Play } from 'lucide-react';
+import { Github, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 
 export default function HomePage() {
