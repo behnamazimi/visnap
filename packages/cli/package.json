@@ -1,5 +1,5 @@
 {
-  "name": "visnap",
+  "name": "@visnap/cli",
   "version": "0.6.0",
   "description": "Visual Testing Tool - CLI for visual regression testing",
   "type": "module",
