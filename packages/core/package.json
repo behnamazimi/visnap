@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.17.20",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.9.1",
     "@types/pixelmatch": "^5.2.4",
     "@types/pngjs": "^6.0.4",
     "@types/serve-handler": "^6.1.4",
