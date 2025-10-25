@@ -13,8 +13,6 @@ import type { HtmlReporterOptions } from "../types";
 
 import { serializeTestData } from "./data-serializer";
 import { HtmlReporter } from "./html-reporter";
-import { ImageHandler } from "./image-handler";
-import { TemplateBuilder } from "./template-builder";
 
 // Mock fs functions
 vi.mock("fs", () => ({
@@ -27,48 +25,40 @@ vi.mock("./data-serializer", () => ({
   serializeTestData: vi.fn(),
 }));
 
-vi.mock("./image-handler", () => ({
-  ImageHandler: vi.fn().mockImplementation(() => ({
-    processTestCases: vi.fn(),
-  })),
-}));
+const mockProcessTestCases = vi.fn();
+const mockBuild = vi.fn();
 
-vi.mock("./template-builder", () => ({
-  TemplateBuilder: vi.fn().mockImplementation(() => ({
-    build: vi.fn(),
-  })),
-}));
+vi.mock("./image-handler", () => {
+  class ImageHandler {
+    processTestCases = mockProcessTestCases;
+  }
+  return { ImageHandler };
+});
+
+vi.mock("./template-builder", () => {
+  class TemplateBuilder {
+    build = mockBuild;
+  }
+  return { TemplateBuilder };
+});
 
 const mockWriteFileSync = vi.mocked(writeFileSync);
 const mockMkdirSync = vi.mocked(mkdirSync);
 const mockSerializeTestData = vi.mocked(serializeTestData);
-const mockImageHandler = vi.mocked(ImageHandler);
-const mockTemplateBuilder = vi.mocked(TemplateBuilder);
 
 describe("HtmlReporter", () => {
   let reporter: HtmlReporter;
-  let mockImageHandlerInstance: any;
-  let mockTemplateBuilderInstance: any;
 
   beforeEach(() => {
     reporter = new HtmlReporter();
     vi.clearAllMocks();
 
-    // Setup mock instances
-    mockImageHandlerInstance = {
-      processTestCases: vi
-        .fn()
-        .mockImplementation(testCases =>
-          testCases.map((tc: any) => createMockProcessedTestCase(tc))
-        ),
-    };
+    // Setup mock method implementations
+    mockProcessTestCases.mockImplementation(testCases =>
+      testCases.map((tc: any) => createMockProcessedTestCase(tc))
+    );
+    mockBuild.mockReturnValue("<html>Mock HTML Report</html>");
 
-    mockTemplateBuilderInstance = {
-      build: vi.fn().mockReturnValue("<html>Mock HTML Report</html>"),
-    };
-
-    mockImageHandler.mockImplementation(() => mockImageHandlerInstance);
-    mockTemplateBuilder.mockImplementation(() => mockTemplateBuilderInstance);
     mockSerializeTestData.mockImplementation(result =>
       createMockSerializedReportData({
         success: result.success,
@@ -102,10 +92,8 @@ describe("HtmlReporter", () => {
       const result = await reporter.generate(mockTestResult, options);
 
       expect(mockSerializeTestData).toHaveBeenCalledWith(mockTestResult);
-      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
-        testCases
-      );
-      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+      expect(mockProcessTestCases).toHaveBeenCalledWith(testCases);
+      expect(mockBuild).toHaveBeenCalledWith(
         expect.objectContaining({
           success: true,
         }),
@@ -150,7 +138,7 @@ describe("HtmlReporter", () => {
 
       await reporter.generate(mockTestResult, options);
 
-      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+      expect(mockBuild).toHaveBeenCalledWith(
         expect.any(Object),
         expect.any(Array),
         "My Custom Report"
@@ -168,9 +156,7 @@ describe("HtmlReporter", () => {
 
       await reporter.generate(mockTestResult, options);
 
-      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
-        testCases
-      );
+      expect(mockProcessTestCases).toHaveBeenCalledWith(testCases);
     });
 
     it("should pass serialized data and processed test cases to TemplateBuilder", async () => {
@@ -191,7 +177,7 @@ describe("HtmlReporter", () => {
 
       await reporter.generate(mockTestResult, options);
 
-      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+      expect(mockBuild).toHaveBeenCalledWith(
         expect.objectContaining({
           success: true,
           testCases: expect.any(Array),
@@ -211,9 +197,7 @@ describe("HtmlReporter", () => {
 
       await reporter.generate(mockTestResult, options);
 
-      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
-        []
-      );
+      expect(mockProcessTestCases).toHaveBeenCalledWith([]);
     });
 
     it("should handle undefined test cases", async () => {
@@ -229,9 +213,7 @@ describe("HtmlReporter", () => {
 
       await reporter.generate(mockTestResult, options);
 
-      expect(mockImageHandlerInstance.processTestCases).toHaveBeenCalledWith(
-        []
-      );
+      expect(mockProcessTestCases).toHaveBeenCalledWith([]);
     });
 
     it("should create output directory if it doesn't exist", async () => {
@@ -284,7 +266,7 @@ describe("HtmlReporter", () => {
 
       await reporter.generate(testResultWithFailures, options);
 
-      expect(mockTemplateBuilderInstance.build).toHaveBeenCalledWith(
+      expect(mockBuild).toHaveBeenCalledWith(
         expect.objectContaining({
           success: false,
         }),
