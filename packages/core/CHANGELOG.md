@@ -1,5 +1,13 @@
 # @visnap/core
 
+## 0.7.0
+
+### Patch Changes
+
+- 9bd7da4: Handle dimension mismatches and optimize diff generation
+  - @visnap/protocol@0.7.0
+  - @visnap/fs-adapter@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes

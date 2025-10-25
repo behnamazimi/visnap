@@ -9,7 +9,7 @@
       "@visnap/storybook-adapter",
       "@visnap/url-adapter",
       "@visnap/core",
-      "visnap",
+      "@visnap/cli",
       "@visnap/reporter",
       "@visnap/fs-adapter"
     ]

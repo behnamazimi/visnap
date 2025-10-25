@@ -69,14 +69,31 @@ Developer B: Creates changeset for new feature (minor)
     ↓
 Developer C: Creates changeset for another fix (patch)
     ↓
-GitHub Action: Updates "Version Packages" PR
+GitHub Action: Runs "changeset version" command
     ↓
-PR shows: 0.5.1 → 0.6.0 (minor bump, because minor > patch)
+Action updates package.json files with new version numbers
+    ↓
+"Version Packages" PR shows: 0.5.1 → 0.6.0 (minor bump, because minor > patch)
     ↓
 Maintainer: Reviews and merges the PR
     ↓
 Release: v0.6.0 published with all 3 changes in changelog
 ```
+
+**Key Point:** The `changeset version` command actually **updates the package.json files** with the new version numbers. The "Version Packages" PR contains these real version updates, not just metadata.
+
+### What Happens During `changeset version`
+
+When the GitHub Action runs `npm run version` (which executes `changeset version`):
+
+1. **Reads all changeset files** in `.changeset/` folder
+2. **Calculates version bumps** based on the highest bump type
+3. **Updates package.json files** with new version numbers
+4. **Updates CHANGELOG.md files** with new entries
+5. **Removes processed changeset files** from `.changeset/` folder
+6. **Commits these changes** to the "Version Packages" PR
+
+This is why the PR shows actual file changes - the package.json and CHANGELOG.md files are physically updated with the new versions.
 
 ### Version Bump Behavior
 
@@ -113,7 +130,9 @@ You can choose how to handle the "Version Packages" PR:
 | Action | Result |
 |--------|--------|
 | Create changeset | File added to `.changeset/` folder |
-| Push to main | "Version Packages" PR created/updated |
+| Push to main | GitHub Action runs `changeset version` |
+| `changeset version` runs | Updates package.json files with new versions |
+| "Version Packages" PR | Contains actual version updates to package.json |
 | Multiple changesets pushed | Same PR updated (accumulates changes) |
 | Merge "Version Packages" PR | ONE release, ONE version bump for all packages |
 
