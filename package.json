@@ -12,10 +12,12 @@
     "lint:ci": "turbo run lint",
     "test": "turbo run test --filter=!@examples/* -- --run",
     "version": "changeset version",
-    "release": "turbo run build --filter='@visnap/*' --filter='!@visnap/docs' --filter='@visnap/cli' && changeset publish --access public"
+    "release": "turbo run build --filter='@visnap/*' --filter='!@visnap/docs' --filter='@visnap/cli' && changeset publish --access public",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
+    "husky": "^9.1.7",
     "prettier": "^3.6.2",
     "turbo": "^2.5.8",
     "typescript": "5.9.3"
