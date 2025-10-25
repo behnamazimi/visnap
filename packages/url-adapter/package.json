@@ -25,7 +25,7 @@
     "minimatch": "^10.0.1"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.9.1",
     "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/expect": "^3.2.4",
