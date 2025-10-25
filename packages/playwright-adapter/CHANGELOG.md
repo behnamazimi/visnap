@@ -1,5 +1,11 @@
 # @visnap/playwright-adapter
 
+## 0.7.0
+
+### Patch Changes
+
+- @visnap/protocol@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes

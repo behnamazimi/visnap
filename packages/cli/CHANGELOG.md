@@ -1,5 +1,17 @@
 # visnap
 
+## 0.7.0
+
+### Minor Changes
+
+- 5989705: Refactor package names to use scoped naming for @visnap/cli and update related documentation
+
+### Patch Changes
+
+- Updated dependencies [9bd7da4]
+  - @visnap/core@0.7.0
+  - @visnap/reporter@0.7.0
+
 ## 0.6.0
 
 ### Minor Changes

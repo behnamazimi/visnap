@@ -9,6 +9,19 @@ import { PNG } from "pngjs";
 import { getErrorMessage } from "@/utils/error-handler";
 
 /**
+ * Resizes a PNG image to the specified dimensions.
+ * @param image - The PNG image to resize
+ * @param width - Target width
+ * @param height - Target height
+ * @returns Resized PNG image
+ */
+function resizeImage(image: PNG, width: number, height: number): PNG {
+  const resized = new PNG({ width, height });
+  PNG.bitblt(image, resized, 0, 0, image.width, image.height, 0, 0);
+  return resized as PNG;
+}
+
+/**
  * Pixelmatch-based comparison engine for image comparison.
  */
 export class PixelmatchEngine implements ComparisonEngine {
@@ -32,19 +45,22 @@ export class PixelmatchEngine implements ComparisonEngine {
         storage.read("current", filename),
         storage.read("base", filename),
       ]);
-      const currentPng = PNG.sync.read(Buffer.from(currentBuffer));
-      const basePng = PNG.sync.read(Buffer.from(baseBuffer));
+      let currentPng = PNG.sync.read(Buffer.from(currentBuffer)) as any;
+      let basePng = PNG.sync.read(Buffer.from(baseBuffer)) as any;
 
-      // Ensure images have same dimensions
+      // Handle dimension mismatches by resizing images
+      const maxWidth = Math.max(currentPng.width || 100, basePng.width || 100);
+      const maxHeight = Math.max(
+        currentPng.height || 100,
+        basePng.height || 100
+      );
+
       if (
         currentPng.width !== basePng.width ||
         currentPng.height !== basePng.height
       ) {
-        return {
-          match: false,
-          reason: "error",
-          diffPercentage: 0,
-        };
+        currentPng = resizeImage(currentPng, maxWidth, maxHeight);
+        basePng = resizeImage(basePng, maxWidth, maxHeight);
       }
 
       const { width, height } = currentPng;
@@ -68,10 +84,12 @@ export class PixelmatchEngine implements ComparisonEngine {
         }
       );
 
-      // Write diff image using storage adapter
-      await storage.write("diff", filename, PNG.sync.write(diffPng));
-
       const diffPercentage = (mismatchedPixels / totalPixels) * 100;
+
+      // Only write diff image when there are actual differences
+      if (mismatchedPixels > 0) {
+        await storage.write("diff", filename, PNG.sync.write(diffPng));
+      }
 
       return {
         match: mismatchedPixels === 0,

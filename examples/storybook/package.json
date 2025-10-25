@@ -30,7 +30,7 @@
     "globals": "^16.4.0",
     "storybook": "^9.1.10",
     "typescript": "~5.9.3",
-    "visnap": "*",
+    "@visnap/cli": "*",
     "vite": "^7.1.7"
   },
   "engines": {
