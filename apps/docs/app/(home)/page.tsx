@@ -1,11 +1,42 @@
 import Link from 'next/link';
 import { Github, BookOpen } from 'lucide-react';
 import Image from 'next/image';
+import AnimatedBlobs from './animated-blobs';
 
 export default function HomePage() {
   return (
-    <main className="flex flex-1 flex-col justify-center text-center px-4 py-16 md:py-32">
-      <div className="mx-auto max-w-2xl">
+    <main className="relative flex flex-1 flex-col justify-center text-center px-4 py-16 md:py-32 overflow-hidden">
+      <AnimatedBlobs />
+      
+      {/* Grid background with fade effect - Light mode (black grid) */}
+      <div 
+        className="absolute inset-0 opacity-[0.04] dark:hidden"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(0, 0, 0, 1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 0, 0, 1) 1px, transparent 1px)
+          `,
+          backgroundSize: '20px 20px',
+          maskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
+        }}
+      />
+      
+      {/* Grid background with fade effect - Dark mode (white grid) */}
+      <div 
+        className="absolute inset-0 opacity-[0.02] hidden dark:block"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)
+          `,
+          backgroundSize: '20px 20px',
+          maskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
+        }}
+      />
+      
+      <div className="relative mx-auto max-w-2xl">
         <div className="mb-6 flex justify-center">
           <Image
             src="/visnap-logo-light.png"
