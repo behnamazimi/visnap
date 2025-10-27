@@ -61,16 +61,25 @@ export async function createBrowserContext(
  */
 export async function waitForNetworkIdle(
   page: Page,
-  timeout: number
+  timeout: number,
+  fallbackDelay?: number,
+  timeoutDivisor?: number
 ): Promise<void> {
+  const effectiveFallbackDelay =
+    fallbackDelay !== undefined ? fallbackDelay : NETWORK_IDLE_FALLBACK_DELAY;
+  const effectiveTimeoutDivisor =
+    timeoutDivisor !== undefined
+      ? timeoutDivisor
+      : NETWORK_IDLE_TIMEOUT_DIVISOR;
+
   try {
     await page.waitForLoadState("networkidle", { timeout });
   } catch {
     // Fall back to a small delay; not all drivers support networkidle well
     await page.waitForTimeout(
       Math.min(
-        NETWORK_IDLE_FALLBACK_DELAY,
-        Math.floor(timeout / NETWORK_IDLE_TIMEOUT_DIVISOR)
+        effectiveFallbackDelay,
+        Math.floor(timeout / effectiveTimeoutDivisor)
       )
     );
   }
@@ -92,7 +101,12 @@ export async function navigateToUrl(
 
   // Additional wait for network idle if specified
   if ((options.navigation?.waitUntil ?? "load") === "networkidle") {
-    await waitForNetworkIdle(page, timeout);
+    await waitForNetworkIdle(
+      page,
+      timeout,
+      options.navigation?.networkIdleFallbackDelayMs,
+      options.navigation?.networkIdleTimeoutDivisor
+    );
   }
 }
 

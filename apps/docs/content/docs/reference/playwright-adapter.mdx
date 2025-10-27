@@ -15,7 +15,20 @@ adapters: {
     options: {
       launch: { browser: 'chromium', headless: true },
       context: { colorScheme: 'light', reducedMotion: 'reduce' },
-      // navigation: { baseUrl: 'http://localhost:3000', waitUntil: 'load', timeoutMs: 30000 },
+      // navigation: { 
+      //   baseUrl: 'http://localhost:3000', 
+      //   waitUntil: 'load', 
+      //   timeoutMs: 30000,
+      //   networkIdleFallbackDelayMs: 1000,
+      //   networkIdleTimeoutDivisor: 10
+      // },
+      // screenshot: {
+      //   waitForElementTimeoutMs: 2000  // Wait up to 2 seconds for element to appear
+      // },
+      // interaction: {
+      //   defaultTimeoutMs: 5000,
+      //   settleTimeMs: 100
+      // },
       // injectCSS: '* { animation: none !important; transition: none !important; }',
       // performance: { blockResources: ['.map'], reuseContext: true, disableAnimations: true },
     }
@@ -90,6 +103,46 @@ When to consider a page fully loaded. Use `networkidle` for pages with lots of d
 **Required:** No
 
 How long to wait for page navigation before timing out. Increase for slow-loading pages.
+
+### `navigation.networkIdleFallbackDelayMs`
+
+**Type:** `number (>0)`  
+**Default:** `1000`  
+**Required:** No
+
+Fallback delay when `networkidle` state fails to be detected. Use this to fine-tune network idle detection behavior.
+
+### `navigation.networkIdleTimeoutDivisor`
+
+**Type:** `number (>0)`  
+**Default:** `10`  
+**Required:** No
+
+Divisor used to calculate the fallback delay when network idle detection times out. Adjust this if you need more or less time during network idle fallback.
+
+### `screenshot.waitForElementTimeoutMs`
+
+**Type:** `number (>0)`  
+**Default:** `2000`  
+**Required:** No
+
+Timeout for waiting for the screenshot target element to appear on the page before capturing the screenshot. Increase for slow-loading elements.
+
+### `interaction.defaultTimeoutMs`
+
+**Type:** `number (>0)`  
+**Default:** `5000`  
+**Required:** No
+
+Default timeout for all interaction actions (clicks, fills, hovers, etc.). Individual interactions can override this with their own timeout.
+
+### `interaction.settleTimeMs`
+
+**Type:** `number (≥0)`  
+**Default:** `100`  
+**Required:** No
+
+Wait time (in milliseconds) after interactions complete before capturing the screenshot. This ensures DOM updates and animations have settled.
 
 ### `injectCSS`
 
