@@ -45,6 +45,7 @@ export default function HomePage() {
             height={62}
             className="dark:hidden w-[250px] h-auto"
             sizes="250px"
+            priority
           />
           <Image
             src="/visnap-logo-dark.png"
@@ -53,6 +54,7 @@ export default function HomePage() {
             height={62}
             className="hidden dark:inline w-[250px] h-auto"
             sizes="250px"
+            priority
           />
         </div>
         <h1 className="mb-3 text-3xl font-semibold tracking-tight">See visual changes before you merge</h1>

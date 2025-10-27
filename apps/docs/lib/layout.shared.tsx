@@ -19,6 +19,7 @@ export function baseOptions(): BaseLayoutProps {
             height={48}
             className="dark:hidden h-6 w-auto sm:h-7 md:h-8"
             sizes="(min-width: 768px) 128px, (min-width: 640px) 112px, 96px"
+            priority
           />
           <Image
             src="/visnap-logo-dark.png"
@@ -27,6 +28,7 @@ export function baseOptions(): BaseLayoutProps {
             height={48}
             className="hidden dark:inline h-6 w-auto sm:h-7 md:h-8"
             sizes="(min-width: 768px) 128px, (min-width: 640px) 112px, 96px"
+            priority
           />
         </>
       ),
