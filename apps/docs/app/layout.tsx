@@ -11,6 +11,27 @@ export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={firaSans.className} suppressHydrationWarning>
       <head>
+        {/* Theme initialization script - must run before page renders to prevent flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme') || 'system';
+                  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (isDark) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {
+                  // If localStorage is not available, default to light mode
+                }
+              })();
+            `,
+          }}
+        />
+        
         {/* Favicon */}
         <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon/favicon-16x16.png" sizes="16x16" type="image/png" />
