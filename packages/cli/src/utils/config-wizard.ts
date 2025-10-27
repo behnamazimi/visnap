@@ -26,9 +26,9 @@ export async function runConfigWizard(): Promise<AdapterSelection> {
   // Install missing packages
   const packagesToInstall: string[] = [];
 
-  // Always include visnap for local installation
-  if (!(await isPackageInstalled("visnap"))) {
-    packagesToInstall.push("visnap");
+  // Always include visnap cli for local installation
+  if (!(await isPackageInstalled("@visnap/cli"))) {
+    packagesToInstall.push("@visnap/cli");
   }
 
   if (

@@ -19,6 +19,20 @@ const config: VisualTestingToolConfig = {
         // ],
 
         // injectCSS: "* { animation: none !important; transition: none !important; }"
+
+        // Timeout configurations (all optional)
+        // screenshot: {
+        //   waitForElementTimeoutMs: 2000, // Timeout for waiting for screenshot target element to appear
+        // },
+        // interaction: {
+        //   defaultTimeoutMs: 5000, // Default timeout for interactions (clicks, fills, etc.)
+        //   settleTimeMs: 100, // Wait time after interactions complete
+        // },
+        // navigation: {
+        //   timeoutMs: 30000, // Main page/navigation timeout
+        //   networkIdleFallbackDelayMs: 1000, // Fallback delay when networkidle fails
+        //   networkIdleTimeoutDivisor: 10, // Divisor for fallback calculation
+        // },
       },
     },
     testCase: [
