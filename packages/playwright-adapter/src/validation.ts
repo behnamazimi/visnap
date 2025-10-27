@@ -27,6 +27,17 @@ const navigationOptionsSchema = type({
   baseUrl: "string?",
   waitUntil: "'load'|'domcontentloaded'|'networkidle'?",
   timeoutMs: "number>0?",
+  networkIdleFallbackDelayMs: "number>0?",
+  networkIdleTimeoutDivisor: "number>0?",
+});
+
+const screenshotOptionsSchema = type({
+  waitForElementTimeoutMs: "number>0?",
+});
+
+const interactionOptionsSchema = type({
+  defaultTimeoutMs: "number>0?",
+  settleTimeMs: "number>=0?",
 });
 
 const performanceOptionsSchema = type({
@@ -39,6 +50,8 @@ const playwrightAdapterOptionsSchema = type({
   "launch?": launchOptionsSchema,
   "context?": contextOptionsSchema,
   "navigation?": navigationOptionsSchema,
+  "screenshot?": screenshotOptionsSchema,
+  "interaction?": interactionOptionsSchema,
   "injectCSS?": "string",
   "performance?": performanceOptionsSchema,
 });
@@ -49,6 +62,8 @@ export type BrowserName = typeof browserNameSchema.infer;
 export type LaunchOptions = typeof launchOptionsSchema.infer;
 export type ContextOptions = typeof contextOptionsSchema.infer;
 export type NavigationOptions = typeof navigationOptionsSchema.infer;
+export type ScreenshotOptions = typeof screenshotOptionsSchema.infer;
+export type InteractionOptions = typeof interactionOptionsSchema.infer;
 export type PerformanceOptions = typeof performanceOptionsSchema.infer;
 export type PlaywrightAdapterOptions =
   typeof playwrightAdapterOptionsSchema.infer;
@@ -91,6 +106,32 @@ export function validateNavigationOptions(
 }
 
 /**
+ * Validates screenshot options
+ */
+export function validateScreenshotOptions(
+  screenshot: unknown
+): ScreenshotOptions {
+  const result = screenshotOptionsSchema(screenshot);
+  if (result instanceof type.errors) {
+    throw new Error(`Invalid screenshot options: ${result.summary}`);
+  }
+  return result;
+}
+
+/**
+ * Validates interaction options
+ */
+export function validateInteractionOptions(
+  interaction: unknown
+): InteractionOptions {
+  const result = interactionOptionsSchema(interaction);
+  if (result instanceof type.errors) {
+    throw new Error(`Invalid interaction options: ${result.summary}`);
+  }
+  return result;
+}
+
+/**
  * Validates performance options
  */
 export function validatePerformanceOptions(
@@ -121,6 +162,8 @@ export {
   launchOptionsSchema,
   contextOptionsSchema,
   navigationOptionsSchema,
+  screenshotOptionsSchema,
+  interactionOptionsSchema,
   performanceOptionsSchema,
   playwrightAdapterOptionsSchema,
 };

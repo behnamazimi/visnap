@@ -28,12 +28,15 @@ import type { PlaywrightAdapterOptions } from "./index";
 export async function captureElementScreenshot(
   page: Page,
   screenshotTarget: string,
-  caseId: string
+  caseId: string,
+  elementTimeout?: number
 ): Promise<Uint8Array> {
   const selector = resolveScreenshotTarget(screenshotTarget);
+  const timeout =
+    elementTimeout !== undefined ? elementTimeout : SCREENSHOT_ELEMENT_TIMEOUT;
 
   const storyElement = await page.waitForSelector(selector, {
-    timeout: SCREENSHOT_ELEMENT_TIMEOUT,
+    timeout,
     state: "attached",
   });
 
@@ -109,7 +112,11 @@ export async function performScreenshotCapture(
       await executeInteractions(
         page,
         screenshotOptions.interactions,
-        screenshotOptions.id
+        screenshotOptions.id,
+        {
+          defaultTimeoutMs: options.interaction?.defaultTimeoutMs,
+          settleTimeMs: options.interaction?.settleTimeMs,
+        }
       );
     }
 
@@ -133,7 +140,8 @@ export async function performScreenshotCapture(
     const buffer = await captureElementScreenshot(
       page,
       screenshotOptions.screenshotTarget || "body",
-      screenshotOptions.id
+      screenshotOptions.id,
+      options.screenshot?.waitForElementTimeoutMs
     );
 
     return {

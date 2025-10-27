@@ -11,10 +11,9 @@ import {
  */
 async function executeAction(
   page: Page,
-  action: InteractionAction
+  action: InteractionAction,
+  defaultTimeout: number
 ): Promise<void> {
-  const defaultTimeout = INTERACTION_DEFAULT_TIMEOUT;
-
   switch (action.type) {
     case "click":
       await page.click(action.selector, {
@@ -206,12 +205,22 @@ async function executeAction(
 export async function executeInteractions(
   page: Page,
   interactions: InteractionAction[],
-  caseId: string
+  caseId: string,
+  options?: { defaultTimeoutMs?: number; settleTimeMs?: number }
 ): Promise<void> {
+  const defaultTimeout =
+    options?.defaultTimeoutMs !== undefined
+      ? options.defaultTimeoutMs
+      : INTERACTION_DEFAULT_TIMEOUT;
+  const settleTime =
+    options?.settleTimeMs !== undefined
+      ? options.settleTimeMs
+      : INTERACTION_SETTLE_TIME;
+
   for (let i = 0; i < interactions.length; i++) {
     const action = interactions[i];
     try {
-      await executeAction(page, action);
+      await executeAction(page, action, defaultTimeout);
     } catch (error) {
       const actionDesc = JSON.stringify(action, null, 2);
       const message = `Interaction ${i + 1}/${interactions.length} failed for ${caseId}:\n${actionDesc}\nError: ${error}`;
@@ -221,5 +230,5 @@ export async function executeInteractions(
   }
 
   // Settle time after interactions
-  await page.waitForTimeout(INTERACTION_SETTLE_TIME);
+  await page.waitForTimeout(settleTime);
 }
