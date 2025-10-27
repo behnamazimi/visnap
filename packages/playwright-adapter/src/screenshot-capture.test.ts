@@ -433,7 +433,11 @@ describe("screenshot-capture", () => {
       expect(executeInteractions).toHaveBeenCalledWith(
         mockPage,
         screenshotOptionsWithInteractions.interactions,
-        screenshotOptionsWithInteractions.id
+        screenshotOptionsWithInteractions.id,
+        {
+          defaultTimeoutMs: undefined,
+          settleTimeMs: undefined,
+        }
       );
     });
 
@@ -536,7 +540,11 @@ describe("screenshot-capture", () => {
       expect(executeInteractions).toHaveBeenCalledWith(
         mockPage,
         screenshotOptionsWithInteractions.interactions,
-        screenshotOptionsWithInteractions.id
+        screenshotOptionsWithInteractions.id,
+        {
+          defaultTimeoutMs: undefined,
+          settleTimeMs: undefined,
+        }
       );
     });
 

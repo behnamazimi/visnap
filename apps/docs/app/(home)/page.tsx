@@ -64,7 +64,7 @@ export default function HomePage() {
         
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <Link
-            href="/docs"
+            href="/docs/getting-started"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-fd-primary px-6 py-3 text-sm font-medium text-fd-primary-foreground transition-colors hover:bg-fd-primary/90"
           >
             <BookOpen className="h-4 w-4" />
@@ -79,13 +79,6 @@ export default function HomePage() {
             <Github className="h-4 w-4" />
             GitHub
           </Link>
-        </div>
-
-        <div className="text-sm text-fd-muted-foreground">
-          <p className="mb-2">Quick start:</p>
-          <code className="rounded bg-fd-muted px-2 py-1 text-xs">
-            npx visnap init
-          </code>
         </div>
       </div>
     </main>

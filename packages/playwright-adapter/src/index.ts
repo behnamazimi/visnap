@@ -22,6 +22,8 @@ import { validateOptions } from "./validation";
  * - `launch`: Browser launch options including `browser`, `headless`, `channel`, plus passthrough options
  * - `context`: Defaults applied to each capture's isolated context (visual stability flags, storage state file, etc.)
  * - `navigation`: URL handling and navigation behavior including `baseUrl`, `waitUntil`, and `timeoutMs`
+ * - `screenshot`: Screenshot-specific timeout configuration
+ * - `interaction`: Interaction-specific timeout configuration
  */
 export interface PlaywrightAdapterOptions {
   launch?: {
@@ -40,6 +42,15 @@ export interface PlaywrightAdapterOptions {
     baseUrl?: string;
     waitUntil?: "load" | "domcontentloaded" | "networkidle";
     timeoutMs?: number;
+    networkIdleFallbackDelayMs?: number;
+    networkIdleTimeoutDivisor?: number;
+  };
+  screenshot?: {
+    waitForElementTimeoutMs?: number;
+  };
+  interaction?: {
+    defaultTimeoutMs?: number;
+    settleTimeMs?: number;
   };
   injectCSS?: string;
   /** Adapter-level performance knobs */
