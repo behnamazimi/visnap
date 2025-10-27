@@ -1,5 +1,6 @@
 import '@/app/global.css';
 import { RootProvider } from 'fumadocs-ui/provider/next';
+import { Metadata } from 'next';
 import { Fira_Sans } from 'next/font/google';
 
 const firaSans = Fira_Sans({
@@ -44,12 +45,17 @@ export default function Layout({ children }: LayoutProps<'/'>) {
         
         {/* Web App Manifest */}
         <link rel="manifest" href="/favicon/site.webmanifest" />
-        
-        <title>ViSnap - Easy visual testing for UI</title>
       </head>
       <body className="flex flex-col min-h-screen">
         <RootProvider>{children}</RootProvider>
       </body>
     </html>
   );
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {  
+    title: `ViSnap - Easy visual testing for UI`,
+    description: `ViSnap is a tool that helps you test your UI visually. It takes screenshots of your UI, compares them to a baseline, and highlights what changed.`,
+  };
 }
