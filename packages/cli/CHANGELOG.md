@@ -1,5 +1,16 @@
 # visnap
 
+## 0.8.0
+
+### Minor Changes
+
+- df65bd0: Add visual testing scripts management to init command and implement related utilities
+
+### Patch Changes
+
+- @visnap/core@0.8.0
+- @visnap/reporter@0.8.0
+
 ## 0.7.0
 
 ### Minor Changes
