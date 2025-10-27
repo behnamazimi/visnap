@@ -29,7 +29,11 @@
       "NEXT_PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com"
     },
     "observability": {
-      "enabled": true,
-      "head_sampling_rate": 1
+      "logs": {
+        "enabled": true,
+        "head_sampling_rate": 1,
+        "invocation_logs": true,
+        "persist": true
+      }
     }
   }
