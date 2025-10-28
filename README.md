@@ -33,6 +33,9 @@ This monorepo contains several packages that work together to provide visual reg
 ## Getting Started
 
 ```bash
+# Install ViSnap CLI
+npm install -D @visnap/cli
+
 # Start with init - it sets up everything you need
 npx visnap init
 
