@@ -1,5 +1,17 @@
 # @visnap/core
 
+## 0.8.0
+
+### Minor Changes
+
+- 8588abe: Enhance Playwright adapter with new timeout configurations
+
+### Patch Changes
+
+- 04cc7a3: Change init command to install @visnap/cli
+  - @visnap/protocol@0.8.0
+  - @visnap/fs-adapter@0.8.0
+
 ## 0.7.0
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @visnap/playwright-adapter
 
+## 0.8.0
+
+### Minor Changes
+
+- 8588abe: Enhance Playwright adapter with new timeout configurations
+
+### Patch Changes
+
+- @visnap/protocol@0.8.0
+
 ## 0.7.0
 
 ### Patch Changes

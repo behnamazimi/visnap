@@ -1,5 +1,19 @@
 # visnap
 
+## 0.8.0
+
+### Minor Changes
+
+- df65bd0: Add visual testing scripts management to init command and implement related utilities
+
+### Patch Changes
+
+- 04cc7a3: Change init command to install @visnap/cli
+- Updated dependencies [8588abe]
+- Updated dependencies [04cc7a3]
+  - @visnap/core@0.8.0
+  - @visnap/reporter@0.8.0
+
 ## 0.7.0
 
 ### Minor Changes
