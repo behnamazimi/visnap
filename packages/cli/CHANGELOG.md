@@ -1,5 +1,14 @@
 # visnap
 
+## 0.8.1
+
+### Patch Changes
+
+- 154ca35: Testing release flow with a dummy patch version
+- Updated dependencies [154ca35]
+  - @visnap/core@0.8.1
+  - @visnap/reporter@0.8.1
+
 ## 0.8.0
 
 ### Minor Changes

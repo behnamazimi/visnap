@@ -1,5 +1,11 @@
 # @visnap/eslint-config
 
+## 0.6.1
+
+### Patch Changes
+
+- 154ca35: Testing release flow with a dummy patch version
+
 ## 0.6.0
 
 ### Minor Changes
