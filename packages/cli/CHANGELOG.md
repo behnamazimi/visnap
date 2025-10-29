@@ -1,5 +1,16 @@
 # visnap
 
+## 0.9.0
+
+### Minor Changes
+
+- 0479546: Make init smarter about gitignore for visnap
+
+### Patch Changes
+
+- @visnap/core@0.9.0
+- @visnap/reporter@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes
