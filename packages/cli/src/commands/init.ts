@@ -21,6 +21,7 @@ import {
   generateConfigFromSelection,
 } from "../utils/config-wizard";
 import { ErrorHandler } from "../utils/error-handler";
+import { ensureGitignoreEntries, isInsideGitRepo } from "../utils/git";
 import { addVisualTestScriptsToProject } from "../utils/package-script-manager";
 
 /**
@@ -136,6 +137,22 @@ const initHandler = async (_options: void): Promise<void> => {
       log.success(
         `Added ${scriptResult.added.length} visual testing script(s) to package.json`
       );
+    }
+
+    // Ensure visnap output folders are ignored by Git when inside a Git repo
+    const gitRoot = isInsideGitRepo(currentDir);
+    if (gitRoot) {
+      const { created, added } = ensureGitignoreEntries(gitRoot, [
+        "visnap/current",
+        "visnap/base",
+      ]);
+      if (created) {
+        log.success("Created .gitignore and added visnap folders to it");
+      } else if (added.length > 0) {
+        log.success(`Updated .gitignore with visnap folders`);
+      }
+    } else {
+      log.info("No Git repository detected. Skipping .gitignore update.");
     }
 
     log.plain("\n🎉 You can now customize the configuration file as needed.");
