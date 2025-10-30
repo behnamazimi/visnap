@@ -1,5 +1,12 @@
 # @visnap/core
 
+## 0.9.0
+
+### Patch Changes
+
+- @visnap/protocol@0.9.0
+- @visnap/fs-adapter@0.9.0
+
 ## 0.8.1
 
 ### Patch Changes
