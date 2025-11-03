@@ -31,21 +31,16 @@
     "figlet": "^1.7.0",
     "fuzzy": "^0.1.3",
     "inquirer": "^12.9.6",
-    "@inquirer/search": "^3.2.0",
     "inquirer-checkbox-plus-plus": "^1.1.0",
     "open": "^10.0.2",
     "ora": "^8.0.1",
-    "run-async": "^3.0.0",
-    "table": "^6.8.2",
-    "wsl-utils": "^0.1.0",
-    "default-browser": "^4.0.0"
+    "table": "^6.8.2"
   },
   "devDependencies": {
     "@types/node": "^24.9.1",
     "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^4.0.3",
     "@vitest/ui": "^4.0.6",
-    "msw": "^2.6.6",
     "tsup": "^8.3.5",
     "typescript": "5.9.3",
     "vitest": "^4.0.3"
