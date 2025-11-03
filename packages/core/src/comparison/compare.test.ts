@@ -46,11 +46,17 @@ vi.mock("pngjs", () => {
   }));
   return {
     PNG: Object.assign(
-      vi.fn().mockImplementation((options?: { width?: number; height?: number }) => ({
-        data: new Uint8Array((options?.width || 100) * (options?.height || 100) * 4),
-        width: options?.width || 100,
-        height: options?.height || 100,
-      })),
+      vi
+        .fn()
+        .mockImplementation(
+          (options?: { width?: number; height?: number }) => ({
+            data: new Uint8Array(
+              (options?.width || 100) * (options?.height || 100) * 4
+            ),
+            width: options?.width || 100,
+            height: options?.height || 100,
+          })
+        ),
       {
         bitblt: mockBitblt,
         sync: {

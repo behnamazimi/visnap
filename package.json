@@ -9,6 +9,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md}\" --ignore-path .prettierignore",
     "check-types": "turbo run check-types",
     "lint": "turbo run lint -- --fix",
+    "lint:check": "turbo run lint",
     "lint:ci": "turbo run lint",
     "test": "turbo run test --filter=!@examples/* -- --run",
     "version": "changeset version",
