@@ -1,6 +1,6 @@
 {
   "name": "@visnap/core",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Visual Testing Tool - Core library for visual regression testing",
   "type": "module",
   "main": "./dist/core.cjs",
