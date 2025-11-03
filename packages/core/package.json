@@ -27,22 +27,18 @@
     "chalk": "^5.6.2",
     "esbuild": "^0.25.0",
     "lodash": "^4.17.21",
-    "minimatch": "^10.1.1",
     "odiff-bin": "^4.0.0",
     "pixelmatch": "^7.1.0",
-    "pngjs": "^7.0.0",
-    "serve-handler": "^6.1.6"
+    "pngjs": "^7.0.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.9.1",
     "@types/pixelmatch": "^5.2.4",
     "@types/pngjs": "^6.0.4",
-    "@types/serve-handler": "^6.1.4",
     "@vitest/coverage-v8": "^4.0.3",
     "@vitest/ui": "^4.0.6",
     "@visnap/eslint-config": "*",
-    "msw": "^2.6.6",
     "tsup": "^8.3.5",
     "typescript": "5.9.3",
     "vitest": "^4.0.3"

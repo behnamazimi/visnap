@@ -1,0 +1,30 @@
+name: Knip
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  knip:
+    name: Knip Check
+    runs-on: ubuntu-22.04
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run knip
+        run: npm run knip
+        
+      - name: Run knip:dependencies
+        run: npm run knip:dependencies
+

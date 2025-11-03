@@ -1,0 +1,98 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    "apps/docs": {
+      "entry": ["app/**/*.{js,ts,tsx}", "lib/**/*.{ts,tsx}"]
+    },
+    "packages/cli": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/core": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/reporter": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/protocol": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/fs-adapter": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/playwright-adapter": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/storybook-adapter": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/url-adapter": {
+      "entry": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/eslint-config": {
+      "entry": [
+        "*.js"
+      ]
+    },
+    "examples/storybook": {
+      "entry": ["src/**/*.{js,ts,tsx}"]
+    },
+    "examples/url": {
+      "entry": []
+    }
+  },
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.next/**",
+    "**/coverage/**",
+    "**/storybook-static/**",
+    "**/visnap/**",
+    "**/*.d.ts",
+    "**/build/**",
+    "**/.turbo/**",
+    "packages/reporter/src/html/assets/alpine-app.js"
+  ],
+  "ignoreDependencies": [
+    "@types/*",
+    "@eslint/eslintrc",
+    "eslint-config-next",
+    "@visnap/playwright-adapter",
+    "@visnap/storybook-adapter",
+    "@visnap/url-adapter"
+  ],
+  "include": ["types", "exports", "classMembers", "enumMembers"],
+  "next": {
+    "entry": [
+      "app/**/*.{js,ts,jsx,tsx}",
+      "pages/**/*.{js,ts,jsx,tsx}",
+      "src/app/**/*.{js,ts,jsx,tsx}",
+      "src/pages/**/*.{js,ts,jsx,tsx}",
+      "instrumentation-client.ts",
+      "next.config.{js,mjs,ts}",
+      "middleware.{js,ts}",
+      "lib/**/*.{js,ts,tsx}",
+      "mdx-components.tsx"
+    ]
+  },
+  "typescript": {
+    "entry": [
+      "src/**/*.{ts,tsx}",
+      "*.config.{ts,js,mjs}",
+      "vitest.config.ts",
+      "tsup.config.ts"
+    ]
+  },
+  "vitest": {
+    "entry": [
+      "**/*.{test,spec}.{js,ts,tsx}",
+      "vitest.config.ts"
+    ]
+  },
+  "eslint": {
+    "config": ["eslint.config.{js,mjs}", ".eslintrc.{js,json}"]
+  },
+  "prettier": {
+    "config": [".prettierrc", ".prettierrc.{js,json}", "prettier.config.{js,mjs}"]
+  }
+}
+
