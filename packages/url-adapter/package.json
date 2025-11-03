@@ -29,7 +29,7 @@
     "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^4.0.3",
     "@vitest/expect": "^4.0.3",
-    "@vitest/ui": "^4.0.3",
+    "@vitest/ui": "^4.0.6",
     "tsup": "^8.3.5",
     "typescript": "5.9.3",
     "vitest": "^4.0.3"

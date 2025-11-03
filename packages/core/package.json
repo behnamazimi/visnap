@@ -40,7 +40,7 @@
     "@types/pngjs": "^6.0.4",
     "@types/serve-handler": "^6.1.4",
     "@vitest/coverage-v8": "^4.0.3",
-    "@vitest/ui": "^4.0.3",
+    "@vitest/ui": "^4.0.6",
     "@visnap/eslint-config": "*",
     "msw": "^2.6.6",
     "tsup": "^8.3.5",
