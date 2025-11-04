@@ -38,7 +38,7 @@
     "@visnap/protocol": "*"
   },
   "devDependencies": {
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.0",
     "@visnap/eslint-config": "^0.6.1",
     "eslint": "^9.38.0",
     "tsup": "^8.0.0",
