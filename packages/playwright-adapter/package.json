@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@visnap/protocol": "*",
-    "arktype": "^2.0.0"
+    "arktype": "^2.1.25"
   },
   "devDependencies": {
     "@types/node": "^24.10.0",
