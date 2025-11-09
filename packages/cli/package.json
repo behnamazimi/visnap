@@ -40,7 +40,7 @@
     "@types/node": "^24.10.0",
     "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^4.0.7",
-    "@vitest/ui": "^4.0.6",
+    "@vitest/ui": "^4.0.8",
     "tsup": "^8.3.5",
     "typescript": "5.9.3",
     "vitest": "^4.0.3"
