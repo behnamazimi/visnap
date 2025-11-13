@@ -1,10 +1,10 @@
 import { log } from "@visnap/core";
 import { SNAPSHOT_EXTENSION } from "@visnap/protocol";
 import chalkImport from "chalk";
+import { table } from "table";
 
 // Handle both ESM and CommonJS chalk imports
 const chalk = (chalkImport as any).default || chalkImport;
-import { table } from "table";
 
 export interface TestSummary {
   total: number;
