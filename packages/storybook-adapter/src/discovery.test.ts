@@ -8,13 +8,12 @@ import {
   createMockStorybook,
 } from "./__mocks__/test-utils";
 import { discoverCasesFromBrowser } from "./discovery";
+import { withTimeout } from "./utils";
 
 // Mock the utils module
 vi.mock("./utils.js", () => ({
   withTimeout: vi.fn(promise => promise), // Just pass through for most tests
 }));
-
-import { withTimeout } from "./utils";
 
 const mockWithTimeout = vi.mocked(withTimeout);
 
