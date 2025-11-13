@@ -43,9 +43,8 @@ export function createConcurrencyPool(options: PoolOptions) {
     let cursor = 0;
 
     async function processNextItem(): Promise<void> {
-      while (true) {
+      while (cursor < items.length) {
         const index = cursor++;
-        if (index >= items.length) return;
         const item = items[index] as T;
         results[index] = await worker(item, index);
       }

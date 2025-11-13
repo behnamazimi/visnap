@@ -73,7 +73,6 @@ export async function loadAllTestCaseAdapters(
           modulePath = adapterConfig.name;
         }
       }
-      console.log("testcase adapter modulePath", modulePath);
       const mod = await import(modulePath);
 
       if (typeof mod?.createAdapter !== "function") {
