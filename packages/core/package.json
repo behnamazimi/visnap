@@ -37,7 +37,7 @@
     "@types/pixelmatch": "^5.2.4",
     "@types/pngjs": "^6.0.4",
     "@vitest/coverage-v8": "^4.0.7",
-    "@vitest/ui": "^4.0.6",
+    "@vitest/ui": "^4.0.8",
     "@visnap/eslint-config": "*",
     "tsup": "^8.3.5",
     "typescript": "5.9.3",
