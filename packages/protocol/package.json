@@ -18,7 +18,7 @@
     "test": "echo 'No tests available for protocol package'"
   },
   "devDependencies": {
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "@visnap/eslint-config": "*",
     "tsup": "^8.3.5",
     "typescript": "5.9.3"

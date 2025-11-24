@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@storybook/react-vite": "^10.0.7",
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.1",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.2.2",
     "@visnap/cli": "*",
