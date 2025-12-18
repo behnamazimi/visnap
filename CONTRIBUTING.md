@@ -5,17 +5,20 @@ Thank you for your interest in contributing to visnap! This document provides gu
 ## Development Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/behnamazimi/visnap
    cd visnap
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Build packages**
+
    ```bash
    npm run build
    ```
@@ -39,6 +42,7 @@ Thank you for your interest in contributing to visnap! This document provides gu
 When making changes that should be released, you need to create a changeset:
 
 1. **Create a changeset** describing your changes:
+
    ```bash
    npx changeset
    ```
@@ -51,10 +55,12 @@ When making changes that should be released, you need to create a changeset:
 3. **Include the changeset file** in your PR
 
 **When to create a changeset:**
+
 - ✅ Bug fixes, new features, breaking changes
 - ❌ Internal refactoring, documentation updates, tests
 
 **Write clear descriptions:**
+
 - ✅ "Fix CLI command failing on Windows"
 - ❌ "Fix bugs"
 
@@ -85,4 +91,3 @@ This is a monorepo with the following packages:
 - `visnap` - Command-line interface
 
 All packages share the same version number (fixed versioning).
-

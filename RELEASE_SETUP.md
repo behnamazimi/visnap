@@ -65,7 +65,7 @@ Changesets work by accumulating multiple changes into a single release:
 ```
 Developer A: Creates changeset for bug fix (patch)
     ↓
-Developer B: Creates changeset for new feature (minor)  
+Developer B: Creates changeset for new feature (minor)
     ↓
 Developer C: Creates changeset for another fix (patch)
     ↓
@@ -100,6 +100,7 @@ This is why the PR shows actual file changes - the package.json and CHANGELOG.md
 **Key Rule:** The version bump uses the **highest bump type** among all pending changesets.
 
 Examples:
+
 - 3 patch changesets → 0.5.1 → 0.5.2 (patch bump)
 - 2 patch + 1 minor changeset → 0.5.1 → 0.6.0 (minor bump)
 - 1 patch + 1 minor + 1 major → 0.5.1 → 1.0.0 (major bump)
@@ -111,30 +112,33 @@ Examples:
 You can choose how to handle the "Version Packages" PR:
 
 **Frequent Releases (Immediate):**
+
 - Merge the PR as soon as it's created
 - Users get fixes faster
 - More npm noise, version numbers increment quickly
 
 **Milestone Releases (Batched):**
+
 - Hold the PR until you have multiple changes ready
 - More meaningful version numbers and release notes
 - Users wait longer for fixes
 
 **Hybrid Approach:**
+
 - Patch releases → frequent (bug fixes)
-- Minor releases → batched (new features)  
+- Minor releases → batched (new features)
 - Major releases → planned carefully (breaking changes)
 
 ### Quick Reference
 
-| Action | Result |
-|--------|--------|
-| Create changeset | File added to `.changeset/` folder |
-| Push to main | GitHub Action runs `changeset version` |
-| `changeset version` runs | Updates package.json files with new versions |
-| "Version Packages" PR | Contains actual version updates to package.json |
-| Multiple changesets pushed | Same PR updated (accumulates changes) |
-| Merge "Version Packages" PR | ONE release, ONE version bump for all packages |
+| Action                      | Result                                          |
+| --------------------------- | ----------------------------------------------- |
+| Create changeset            | File added to `.changeset/` folder              |
+| Push to main                | GitHub Action runs `changeset version`          |
+| `changeset version` runs    | Updates package.json files with new versions    |
+| "Version Packages" PR       | Contains actual version updates to package.json |
+| Multiple changesets pushed  | Same PR updated (accumulates changes)           |
+| Merge "Version Packages" PR | ONE release, ONE version bump for all packages  |
 
 ## Manual Release (Emergency)
 
@@ -156,7 +160,7 @@ npm run release
 - **"NPM_TOKEN not found"**: Check that the secret is properly set in GitHub
 - **"Permission denied"**: Verify your npm token has publish access to `@visnap` scope
 - **"Package not found"**: Ensure all packages are built before publishing
-- **"Resource not accessible by integration"** or **"GitHub Actions is not permitted to create pull requests"**: 
+- **"Resource not accessible by integration"** or **"GitHub Actions is not permitted to create pull requests"**:
   - Go to Settings → Actions → General → Workflow permissions
   - Select "Read and write permissions"
   - Check "Allow GitHub Actions to create and approve pull requests"

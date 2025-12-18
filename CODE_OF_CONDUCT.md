@@ -21,6 +21,7 @@ We want ViSnap to be a welcoming place for everyone. Whether you're contributing
 ## Enforcement
 
 If someone violates these guidelines, we may:
+
 1. Give a private warning
 2. Temporarily restrict access
 3. Permanently ban from the community
@@ -35,4 +36,4 @@ If you have questions about this code of conduct, feel free to reach out to the 
 
 ---
 
-*This code of conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/).*
+_This code of conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/)._

@@ -94,7 +94,6 @@ export type TestCaseInstance = BaseTestCaseInstance;
  * This allows the instance to be assignable to TestCaseMeta when needed
  */
 export interface TestCaseInstanceMeta
-  extends BaseTestCaseMeta,
-    BaseTestCaseInstance {
+  extends BaseTestCaseMeta, BaseTestCaseInstance {
   visualTesting?: TestCaseVisualConfig;
 }

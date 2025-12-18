@@ -12,22 +12,26 @@ A visual regression testing tool organized as a monorepo. ViSnap captures and co
 This monorepo contains several packages that work together to provide visual regression testing:
 
 ### Core Packages
+
 - **`@visnap/protocol`** - Shared types and interfaces used across all packages
 - **`@visnap/core`** - Main orchestration engine that manages test execution and coordinates between adapters
 - **`@visnap/cli`** - Command-line interface for end users
 - **`@visnap/reporter`** - Generates HTML and JSON reports from test results
 
 ### Adapters
+
 - **`@visnap/storybook-adapter`** - Tests individual Storybook components and stories
 - **`@visnap/url-adapter`** - Tests any web page or application by URL
 - **`@visnap/playwright-adapter`** - Browser automation layer using Playwright
 - **`@visnap/fs-adapter`** - Filesystem storage for screenshots and test data
 
 ### Apps & Examples
+
 - **`apps/docs`** - Documentation site at [visnap.dev](https://visnap.dev)
 - **`examples/*`** - Example projects showing ViSnap integration
 
 ### Shared Configuration
+
 - **`packages/eslint-config`** - Shared ESLint configuration for all packages
 
 ## Getting Started
