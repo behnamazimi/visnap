@@ -30,10 +30,10 @@
     "@visnap/protocol": "*"
   },
   "devDependencies": {
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.4",
     "typescript": "5.9.3",
-    "tsup": "^8.3.5",
-    "vitest": "^4.0.8"
+    "tsup": "^8.5.1",
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=18"

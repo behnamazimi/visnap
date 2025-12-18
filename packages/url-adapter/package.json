@@ -21,17 +21,17 @@
   },
   "dependencies": {
     "@visnap/protocol": "*",
-    "arktype": "^2.1.25",
+    "arktype": "^2.1.29",
     "minimatch": "^10.1.1"
   },
   "devDependencies": {
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.4",
     "@visnap/eslint-config": "*",
-    "@vitest/coverage-v8": "^4.0.7",
-    "@vitest/ui": "^4.0.8",
-    "tsup": "^8.3.5",
+    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
+    "tsup": "^8.5.1",
     "typescript": "5.9.3",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.16"
   },
   "exports": {
     ".": {

@@ -17,23 +17,23 @@
     "visnap:open": "visnap open"
   },
   "dependencies": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
-    "@storybook/react-vite": "^10.0.7",
-    "@types/node": "^24.10.0",
-    "@types/react": "^19.1.16",
-    "@types/react-dom": "^19.2.2",
+    "@storybook/react-vite": "^10.1.10",
+    "@types/node": "^24.10.4",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
     "@visnap/cli": "*",
     "@visnap/eslint-config": "*",
     "@visnap/playwright-adapter": "*",
     "@visnap/storybook-adapter": "*",
-    "@vitejs/plugin-react": "^5.1.0",
-    "storybook": "^10.0.7",
+    "@vitejs/plugin-react": "^5.1.2",
+    "storybook": "^10.1.10",
     "typescript": "~5.9.3",
     "visnap": "^0.6.0",
-    "vite": "^7.1.12"
+    "vite": "^7.3.0"
   },
   "engines": {
     "node": ">=18"

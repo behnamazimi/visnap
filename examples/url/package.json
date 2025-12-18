@@ -14,7 +14,7 @@
     "@visnap/playwright-adapter": "*",
     "@visnap/url-adapter": "*",
     "@visnap/cli": "*",
-    "vite": "^7.1.12"
+    "vite": "^7.3.0"
   },
   "engines": {
     "node": ">=18"
