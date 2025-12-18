@@ -20,17 +20,17 @@
     "prepare": "husky"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.1",
+    "@changesets/cli": "^2.29.8",
     "husky": "^9.1.7",
-    "knip": "^5.68.0",
-    "prettier": "^3.6.2",
-    "turbo": "^2.6.1",
+    "knip": "^5.75.1",
+    "prettier": "^3.7.4",
+    "turbo": "^2.6.3",
     "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "npm@10.9.2",
+  "packageManager": "npm@11.7.0",
   "workspaces": [
     "packages/*",
     "apps/*",
