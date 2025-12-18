@@ -38,12 +38,12 @@
     "@visnap/protocol": "*"
   },
   "devDependencies": {
-    "@types/node": "^24.10.0",
+    "@types/node": "^24.10.4",
     "@visnap/eslint-config": "^0.6.1",
-    "eslint": "^9.39.1",
-    "tsup": "^8.0.0",
+    "eslint": "^9.39.2",
+    "tsup": "^8.5.1",
     "typescript": "5.9.3",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=18"
