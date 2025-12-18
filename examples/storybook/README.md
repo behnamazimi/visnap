@@ -5,6 +5,7 @@ Storybook setup demonstrating ViSnap visual testing capabilities.
 ## What it demonstrates
 
 This example shows:
+
 - Storybook 8+ configuration
 - ViSnap setup
 - Sample components with different states
@@ -13,11 +14,13 @@ This example shows:
 ## How to run
 
 1. Install dependencies:
+
    ```bash
    npm install
    ```
 
 2. Build Storybook:
+
    ```bash
    npm run build-storybook
    ```

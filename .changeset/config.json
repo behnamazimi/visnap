@@ -5,7 +5,7 @@
   "fixed": [
     [
       "@visnap/protocol",
-      "@visnap/playwright-adapter", 
+      "@visnap/playwright-adapter",
       "@visnap/storybook-adapter",
       "@visnap/url-adapter",
       "@visnap/core",
@@ -18,8 +18,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "@visnap/docs",
-    "@examples/*"
-  ]
+  "ignore": ["@visnap/docs", "@examples/*"]
 }

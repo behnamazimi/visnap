@@ -1,41 +1,45 @@
-import Link from 'next/link';
-import { Github, BookOpen } from 'lucide-react';
-import Image from 'next/image';
-import AnimatedBlobs from './animated-blobs';
+import Link from "next/link";
+import { Github, BookOpen } from "lucide-react";
+import Image from "next/image";
+import AnimatedBlobs from "./animated-blobs";
 
 export default function HomePage() {
   return (
     <main className="relative flex flex-1 flex-col justify-center text-center px-4 py-16 md:py-32 overflow-hidden">
       <AnimatedBlobs />
-      
+
       {/* Grid background with fade effect - Light mode (black grid) */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.04] dark:hidden"
         style={{
           backgroundImage: `
             linear-gradient(rgba(0, 0, 0, 1) 1px, transparent 1px),
             linear-gradient(90deg, rgba(0, 0, 0, 1) 1px, transparent 1px)
           `,
-          backgroundSize: '20px 20px',
-          maskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
+          backgroundSize: "20px 20px",
+          maskImage:
+            "radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)",
         }}
       />
-      
+
       {/* Grid background with fade effect - Dark mode (white grid) */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.02] hidden dark:block"
         style={{
           backgroundImage: `
             linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px),
             linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)
           `,
-          backgroundSize: '20px 20px',
-          maskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
-          WebkitMaskImage: 'radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)',
+          backgroundSize: "20px 20px",
+          maskImage:
+            "radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 80% 50% at 50% 50%, black 40%, transparent 100%)",
         }}
       />
-      
+
       <div className="relative mx-auto max-w-2xl">
         <div className="mb-6 flex justify-center">
           <Image
@@ -57,11 +61,15 @@ export default function HomePage() {
             priority
           />
         </div>
-        <h1 className="mb-3 text-3xl font-semibold tracking-tight">See visual changes before you merge</h1>
+        <h1 className="mb-3 text-3xl font-semibold tracking-tight">
+          See visual changes before you merge
+        </h1>
         <p className="mb-8 text-lg text-fd-muted-foreground">
-          ViSnap takes screenshots of your UI, compares them to a baseline, and highlights what changed. Fast feedback for layout, color, and spacing regressions.
+          ViSnap takes screenshots of your UI, compares them to a baseline, and
+          highlights what changed. Fast feedback for layout, color, and spacing
+          regressions.
         </p>
-        
+
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/docs/getting-started"

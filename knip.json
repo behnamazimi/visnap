@@ -29,9 +29,7 @@
       "entry": ["src/**/*.{ts,tsx}"]
     },
     "packages/eslint-config": {
-      "entry": [
-        "*.js"
-      ]
+      "entry": ["*.js"]
     },
     "examples/storybook": {
       "entry": ["src/**/*.{js,ts,tsx}"]
@@ -83,16 +81,16 @@
     ]
   },
   "vitest": {
-    "entry": [
-      "**/*.{test,spec}.{js,ts,tsx}",
-      "vitest.config.ts"
-    ]
+    "entry": ["**/*.{test,spec}.{js,ts,tsx}", "vitest.config.ts"]
   },
   "eslint": {
     "config": ["eslint.config.{js,mjs}", ".eslintrc.{js,json}"]
   },
   "prettier": {
-    "config": [".prettierrc", ".prettierrc.{js,json}", "prettier.config.{js,mjs}"]
+    "config": [
+      ".prettierrc",
+      ".prettierrc.{js,json}",
+      "prettier.config.{js,mjs}"
+    ]
   }
 }
-

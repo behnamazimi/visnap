@@ -17,8 +17,7 @@ import { selectTestCasesInteractively } from "../utils/interactive-selector";
 import { createSpinner, shouldUseSpinner } from "../utils/spinner";
 
 interface UpdateCommandOptions
-  extends Partial<VisualTestingToolConfig>,
-    CliOptions {
+  extends Partial<VisualTestingToolConfig>, CliOptions {
   docker?: boolean;
   config?: string;
   interactive?: boolean;

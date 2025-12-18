@@ -11,29 +11,29 @@ This package provides a filesystem-based implementation of the `StorageAdapter` 
 ## Usage
 
 ```typescript
-import { FsStorageAdapter } from '@visnap/fs-adapter';
+import { FsStorageAdapter } from "@visnap/fs-adapter";
 
 const adapter = new FsStorageAdapter({
-  screenshotDir: './visnap',
-  baseDirName: 'base',      // optional, defaults to 'base'
-  currentDirName: 'current', // optional, defaults to 'current'
-  diffDirName: 'diff'       // optional, defaults to 'diff'
+  screenshotDir: "./visnap",
+  baseDirName: "base", // optional, defaults to 'base'
+  currentDirName: "current", // optional, defaults to 'current'
+  diffDirName: "diff", // optional, defaults to 'diff'
 });
 
 // Write a screenshot
-await adapter.write('base', 'my-test.png', buffer);
+await adapter.write("base", "my-test.png", buffer);
 
 // Read a screenshot
-const buffer = await adapter.read('base', 'my-test.png');
+const buffer = await adapter.read("base", "my-test.png");
 
 // Get file path for comparison engines
-const path = await adapter.getReadablePath('base', 'my-test.png');
+const path = await adapter.getReadablePath("base", "my-test.png");
 
 // Check if file exists
-const exists = await adapter.exists('base', 'my-test.png');
+const exists = await adapter.exists("base", "my-test.png");
 
 // List all PNG files in a directory
-const files = await adapter.list('base');
+const files = await adapter.list("base");
 ```
 
 #### Options

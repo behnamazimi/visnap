@@ -16,17 +16,17 @@ const config: VisualTestingToolConfig = {
             {
               id: "home",
               url: "http://localhost:5174/",
-              title: "Home Page"
+              title: "Home Page",
             },
             {
               id: "about",
               url: "http://localhost:5174/about.html",
-              title: "About Page"
+              title: "About Page",
             },
             {
               id: "contact",
               url: "http://localhost:5174/contact.html",
-              title: "Contact Page"
+              title: "Contact Page",
             },
           ],
         },
