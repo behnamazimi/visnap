@@ -28,7 +28,7 @@
     "arktype": "^2.1.29"
   },
   "devDependencies": {
-    "@types/node": "^24.10.4",
+    "@types/node": "^25.0.3",
     "@visnap/eslint-config": "*",
     "@vitest/coverage-v8": "^4.0.16",
     "@vitest/ui": "^4.0.16",
