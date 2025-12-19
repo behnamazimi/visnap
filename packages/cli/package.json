@@ -30,7 +30,7 @@
     "commander": "^14.0.2",
     "figlet": "^1.9.4",
     "fuzzy": "^0.1.3",
-    "inquirer": "^12.11.1",
+    "inquirer": "^13.1.0",
     "inquirer-checkbox-plus-plus": "^1.1.1",
     "open": "^10.2.0",
     "ora": "^8.2.0",
